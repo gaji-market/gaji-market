@@ -1,13 +1,13 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
-import styled from "styled-components";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import styled from 'styled-components';
 
 export default function AppBar() {
 	return (
 		<StyledWrapper>
-			<NavLink to="/">HOME</NavLink>
-			<NavLink to="/test">TEST</NavLink>
-			<NavLink to="/login">Login</NavLink>
+			<NavLink to='/'>HOME</NavLink>
+			<NavLink to='/test'>TEST</NavLink>
+			<NavLink to='/login'>Login</NavLink>
 		</StyledWrapper>
 	);
 }

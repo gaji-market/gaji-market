@@ -1,15 +1,15 @@
-import { Route, Routes } from "react-router-dom";
-import Layout from "../layouts/Layout";
+import { Route, Routes } from 'react-router-dom';
+import Layout from '../layouts/Layout';
 
-import { Home, Test } from "../pages";
+import { Home, Test } from '../pages';
 
 export default function index() {
 	return (
 		<Routes>
 			<Route element={<Layout />}>
-				<Route path="/" element={<Home />} />
-				<Route path="/test" element={<Test />} />
-				<Route path="/login" element={<Test />} />
+				<Route path='/' element={<Home />} />
+				<Route path='/test' element={<Test />} />
+				<Route path='/login' element={<Test />} />
 			</Route>
 		</Routes>
 	);

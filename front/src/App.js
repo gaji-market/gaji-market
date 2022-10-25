@@ -1,7 +1,7 @@
-import { StrictMode } from "react";
-import { BrowserRouter } from "react-router-dom";
-import AppBar from "./layouts/AppBar";
-import Router from "./routes";
+import { StrictMode } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import AppBar from './layouts/AppBar';
+import Router from './routes';
 
 function App() {
 	return (
