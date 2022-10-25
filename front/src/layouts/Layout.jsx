@@ -10,7 +10,6 @@ export default function Layout() {
 }
 
 const Container = styled.div`
-	border: 1px solid black;
 	background: #f8f8f8;
 	width: 1200px;
 	margin: 0 auto;
