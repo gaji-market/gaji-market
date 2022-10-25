@@ -4,14 +4,14 @@ import AppBar from './layouts/AppBar';
 import Router from './routes';
 
 function App() {
-  return (
-    <StrictMode>
-      <BrowserRouter>
-        <AppBar />
-        <Router />
-      </BrowserRouter>
-    </StrictMode>
-  );
+	return (
+		<StrictMode>
+			<BrowserRouter>
+				<AppBar />
+				<Router />
+			</BrowserRouter>
+		</StrictMode>
+	);
 }
 
 export default App;
