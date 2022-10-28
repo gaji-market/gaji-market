@@ -18,6 +18,6 @@ const StyledWrapper = styled.div`
 	align-items: center;
 	justify-content: end;
 	padding: 16px;
-	height: 5vh;
+	height: 56px;
 	border-bottom: 1px solid purple;
 `;
