@@ -7,7 +7,6 @@ function App() {
 	return (
 		<StrictMode>
 			<BrowserRouter>
-				<AppBar />
 				<Router />
 			</BrowserRouter>
 		</StrictMode>
