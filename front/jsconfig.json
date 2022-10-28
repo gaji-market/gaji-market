@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2020",
+    "jsx": "preserve",
+    "strictFunctionTypes": true,
+    "baseUrl": "src"
+  },
+  "exclude": ["node_modules", "**/node_modules/*"]
+}
