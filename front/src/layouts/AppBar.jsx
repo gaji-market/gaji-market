@@ -20,4 +20,5 @@ const StyledWrapper = styled.div`
   padding: 16px;
   height: 56px;
   border-bottom: 1px solid purple;
+  box-sizing: border-box;
 `;
