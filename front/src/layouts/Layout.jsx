@@ -16,5 +16,5 @@ export default function Layout() {
 const Container = styled.div`
 	width: 1200px;
 	margin: 0 auto;
-	min-height: 95vh;
+	height: calc(100vh - 56px);
 `;

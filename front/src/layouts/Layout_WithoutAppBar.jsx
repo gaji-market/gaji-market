@@ -12,5 +12,5 @@ export default function Layout_WithoutAppBar() {
 const Container = styled.div`
 	width: 1200px;
 	margin: 0 auto;
-	min-height: 91vh;
+	height: 100vh;
 `;
