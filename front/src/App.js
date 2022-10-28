@@ -1,16 +1,12 @@
-import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import AppBar from './layouts/AppBar';
-import Router from './routes';
+import Router from 'routes';
 
 function App() {
-	return (
-		<StrictMode>
-			<BrowserRouter>
-				<Router />
-			</BrowserRouter>
-		</StrictMode>
-	);
+  return (
+    <BrowserRouter>
+      <Router />
+    </BrowserRouter>
+  );
 }
 
 export default App;
