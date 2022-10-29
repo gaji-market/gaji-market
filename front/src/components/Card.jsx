@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
+import StateBadge from './StateBadge';
 
 const TEMP_IMG_URL =
   'https://png.pngtree.com/element_our/20190528/ourlarge/pngtree-cartoon-eggplant-image_1128846.jpg';
@@ -32,6 +33,7 @@ export default function Card({ productImage, title, price, area, likes }) {
             <NoImage />
           </>
         )}
+        <StateBadge text='판매중' />
       </CardHead>
       <CardBody>
         <CardTitle>{title}</CardTitle>
