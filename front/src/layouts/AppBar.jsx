@@ -7,6 +7,7 @@ export default function AppBar() {
     <StyledWrapper>
       <NavLink to='/'>HOME</NavLink>
       <NavLink to='/test'>TEST</NavLink>
+      <NavLink to='/test/slice'>STORE</NavLink>
       <NavLink to='/login'>Login</NavLink>
     </StyledWrapper>
   );
