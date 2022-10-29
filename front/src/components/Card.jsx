@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 
 const TEMP_IMG_URL =
   'https://png.pngtree.com/element_our/20190528/ourlarge/pngtree-cartoon-eggplant-image_1128846.jpg';
 
 export default function Card({ productImage, title, price, area, likes }) {
+  const [fillHeart, setFillHeart] = useState(false);
+
+  const onClickHeart = () => {
+    setFillHeart((prevState) => {
+      return !prevState;
+    });
+  };
+
   return (
     <CardContainer>
       <CardHead>
@@ -30,8 +39,14 @@ export default function Card({ productImage, title, price, area, likes }) {
           <PriceText>{price}원</PriceText>
           <SubContent>
             <AreaText>{area}</AreaText>
-            <LikeIcon>❤</LikeIcon>
-            <Likes>{likes}</Likes>
+            <LikeContainer>
+              {fillHeart ? (
+                <FillHeartIcon onClick={onClickHeart} />
+              ) : (
+                <HeartIcon onClick={onClickHeart} />
+              )}
+              <LikeCount>{likes}</LikeCount>
+            </LikeContainer>
           </SubContent>
         </CardContent>
       </CardBody>
@@ -90,14 +105,20 @@ const AreaText = styled.p`
   font-size: 13px;
 `;
 
-/* 임시 Like 아이콘 */
-const LikeIcon = styled.p`
-  position: absolute;
-  right: 45px;
+const LikeContainer = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+const HeartIcon = styled(AiOutlineHeart)`
   cursor: pointer;
 `;
 
-const Likes = styled.p`
+const FillHeartIcon = styled(AiFillHeart)`
+  cursor: pointer;
+`;
+
+const LikeCount = styled.p`
   font-size: 13px;
 `;
 
