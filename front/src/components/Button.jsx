@@ -1,7 +1,12 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-export default function Button({ children, isOutline, btnSize, customSize }) {
+export default function Button({
+  children,
+  customSize,
+  isOutline,
+  btnSize = 'md',
+}) {
   return (
     <ButtonStyles
       isOutline={isOutline}
@@ -22,7 +27,6 @@ const ButtonStyles = styled.button`
   font-size: 16px;
   font-weight: 700;
   padding: 8px;
-  width: ${(props) => props.customSize};
   transition: all 0.2s;
 
   ${(props) =>
@@ -33,20 +37,22 @@ const ButtonStyles = styled.button`
     `}
 
   ${(props) => {
-    if (props.btnSize === 'small') {
+    if (props.btnSize === 'sm') {
       return css`
         width: 100px;
       `;
-    } else if (props.btnSize === 'middle') {
+    } else if (props.btnSize === 'md') {
       return css`
         width: 200px;
       `;
-    } else if (props.btnSize === 'large') {
+    } else if (props.btnSize === 'lg') {
       return css`
         width: 400px;
       `;
     }
   }};
+
+  width: ${(props) => props.customSize};
 
   &:hover {
     background: ${(props) => (props.isOutline ? '#E9DCFF50' : '#843DE0')};
