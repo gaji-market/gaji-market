@@ -1,5 +1,4 @@
 import React from 'react';
-import { useEffect } from 'react';
 import styled from 'styled-components';
 
 export default function InputBox({ title, placeholder, subTitle, value, setVaule, ClickHander }) {
@@ -7,7 +6,7 @@ export default function InputBox({ title, placeholder, subTitle, value, setVaule
     <>
       <Text>
         <InputTitle>
-          <span style={{ color: 'purple', marginRight: '5px' }}>*</span>
+          <StarIcon>*</StarIcon>
           {title}
         </InputTitle>
         <InputSubTitle>{subTitle}</InputSubTitle>
@@ -31,6 +30,10 @@ const Input = styled.input`
   &:focus {
     outline: 1px solid purple;
   }
+`;
+const StarIcon = styled.span`
+  color: purple;
+  margin-right: 5px;
 `;
 const InputTitle = styled.div`
   font-weight: 800;
