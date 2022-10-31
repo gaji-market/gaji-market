@@ -11,5 +11,5 @@ export default function getAddress(data) {
     }
     fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
   }
-  return fullAddress
+  return fullAddress;
 }
