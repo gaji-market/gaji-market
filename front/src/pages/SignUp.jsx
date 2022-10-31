@@ -19,7 +19,6 @@ export default function SignUp() {
 
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
-    console.log(fullAddress);
     setAddress(fullAddress);
   };
 
@@ -64,7 +63,7 @@ export default function SignUp() {
           value={address}
           setVaule={setAddress}
           ClickHander={() => open({ onComplete: handleComplete })}
-          subTitle={'주소를 입력하고 싶으면 밑을 누르세요.'}
+          subTitle={'주소를 입력하세요.'}
         />
         <InputBox
           title={'상세주소'}
@@ -112,14 +111,14 @@ const SubTitle = styled.p`
   padding-top: 7px;
   font-size: 10px;
   vertical-align: bottom;
-  color: gray;
+  color: #9a9a9a;
 `;
 const SignUpHead = styled.div`
   display: flex;
 `;
 const Raido = styled.input``;
 const Line = styled.div`
-  border: 1px solid gray;
+  border-bottom: 1px solid #eeeeee;
   margin-top: 15px;
   width: 500px;
 `;
