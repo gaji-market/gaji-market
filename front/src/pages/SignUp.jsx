@@ -36,12 +36,12 @@ export default function SignUp() {
       <InputBox title={"상세주소"} placeholder={"AddressDetail"} value={addressDetail} setVaule={setAddressDetail} subTitle={"상세 주소를 입력해주세요."} />
       <FlexBox>
         <FlexItem >
-          <Title>생년월일</Title>
+          <Title margin={"20px"}>생년월일</Title>
           <Date type="date" id="start" name="trip-start" ></Date>
         </FlexItem>
 
         <FlexItem margin={"100px"}>
-          <Title>성별</Title>
+          <Title margin={"10px"}>성별</Title>
           <Raido type="radio" name="gender" value="남자" />남자
           <Raido type="radio" name="gender" value="여자" />여자
         </FlexItem>
