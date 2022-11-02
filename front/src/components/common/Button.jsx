@@ -6,13 +6,13 @@ export default function Button({
   children,
   customSize,
   isOutline,
-  btnSize = 'md',
+  size = 'md',
   isDarkColor = false,
 }) {
   return (
     <ButtonStyles
       isOutline={isOutline}
-      btnSize={btnSize}
+      size={size}
       customSize={customSize}
       isDarkColor={isDarkColor}
     >
@@ -32,59 +32,56 @@ const ButtonStyles = styled.button`
   padding: 8px;
   transition: all 0.2s;
 
-  ${(props) =>
-    props.isDarkColor &&
+  ${({ isDarkColor }) =>
+    isDarkColor &&
     css`
       background: ${SUB_COLOR};
       border: 3px solid ${SUB_COLOR};
     `}
 
-  ${(props) =>
-    props.isOutline &&
+  ${({ isOutline }) =>
+    isOutline &&
     css`
       background: ${WHITE_COLOR};
       color: ${PRIMARY_COLOR};
     `}
 
-  ${(props) =>
-    props.isOutline &&
-    props.isDarkColor &&
+  ${({ isOutline, isDarkColor }) =>
+    isOutline &&
+    isDarkColor &&
     css`
       background: ${WHITE_COLOR};
       color: ${SUB_COLOR};
       border: 3px solid ${SUB_COLOR};
     `}
 
-  ${(props) => {
-    if (props.btnSize === 'sm') {
+  ${({ size }) => {
+    if (size === 'sm') {
       return css`
         width: 100px;
       `;
-    } else if (props.btnSize === 'md') {
+    } else if (size === 'md') {
       return css`
         width: 200px;
       `;
-    } else if (props.btnSize === 'lg') {
+    } else if (size === 'lg') {
       return css`
         width: 400px;
       `;
     }
   }};
 
-  width: ${(props) => props.customSize};
+  width: ${({ customSize }) => customSize};
 
   &:hover {
-    // 아웃라인 버튼
-    background: ${(props) => (props.isOutline ? '#E9DCFF50' : '#843DE0')};
-    border: ${(props) => !props.isOutline && '3px solid #843DE0'};
+    background: ${({ isOutline }) => (isOutline ? '#E9DCFF50' : '#843DE0')};
+    border: ${({ isOutline }) => !isOutline && '3px solid #843DE0'};
 
-    // 다크그레이 버튼
-    background: ${(props) => props.isDarkColor && '#222222'};
-    border: ${(props) => props.isDarkColor && '3px solid #222222'};
-    color: ${(props) => props.isDarkColor && `${WHITE_COLOR}`};
+    background: ${({ isDarkColor }) => isDarkColor && '#222222'};
+    border: ${({ isDarkColor }) => isDarkColor && '3px solid #222222'};
+    color: ${({ isDarkColor }) => isDarkColor && `${WHITE_COLOR}`};
 
-    // 아웃라인 + 다크그레이 버튼
-    background: ${(props) => props.isDarkColor && props.isOutline && '#F3F3F3'};
-    color: ${(props) => props.isDarkColor && props.isOutline && `${SUB_COLOR}`};
+    background: ${({ isDarkColor, isOutline }) => isDarkColor && isOutline && '#F3F3F3'};
+    color: ${({ isDarkColor, isOutline }) => isDarkColor && isOutline && `${SUB_COLOR}`};
   }
 `;
