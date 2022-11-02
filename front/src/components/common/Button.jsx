@@ -2,6 +2,12 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { PRIMARY_COLOR, WHITE_COLOR, SUB_COLOR } from './commonColor';
 
+const BUTTON_SIZE = {
+  sm: '100px',
+  md: '200px',
+  lg: '400px',
+};
+
 export default function Button({
   children,
   customSize,
@@ -56,19 +62,9 @@ const ButtonStyles = styled.button`
     `}
 
   ${({ size }) => {
-    if (size === 'sm') {
-      return css`
-        width: 100px;
-      `;
-    } else if (size === 'md') {
-      return css`
-        width: 200px;
-      `;
-    } else if (size === 'lg') {
-      return css`
-        width: 400px;
-      `;
-    }
+    return css`
+      width: ${BUTTON_SIZE[size]};
+    `;
   }};
 
   width: ${({ customSize }) => customSize};
