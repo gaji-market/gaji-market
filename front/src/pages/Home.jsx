@@ -8,11 +8,11 @@ export default function Home() {
       <div>Home</div>
       <Card title='title' price='123,000' area='서울시 동작구' likes='0' />
       <Button>basic</Button>
-      <Button btnSize='sm' isDarkColor>
+      <Button size='sm' isDarkColor>
         sm
       </Button>
       <Button isOutline>outline</Button>
-      <Button isOutline isDarkColor={true}>
+      <Button isOutline isDarkColor>
         outline - dark
       </Button>
       <Button isDarkColor customSize='700px'>
