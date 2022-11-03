@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export default function InputBox({ title, placeholder, subTitle, value, setVaule, ClickHander }) {
+export default function InputBox({ title, placeholder, subTitle, value, setVaule, clickHandler }) {
   return (
     <>
       <Text>
@@ -12,7 +12,7 @@ export default function InputBox({ title, placeholder, subTitle, value, setVaule
         <InputSubTitle>{subTitle}</InputSubTitle>
       </Text>
       <Input
-        onClick={ClickHander}
+        onClick={clickHandler}
         value={value}
         onChange={(e) => setVaule(e.target.value)}
         placeholder={`Enter User ${placeholder}`}

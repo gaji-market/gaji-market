@@ -62,7 +62,7 @@ export default function SignUp() {
           placeholder={'Address'}
           value={address}
           setVaule={setAddress}
-          ClickHander={() => open({ onComplete: handleComplete })}
+          clickHandler={() => open({ onComplete: handleComplete })}
           subTitle={'주소를 입력하세요.'}
         />
         <InputBox
