@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
-import { Home, Login, Test, SliceTest, SignUp } from 'pages';
+import { Home, Login, Test, SliceTest, SignUp, ProductView } from 'pages';
 
 export default function index() {
   return (
@@ -10,6 +10,7 @@ export default function index() {
         <Route path='/' element={<Home />} />
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
+        <Route path='/products' element={<ProductView />} />
       </Route>
       <Route element={<LayoutWithoutBar />}>
         <Route path='/login' element={<Login />} />
