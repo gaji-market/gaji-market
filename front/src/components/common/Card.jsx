@@ -64,6 +64,11 @@ const CardContainer = styled.div`
   overflow: hidden;
   color: #7353ab;
   margin: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    scale: 1.02;
+  }
 `;
 
 const CardHead = styled.div`
