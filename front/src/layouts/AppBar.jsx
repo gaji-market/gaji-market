@@ -9,6 +9,7 @@ export default function AppBar() {
       <NavLink to='/test'>TEST</NavLink>
       <NavLink to='/test/slice'>STORE</NavLink>
       <NavLink to='/login'>Login</NavLink>
+      <NavLink to='/SignUp'>SignUp</NavLink>
     </StyledWrapper>
   );
 }
