@@ -1,6 +1,7 @@
 import Card from 'components/common/Card';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import PlusButton from '../components/common/PlusButton';
 
 export default function ProductView() {
   return (
@@ -9,6 +10,7 @@ export default function ProductView() {
         <Title>신규 판매중 상품</Title>
         <SubText>따끈따끈! 판매중인 신규 상품 목록이에요.</SubText>
       </Header>
+
       <CardContainer>
         {Array(20)
           .fill()
@@ -25,12 +27,14 @@ export default function ProductView() {
           })}
         <div></div>
       </CardContainer>
+      <PlusButton />
     </Container>
   );
 }
 
 const Container = styled.div`
   width: 1200px;
+  position: relative;
 `;
 
 const Header = styled.div`
