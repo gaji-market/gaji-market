@@ -19,7 +19,7 @@ export default function AppBar() {
   return (
     <StyledWrapper>
       <ItemGroup>
-        <GiHamburgerMenu size={24} color='var(--color-primary)' />
+        <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
         <span>LOGO</span>
       </ItemGroup>
       <ItemGroup>
@@ -31,8 +31,8 @@ export default function AppBar() {
 
         {isLoggedIn ? (
           <>
-            <HiBellAlert size={24} color='var(--color-primary)' />
-            <HiUserCircle size={24} color='var(--color-primary)' />
+            <HiBellAlert size={24} color={PRIMARY_COLOR} />
+            <HiUserCircle size={24} color={PRIMARY_COLOR} />
             <span>UserID</span>
           </>
         ) : (
@@ -43,7 +43,7 @@ export default function AppBar() {
         )}
         <TempNavigation>
           <summary>
-            <FiMoreHorizontal size={24} color='var(--color-primary)' />
+            <FiMoreHorizontal size={24} color={PRIMARY_COLOR} />
           </summary>
           <div>
             <NavLink to='/'>HOME</NavLink>
