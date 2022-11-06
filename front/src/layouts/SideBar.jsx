@@ -22,7 +22,7 @@ export default function SideBar() {
     }
   };
 
-  const setSecond = (id, thirdNull) => {
+  const secondItemsHandler = (id, thirdNull) => {
     if (thirdNull) {
       setThirdItems(null);
     }
@@ -32,7 +32,7 @@ export default function SideBar() {
         <CategoryItem
           key={`${id}_second_${i}`}
           className={focusedSecond === `${id}_second_${i}` ? 'highlight' : ''}
-          onMouseEnter={() => setThird(`${id}_second_${i}`)}
+          onMouseEnter={() => thirdItemsHandler(`${id}_second_${i}`)}
         >
           second_{i}
         </CategoryItem>
@@ -40,7 +40,7 @@ export default function SideBar() {
     );
   };
 
-  const setThird = (id) => {
+  const thirdItemsHandler = (id) => {
     setFocusedItems(([fir, _]) => [fir, id]);
     setThirdItems(
       Array.from(new Array(10)).map((_, i) => (
@@ -56,7 +56,7 @@ export default function SideBar() {
 
   useEffect(() => {
     if (focusedSecond) {
-      setSecond(focusedFirst);
+      secondItemsHandler(focusedFirst);
     }
   }, [focusedSecond]);
 
@@ -72,7 +72,7 @@ export default function SideBar() {
             <CategoryItem
               key={`first_${i}`}
               className={focusedFirst === `first_${i}` ? 'highlight' : ''}
-              onMouseEnter={() => setSecond(`first_${i}`, true)}
+              onMouseEnter={() => secondItemsHandler(`first_${i}`, true)}
             >
               first_{i}
             </CategoryItem>
@@ -85,25 +85,6 @@ export default function SideBar() {
       <Background onClick={sideBarHandler} />
     </Wrapper>
   );
-}
-
-function Category({ type, setter }) {
-  const [focused, setFocused] = useState(null);
-
-  const childrenHandler = (id) => {
-    setFocused(id);
-    setter && setter(id);
-  };
-
-  return Array.from(new Array(10)).map((_, i) => (
-    <CategoryItem
-      key={`${type}_${i}`}
-      className={focused === `${type}_${i}` ? 'highlight' : ''}
-      onMouseEnter={() => childrenHandler(`${type}_${i}`)}
-    >
-      {type}_{i}
-    </CategoryItem>
-  ));
 }
 
 const Wrapper = styled.div`
