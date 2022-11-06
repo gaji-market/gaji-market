@@ -6,11 +6,13 @@ import { Home, Login, Test, SliceTest, SignUp, ProductView } from 'pages';
 export default function index() {
   return (
     <Routes>
-      <Route element={<Layout />}>
-        <Route path='/' element={<Home />} />
+      <Route path='/' element={<Layout />}>
+        <Route index element={<Home />} />
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
         <Route path='/products' element={<ProductView />} />
+        <Route path='/sal' element={<h1>살래요</h1>} />
+        <Route path='/pal' element={<h1>팔래요</h1>} />
       </Route>
       <Route element={<LayoutWithoutBar />}>
         <Route path='/login' element={<Login />} />
