@@ -28,10 +28,10 @@ const Input = styled.input`
   width: 500px;
   height: 25px;
   border-radius: 5px;
-  border: 1px solid gray;
+  border: 1px solid #bbbbbb;
 
   &:focus {
-    outline: 1px solid purple;
+    outline: 1px solid ${PRIMARY_COLOR};
   }
  &::placeholder {
   padding-left:6px;
