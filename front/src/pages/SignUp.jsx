@@ -29,7 +29,6 @@ export default function SignUp() {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log(33);
   };  
   return (
     <Container>
