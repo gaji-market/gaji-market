@@ -11,6 +11,8 @@ public interface ProductService {
 
     void productBuySave(ProductDTO productDTO);
 
+    void productDelete(int prodNo);
+
     //void productFindId();
 
     //void productDelete();
