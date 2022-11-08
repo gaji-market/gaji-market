@@ -11,4 +11,6 @@ public interface ProductDAO {
     String findUserAddress(int userNo);
 
     void productBuySave(ProductDTO productDTO);
+
+    void productDelete(int prodNo);
 }

@@ -73,6 +73,14 @@ public class ProductController {
         return productDTO;
     }
 
-    //삭제 하는거 해보자 판매, 살래요
+    //팔래요, 살래요 삭제
+    @PostMapping("/{prodNo}/delete")
+    public void productDelete (@PathVariable int prodNo){
+        productService.productDelete(prodNo);
+    }
+
+    //수정
+    //전체보기
+    //상세보기
 
 }

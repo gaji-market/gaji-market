@@ -26,4 +26,9 @@ public class ProductServiceImpl implements ProductService {
     public void productBuySave(ProductDTO productDTO) {
         productDAO.productBuySave(productDTO);
     }
+
+    @Override
+    public void productDelete(int prodNo) {
+        productDAO.productDelete(prodNo);
+    }
 }

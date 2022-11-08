@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="project.gajimarket.model.ProductDAO">
+<mapper namespace="project.gajimarket.dao.ProductDAO">
 
     <!-- 팔래요 상품 등록 -->
-    <insert id="productSellSave" parameterType="project.gajimarket.dto.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
+    <insert id="productSellSave" parameterType="project.gajimarket.model.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
         insert into product_info (prodNo,userNo,categoryNo,prodName,prodPrice,
         priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
         reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
@@ -17,11 +17,15 @@
     </select>
 
     <!-- 살래요 상품 등록 -->
-    <insert id="productBuySave" parameterType="project.gajimarket.dto.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
+    <insert id="productBuySave" parameterType="project.gajimarket.model.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
         insert into product_info (prodNo,userNo,categoryNo,prodName,prodPrice,
         priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
         reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
         values (#{prodNo},#{userNo},#{categoryNo},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
         #{prodExplain},#{regDt},null,default,default,'1',0,'1',null,null,#{address});
     </insert>
+
+    <update id="productDelete" parameterType="int">
+        update product_info set delYn = 'Y' where prodNo = #{param};
+    </update>
 </mapper>
