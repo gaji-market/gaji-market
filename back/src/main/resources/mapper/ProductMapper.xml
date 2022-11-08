@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.model.ProductDAO">
+
+    <!-- 팔래요 상품 등록 -->
+    <insert id="productSellSave" parameterType="project.gajimarket.dto.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
+        insert into product_info (prodNo,userNo,categoryNo,prodName,prodPrice,
+        priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
+        reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
+        values (#{prodNo},#{userNo},#{categoryNo},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
+        #{prodExplain},#{regDt},null,default,default,'0',0,'0',null,null,#{address});
+    </insert>
+
+    <!-- 팔래요,살래요 상품 등록할때 회원 주소 가져오기 -->
+    <select id="findUserAddress" parameterType="int" resultType="String">
+        select address from user_info where no = #{a}
+    </select>
+
+    <!-- 살래요 상품 등록 -->
+    <insert id="productBuySave" parameterType="project.gajimarket.dto.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
+        insert into product_info (prodNo,userNo,categoryNo,prodName,prodPrice,
+        priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
+        reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
+        values (#{prodNo},#{userNo},#{categoryNo},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
+        #{prodExplain},#{regDt},null,default,default,'1',0,'1',null,null,#{address});
+    </insert>
+</mapper>
