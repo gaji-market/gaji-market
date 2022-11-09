@@ -1,4 +1,4 @@
-package project.gajimarket.model;
+package project.gajimarket.model.file;
 
 import lombok.Data;
 
