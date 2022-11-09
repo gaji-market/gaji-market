@@ -25,7 +25,22 @@
         #{prodExplain},#{regDt},null,default,default,'1',0,'1',null,null,#{address});
     </insert>
 
+    <!-- 팔래요,살래요 상품 삭제 -->
     <update id="productDelete" parameterType="int">
         update product_info set delYn = 'Y' where prodNo = #{param};
     </update>
+
+    <insert id="productHashTagSave" parameterType="project.gajimarket.model.Hash_tagDTO">
+        insert into hash_tag (prodNo,tagName) values (#{prodNo},#{tagName});
+    </insert>
+
+    <!-- 팔래요 상품 수정-->
+    <!-- <update id="">
+        update product_info set prodExplain = '수정 테스트입니다' , modDt=#{} where prodNo = #{} and tradState='0';
+    </update> -->
+
+    <!-- 살래요 상품 수정 -->
+    <!-- <update id="">
+        update product_info set prodName=#{}, prodPrice=#{}, prodExplain=#{} , modDt=#{} where prodNo = #{} and tradState='1';
+    </update>-->
 </mapper>
