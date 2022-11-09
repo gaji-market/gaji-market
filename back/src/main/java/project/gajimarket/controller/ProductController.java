@@ -1,19 +1,27 @@
 package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import project.gajimarket.model.FileForm;
 import project.gajimarket.model.Hash_tagDTO;
 import project.gajimarket.model.ProductDTO;
+import project.gajimarket.model.UploadFile;
+import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
 
     private final ProductService productService;
+    private final FileService fileService;
 
 
     //팔래요 상품 등록 화면
@@ -30,11 +38,9 @@ public class ProductController {
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public ProductDTO sellSave(ProductDTO productDTO, Hash_tagDTO hash_tagDTO){
+    public ProductDTO sellSave(ProductDTO productDTO, Hash_tagDTO hash_tagDTO, FileForm fileForm) throws IOException {
         //상품 등록하는 유저의 주소 가져오기
         String findAddress = productService.findUserAddress(1);
-
-        //파일저장?
 
         //입력한 상품 입력
         productDTO.setUserNo(1);
@@ -54,6 +60,17 @@ public class ProductController {
         hash_tagDTO.setProdNo(productDTO.getProdNo());
         hash_tagDTO.setTagName("테스트테그");
         productService.productHashTagSave(hash_tagDTO);
+
+        //파일저장
+        log.info("asd = {}",fileForm);
+        List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImagesFiles());
+        log.info("컨트롤러에서 들어온 파일 이름 = {}",storeImageFiles);
+        for (int i=0; i<storeImageFiles.size(); i++){
+            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+            String dbFileName = storeImageFiles.get(i).getDbFileName();
+            productService.productFileSave(uploadFileName,dbFileName);
+            //DB저장부분
+        }
 
         return productDTO;
     }
@@ -93,6 +110,12 @@ public class ProductController {
 
     }
     //전체보기
+    //@GetMapping("")
+
     //상세보기
+    @GetMapping("/{prodNo}")
+    public void productDetail(){
+
+    }
 
 }

@@ -21,4 +21,6 @@ public interface ProductDAO {
 
     //해시태그 저장
     void productHashTagSave(Hash_tagDTO hash_tagDTO);
+
+    void productFileSave(String uploadFileName,String DBFilename);
 }
