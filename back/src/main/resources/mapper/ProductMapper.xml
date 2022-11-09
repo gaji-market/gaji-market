@@ -35,8 +35,9 @@
         insert into hash_tag (prodNo,tagName) values (#{prodNo},#{tagName});
     </insert>
 
-    <insert id="productFileSave" parameterType="String">
-        insert into file (no,gubun,fileOrder,uploadFileName,dbFileName) values (#{param1},'2','0',#{param2},#{param3})
+    <!-- 파일 저장 -->
+    <insert id="productFileSave">
+        insert into file (no,gubun,fileOrder,uploadFileName,dbFileName) values (#{param3},'2',#{param4},#{param1},#{param2})
     </insert>
 
     <!-- 팔래요 상품 수정-->

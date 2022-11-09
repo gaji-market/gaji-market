@@ -66,7 +66,7 @@ public class ProductController {
         for (int i=0; i<storeImageFiles.size(); i++){
             String uploadFileName = storeImageFiles.get(i).getUploadFileName();
             String dbFileName = storeImageFiles.get(i).getDbFileName();
-            productService.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo());
+            productService.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo(),Integer.toString(i));
             //DB저장부분
         }
 
