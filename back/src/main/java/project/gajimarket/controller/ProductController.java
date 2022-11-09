@@ -38,7 +38,7 @@ public class ProductController {
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public ProductDTO sellSave(ProductDTO productDTO, Hash_tagDTO hash_tagDTO, FileForm fileForm) throws IOException {
+    public ProductDTO sellSave(ProductDTO productDTO, Hash_tagDTO hash_tagDTO,@ModelAttribute FileForm fileForm) throws IOException {
         //상품 등록하는 유저의 주소 가져오기
         String findAddress = productService.findUserAddress(1);
 
@@ -62,8 +62,8 @@ public class ProductController {
         productService.productHashTagSave(hash_tagDTO);
 
         //파일저장
-        log.info("asd = {}",fileForm);
-        List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImagesFiles());
+        log.info("form에서 넘어온파일 = {}",fileForm);
+        List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
         log.info("컨트롤러에서 들어온 파일 이름 = {}",storeImageFiles);
         for (int i=0; i<storeImageFiles.size(); i++){
             String uploadFileName = storeImageFiles.get(i).getUploadFileName();
