@@ -39,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productFileSave(String uploadFileName, String DBFilename) {
-        productDAO.productFileSave(uploadFileName,DBFilename);
+    public void productFileSave(String uploadFileName, String dbFilename,int prodNo) {
+        productDAO.productFileSave(uploadFileName,dbFilename,prodNo);
     }
 }

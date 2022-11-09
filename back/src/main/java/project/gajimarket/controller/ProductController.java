@@ -62,13 +62,11 @@ public class ProductController {
         productService.productHashTagSave(hash_tagDTO);
 
         //파일저장
-        log.info("form에서 넘어온파일 = {}",fileForm);
         List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
-        log.info("컨트롤러에서 들어온 파일 이름 = {}",storeImageFiles);
         for (int i=0; i<storeImageFiles.size(); i++){
             String uploadFileName = storeImageFiles.get(i).getUploadFileName();
             String dbFileName = storeImageFiles.get(i).getDbFileName();
-            productService.productFileSave(uploadFileName,dbFileName);
+            productService.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo());
             //DB저장부분
         }
 
