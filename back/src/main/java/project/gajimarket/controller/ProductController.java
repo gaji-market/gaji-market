@@ -2,6 +2,7 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import project.gajimarket.model.Hash_tagDTO;
 import project.gajimarket.model.ProductDTO;
 import project.gajimarket.service.ProductService;
 
@@ -29,9 +30,11 @@ public class ProductController {
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public ProductDTO sellSave(ProductDTO productDTO){
+    public ProductDTO sellSave(ProductDTO productDTO, Hash_tagDTO hash_tagDTO){
         //상품 등록하는 유저의 주소 가져오기
         String findAddress = productService.findUserAddress(1);
+
+        //파일저장?
 
         //입력한 상품 입력
         productDTO.setUserNo(1);
@@ -46,6 +49,11 @@ public class ProductController {
 
         //팔래요 상품 등록
         productService.productSellSave(productDTO);
+
+        //해쉬태그 저장 반복문 써야하나?
+        hash_tagDTO.setProdNo(productDTO.getProdNo());
+        hash_tagDTO.setTagName("테스트테그");
+        productService.productHashTagSave(hash_tagDTO);
 
         return productDTO;
     }
@@ -80,6 +88,10 @@ public class ProductController {
     }
 
     //수정
+    @PostMapping("/{prodNo}/update")
+    public void productUpdate(@PathVariable int prodNo){
+
+    }
     //전체보기
     //상세보기
 

@@ -3,6 +3,7 @@ package project.gajimarket.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.gajimarket.dao.ProductDAO;
+import project.gajimarket.model.Hash_tagDTO;
 import project.gajimarket.model.ProductDTO;
 import project.gajimarket.service.ProductService;
 
@@ -30,5 +31,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void productDelete(int prodNo) {
         productDAO.productDelete(prodNo);
+    }
+
+    @Override
+    public void productHashTagSave(Hash_tagDTO hash_tagDTO) {
+        productDAO.productHashTagSave(hash_tagDTO);
     }
 }
