@@ -1,7 +1,7 @@
 package project.gajimarket.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import project.gajimarket.model.UploadFile;
+import project.gajimarket.model.file.UploadFile;
 
 import java.io.IOException;
 import java.util.List;

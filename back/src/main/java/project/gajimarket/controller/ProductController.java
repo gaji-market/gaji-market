@@ -3,10 +3,10 @@ package project.gajimarket.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import project.gajimarket.model.FileForm;
+import project.gajimarket.model.file.FileForm;
 import project.gajimarket.model.Hash_tagDTO;
 import project.gajimarket.model.ProductDTO;
-import project.gajimarket.model.UploadFile;
+import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
@@ -66,7 +66,7 @@ public class ProductController {
         for (int i=0; i<storeImageFiles.size(); i++){
             String uploadFileName = storeImageFiles.get(i).getUploadFileName();
             String dbFileName = storeImageFiles.get(i).getDbFileName();
-            productService.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo());
+            productService.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo(),Integer.toString(i));
             //DB저장부분
         }
 

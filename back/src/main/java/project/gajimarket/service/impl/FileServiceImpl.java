@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import project.gajimarket.model.UploadFile;
+import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 
 import java.io.File;
@@ -66,11 +66,9 @@ public class FileServiceImpl implements FileService {
 
         //마지막 점은 몇번째 있는지 ex : (pos = 34)
         int pos = originFilename.lastIndexOf(".");
-        log.info("pos = {}",pos);
 
         //ex : (ext = png)
         String ext = originFilename.substring(pos + 1);
-        log.info("ext = {}",ext);
 
         //랜덤 uuid 생성
         String uuid = UUID.randomUUID().toString();
