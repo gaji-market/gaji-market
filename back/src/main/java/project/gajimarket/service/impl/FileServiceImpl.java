@@ -28,12 +28,13 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
+
         //들어온 파일을 담을 리스트 생성
         List<UploadFile> storeFileResult = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles){
             if (!multipartFile.isEmpty()){
-                //반복해서 파일을 하나씩 서버로 보냄
+                //반복해서 지정한 경로로 파일을 저장
                 UploadFile uploadFile = storeFile(multipartFile);
                 //List에 추가
                 storeFileResult.add(uploadFile);
@@ -47,15 +48,14 @@ public class FileServiceImpl implements FileService {
         if (multipartFile.isEmpty()){
             return null;
         }
-        log.info("들어온 파일 = {}" ,multipartFile);
-        String originFilename = multipartFile.getOriginalFilename();
-        //오리지널 파일 이름 가져오기
-        log.info("getOrigin = {}",originFilename);
 
-        //서버에 저장하는 파일명
+        //오리지널 파일 이름 가져오기
+        String originFilename = multipartFile.getOriginalFilename();
+
+        //서버에 저장하는 파일명을 가져옴
         String DBFileName = createDBFileName(originFilename);
 
-        //지정한 경로로 서버에 저장할 파일명을 보냄
+        //지정한 경로로 DB파일명으로 저장
         multipartFile.transferTo(new File(getFullPath(DBFileName)));
 
         return new UploadFile(originFilename,DBFileName);
@@ -64,16 +64,18 @@ public class FileServiceImpl implements FileService {
     @Override
     public String createDBFileName(String originFilename) {
 
-        //마지막 . 뒤에오는 확장자명 뽑기 ex=(png)
+        //마지막 점은 몇번째 있는지 ex : (pos = 34)
         int pos = originFilename.lastIndexOf(".");
         log.info("pos = {}",pos);
 
+        //ex : (ext = png)
         String ext = originFilename.substring(pos + 1);
         log.info("ext = {}",ext);
 
-        //서버에 저장하는 파일명
+        //랜덤 uuid 생성
         String uuid = UUID.randomUUID().toString();
 
+        //DB에 저장하는 파일이름
         String DBFileName = uuid + "." + ext;
         return DBFileName;
     }

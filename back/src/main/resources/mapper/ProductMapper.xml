@@ -36,7 +36,7 @@
     </insert>
 
     <insert id="productFileSave" parameterType="String">
-        insert into file (no,gubun,fileOrder,uploadFileName,dbFileName) values (1,'2','0',#{param1},#{param2})
+        insert into file (no,gubun,fileOrder,uploadFileName,dbFileName) values (#{param1},'2','0',#{param2},#{param3})
     </insert>
 
     <!-- 팔래요 상품 수정-->
