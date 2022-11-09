@@ -37,4 +37,9 @@ public class ProductServiceImpl implements ProductService {
     public void productHashTagSave(Hash_tagDTO hash_tagDTO) {
         productDAO.productHashTagSave(hash_tagDTO);
     }
+
+    @Override
+    public void productFileSave(String uploadFileName, String DBFilename) {
+        productDAO.productFileSave(uploadFileName,DBFilename);
+    }
 }
