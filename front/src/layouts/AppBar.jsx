@@ -6,8 +6,7 @@ import ToggleSwitch from 'components/common/ToggleSwitch';
 import { PRIMARY_COLOR } from 'components/common/commonColor';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
-import { HiBellAlert } from 'react-icons/hi2';
-import { HiUserCircle } from 'react-icons/hi2';
+import { FaBell, FaUserCircle } from 'react-icons/fa';
 import { FiMoreHorizontal } from 'react-icons/fi';
 
 export default function AppBar() {
@@ -19,20 +18,21 @@ export default function AppBar() {
   return (
     <StyledWrapper>
       <ItemGroup>
-        <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
+        <MenuBtn onClick={menubarHandler}>
+          <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
+        </MenuBtn>
         <span>LOGO</span>
       </ItemGroup>
       <ItemGroup>
         <Search type='search' />
         <ToggleSwitch
-          on={{ name: '살래요', handler: () => navigate('/sal') }}
-          off={{ name: '팔래요', handler: () => navigate('/pal') }}
+          on={{ name: '살래요', handler: () => navigate('products/sal') }}
+          off={{ name: '팔래요', handler: () => navigate('products/pal') }}
         />
-
         {isLoggedIn ? (
           <>
-            <HiBellAlert size={24} color={PRIMARY_COLOR} />
-            <HiUserCircle size={24} color={PRIMARY_COLOR} />
+            <FaBell size={24} color={PRIMARY_COLOR} />
+            <FaUserCircle size={24} color={PRIMARY_COLOR} />
             <span>UserID</span>
           </>
         ) : (
@@ -58,6 +58,14 @@ export default function AppBar() {
   );
 }
 
+const menubarHandler = () => {
+  console.log('test');
+  const $sideBar = document.getElementById('side-bar-container');
+  if ($sideBar) {
+    $sideBar.ariaExpanded = $sideBar.ariaExpanded === 'true' ? 'false' : 'true';
+  }
+};
+
 const StyledWrapper = styled.div`
   display: flex;
   column-gap: 16px;
@@ -75,6 +83,20 @@ const ItemGroup = styled.div`
   align-items: center;
 `;
 
+const MenuBtn = styled.button`
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 const Search = styled.input`
   width: 240px;
   height: 32px;
@@ -84,6 +106,7 @@ const Search = styled.input`
 `;
 
 const TempNavigation = styled.details`
+  z-index: 1000;
   position: relative;
   summary {
     list-style: none;
