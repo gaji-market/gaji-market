@@ -1,64 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { PRIMARY_COLOR } from 'components/common/commonColor';
 import { AiOutlineClose } from 'react-icons/ai';
 
 export default function SideBar() {
+  const navigate = useNavigate();
   const sideBarRef = useRef(null);
-  const [[focusedFirst, focusedSecond], setFocusedItems] = useState([
-    null,
-    null,
-  ]);
-  const [secondItems, setSecondItems] = useState(null);
-  const [thirdItems, setThirdItems] = useState(null);
+  const [focusFirst, setFocusFirst] = useState(null);
+  const [focusSecond, setFocusSecond] = useState(null);
+  const [focusThird, setFocusThird] = useState(null);
 
   const sideBarHandler = () => {
     if (sideBarRef) {
-      sideBarRef.current.ariaExpanded = 'false';
-      setFocusedItems([null, null]);
-      setSecondItems(null);
-      setThirdItems(null);
+      sideBarRef.current.ariaExpanded =
+        sideBarRef.current.ariaExpanded === 'true' ? 'false' : 'true';
+      setFocusFirst(null);
+      setFocusSecond(null);
+      setFocusThird(null);
     }
   };
-
-  const secondItemsHandler = (id, thirdNull) => {
-    if (thirdNull) {
-      setThirdItems(null);
-    }
-    setFocusedItems(([_, sec]) => [id, sec]);
-    setSecondItems(
-      Array.from(new Array(10)).map((_, i) => (
-        <CategoryItem
-          key={`${id}_second_${i}`}
-          className={focusedSecond === `${id}_second_${i}` ? 'highlight' : ''}
-          onMouseEnter={() => thirdItemsHandler(`${id}_second_${i}`)}
-        >
-          second_{i}
-        </CategoryItem>
-      )),
-    );
-  };
-
-  const thirdItemsHandler = (id) => {
-    setFocusedItems(([fir, _]) => [fir, id]);
-    setThirdItems(
-      Array.from(new Array(10)).map((_, i) => (
-        <CategoryItem
-          key={`${id}_third_${i}`}
-          onClick={() => console.log(`${id}_third_${i}`)}
-        >
-          third_{i}
-        </CategoryItem>
-      )),
-    );
-  };
-
-  useEffect(() => {
-    if (focusedSecond) {
-      secondItemsHandler(focusedFirst);
-    }
-  }, [focusedSecond]);
 
   return (
     <Wrapper id='side-bar-container' aria-expanded={false} ref={sideBarRef}>
@@ -68,24 +30,63 @@ export default function SideBar() {
           <AiOutlineClose color={PRIMARY_COLOR} onClick={sideBarHandler} />
         </Header>
         <Body>
-          {Array.from(new Array(10)).map((_, i) => (
-            <CategoryItem
-              key={`first_${i}`}
-              className={focusedFirst === `first_${i}` ? 'highlight' : ''}
-              onMouseEnter={() => secondItemsHandler(`first_${i}`, true)}
-            >
-              first_{i}
-            </CategoryItem>
-          ))}
+          <CategoryItemGroup
+            type='first'
+            focused={focusFirst}
+            setter={setFocusFirst}
+          />
         </Body>
       </LeftBar>
-      {secondItems && <ExpandedLeftBar>{secondItems}</ExpandedLeftBar>}
-      {thirdItems && <ExpandedLeftBar>{thirdItems}</ExpandedLeftBar>}
-      <div></div>
+      {focusFirst && (
+        <ExpandedLeftBar className='expanded-bar'>
+          <CategoryItemGroup
+            type='second'
+            parent={focusFirst}
+            focused={focusSecond}
+            setter={setFocusSecond}
+          />
+        </ExpandedLeftBar>
+      )}
+      {focusSecond && (
+        <ExpandedLeftBar className='expanded-bar'>
+          <CategoryItemGroup
+            type='third'
+            parent={focusSecond}
+            focused={focusThird}
+            setter={setFocusThird}
+            navigator={() => [
+              navigate(
+                `products/pal?fisrt=${focusFirst}&second=${focusSecond}&third=${focusThird}`,
+              ),
+              sideBarHandler(),
+            ]}
+          />
+        </ExpandedLeftBar>
+      )}
       <Background onClick={sideBarHandler} />
     </Wrapper>
   );
 }
+
+const CategoryItemGroup = ({
+  type,
+  parent = null,
+  focused,
+  setter,
+  navigator = () => {},
+}) => {
+  const prefix = `${parent ? `${parent}_` : ''}${type}`;
+  return Array.from(new Array(10)).map((_, i) => (
+    <CategoryItem
+      key={`${prefix}_${i}`}
+      className={focused === `${prefix}_${i}` ? 'highlight' : ''}
+      onMouseEnter={() => setter(`${prefix}_${i}`)}
+      onClick={navigator}
+    >
+      {type}_{i}
+    </CategoryItem>
+  ));
+};
 
 const Wrapper = styled.div`
   position: fixed;
@@ -99,12 +100,9 @@ const Wrapper = styled.div`
   &[aria-expanded='false'] {
     width: 0;
 
-    aside {
-      min-width: 0;
-    }
-    div,
-    li {
-      opacity: 0;
+    aside,
+    .expanded-bar {
+      display: none;
     }
   }
 `;
