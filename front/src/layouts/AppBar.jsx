@@ -59,7 +59,6 @@ export default function AppBar() {
 }
 
 const menubarHandler = () => {
-  console.log('test');
   const $sideBar = document.getElementById('side-bar-container');
   if ($sideBar) {
     $sideBar.ariaExpanded = $sideBar.ariaExpanded === 'true' ? 'false' : 'true';
