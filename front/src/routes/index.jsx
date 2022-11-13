@@ -12,6 +12,8 @@ import {
   Error,
   MyPage,
   Test,
+  FileTest,
+  Chat,
 } from 'pages';
 
 export default function index() {
@@ -33,6 +35,7 @@ export default function index() {
           <Route path=':type' element={<ProductView />} />
           <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
+        <Route path='/chat' element={<Chat />} />
       </Route>
 
       <Route element={<LayoutWithoutBar />}>
