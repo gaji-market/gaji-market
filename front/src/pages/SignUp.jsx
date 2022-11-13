@@ -20,7 +20,7 @@ export default function SignUp() {
   );
   const isIdVaild = isVaildId(id);
   const isPasswordVaild = isVaildPassword(password);
-  const isPasswordConfirmVaild = password === confirmPassword;
+  const isPasswordConfirmVaild = confirmPassword.length <= 1 || password === confirmPassword;
   const isNickNameVaild = nickName.length > 4;
   const isFormValid =
     isIdVaild &&
@@ -57,6 +57,7 @@ export default function SignUp() {
           setVaule={setId}
           subTitle={'6글자 이상 이여야 합니다'}
           type={'text'}
+          isVaild={isIdVaild}
         />
         <InputBox
           title={'비밀번호'}
@@ -66,6 +67,7 @@ export default function SignUp() {
           setVaule={setPassword}
           subTitle={'8글자 이상 이고 영어와 숫자가 포함되어야 합니다'}
           type={'password'}
+          isVaild={isPasswordVaild}
         />
         <InputBox
           title={'비밀번호 확인'}
@@ -75,6 +77,7 @@ export default function SignUp() {
           setVaule={setConfirmPassword}
           subTitle={'비밀번호와 일치하여야 합니다'}
           type={'password'}
+          isVaild={isPasswordConfirmVaild}
         />
         <InputBox
           title={'닉네임'}
