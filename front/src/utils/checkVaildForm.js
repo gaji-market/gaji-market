@@ -1,6 +1,5 @@
 function isVaildId(id) {
   var idRule = /^[A-Za-z0-9]{6,12}$/;
-  console.log(id);
   return idRule.test(id);
 }
 function isVaildPassword(password) {
