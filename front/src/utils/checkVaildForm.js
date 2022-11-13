@@ -1,5 +1,5 @@
 function isVaildId(id) {
-  var idRule = /^[A-Za-z0-9]{6,12}$/;
+  let idRule = /^[A-Za-z0-9]{6,12}$/;
   if (id.length < 1) return true;
   return idRule.test(id);
 }
