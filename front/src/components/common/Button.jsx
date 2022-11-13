@@ -12,6 +12,7 @@ export default function Button({
   children,
   customSize,
   isOutline,
+  isDisabled,
   size = 'md',
   isDarkColor = false,
 }) {
@@ -21,6 +22,7 @@ export default function Button({
       size={size}
       customSize={customSize}
       isDarkColor={isDarkColor}
+      disabled={isDisabled}
     >
       {children}
     </ButtonStyles>
@@ -68,6 +70,16 @@ const ButtonStyles = styled.button`
   }};
 
   width: ${({ customSize }) => customSize};
+
+  &:disabled {
+    background: #cccccc;
+    border: #cccccc;
+    &:hover {
+      background: #cccccc;
+      border: #cccccc;
+      cursor: not-allowed;
+    }
+  }
 
   &:hover {
     background: ${({ isOutline }) => (isOutline ? '#E9DCFF50' : '#843DE0')};
