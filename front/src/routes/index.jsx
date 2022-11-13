@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
 import { Home, Login, Test, SliceTest, SignUp, ProductView } from 'pages';
@@ -10,9 +10,8 @@ export default function index() {
         <Route index element={<Home />} />
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
-        <Route path='/products' element={<ProductView />} />
-        <Route path='/sal' element={<h1>살래요</h1>} />
-        <Route path='/pal' element={<h1>팔래요</h1>} />
+        <Route path='/products' element={<Navigate to='/products/pal' />} />
+        <Route path='/products/:type' element={<ProductView />} />
       </Route>
       <Route element={<LayoutWithoutBar />}>
         <Route path='/login' element={<Login />} />

@@ -2,10 +2,12 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import AppBar from 'layouts/AppBar';
 import styled from 'styled-components';
+import SideBar from './SideBar';
 export default function Layout() {
   return (
     <>
       <AppBar />
+      <SideBar />
       <Container>
         <Outlet />
       </Container>
