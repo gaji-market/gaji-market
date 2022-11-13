@@ -7,8 +7,8 @@ function isVaildPassword(password) {
   let pwRule = /^[A-Za-z0-9]{8,15}$/;
   return pwRule.test(password);
 }
-function isETCVaild(address, addressDetail, birthday, gender) {
+function isVaildETC(address, addressDetail, birthday, gender) {
   if (address !== '' && addressDetail !== '' && birthday !== '' && gender !== '') return true;
   return false;
 }
-export { isVaildId, isVaildPassword, isETCVaild };
+export { isVaildId, isVaildPassword, isVaildETC };
