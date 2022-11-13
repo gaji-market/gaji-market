@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
 import Button from '../components/common/Button';
+import { isVaildId, isVaildPassword, isETCVaild } from 'utils/checkVaildForm';
 export default function SignUp() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
@@ -12,24 +13,34 @@ export default function SignUp() {
   const [nickName, setNickName] = useState('');
   const [address, setAddress] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
-  const [birthday, setBirthday]=useState('');
-  const [gender, setGender]=useState('');
+  const [birthday, setBirthday] = useState('');
+  const [gender, setGender] = useState('');
   const open = useDaumPostcodePopup(
     'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
   );
+  const isIdVaild = isVaildId(id);
+  const isPasswordVaild = isVaildPassword(password);
+  const isPasswordConfirmVaild = password === confirmPassword;
+  const isNickNameVaild = nickName.length > 4;
+  const isFormValid =
+    isIdVaild &&
+    isPasswordVaild &&
+    isNickNameVaild &&
+    isPasswordConfirmVaild &&
+    isETCVaild(address, addressDetail, birthday, gender);
 
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
     setAddress(fullAddress);
   };
   const handerClick = (e) => {
-    if (e.target.name==='gender') setGender(e.target.value);
-    else if (e.target.name==='calender') setBirthday(e.target.value);
+    if (e.target.name === 'gender') setGender(e.target.value);
+    else if (e.target.name === 'calender') setBirthday(e.target.value);
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
-  };  
+  };
   return (
     <Container>
       <SignUpHead>
@@ -44,7 +55,7 @@ export default function SignUp() {
           value={id}
           id={'id'}
           setVaule={setId}
-          subTitle={'8글자 이상 이여야 합니다'}
+          subTitle={'6글자 이상 이여야 합니다'}
           type={'text'}
         />
         <InputBox
@@ -92,20 +103,25 @@ export default function SignUp() {
         <FlexBox onChange={(e) => handerClick(e)}>
           <FlexItem>
             <Title margin={'50px'}>생년월일</Title>
-            <Date defaultValue={birthday} 
-              type='date' id='calender' name='calender'></Date>
+            <Date defaultValue={birthday} type='date' id='calender' name='calender'></Date>
           </FlexItem>
 
           <FlexItem margin={'50px'}>
             <Title margin={'10px'}>성별</Title>
-            <Raido type='radio' name='gender' value={'남자'}/>
+            <Raido type='radio' name='gender' value={'남자'} />
             남자
-            <Raido type='radio' name='gender' value={'여자'}/>
+            <Raido type='radio' name='gender' value={'여자'} />
             여자
           </FlexItem>
         </FlexBox>
         <ButtonBox>
-          <Button size='lg'>회원가입</Button>
+          {isFormValid ? (
+            <Button size='lg'>회원가입</Button>
+          ) : (
+            <Button size='lg' isDisabled={!isFormValid}>
+              회원가입
+            </Button>
+          )}
         </ButtonBox>
       </Form>
     </Container>
@@ -121,7 +137,7 @@ const Container = styled.div`
 const Title = styled.div`
   font-weight: 800;
   font-size: 16px;
-  margin-right:10px;
+  margin-right: 10px;
   margin-left: ${(props) => props.margin};
 `;
 const Date = styled.input`
@@ -155,8 +171,8 @@ const FlexItem = styled.div`
   align-items: center;
   margin-left: ${(props) => props.margin};
 `;
-const ButtonBox =styled.div`
-  margin-top:30px;
-  display:flex;
-  justify-content:center;
+const ButtonBox = styled.div`
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
 `;
