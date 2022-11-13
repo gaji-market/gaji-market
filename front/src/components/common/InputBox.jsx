@@ -1,8 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PRIMARY_COLOR} from './commonColor';
+import { PRIMARY_COLOR } from './commonColor';
 
-export default function InputBox({ title, placeholder, subTitle, value, setVaule, clickHandler, id, type }) {
+export default function InputBox({
+  title,
+  placeholder,
+  subTitle,
+  value,
+  setVaule,
+  clickHandler,
+  id,
+  type,
+  isVaild,
+}) {
   return (
     <>
       <Text>
@@ -10,7 +20,11 @@ export default function InputBox({ title, placeholder, subTitle, value, setVaule
           <StarIcon>*</StarIcon>
           {title}
         </InputTitle>
-        <InputSubTitle>{subTitle}</InputSubTitle>
+        {isVaild ? (
+          <InputSubTitle color='gray'>{subTitle}</InputSubTitle>
+        ) : (
+          <InputSubTitle color='#E8828D'>{subTitle}</InputSubTitle>
+        )}
       </Text>
       <Input
         type={type}
@@ -33,11 +47,11 @@ const Input = styled.input`
   &:focus {
     outline: 1px solid ${PRIMARY_COLOR};
   }
- &::placeholder {
-  padding-left:6px;
-  font-size:8px;
-  color:#cccccc;
-}
+  &::placeholder {
+    padding-left: 6px;
+    font-size: 8px;
+    color: #cccccc;
+  }
 `;
 const StarIcon = styled.span`
   color: ${PRIMARY_COLOR};
@@ -52,6 +66,6 @@ const Text = styled.div`
 `;
 const InputSubTitle = styled.div`
   font-size: 10px;
-  color: gray;
+  color: ${(props) => props.color};
   margin: 25px 0px 0px 10px;
 `;
