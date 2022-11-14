@@ -2,6 +2,10 @@ package project.gajimarket.service;
 
 import project.gajimarket.model.Hash_tagDTO;
 import project.gajimarket.model.ProductDTO;
+import project.gajimarket.model.file.FileDTO;
+import project.gajimarket.model.file.FileForm;
+
+import java.util.List;
 
 public interface ProductService {
 
@@ -21,6 +25,10 @@ public interface ProductService {
     void productHashTagSave(Hash_tagDTO hash_tagDTO);
 
     void productFileSave(String uploadFileName,String dbFilename,int prodNo,String i);
+
+    void productUpdate(int prodNo,ProductDTO productDTO);
+
+    List<String> productFindDBFile(int prodNo);
 
     //void productFindId();
 

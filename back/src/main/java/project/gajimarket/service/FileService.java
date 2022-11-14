@@ -19,4 +19,7 @@ public interface FileService {
 
     //DB에 저장할 파일 이름 생성(UUID)
     String createDBFileName(String originFilename);
+
+    //업로드한 파일 삭제
+
 }
