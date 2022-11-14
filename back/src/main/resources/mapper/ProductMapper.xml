@@ -40,13 +40,13 @@
         insert into file (no,gubun,fileOrder,uploadFileName,dbFileName) values (#{param3},'2',#{param4},#{param1},#{param2})
     </insert>
 
-    <!-- 팔래요 상품 수정-->
-    <!-- <update id="">
-        update product_info set prodExplain = '수정 테스트입니다' , modDt=#{} where prodNo = #{} and tradState='0';
-    </update> -->
+    <!-- 상품 수정 -->
+    <update id="productUpdate">
+        update product_info set categoryNo=#{dto.categoryNo},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now() where prodNo=#{param1};
+    </update>
 
-    <!-- 살래요 상품 수정 -->
-    <!-- <update id="">
-        update product_info set prodName=#{}, prodPrice=#{}, prodExplain=#{} , modDt=#{} where prodNo = #{} and tradState='1';
-    </update>-->
+    <!-- 저장된 파일 찾기 -->
+    <select id="productFindDBFile" parameterType="int" resultType="String">
+        select dbFileName from file where no=#{param1};
+    </select>
 </mapper>
