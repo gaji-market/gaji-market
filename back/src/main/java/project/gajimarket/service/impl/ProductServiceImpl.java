@@ -3,10 +3,7 @@ package project.gajimarket.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.gajimarket.dao.ProductDAO;
-import project.gajimarket.model.Hash_tagDTO;
 import project.gajimarket.model.ProductDTO;
-import project.gajimarket.model.file.FileDTO;
-import project.gajimarket.model.file.FileForm;
 import project.gajimarket.service.ProductService;
 
 import java.util.List;
@@ -38,8 +35,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productHashTagSave(Hash_tagDTO hash_tagDTO) {
-        productDAO.productHashTagSave(hash_tagDTO);
+    public void productHashTagSave(int prodNo,String hashTag) {
+        productDAO.productHashTagSave(prodNo,hashTag);
     }
 
     @Override
@@ -55,5 +52,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<String> productFindDBFile(int prodNo) {
         return productDAO.productFindDBFile(prodNo);
+    }
+
+    @Override
+    public void productFileDelete(int prodNo) {
+        productDAO.productFileDelete(prodNo);
+    }
+
+    @Override
+    public void productHashTagDelete(int prodNo) {
+        productDAO.productHashTagDelete(prodNo);
+    }
+
+    @Override
+    public int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo) {
+        return productDAO.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
     }
 }

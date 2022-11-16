@@ -8,7 +8,7 @@
         priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
         reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
         values (#{prodNo},#{userNo},#{categoryNo},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
-        #{prodExplain},#{regDt},null,default,default,'0',0,'0',null,null,#{address});
+        #{prodExplain},now(),null,default,default,'0',0,'0',null,null,#{address});
     </insert>
 
     <!-- 팔래요,살래요 상품 등록할때 회원 주소 가져오기 -->
@@ -22,7 +22,7 @@
         priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
         reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
         values (#{prodNo},#{userNo},#{categoryNo},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
-        #{prodExplain},#{regDt},null,default,default,'1',0,'1',null,null,#{address});
+        #{prodExplain},now(),null,default,default,'1',0,'1',null,null,#{address});
     </insert>
 
     <!-- 팔래요,살래요 상품 삭제 -->
@@ -31,8 +31,8 @@
     </update>
 
     <!-- 해시태그 저장 -->
-    <insert id="productHashTagSave" parameterType="project.gajimarket.model.Hash_tagDTO">
-        insert into hash_tag (prodNo,tagName) values (#{prodNo},#{tagName});
+    <insert id="productHashTagSave">
+        insert into hash_tag (prodNo,tagName) values (#{param1},#{param2});
     </insert>
 
     <!-- 파일 저장 -->
@@ -42,11 +42,26 @@
 
     <!-- 상품 수정 -->
     <update id="productUpdate">
-        update product_info set categoryNo=#{dto.categoryNo},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now() where prodNo=#{param1};
+        update product_info set categoryNo=#{dto.categoryNo},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address} where prodNo=#{param1};
     </update>
 
-    <!-- 저장된 파일 찾기 -->
+    <!-- 상품번호로 저장된 이미지 파일 찾기 -->
     <select id="productFindDBFile" parameterType="int" resultType="String">
         select dbFileName from file where no=#{param1};
     </select>
+
+    <!-- DB 이미지파일 삭제 -->
+    <delete id="productFileDelete" parameterType="int">
+        delete from file where no=#{param1};
+    </delete>
+
+    <!-- 카테고리 번호 찾기 -->
+    <select id="findCategoryNo" resultType="int">
+        select categoryNo from category_info where LargeCateNo=#{param1} and MediumCateNo=#{param2} and SmallCateNo=#{param3};
+    </select>
+
+    <!-- 해시태그 삭제 -->
+    <delete id="productHashTagDelete" parameterType="int">
+        delete from hash_tag where prodNo=#{param1};
+    </delete>
 </mapper>
