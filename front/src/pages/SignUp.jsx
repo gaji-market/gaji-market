@@ -7,6 +7,7 @@ import getAddress from 'utils/getAddress';
 import Button from '../components/common/Button';
 import { isVaildId, isVaildPassword, isVaildETC } from 'utils/checkVaildForm';
 export default function SignUp() {
+  const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,9 +16,7 @@ export default function SignUp() {
   const [addressDetail, setAddressDetail] = useState('');
   const [birthday, setBirthday] = useState('');
   const [gender, setGender] = useState('');
-  const open = useDaumPostcodePopup(
-    'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
-  );
+  const open = useDaumPostcodePopup(DaumURL);
   const isIdVaild = isVaildId(id);
   const isPasswordVaild = isVaildPassword(password);
   const isPasswordConfirmVaild = confirmPassword.length <= 1 || password === confirmPassword;
