@@ -77,4 +77,14 @@ public class FileServiceImpl implements FileService {
         String DBFileName = uuid + "." + ext;
         return DBFileName;
     }
+
+    @Override
+    public void fileDelete(List<String> findFileDB) {
+        for(String findFile : findFileDB){
+            if (!findFile.isEmpty()) {
+                File file = new File(getFullPath(findFile));
+                file.delete();
+            }
+        }
+    }
 }

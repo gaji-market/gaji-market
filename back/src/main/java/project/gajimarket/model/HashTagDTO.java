@@ -2,8 +2,10 @@ package project.gajimarket.model;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class Hash_tagDTO {
+public class HashTagDTO {
     private int prodNo;
-    private String tagName;
+    private List<String> tagName;
 }

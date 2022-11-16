@@ -2,10 +2,7 @@ package project.gajimarket.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import project.gajimarket.model.Hash_tagDTO;
 import project.gajimarket.model.ProductDTO;
-import project.gajimarket.model.file.FileDTO;
-import project.gajimarket.model.file.FileForm;
 
 import java.util.List;
 
@@ -25,7 +22,7 @@ public interface ProductDAO {
     void productDelete(int prodNo);
 
     //해시태그 저장
-    void productHashTagSave(Hash_tagDTO hash_tagDTO);
+    void productHashTagSave(int prodNo,String hashTag);
 
     //파일 업로드
     void productFileSave(String uploadFileName,String DBFilename,int prodNo,String i);
@@ -36,5 +33,12 @@ public interface ProductDAO {
     //상품 번호로 업로드한 파일 찾기
     List<String> productFindDBFile(int prodNo);
 
+    //DB file 테이블 정보 삭제
     void productFileDelete(int prodNo);
+
+    //DB 해시태그 삭제
+    void productHashTagDelete(int prodNo);
+
+    //업로드한 이미지 파일 삭제
+    int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
 }
