@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { PRIMARY_COLOR, WHITE_COLOR, SUB_COLOR } from './commonColor';
+import { PRIMARY_COLOR, WHITE_COLOR, SUB_COLOR, GRAY_COLOR } from './commonColor';
 
 const BUTTON_SIZE = {
   sm: '100px',
@@ -72,11 +72,11 @@ const ButtonStyles = styled.button`
   width: ${({ customSize }) => customSize};
 
   &:disabled {
-    background: #cccccc;
-    border: #cccccc;
+    background: ${GRAY_COLOR};
+    border: 3px solid ${GRAY_COLOR};
     &:hover {
-      background: #cccccc;
-      border: #cccccc;
+      background: ${GRAY_COLOR};
+      border: 3px solid ${GRAY_COLOR};
       cursor: not-allowed;
     }
   }
