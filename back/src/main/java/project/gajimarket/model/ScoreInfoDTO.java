@@ -3,7 +3,7 @@ package project.gajimarket.model;
 import lombok.Data;
 
 @Data
-public class Score_infoDTO {
+public class ScoreInfoDTO {
     private int userNo;
     private int prodNo;
     private float score1;

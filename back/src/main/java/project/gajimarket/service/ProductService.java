@@ -1,7 +1,11 @@
 package project.gajimarket.service;
 
-import project.gajimarket.model.Hash_tagDTO;
+import project.gajimarket.model.CategoryDTO;
+import project.gajimarket.model.HashTagDTO;
+import project.gajimarket.model.InterestInfoDTO;
 import project.gajimarket.model.ProductDTO;
+
+import java.util.List;
 
 public interface ProductService {
 
@@ -18,15 +22,44 @@ public interface ProductService {
     void productDelete(int prodNo);
 
     //해시태그 저장
-    void productHashTagSave(Hash_tagDTO hash_tagDTO);
+    void productHashTagSave(int prodNo,String hashTag);
 
+    //파일 업로드
     void productFileSave(String uploadFileName,String dbFilename,int prodNo,String i);
 
-    //void productFindId();
+    //상품 수정
+    void productUpdate(int prodNo,ProductDTO productDTO);
 
-    //void productDelete();
+    //상품 번호로 업로드한 파일 찾기
+    List<String> productFindDBFile(int prodNo);
 
-    //void productFindAll();
+    //DB file 테이블 정보 삭제
+    void productFileDelete(int prodNo);
 
-    //void productUpdate();
+    //DB 해시태그 삭제
+    void productHashTagDelete(int prodNo);
+
+    //카테고리 번호 찾기
+    int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
+
+    //상품 정보 찾기
+    ProductDTO findProductInfo(int prodNo);
+
+    //카테고리 정보 가져오기
+    CategoryDTO findCategoryInfo(int categoryNo);
+
+    //해시태그 정보 가져오기
+    List<String> findHashTag(int prodNo);
+
+    //DB에 저장된 이미지 파일이름 가져오기
+    List<String> findFileInfo(int prodNo);
+
+    //좋아요 저장
+    void interestSave(InterestInfoDTO interestInfoDTO);
+
+    //좋아요 삭제
+    void interestDelete(int prodNo, int userNo);
+
+    //좋아요 찾기
+    InterestInfoDTO findInterest(int prodNo, int userNo);
 }
