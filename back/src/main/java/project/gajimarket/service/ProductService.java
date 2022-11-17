@@ -1,5 +1,7 @@
 package project.gajimarket.service;
 
+import project.gajimarket.model.CategoryDTO;
+import project.gajimarket.model.HashTagDTO;
 import project.gajimarket.model.ProductDTO;
 
 import java.util.List;
@@ -38,4 +40,12 @@ public interface ProductService {
 
     //카테고리 번호 찾기
     int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
+
+    ProductDTO findProductInfo(int prodNo);
+
+    CategoryDTO findCategoryInfo(int categoryNo);
+
+    List<String> findHashTag(int prodNo);
+
+    List<String> findFileInfo(int prodNo);
 }
