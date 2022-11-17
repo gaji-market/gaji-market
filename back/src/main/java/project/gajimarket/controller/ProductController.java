@@ -300,8 +300,21 @@ public class ProductController {
         int userNo = 1;
         productService.interestDelete(prodNo,userNo);
     }
+
     //별점정보 입력할때 (구매자 들어가야됨)
+    @PostMapping("/{prodNo}/scoreSave")
+    public void productScoreSave(){
+
+    }
+
     //신고 버튼 눌렀을때
+    @PostMapping("/{prodNo}/report")
+    public void productReport(@PathVariable int prodNo){
+
+        //카운트 1증가한것도 Json으로 보내줘야하나??(확인해볼것)
+        productService.reportCountUp(prodNo);
+
+    }
 
     //무료나눔했을때 뭐해야할께 있나?
     //가격 제시 했을때 높은금액으로 update

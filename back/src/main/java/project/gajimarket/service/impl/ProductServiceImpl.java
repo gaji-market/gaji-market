@@ -106,4 +106,9 @@ public class ProductServiceImpl implements ProductService {
     public InterestInfoDTO findInterest(int prodNo, int userNo) {
         return productDAO.findInterest(prodNo,userNo);
     }
+
+    @Override
+    public void reportCountUp(int prodNo) {
+        productDAO.reportCountUp(prodNo);
+    }
 }

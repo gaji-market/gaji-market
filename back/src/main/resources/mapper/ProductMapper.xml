@@ -102,4 +102,9 @@
     <select id="findInterest" resultType="project.gajimarket.model.InterestInfoDTO">
         select * from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
     </select>
+
+    <!-- 신고 횟수 증가 -->
+    <update id="reportCountUp" parameterType="int">
+        update product_info set reportCnt = reportCnt + 1 where prodNo=#{prodNo};
+    </update>
 </mapper>
