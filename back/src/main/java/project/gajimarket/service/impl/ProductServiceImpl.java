@@ -101,4 +101,9 @@ public class ProductServiceImpl implements ProductService {
     public void interestDelete(int prodNo, int userNo) {
         productDAO.interestDelete(prodNo,userNo);
     }
+
+    @Override
+    public InterestInfoDTO findInterest(int prodNo, int userNo) {
+        return productDAO.findInterest(prodNo,userNo);
+    }
 }

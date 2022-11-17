@@ -97,4 +97,9 @@
     <delete id="interestDelete">
         delete from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
     </delete>
+
+    <!-- 좋아요 찾기 -->
+    <select id="findInterest" resultType="project.gajimarket.model.InterestInfoDTO">
+        select * from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
+    </select>
 </mapper>

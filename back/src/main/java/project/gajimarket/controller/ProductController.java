@@ -277,15 +277,20 @@ public class ProductController {
 
     //좋아요 버튼 눌렀을때
     @PostMapping("/{prodNo}/interest")
-    public void productInterest(@PathVariable int prodNo, InterestInfoDTO interestInfoDTO){
+    public InterestInfoDTO productInterest(@PathVariable int prodNo, InterestInfoDTO interestInfoDTO){
 
         interestInfoDTO.setProdNo(prodNo);
         //회원번호가져오고
-        int userNo = 2;
+        int userNo = 1;
         interestInfoDTO.setUserNo(userNo);
         //좋아요 저장
         productService.interestSave(interestInfoDTO);
         //하나의 유저는 게시물 하나당 좋아요 한개씩 밖에 안된다
+
+        //한회원이 게시물에 좋아요를 햇는지 알려줘야한다...json으로 보내면되나?
+        InterestInfoDTO interest = productService.findInterest(prodNo,userNo);
+
+        return interest;
     }
 
     //좋아요 버튼 다시 눌럿을때 삭제

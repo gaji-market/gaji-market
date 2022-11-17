@@ -62,4 +62,7 @@ public interface ProductDAO {
 
     //좋아요 삭제
     void interestDelete(int prodNo, int userNo);
+
+    //좋아요 찾기
+    InterestInfoDTO findInterest(int prodNo, int userNo);
 }
