@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.CategoryDTO;
+import project.gajimarket.model.InterestInfoDTO;
 import project.gajimarket.model.file.FileForm;
 import project.gajimarket.model.HashTagDTO;
 import project.gajimarket.model.ProductDTO;
@@ -18,15 +20,13 @@ import project.gajimarket.service.ProductService;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/product")
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class ProductController {
 
     private final ProductService productService;
@@ -34,9 +34,14 @@ public class ProductController {
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public ProductDTO sellSave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
+    public Map<String,Object> sellSave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
+
+        Map<String,Object> result = new LinkedHashMap<>();
 
         //카테고리
+        categoryDTO.setLargeCateNo(1);
+        categoryDTO.setMediumCateNo(10);
+        categoryDTO.setSmallCateNo(100);
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
         int largeCateNo = categoryDTO.getLargeCateNo();
         int mediumCateNo = categoryDTO.getMediumCateNo();
@@ -59,13 +64,20 @@ public class ProductController {
         productDTO.setProdExplain("팔래요 테스트 상품 설명입니다");
         //팔래요 상품 등록
         productService.productSellSave(productDTO);
+        result.put("팔래요 상품 정보",productDTO);
 
         //해시태그 최대10
+        List<String> hash= new ArrayList<>();
+        hash.add("a");
+        hash.add("b");
+        hash.add("c");
+        hashtagDTO.setTagName(hash);
         List<String> tagName1 = hashtagDTO.getTagName();//해시태그 10개를 넣었다면 10개가 들어있다
         for (String tagName : tagName1){
             productService.productHashTagSave(productDTO.getProdNo(),tagName);
         }
         //해시태그 10개를 저장
+        result.put("팔래요 해시태그 정보",hashtagDTO);
 
         //파일저장
         List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
@@ -76,12 +88,17 @@ public class ProductController {
             //DB저장부분
         }
 
-        return productDTO;
+        //확인해봐야함(나중에)
+        result.put("팔래요 파일 정보",storeImageFiles);
+
+        return result;
     }
 
     //살래요 상품 등록 처리
     @PostMapping("/buySave")
-    public ProductDTO buySave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
+    public Map<String,Object> buySave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
+
+        Map<String,Object> result = new LinkedHashMap<>();
 
         //카테고리
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
@@ -107,6 +124,7 @@ public class ProductController {
         productDTO.setProdExplain("살래요 테스트 상품 설명입니다");
         //살래요 상품 등록
         productService.productBuySave(productDTO);
+        result.put("살래요 상품 정보",productDTO);
 
         //해시태그 최대10
         List<String> tagName1 = hashtagDTO.getTagName();//해시태그 10개를 넣었다면 10개가 들어있다
@@ -114,6 +132,7 @@ public class ProductController {
             productService.productHashTagSave(productDTO.getProdNo(),tagName);
         }
         //해시태그 10개를 저장
+        result.put("살래요 해시태그 정보",hashtagDTO);
 
         //파일저장
         List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
@@ -123,8 +142,10 @@ public class ProductController {
             productService.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
             //DB저장부분
         }
+        //확인해봐야함(나중에)
+        result.put("살래요 파일 정보",storeImageFiles);
 
-        return productDTO;
+        return result;
     }
 
     //이미지 파일 보여주기
@@ -177,7 +198,9 @@ public class ProductController {
 
     //수정 (이미지, 제목, 가격, 가격제안, 무료나눔, 카테고리, 내용, 해시태그)
     @PostMapping("/{prodNo}/update")
-    public void productUpdate(@PathVariable int prodNo, ProductDTO productDTO,CategoryDTO categoryDTO, FileForm fileForm, HashTagDTO hashTagDTO) throws IOException {
+    public Map<String,Object> productUpdate(@PathVariable int prodNo, ProductDTO productDTO,CategoryDTO categoryDTO, FileForm fileForm, HashTagDTO hashTagDTO) throws IOException {
+
+        Map<String,Object> result = new LinkedHashMap<>();
 
         //카테고리 수정
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
@@ -201,6 +224,7 @@ public class ProductController {
         productDTO.setTradState("2");//거래중,거래완료 수정
         productService.productUpdate(prodNo,productDTO);
         //상태가 거래중, 거래완료 일때는 다른 글들은 수정불가능하다..
+        result.put("수정 상품 정보",productDTO);
 
         //이미지 수정
         //저장된 파일이름 가져오기
@@ -218,6 +242,9 @@ public class ProductController {
             //DB저장부분
         }
 
+        //나중에 잘됏는지 확인 필요
+        result.put("수정 파일 정보",storeImageFiles);
+
         //해시태그 수정
         //prodNo로 먼저 있던 해시태그 삭제
         productService.productHashTagDelete(prodNo);
@@ -227,6 +254,9 @@ public class ProductController {
         for (String tag : tagName){
             productService.productHashTagSave(prodNo,tag);
         }
+        result.put("수정 해시태그 정보",hashTagDTO);
+
+        return result;
     }
 
     //팔래요, 살래요 삭제
@@ -245,10 +275,30 @@ public class ProductController {
 
     }
 
-    //무료나눔했을때 뭐해야할께 있나?
-    //신고 버튼 눌렀을때
     //좋아요 버튼 눌렀을때
+    @PostMapping("/{prodNo}/interest")
+    public void productInterest(@PathVariable int prodNo, InterestInfoDTO interestInfoDTO){
+
+        interestInfoDTO.setProdNo(prodNo);
+        //회원번호가져오고
+        int userNo = 2;
+        interestInfoDTO.setUserNo(userNo);
+        //좋아요 저장
+        productService.interestSave(interestInfoDTO);
+        //하나의 유저는 게시물 하나당 좋아요 한개씩 밖에 안된다
+    }
+
+    //좋아요 버튼 다시 눌럿을때 삭제
+    @PostMapping("/{prodNo}/interestDelete")
+    public void productInterestDelete(@PathVariable int prodNo){
+        //회원 번호 가져오고
+        int userNo = 1;
+        productService.interestDelete(prodNo,userNo);
+    }
     //별점정보 입력할때 (구매자 들어가야됨)
+    //신고 버튼 눌렀을때
+
+    //무료나눔했을때 뭐해야할께 있나?
     //가격 제시 했을때 높은금액으로 update
     //검색기능
     //게시글 정렬

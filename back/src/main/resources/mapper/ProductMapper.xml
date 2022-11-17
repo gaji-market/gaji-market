@@ -65,22 +65,36 @@
         delete from hash_tag where prodNo=#{param1};
     </delete>
 
+    <!-- 상품 정보 찾기 -->
     <select id="findProductInfo" parameterType="int" resultType="project.gajimarket.model.ProductDTO">
         select categoryNo,prodName,prodPrice,priceOffer,freeCheck,prodExplain
         from product_info
         where prodNo=#{param1};
     </select>
 
+    <!-- 카테고리 정보 찾기 -->
     <select id="findCategoryInfo" parameterType="int" resultType="project.gajimarket.model.CategoryDTO">
         select * from category_info where categoryNo=#{param1};
     </select>
 
+    <!-- 해시태그 정보 찾기 -->
     <select id="findHashTag" parameterType="int" resultType="String">
         select tagName from hash_tag where prodNo=#{param1};
     </select>
 
+    <!-- DB파일 이름 찾기 -->
     <select id="findFileInfo" parameterType="int" resultType="String">
         select dbFileName
         from file where no=#{param1};
     </select>
+
+    <!-- 좋아요 저장 -->
+    <insert id="interestSave" useGeneratedKeys="true" keyProperty="interestNo" parameterType="project.gajimarket.model.InterestInfoDTO">
+        insert into interest_info (interestNo,prodNo,userNo) values (#{interestNo},#{prodNo},#{userNo});
+    </insert>
+
+    <!-- 좋아요 삭제 -->
+    <delete id="interestDelete">
+        delete from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
+    </delete>
 </mapper>

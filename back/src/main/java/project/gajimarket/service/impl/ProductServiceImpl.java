@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import project.gajimarket.dao.ProductDAO;
 import project.gajimarket.model.CategoryDTO;
 import project.gajimarket.model.HashTagDTO;
+import project.gajimarket.model.InterestInfoDTO;
 import project.gajimarket.model.ProductDTO;
 import project.gajimarket.service.ProductService;
 
@@ -89,5 +90,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<String> findFileInfo(int prodNo) {
         return productDAO.findFileInfo(prodNo);
+    }
+
+    @Override
+    public void interestSave(InterestInfoDTO interestInfoDTO) {
+        productDAO.interestSave(interestInfoDTO);
+    }
+
+    @Override
+    public void interestDelete(int prodNo, int userNo) {
+        productDAO.interestDelete(prodNo,userNo);
     }
 }
