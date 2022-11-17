@@ -2,6 +2,10 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.CategoryDTO;
 import project.gajimarket.model.file.FileForm;
@@ -11,8 +15,13 @@ import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/product")
@@ -118,7 +127,52 @@ public class ProductController {
         return productDTO;
     }
 
+    //이미지 파일 보여주기
+    //지수님 마이페이지에서 이미지넘기는 코드 보고 다시 확인
+    @GetMapping("/images/{filename}")
+    public Resource showImage(@PathVariable String filename) throws MalformedURLException {
+        //경로에 있는 이미지를 찾아와서 return
+        return new UrlResource("file:" + fileService.getFullPath(filename));
+    }
+
     //수정버튼클릭시 이미 입력된 내용 보여주기
+    @GetMapping("/{prodNo}/beforeUpdate")
+    public Map<String, Object> productBeforeUpdate(@PathVariable int prodNo) throws IOException {
+
+        Map<String,Object> result = new LinkedHashMap<>();
+
+        //prodNo로 보여줄 내용 찾기
+        //제목, 가격, 가격제안, 무료나눔, 내용 , 카테고리번호
+        ProductDTO productDTO = productService.findProductInfo(prodNo);
+        int categoryNo = productDTO.getCategoryNo();
+
+        result.put("제목",productDTO.getProdName());
+        result.put("가격",productDTO.getProdPrice());
+        result.put("가격제안",productDTO.getPriceOffer());
+        result.put("무료나눔",productDTO.getFreeCheck());
+        result.put("내용",productDTO.getProdExplain());
+
+        //이미지 index 0- 메인이다 gubun으로 넘겨줘야할듯
+        List<String> findFile =productService.findFileInfo(prodNo);
+        log.info("findFile={}",findFile);
+        result.put("메인이미지 = 0",findFile.get(0));
+        result.put("이미지 = 1",findFile.get(1));
+        result.put("이미지 = 2",findFile.get(2));
+        result.put("이미지 = 3",findFile.get(3));
+        result.put("이미지 = 4",findFile.get(4));
+
+        //카테고리
+        CategoryDTO categoryDTO = productService.findCategoryInfo(categoryNo);
+        result.put("대분류",categoryDTO.getLargeCateNo());
+        result.put("중분류",categoryDTO.getMediumCateNo());
+        result.put("소분류",categoryDTO.getSmallCateNo());
+
+        //해시태그
+        List<String> tagName = productService.findHashTag(prodNo);
+        result.put("태그",tagName);
+
+        return result;
+    }
 
 
     //수정 (이미지, 제목, 가격, 가격제안, 무료나눔, 카테고리, 내용, 해시태그)

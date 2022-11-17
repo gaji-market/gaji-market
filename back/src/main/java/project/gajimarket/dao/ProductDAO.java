@@ -2,6 +2,8 @@ package project.gajimarket.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import project.gajimarket.model.CategoryDTO;
+import project.gajimarket.model.HashTagDTO;
 import project.gajimarket.model.ProductDTO;
 
 import java.util.List;
@@ -41,4 +43,12 @@ public interface ProductDAO {
 
     //업로드한 이미지 파일 삭제
     int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
+
+    ProductDTO findProductInfo(int prodNo);
+
+    CategoryDTO findCategoryInfo(int categoryNo);
+
+    List<String> findHashTag(int prodNo);
+
+    List<String> findFileInfo(int prodNo);
 }

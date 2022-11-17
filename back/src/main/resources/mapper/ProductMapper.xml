@@ -64,4 +64,23 @@
     <delete id="productHashTagDelete" parameterType="int">
         delete from hash_tag where prodNo=#{param1};
     </delete>
+
+    <select id="findProductInfo" parameterType="int" resultType="project.gajimarket.model.ProductDTO">
+        select categoryNo,prodName,prodPrice,priceOffer,freeCheck,prodExplain
+        from product_info
+        where prodNo=#{param1};
+    </select>
+
+    <select id="findCategoryInfo" parameterType="int" resultType="project.gajimarket.model.CategoryDTO">
+        select * from category_info where categoryNo=#{param1};
+    </select>
+
+    <select id="findHashTag" parameterType="int" resultType="String">
+        select tagName from hash_tag where prodNo=#{param1};
+    </select>
+
+    <select id="findFileInfo" parameterType="int" resultType="String">
+        select dbFileName
+        from file where no=#{param1};
+    </select>
 </mapper>
