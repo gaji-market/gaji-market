@@ -3,10 +3,7 @@ package project.gajimarket.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.gajimarket.dao.ProductDAO;
-import project.gajimarket.model.CategoryDTO;
-import project.gajimarket.model.HashTagDTO;
-import project.gajimarket.model.InterestInfoDTO;
-import project.gajimarket.model.ProductDTO;
+import project.gajimarket.model.*;
 import project.gajimarket.service.ProductService;
 
 import java.util.List;
@@ -110,5 +107,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void reportCountUp(int prodNo) {
         productDAO.reportCountUp(prodNo);
+    }
+
+    @Override
+    public void productScoreSave(ScoreInfoDTO scoreInfoDTO) {
+        productDAO.productScoreSave(scoreInfoDTO);
+    }
+
+    @Override
+    public int findUserNo(int prodNo) {
+        return productDAO.findUserNo(prodNo);
     }
 }
