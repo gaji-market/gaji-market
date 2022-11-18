@@ -8,11 +8,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import project.gajimarket.model.CategoryDTO;
-import project.gajimarket.model.InterestInfoDTO;
+import project.gajimarket.model.*;
 import project.gajimarket.model.file.FileForm;
-import project.gajimarket.model.HashTagDTO;
-import project.gajimarket.model.ProductDTO;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
@@ -88,7 +85,9 @@ public class ProductController {
             //DB저장부분
         }
 
-        //확인해봐야함(나중에)
+        /**
+         * //확인해봐야함(나중에)
+         */
         result.put("팔래요 파일 정보",storeImageFiles);
 
         return result;
@@ -142,7 +141,9 @@ public class ProductController {
             productService.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
             //DB저장부분
         }
-        //확인해봐야함(나중에)
+        /**
+         * //확인해봐야함(나중에)
+         */
         result.put("살래요 파일 정보",storeImageFiles);
 
         return result;
@@ -150,6 +151,9 @@ public class ProductController {
 
     //이미지 파일 보여주기
     //지수님 마이페이지에서 이미지넘기는 코드 보고 다시 확인
+    /**
+     * 파일 보여주는부분 다시 확인해보기
+     */
     @GetMapping("/images/{filename}")
     public Resource showImage(@PathVariable String filename) throws MalformedURLException {
         //경로에 있는 이미지를 찾아와서 return
@@ -242,7 +246,9 @@ public class ProductController {
             //DB저장부분
         }
 
-        //나중에 잘됏는지 확인 필요
+        /**
+         * //나중에 잘됏는지 확인 필요
+         */
         result.put("수정 파일 정보",storeImageFiles);
 
         //해시태그 수정
@@ -287,7 +293,9 @@ public class ProductController {
         productService.interestSave(interestInfoDTO);
         //하나의 유저는 게시물 하나당 좋아요 한개씩 밖에 안된다
 
-        //한회원이 게시물에 좋아요를 햇는지 알려줘야한다...json으로 보내면되나?
+        /**
+         * //한회원이 게시물에 좋아요를 햇는지 알려줘야한다...json으로 보내면되나?
+         */
         InterestInfoDTO interest = productService.findInterest(prodNo,userNo);
 
         return interest;
@@ -301,23 +309,62 @@ public class ProductController {
         productService.interestDelete(prodNo,userNo);
     }
 
-    //별점정보 입력할때 (구매자 들어가야됨)
+    //별점정보 입력할때 (구매자 들어가야됨), 구매완료 -> 별점등록 -> 후기작성
     @PostMapping("/{prodNo}/scoreSave")
-    public void productScoreSave(){
+    public void productScoreSave(@PathVariable int prodNo, ScoreInfoDTO scoreInfoDTO){
 
+        /**
+        //판매완료 누르면 산사람 선택해서 들어가야함
+        //산사람 선택은... 채팅한 사람중에 한명 선택하면 그사람의 번호를 가져오면될듯..?
+        //update
+         */
+
+        //게시글 등록한 사람의 회원 번호가져오기
+        int findUserNo = productService.findUserNo(prodNo);
+        scoreInfoDTO.setUserNo(findUserNo);
+        //상품 번호 저장
+        scoreInfoDTO.setProdNo(prodNo);
+        //별점 정보 저장 (후기포함)
+        scoreInfoDTO.setScore1(5);
+        scoreInfoDTO.setTag1("약속을 잘 지켜요");
+        scoreInfoDTO.setScore2(4);
+        scoreInfoDTO.setTag2("친절해요");
+        scoreInfoDTO.setScore3(4);
+        scoreInfoDTO.setTag3("물건이 좋아요");
+        scoreInfoDTO.setTradeReview("거래후기 테스트");
+        //DB 별점 정보 저장
+        productService.productScoreSave(scoreInfoDTO);
     }
 
     //신고 버튼 눌렀을때
     @PostMapping("/{prodNo}/report")
     public void productReport(@PathVariable int prodNo){
 
-        //카운트 1증가한것도 Json으로 보내줘야하나??(확인해볼것)
+        /**
+         * //카운트 1증가한것도 Json으로 보내줘야하나??(확인해볼것)
+         */
         productService.reportCountUp(prodNo);
 
     }
 
-    //무료나눔했을때 뭐해야할께 있나?
     //가격 제시 했을때 높은금액으로 update
+    /**
+    @PostMapping("/{prodNo}/priceOffer")
+    public void priceOfferUpdate(@PathVariable int prodNo, int offerPrice){
+
+        //로그인한 회원 아이디로 번호를 찾아온다
+        int findUserNo = 1;
+
+        //가격 가져오기
+        int findPrice = productService.findProductPrice(prodNo);
+        if (findPrice < offerPrice){
+            //가격 높게 제시한사람이 회원번호로 update 하면서 들어온 가격이도 update?
+            productService.priceOfferUpdate(offerPrice,findUserNo);
+        }
+
+    }
+    */
+
     //검색기능
     //게시글 정렬
     //구매자 선택 했을때 구현 update

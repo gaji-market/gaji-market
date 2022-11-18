@@ -2,10 +2,7 @@ package project.gajimarket.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import project.gajimarket.model.CategoryDTO;
-import project.gajimarket.model.HashTagDTO;
-import project.gajimarket.model.InterestInfoDTO;
-import project.gajimarket.model.ProductDTO;
+import project.gajimarket.model.*;
 
 import java.util.List;
 
@@ -68,4 +65,10 @@ public interface ProductDAO {
 
     //신고횟수 증가
     void reportCountUp(int prodNo);
+
+    //별점 정보 저장
+    void productScoreSave(ScoreInfoDTO scoreInfoDTO);
+
+    //상품 번호로 회원번호 찾기
+    int findUserNo(int prodNo);
 }
