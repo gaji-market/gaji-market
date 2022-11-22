@@ -77,4 +77,10 @@ public interface ProductService {
 
     //가격 경매 update
     void priceOfferUpdate(int offerPrice, int findUserNo,int prodNo);
+
+    //조회수 증가
+    void viewCntUpdate(int prodNo);
+
+    //좋아요 갯수 가져오기
+    int findInterestCnt(int prodNo);
 }

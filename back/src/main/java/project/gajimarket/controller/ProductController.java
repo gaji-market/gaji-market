@@ -368,10 +368,49 @@ public class ProductController {
     //전체보기
     //@GetMapping("")
 
-    //상세보기 (좋아요갯수, 판매자정보 ,제목, 가격, 내용,주소, 날짜, 조회수,이미지 )
+    //상세보기
     @GetMapping("/{prodNo}")
-    public void productDetail(){
+    public Map<String, Object> productDetail(@PathVariable int prodNo){
 
+        /**
+         * 프로필인 판매자 정보도 가져와야함
+         */
+
+        //조회수 1증가
+        productService.viewCntUpdate(prodNo);
+
+        Map<String,Object> result = new LinkedHashMap<>();
+
+        //좋아요 갯수 가져오기
+        int findInterestCnt = productService.findInterestCnt(prodNo);
+        result.put("좋아요 갯수",findInterestCnt);
+
+        //prodNo로 보여줄 내용 찾기
+        //제목, 가격, 가격제안, 무료나눔, 내용 , 카테고리번호, 주소, 등록날짜, 거래상태, 해시태그
+        ProductDTO productDTO = productService.findProductInfo(prodNo);
+        int categoryNo = productDTO.getCategoryNo();
+        result.put("상품 정보",productDTO);
+
+        //이미지 index 0- 메인이다 gubun으로 넘겨줘야할듯
+        List<String> findFile =productService.findFileInfo(prodNo);
+        log.info("findFile={}",findFile);
+        result.put("메인이미지 = 0",findFile.get(0));
+        result.put("이미지 = 1",findFile.get(1));
+        result.put("이미지 = 2",findFile.get(2));
+        result.put("이미지 = 3",findFile.get(3));
+        result.put("이미지 = 4",findFile.get(4));
+
+        //카테고리
+        CategoryDTO categoryDTO = productService.findCategoryInfo(categoryNo);
+        result.put("대분류",categoryDTO.getLargeCateNo());
+        result.put("중분류",categoryDTO.getMediumCateNo());
+        result.put("소분류",categoryDTO.getSmallCateNo());
+
+        //해시태그
+        List<String> tagName = productService.findHashTag(prodNo);
+        result.put("태그",tagName);
+
+        return result;
     }
 
     //검색기능

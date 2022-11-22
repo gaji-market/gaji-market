@@ -67,7 +67,7 @@
 
     <!-- 상품 정보 찾기 -->
     <select id="findProductInfo" parameterType="int" resultType="project.gajimarket.model.ProductDTO">
-        select categoryNo,prodName,prodPrice,priceOffer,freeCheck,prodExplain
+        select *
         from product_info
         where prodNo=#{param1};
     </select>
@@ -133,4 +133,14 @@
     <update id="priceOfferUpdate">
         update product_info set prodPrice=#{offerPrice}, offerPriceNo=#{findUserNo} where prodNo=#{prodNo};
     </update>
+
+    <!-- 조회수 증가 -->
+    <update id="viewCntUpdate" parameterType="int">
+        update product_info set viewCnt = viewCnt + 1 where prodNo=#{prodNo};
+    </update>
+
+    <!-- 좋아요 갯수 가져오기 -->
+    <select id="findInterestCnt" parameterType="int" resultType="int">
+        select count(*) from interest_info where prodNo=#{prodNo};
+    </select>
 </mapper>
