@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import project.gajimarket.model.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ProductDAO {
@@ -86,4 +87,7 @@ public interface ProductDAO {
 
     //좋아요 갯수 가져오기
     int findInterestCnt(int prodNo);
+
+    //팔래요 최신순 전체보기
+    List<Map<String,Object>> findSellAll();
 }
