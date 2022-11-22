@@ -118,4 +118,19 @@
     <select id="findUserNo" parameterType="int" resultType="int">
         select userNo from product_info where prodNo = #{prodNo};
     </select>
+
+    <!-- 세션 값으로 회원번호 찾기 -->
+    <select id="findSessionUser" resultType="int">
+        select no from user_info where id=#{param1};
+    </select>
+
+    <!-- 상품 가격 가져오기 -->
+    <select id="findProductPrice" resultType="int">
+        select prodPrice from product_info where prodNo=#{prodNo};
+    </select>
+
+    <!-- 상품 경매 update -->
+    <update id="priceOfferUpdate">
+        update product_info set prodPrice=#{offerPrice}, offerPriceNo=#{findUserNo} where prodNo=#{prodNo};
+    </update>
 </mapper>

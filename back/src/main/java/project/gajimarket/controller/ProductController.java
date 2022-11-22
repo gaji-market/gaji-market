@@ -14,6 +14,8 @@ import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -272,15 +274,6 @@ public class ProductController {
         //Y로만 바꾸고 나머지 데이터도 남겨둔다
     }
 
-    //전체보기
-    //@GetMapping("")
-
-    //상세보기 (좋아요갯수, 판매자정보 ,제목, 가격, 내용,주소, 날짜, 조회수,이미지 )
-    @GetMapping("/{prodNo}")
-    public void productDetail(){
-
-    }
-
     //좋아요 버튼 눌렀을때
     @PostMapping("/{prodNo}/interest")
     public InterestInfoDTO productInterest(@PathVariable int prodNo, InterestInfoDTO interestInfoDTO){
@@ -348,22 +341,38 @@ public class ProductController {
     }
 
     //가격 제시 했을때 높은금액으로 update
-    /**
     @PostMapping("/{prodNo}/priceOffer")
-    public void priceOfferUpdate(@PathVariable int prodNo, int offerPrice){
+    public void priceOfferUpdate(@PathVariable int prodNo, int offerPrice, HttpServletRequest request){
 
-        //로그인한 회원 아이디로 번호를 찾아온다
-        int findUserNo = 1;
+        //로그인한 회원 아이디로 번호를 찾아온다(Session사용)
+        //세션 가져오기
+        HttpSession session = request.getSession();
+        //세션이름으로 들어가있는 아이디를 찾아온다
+        Object findSession = session.getAttribute("넘어온세션이름");
+        //로그인한 아이디로 회원번호 찾기
+        int findUserNo = productService.findSessionUser(findSession);
 
         //가격 가져오기
         int findPrice = productService.findProductPrice(prodNo);
+
+        //제시한 가격이 높아야지 update
         if (findPrice < offerPrice){
             //가격 높게 제시한사람이 회원번호로 update 하면서 들어온 가격이도 update?
-            productService.priceOfferUpdate(offerPrice,findUserNo);
+            productService.priceOfferUpdate(offerPrice,findUserNo,prodNo);
+        }else {
+            //낮은 금액이나 같은 금액 입력하면 프론트쪽에서 막아주면되나?
         }
 
     }
-    */
+
+    //전체보기
+    //@GetMapping("")
+
+    //상세보기 (좋아요갯수, 판매자정보 ,제목, 가격, 내용,주소, 날짜, 조회수,이미지 )
+    @GetMapping("/{prodNo}")
+    public void productDetail(){
+
+    }
 
     //검색기능
     //게시글 정렬
