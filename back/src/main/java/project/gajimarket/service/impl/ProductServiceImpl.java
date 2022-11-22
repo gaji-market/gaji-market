@@ -133,4 +133,14 @@ public class ProductServiceImpl implements ProductService {
     public void priceOfferUpdate(int offerPrice, int findUserNo, int prodNo) {
         productDAO.priceOfferUpdate(offerPrice, findUserNo, prodNo);
     }
+
+    @Override
+    public void viewCntUpdate(int prodNo) {
+        productDAO.viewCntUpdate(prodNo);
+    }
+
+    @Override
+    public int findInterestCnt(int prodNo) {
+        return productDAO.findInterestCnt(prodNo);
+    }
 }
