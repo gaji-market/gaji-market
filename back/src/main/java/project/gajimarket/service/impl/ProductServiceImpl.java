@@ -118,4 +118,19 @@ public class ProductServiceImpl implements ProductService {
     public int findUserNo(int prodNo) {
         return productDAO.findUserNo(prodNo);
     }
+
+    @Override
+    public int findSessionUser(Object findSession) {
+        return productDAO.findSessionUser(findSession);
+    }
+
+    @Override
+    public int findProductPrice(int prodNo) {
+        return productDAO.findProductPrice(prodNo);
+    }
+
+    @Override
+    public void priceOfferUpdate(int offerPrice, int findUserNo, int prodNo) {
+        productDAO.priceOfferUpdate(offerPrice, findUserNo, prodNo);
+    }
 }

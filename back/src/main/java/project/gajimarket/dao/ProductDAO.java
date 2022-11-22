@@ -71,4 +71,13 @@ public interface ProductDAO {
 
     //상품 번호로 회원번호 찾기
     int findUserNo(int prodNo);
+
+    //세션값으로 회원 번호 가져오기
+    int findSessionUser(Object findSession);
+
+    //상품 가격 가져오기
+    int findProductPrice(int prodNo);
+
+    //가격 경매 update
+    void priceOfferUpdate(int offerPrice, int findUserNo, int prodNo);
 }
