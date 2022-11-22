@@ -426,10 +426,18 @@ public class ProductController {
     }
 
     //살래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
-//    @GetMapping("/buyAll")
-//    public Map<String,Object> buyAll(){
-//
-//    }
+    @GetMapping("/buyAll")
+    public Map<String,Object> buyAll(){
+        /**
+         * 판매완료는 안나오게..
+         * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
+         */
+        Map<String,Object> result = new LinkedHashMap<>();
+        List<Map<String,Object>> findBuyAll = productService.findBuyAll();
+        result.put("살래요 최신순",findBuyAll);
+
+        return result;
+    }
 
     //검색기능
     //게시글 정렬
