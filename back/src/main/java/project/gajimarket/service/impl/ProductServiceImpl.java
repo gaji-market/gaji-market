@@ -7,6 +7,7 @@ import project.gajimarket.model.*;
 import project.gajimarket.service.ProductService;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -142,5 +143,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public int findInterestCnt(int prodNo) {
         return productDAO.findInterestCnt(prodNo);
+    }
+
+    @Override
+    public List<Map<String,Object>> findSellAll() {
+        return productDAO.findSellAll();
     }
 }

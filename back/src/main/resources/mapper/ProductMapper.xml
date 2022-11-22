@@ -143,4 +143,16 @@
     <select id="findInterestCnt" parameterType="int" resultType="int">
         select count(*) from interest_info where prodNo=#{prodNo};
     </select>
+
+    <select id="findSellAll" resultType="map">
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interest',f.dbFileName
+        from product_info p
+                 left join interest_info i
+                           on p.prodNo = i.prodNo
+                 left join file f
+                           on p.prodNo = f.no
+        where p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+        group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
+        order by p.regDt desc;
+    </select>
 </mapper>
