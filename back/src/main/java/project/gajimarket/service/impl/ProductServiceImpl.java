@@ -149,4 +149,9 @@ public class ProductServiceImpl implements ProductService {
     public List<Map<String,Object>> findSellAll() {
         return productDAO.findSellAll();
     }
+
+    @Override
+    public List<Map<String, Object>> findBuyAll() {
+        return productDAO.findBuyAll();
+    }
 }

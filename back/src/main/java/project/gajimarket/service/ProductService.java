@@ -87,4 +87,7 @@ public interface ProductService {
 
     //팔래요 최신순 전체보기
     List<Map<String,Object>> findSellAll();
+
+    //살래요 최신순 전체보기
+    List<Map<String, Object>> findBuyAll();
 }
