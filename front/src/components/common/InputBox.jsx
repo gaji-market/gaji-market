@@ -43,12 +43,11 @@ const Input = styled.input`
   height: 25px;
   border-radius: 5px;
   border: 1px solid #bbbbbb;
-
+  padding-left: 10px;
   &:focus {
     outline: 1px solid ${PRIMARY_COLOR};
   }
   &::placeholder {
-    padding-left: 6px;
     font-size: 8px;
     color: #cccccc;
   }
