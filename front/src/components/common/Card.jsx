@@ -65,6 +65,7 @@ const CardContainer = styled.div`
   color: #7353ab;
   margin: 8px;
   transition: all 0.2s;
+  cursor: pointer;
 
   &:hover {
     scale: 1.02;
