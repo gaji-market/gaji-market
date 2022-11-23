@@ -5,9 +5,10 @@ import styled from 'styled-components';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
 import Button from '../components/common/Button';
-import { isVaildId, isVaildPassword, isVaildETC } from 'utils/checkVaildForm';
+import { isVaild } from 'utils/checkVaildForm';
 export default function SignUp() {
   const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,9 +17,10 @@ export default function SignUp() {
   const [addressDetail, setAddressDetail] = useState('');
   const [birthday, setBirthday] = useState('');
   const [gender, setGender] = useState('');
+
   const open = useDaumPostcodePopup(DaumURL);
-  const isIdVaild = isVaildId(id);
-  const isPasswordVaild = isVaildPassword(password);
+  const isIdVaild = isVaild('ID', id);
+  const isPasswordVaild = isVaild('PW', password);
   const isPasswordConfirmVaild = confirmPassword.length <= 1 || password === confirmPassword;
   const isNickNameVaild = nickName.length > 4;
   const isFormValid =
@@ -26,7 +28,7 @@ export default function SignUp() {
     isPasswordVaild &&
     isNickNameVaild &&
     isPasswordConfirmVaild &&
-    isVaildETC(address, addressDetail, birthday, gender);
+    isVaild('ETC', [address, addressDetail, birthday, gender]);
 
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);

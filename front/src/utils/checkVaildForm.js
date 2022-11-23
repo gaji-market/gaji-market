@@ -1,15 +1,18 @@
-function isVaildId(id) {
+function isVaild(type, value) {
   let idRule = /^[A-Za-z0-9]{6,12}$/;
-  if (id.length < 1) return true;
-  return idRule.test(id);
-}
-function isVaildPassword(password) {
   let pwRule = /^[A-Za-z0-9]{8,15}$/;
-  if (password.length < 1) return true;
-  return pwRule.test(password);
+
+  if (type === 'ID' || type === 'PW') {
+    if (value.length < 1) return true;
+    return type === 'ID' ? idRule.test(value) : pwRule.test(value);
+  }
+
+  if (type === 'ETC') {
+    let isEmtpy = value.map((v) => {
+      return v === '' ? true : false;
+    });
+    if (isEmtpy.includes(true)) return false;
+    return true;
+  }
 }
-function isVaildETC(address, addressDetail, birthday, gender) {
-  if (address !== '' && addressDetail !== '' && birthday !== '' && gender !== '') return true;
-  return false;
-}
-export { isVaildId, isVaildPassword, isVaildETC };
+export { isVaild };
