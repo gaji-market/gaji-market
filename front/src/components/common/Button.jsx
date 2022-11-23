@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { PRIMARY_COLOR, WHITE_COLOR, SUB_COLOR } from './commonColor';
+import { PRIMARY_COLOR, WHITE_COLOR, SUB_COLOR, GRAY_COLOR } from './commonColor';
 
 const BUTTON_SIZE = {
   sm: '100px',
@@ -12,6 +12,7 @@ export default function Button({
   children,
   customSize,
   isOutline,
+  isDisabled,
   size = 'md',
   isDarkColor = false,
 }) {
@@ -21,6 +22,7 @@ export default function Button({
       size={size}
       customSize={customSize}
       isDarkColor={isDarkColor}
+      disabled={isDisabled}
     >
       {children}
     </ButtonStyles>
@@ -68,6 +70,16 @@ const ButtonStyles = styled.button`
   }};
 
   width: ${({ customSize }) => customSize};
+
+  &:disabled {
+    background: ${GRAY_COLOR};
+    border: 3px solid ${GRAY_COLOR};
+    &:hover {
+      background: ${GRAY_COLOR};
+      border: 3px solid ${GRAY_COLOR};
+      cursor: not-allowed;
+    }
+  }
 
   &:hover {
     background: ${({ isOutline }) => (isOutline ? '#E9DCFF50' : '#843DE0')};
