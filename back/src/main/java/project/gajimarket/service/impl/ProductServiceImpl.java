@@ -146,12 +146,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Map<String,Object>> findSellAll() {
-        return productDAO.findSellAll();
+    public List<Map<String,Object>> findSellAll(String search) {
+        return productDAO.findSellAll(search);
     }
 
     @Override
-    public List<Map<String, Object>> findBuyAll() {
-        return productDAO.findBuyAll();
+    public List<Map<String, Object>> findBuyAll(String search) {
+        return productDAO.findBuyAll(search);
+    }
+
+    @Override
+    public String findTradeState(int prodNo) {
+        return productDAO.findTradeState(prodNo);
+    }
+
+    @Override
+    public List<Map<String, Object>> findSellHighPrice() {
+        return productDAO.findSellHighPrice();
     }
 }

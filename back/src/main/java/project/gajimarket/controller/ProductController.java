@@ -8,6 +8,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import project.gajimarket.model.*;
 import project.gajimarket.model.file.FileForm;
 import project.gajimarket.model.file.UploadFile;
@@ -15,10 +16,12 @@ import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.*;
 
 @RestController
@@ -411,15 +414,41 @@ public class ProductController {
         return result;
     }
 
+    //태그 클릭햇을때
+    @GetMapping("/{prodNo}/{tag}")
+    public void tag(@PathVariable int prodNo, @PathVariable String tag, HttpServletResponse response) throws IOException {
+        // 어떤 태그를 눌럿는지 글자가 넘어옴 근데 그 태그가 팔래요 인지 살래요인지 알아야한다 그래야지 어디로 redirect 시킬지 정해진다?
+        /**
+         * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 오면 좋겟다
+         */
+
+        // 팔래요인지, 살래요인지 가져온다
+        String findTradeState = productService.findTradeState(prodNo);
+
+        //redirect 할때 한글깨짐
+        String enTag = URLEncoder.encode(tag, "UTF-8");
+
+        //만약 팔래요라면
+        if (findTradeState.equals("0")){
+            //클릭한 태그를 보내준다
+            response.sendRedirect("/product/sellAll?search="+enTag);
+            //search로 보내주면 알아서 받지 않나?
+        }else {
+            //살래요라면
+            response.sendRedirect("/product/buyAll?search="+enTag);
+        }
+
+    }
+
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/sellAll")
-    public Map<String,Object> sellAll(){
+    public Map<String,Object> sellAll(@RequestParam(required = false) String search){
         /**
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
          */
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findSellAll = productService.findSellAll();
+        List<Map<String,Object>> findSellAll = productService.findSellAll(search);
         result.put("팔래요 최신순",findSellAll);
 
         return result;
@@ -427,20 +456,31 @@ public class ProductController {
 
     //살래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/buyAll")
-    public Map<String,Object> buyAll(){
+    public Map<String,Object> buyAll(@RequestParam(required = false) String search){
         /**
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
          */
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findBuyAll = productService.findBuyAll();
+        List<Map<String,Object>> findBuyAll = productService.findBuyAll(search);
         result.put("살래요 최신순",findBuyAll);
 
         return result;
     }
 
-    //검색기능
-    //게시글 정렬
-    //구매자 선택 했을때 구현 update
 
+
+    //팔래요 가격 높은순
+    @GetMapping("/sellHighPrice")
+    public Map<String,Object> sellHighPrice(){
+
+        /**
+         * 여기도 판매완료 안나오게?? 일단 안나오게함
+         */
+        Map<String,Object> result = new LinkedHashMap<>();
+        List<Map<String,Object>> findSellHighPrice = productService.findSellHighPrice();
+        result.put("팔래요 금액 높은순",findSellHighPrice);
+
+        return result;
+    }
 }

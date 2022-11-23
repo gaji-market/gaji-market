@@ -152,7 +152,15 @@
                            on p.prodNo = i.prodNo
                  left join file f
                            on p.prodNo = f.no
-        where p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+                 left join hash_tag h
+                           on p.prodNo = h.prodNo
+        <where>
+            <if test="search !=null">
+                and (p.prodName like concat('%',#{search},'%') or p.address like concat('%',#{search},'%') or h.tagName like concat('%',#{search},'%'))
+                                  and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+            </if>
+            and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+        </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
         order by p.regDt desc;
     </select>
@@ -165,8 +173,33 @@
                            on p.prodNo = i.prodNo
                  left join file f
                            on p.prodNo = f.no
-        where p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+                 left join hash_tag h
+                           on p.prodNo = h.prodNo
+        <where>
+            <if test="search !=null">
+                and (p.prodName like concat('%',#{search},'%') or p.address like concat('%',#{search},'%') or h.tagName like concat('%',#{search},'%'))
+                                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+            </if>
+            and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+        </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
         order by p.regDt desc;
+    </select>
+
+    <select id="findTradeState" resultType="String" parameterType="int">
+        select tradeKind from product_info where prodNo=#{prodNo};
+    </select>
+
+    <!-- 팔래요 가격 높은순 -->
+    <select id="findSellHighPrice" resultType="map">
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interest',f.dbFileName
+        from product_info p
+                 left join interest_info i
+                           on p.prodNo = i.prodNo
+                 left join file f
+                           on p.prodNo = f.no
+        where p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+        group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
+        order by p.prodPrice desc;
     </select>
 </mapper>
