@@ -1,10 +1,12 @@
-import Card from 'components/common/Card';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+
+import Card from 'components/common/Card';
 import PlusButton from '../components/common/PlusButton';
+import SkeletonCard from '../components/common/SkeletonCard';
+
 import { useInView } from 'react-intersection-observer';
 import { useCallback } from 'react';
-import SkeletonCard from '../components/common/SkeletonCard';
 
 // 임시 Mock 데이터
 const mockCardDatas = {
