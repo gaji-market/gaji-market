@@ -20,13 +20,13 @@ public interface ProductService {
     void productDelete(int prodNo);
 
     //해시태그 저장
-    void productHashTagSave(int prodNo,String hashTag);
+    void productHashTagSave(int prodNo, String hashTag);
 
     //파일 업로드
-    void productFileSave(String uploadFileName,String dbFilename,int prodNo,String i);
+    void productFileSave(String uploadFileName, String dbFilename, int prodNo, String i);
 
     //상품 수정
-    void productUpdate(int prodNo,ProductDTO productDTO);
+    void productUpdate(int prodNo, ProductDTO productDTO);
 
     //상품 번호로 업로드한 파일 찾기
     List<String> productFindDBFile(int prodNo);
@@ -77,7 +77,7 @@ public interface ProductService {
     int findProductPrice(int prodNo);
 
     //가격 경매 update
-    void priceOfferUpdate(int offerPrice, int findUserNo,int prodNo);
+    void priceOfferUpdate(int offerPrice, int findUserNo, int prodNo);
 
     //조회수 증가
     void viewCntUpdate(int prodNo);
@@ -86,16 +86,11 @@ public interface ProductService {
     int findInterestCnt(int prodNo);
 
     //팔래요 최신순 전체보기
-    List<Map<String,Object>> findSellAll(String search);
+    List<Map<String, Object>> findSellAll(String search,String sort);
 
     //살래요 최신순 전체보기
-    List<Map<String, Object>> findBuyAll(String search);
+    List<Map<String, Object>> findBuyAll(String search,String sort);
 
     //거래구분 찾기
     String findTradeState(int prodNo);
-
-    //팔래요 가격 높은순
-    List<Map<String, Object>> findSellHighPrice();
-
-
 }

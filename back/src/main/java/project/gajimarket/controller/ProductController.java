@@ -432,7 +432,6 @@ public class ProductController {
         if (findTradeState.equals("0")){
             //클릭한 태그를 보내준다
             response.sendRedirect("/product/sellAll?search="+enTag);
-            //search로 보내주면 알아서 받지 않나?
         }else {
             //살래요라면
             response.sendRedirect("/product/buyAll?search="+enTag);
@@ -442,13 +441,14 @@ public class ProductController {
 
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/sellAll")
-    public Map<String,Object> sellAll(@RequestParam(required = false) String search){
+    public Map<String,Object> sellAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort){
+        log.info("sort={}",sort);
         /**
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
          */
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findSellAll = productService.findSellAll(search);
+        List<Map<String,Object>> findSellAll = productService.findSellAll(search,sort);
         result.put("팔래요 최신순",findSellAll);
 
         return result;
@@ -456,30 +456,18 @@ public class ProductController {
 
     //살래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/buyAll")
-    public Map<String,Object> buyAll(@RequestParam(required = false) String search){
+    public Map<String,Object> buyAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort){
+        log.info("sort={}",sort);
         /**
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
          */
+
+        //choose로 가격 높은순, 낮은순 , 좋아요 높은순 , 조회수 높은순 값이 넘어온다면?
+
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findBuyAll = productService.findBuyAll(search);
+        List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort);
         result.put("살래요 최신순",findBuyAll);
-
-        return result;
-    }
-
-
-
-    //팔래요 가격 높은순
-    @GetMapping("/sellHighPrice")
-    public Map<String,Object> sellHighPrice(){
-
-        /**
-         * 여기도 판매완료 안나오게?? 일단 안나오게함
-         */
-        Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findSellHighPrice = productService.findSellHighPrice();
-        result.put("팔래요 금액 높은순",findSellHighPrice);
 
         return result;
     }
