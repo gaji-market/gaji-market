@@ -33,7 +33,7 @@ export default function Card({ productImage, title, price, area, likes }) {
             <NoImage />
           </>
         )}
-        <StateBadge text='판매중' />
+        <StateBadge productState='판매중' />
       </CardHead>
       <CardBody>
         <CardTitle>{title}</CardTitle>
