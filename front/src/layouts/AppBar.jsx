@@ -3,6 +3,8 @@ import styled from 'styled-components';
 
 import ToggleSwitch from 'components/common/ToggleSwitch';
 
+import { ReactComponent as BasicLogo } from '../assets/BasicLogo.svg';
+
 import { PRIMARY_COLOR } from 'components/common/commonColor';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
@@ -21,7 +23,7 @@ export default function AppBar() {
         <MenuBtn onClick={menubarHandler}>
           <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
         </MenuBtn>
-        <span>LOGO</span>
+        <BasicLogo height='60px' />
       </ItemGroup>
       <ItemGroup>
         <Search type='search' />
