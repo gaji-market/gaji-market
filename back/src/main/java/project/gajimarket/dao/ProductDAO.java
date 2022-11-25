@@ -89,10 +89,13 @@ public interface ProductDAO {
     int findInterestCnt(int prodNo);
 
     //팔래요 최신순 전체보기
-    List<Map<String,Object>> findSellAll(String search,String sort);
+    List<Map<String,Object>> findSellAll(String search,String sort,Integer category);
 
     //살래요 최신순 전체보기
-    List<Map<String, Object>> findBuyAll(String search,String sort);
+    List<Map<String, Object>> findBuyAll(String search,String sort,Integer category);
+
+    //상품번호로 카테고리 번호 찾기
+    int findProdNoByCategoryNo(int prodNo);
 
     //거래구분 찾기
     String findTradeState(int prodNo);

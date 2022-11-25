@@ -148,6 +148,11 @@
     <select id="findTradeState" resultType="String" parameterType="int">
         select tradeKind from product_info where prodNo=#{prodNo};
     </select>
+    
+    <!-- 상품번호로 카테고리번호 찾기 -->
+    <select id="findProdNoByCategoryNo" parameterType="int" resultType="int">
+        select categoryNo from product_info where prodNo=#{prodNo};
+    </select>
 
     <!-- 팔래요 최신순 전체보기 -->
     <select id="findSellAll" resultType="map">
@@ -164,29 +169,34 @@
                 and (p.prodName like concat('%',#{search},'%') or p.address like concat('%',#{search},'%') or h.tagName like concat('%',#{search},'%'))
                                   and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
             </if>
+            <if test="category != null">
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and categoryNo=#{category}
+            </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
         </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
-            <choose>
-                <when test="sort.equals('priceHigh')">
+        <if test="sort != null">
+                <if test="sort.equals('priceHigh')">
                     order by p.prodPrice desc;
-                </when>
-                <when test="sort.equals('priceLow')">
+                </if>
+                <if test="sort.equals('priceLow')">
                     order by p.prodPrice asc;
-                </when>
-                <when test="sort.equals('interestHigh')">
+                </if>
+                <if test="sort.equals('interestHigh')">
                     order by count(i.prodNo) desc;
-                </when>
-                <when test="sort.equals('viewCntHigh')">
+                </if>
+                <if test="sort.equals('viewCntHigh')">
                     order by p.viewCnt desc;
-                </when>
-                <when test="sort.equals('prodNameAsc')">
+                </if>
+                <if test="sort.equals('prodNameAsc')">
                     order by p.prodName asc;
-                </when>
-                <otherwise>
+                </if>
+        </if>
+                <if test="sort == null">
                     order by p.regDt desc;
-                </otherwise>
-            </choose>
+                </if>
+
+
     </select>
 
     <!-- 살래요 최신순 전체보기 -->
@@ -207,25 +217,25 @@
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
         </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
-            <choose>
-                <when test="sort.equals('priceHigh')">
+        <if test="sort != null">
+                <if test="sort.equals('priceHigh')">
                     order by p.prodPrice desc;
-                </when>
-                <when test="sort.equals('priceLow')">
+                </if>
+                <if test="sort.equals('priceLow')">
                     order by p.prodPrice asc;
-                </when>
-                <when test="sort.equals('interestHigh')">
+                </if>
+                <if test="sort.equals('interestHigh')">
                     order by count(i.prodNo) desc;
-                </when>
-                <when test="sort.equals('viewCntHigh')">
+                </if>
+                <if test="sort.equals('viewCntHigh')">
                     order by p.viewCnt desc;
-                </when>
-                <when test="sort.equals('prodNameAsc')">
+                </if>
+                <if test="sort.equals('prodNameAsc')">
                     order by p.prodName asc;
-                </when>
-                <otherwise>
+                </if>
+        </if>
+                <if test="sort == null">
                     order by p.regDt desc;
-                </otherwise>
-            </choose>
+                </if>
     </select>
 </mapper>

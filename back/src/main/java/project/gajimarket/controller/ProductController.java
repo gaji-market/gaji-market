@@ -2,13 +2,10 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import project.gajimarket.model.*;
 import project.gajimarket.model.file.FileForm;
 import project.gajimarket.model.file.UploadFile;
@@ -18,7 +15,6 @@ import project.gajimarket.service.ProductService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -33,6 +29,10 @@ public class ProductController {
 
     private final ProductService productService;
     private final FileService fileService;
+
+    //상품 등록할때 카테고리 선택해야되니까 카테고리 정보 보내줘야하나? 일단 데이터 넣자 카테고리딩
+    //카테고리 클릭햇을때도 만들어야되네.. 태그있는부분에다가 같이 넘겨줘도 될듯? 클릭한 카테고리로 저장한것들을 보여주면될듯?
+    //검색기능에서 /슬래시 오는것는 어떻게 뺄건지.. 스페이스바도.. 기타도..
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
@@ -415,13 +415,13 @@ public class ProductController {
     }
 
     //태그 클릭햇을때
-    @GetMapping("/{prodNo}/{tag}")
-    public void tag(@PathVariable int prodNo, @PathVariable String tag, HttpServletResponse response) throws IOException {
-        // 어떤 태그를 눌럿는지 글자가 넘어옴 근데 그 태그가 팔래요 인지 살래요인지 알아야한다 그래야지 어디로 redirect 시킬지 정해진다?
+    @GetMapping("/{prodNo}/tag")
+    public void tag(@PathVariable int prodNo, @RequestParam String tag, HttpServletResponse response) throws IOException {
+        log.info("tag={}",tag);
         /**
          * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 오면 좋겟다
+         * 아니면 태그를 # 없애고 그냥 글로만 해도댐
          */
-
         // 팔래요인지, 살래요인지 가져온다
         String findTradeState = productService.findTradeState(prodNo);
 
@@ -436,19 +436,43 @@ public class ProductController {
             //살래요라면
             response.sendRedirect("/product/buyAll?search="+enTag);
         }
+    }
 
+    //카테고리 클릭햇을때
+    @GetMapping("/{prodNo}/category")
+    public void tag(@PathVariable int prodNo, HttpServletResponse response) throws IOException {
+        /**
+         * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 오면 좋겟다
+         */
+        //카테고리 번호 찾기
+        int findProdNoByCategoryNo = productService.findProdNoByCategoryNo(prodNo);
+
+        // 팔래요인지, 살래요인지 가져온다
+        String findTradeState = productService.findTradeState(prodNo);
+
+        //만약 팔래요라면
+        if (findTradeState.equals("0")){
+            //클릭한 태그를 보내준다
+            response.sendRedirect("/product/sellAll?category="+findProdNoByCategoryNo);
+        }else {
+            //살래요라면
+            response.sendRedirect("/product/buyAll?category="+findProdNoByCategoryNo);
+        }
     }
 
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/sellAll")
-    public Map<String,Object> sellAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort){
+    public Map<String,Object> sellAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
+                                      @RequestParam(required = false) Integer category){
         log.info("sort={}",sort);
+        log.info("search={}",search);
+        log.info("category={}",category);
         /**
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
          */
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findSellAll = productService.findSellAll(search,sort);
+        List<Map<String,Object>> findSellAll = productService.findSellAll(search,sort,category);
         result.put("팔래요 최신순",findSellAll);
 
         return result;
@@ -456,7 +480,8 @@ public class ProductController {
 
     //살래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/buyAll")
-    public Map<String,Object> buyAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort){
+    public Map<String,Object> buyAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
+                                     @RequestParam(required = false) int category){
         log.info("sort={}",sort);
         /**
          * 판매완료는 안나오게..
@@ -466,7 +491,7 @@ public class ProductController {
         //choose로 가격 높은순, 낮은순 , 좋아요 높은순 , 조회수 높은순 값이 넘어온다면?
 
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort);
+        List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort,category);
         result.put("살래요 최신순",findBuyAll);
 
         return result;
