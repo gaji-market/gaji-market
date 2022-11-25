@@ -86,10 +86,10 @@ public interface ProductService {
     int findInterestCnt(int prodNo);
 
     //팔래요 최신순 전체보기
-    List<Map<String, Object>> findSellAll(String search,String sort,Integer category);
+    List<Map<String, Object>> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
 
     //살래요 최신순 전체보기
-    List<Map<String, Object>> findBuyAll(String search,String sort,Integer category);
+    List<Map<String, Object>> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
 
     //거래구분 찾기
     String findTradeState(int prodNo);

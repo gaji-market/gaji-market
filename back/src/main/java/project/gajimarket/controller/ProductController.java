@@ -30,9 +30,10 @@ public class ProductController {
     private final ProductService productService;
     private final FileService fileService;
 
-    //상품 등록할때 카테고리 선택해야되니까 카테고리 정보 보내줘야하나? 일단 데이터 넣자 카테고리딩
-    //카테고리 클릭햇을때도 만들어야되네.. 태그있는부분에다가 같이 넘겨줘도 될듯? 클릭한 카테고리로 저장한것들을 보여주면될듯?
+    //상품 등록할때 카테고리 선택해야되니까 카테고리 정보 보내줘야하나?and 메인에서도 카테고리 정보 필요함
     //검색기능에서 /슬래시 오는것는 어떻게 뺄건지.. 스페이스바도.. 기타도..
+
+
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
@@ -441,9 +442,6 @@ public class ProductController {
     //카테고리 클릭햇을때
     @GetMapping("/{prodNo}/category")
     public void tag(@PathVariable int prodNo, HttpServletResponse response) throws IOException {
-        /**
-         * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 오면 좋겟다
-         */
         //카테고리 번호 찾기
         int findProdNoByCategoryNo = productService.findProdNoByCategoryNo(prodNo);
 
@@ -460,20 +458,52 @@ public class ProductController {
         }
     }
 
+    //메인창에서 카테고리 클릭했을때도 만들어야함(여성의류를 클릭하면 where LargeName='여성의류' 인거를 다 보여주면됨)
+    //근데 정렬로 해야됨 그냥 sellAll로 보낼수 있을까
+    //팔래요로 보낼지 살래요로 보낼지
+    @GetMapping("/category")
+    public void category(@RequestParam(required = false) Integer largeCateNo,@RequestParam(required = false) Integer mediumCateNo,
+                         @RequestParam(required = false) Integer smallCateNo,
+                         HttpServletResponse response, @RequestParam String tradeState) throws IOException {
+        //먼저 팔래요선택햇는지, 살래요 선택햇는지를 알아야 어디로 보낼지 정해짐
+
+        //여성의류 클릭 -> 여성의류 전체
+        //여성의류 -> 패딩/점퍼 클릭 largeNo, mediumNo 두개가 넘어와야될듯
+
+        //팔래요라면
+        if (tradeState.equals("0")) {
+            if (largeCateNo != null && mediumCateNo == null && mediumCateNo == null) {
+                response.sendRedirect("/product/sellAll?largeCateNo="+largeCateNo);
+            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo == null) {
+                response.sendRedirect("/product/sellAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo);
+            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo != null){
+                response.sendRedirect("/product/sellAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo+"&&"+"smallCateNo="+smallCateNo);
+            }
+            //살래요라면
+        }else if (tradeState.equals("1")){
+            if (largeCateNo != null && mediumCateNo == null && mediumCateNo == null) {
+                response.sendRedirect("/product/buyAll?largeCateNo="+largeCateNo);
+            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo == null) {
+                response.sendRedirect("/product/buyAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo);
+            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo != null){
+                response.sendRedirect("/product/buyAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo+"&&"+"smallCateNo="+smallCateNo);
+            }
+        }
+
+    }
+
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/sellAll")
     public Map<String,Object> sellAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
-                                      @RequestParam(required = false) Integer category){
-        log.info("sort={}",sort);
-        log.info("search={}",search);
-        log.info("category={}",category);
+                                      @RequestParam(required = false) Integer category,@RequestParam(required = false) Integer largeCateNo,
+                                      @RequestParam(required = false) Integer mediumCateNo,@RequestParam(required = false) Integer smallCateNo){
         /**
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
          */
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findSellAll = productService.findSellAll(search,sort,category);
-        result.put("팔래요 최신순",findSellAll);
+        List<Map<String,Object>> findSellAll = productService.findSellAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
+        result.put("팔래요 정보",findSellAll);
 
         return result;
     }
@@ -481,8 +511,8 @@ public class ProductController {
     //살래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping("/buyAll")
     public Map<String,Object> buyAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
-                                     @RequestParam(required = false) int category){
-        log.info("sort={}",sort);
+                                     @RequestParam(required = false) Integer category,@RequestParam(required = false) Integer largeCateNo,
+                                     @RequestParam(required = false) Integer mediumCateNo,@RequestParam(required = false) Integer smallCateNo){
         /**
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
@@ -491,8 +521,8 @@ public class ProductController {
         //choose로 가격 높은순, 낮은순 , 좋아요 높은순 , 조회수 높은순 값이 넘어온다면?
 
         Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort,category);
-        result.put("살래요 최신순",findBuyAll);
+        List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
+        result.put("살래요 정보",findBuyAll);
 
         return result;
     }
