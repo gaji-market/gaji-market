@@ -2,6 +2,8 @@ import Button from 'components/common/Button';
 import Card from 'components/common/Card';
 import PlusButton from 'components/common/PlusButton';
 import React from 'react';
+import InputTextBox from '../components/common/InputTextBox';
+import InputTitle from '../components/common/InputTitle';
 
 export default function Home() {
   return (
@@ -35,6 +37,10 @@ export default function Home() {
           <PlusButton customSize={'60px'} />
         </div>
         <PlusButton />
+
+        {/* InputBox 공통 컴포넌트 */}
+        <InputTitle title='타이틀' isRequired />
+        <InputTextBox placeholder='플레이스 홀더' />
       </div>
     </>
   );
