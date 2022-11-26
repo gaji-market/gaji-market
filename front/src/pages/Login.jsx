@@ -4,6 +4,9 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import Button from '../components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
+import { NavLink } from 'react-router-dom';
+import KakaoImg from '../assets/kakao_login_large_wide.png';
+import NaverImg from '../assets/buttonNaver.png';
 export default function Login() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
@@ -43,17 +46,53 @@ export default function Login() {
         />
         <ButtonBox>
           {isFormValid ? (
-            <Button size='lg'>로그인</Button>
+            <Button customSize='250px'>로그인</Button>
           ) : (
-            <Button size='lg' isDisabled={!isFormValid}>
+            <Button customSize='250px' isDisabled={!isFormValid}>
               로그인
             </Button>
           )}
         </ButtonBox>
+        <DD>
+          <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
+          <NavLink to='/signup' style={{ textDecoration: 'none' }}>
+            <ToSignUp>회원가입</ToSignUp>
+          </NavLink>
+        </DD>
+        <SocialLogin>
+          <Img src={KakaoImg}></Img>
+        </SocialLogin>
+        <SocialLogin>
+          <Img src={NaverImg}></Img>
+        </SocialLogin>
       </Form>
     </Container>
   );
 }
+const SocialLogin = styled.div`
+  width: 250px;
+  height: 40px;
+  margin: 30px auto;
+`;
+const Img = styled.img`
+  width: 100%;
+`;
+const ToSignUp = styled.div`
+  color: #cccccc;
+  text-decoration: none;
+  font-size: 13px;
+`;
+const FindIdPw = styled.div`
+  color: #cccccc;
+  font-size: 13px;
+`;
+
+const DD = styled.div`
+  width: 300px;
+  margin: 15px 0px 0px 100px;
+  display: flex;
+  justify-content: space-evenly;
+`;
 const Container = styled.div`
   width: 500px;
   height: calc(100vh - 102px);
