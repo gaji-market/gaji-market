@@ -19,6 +19,7 @@ const Asterisk = styled.span`
 
 const Title = styled.span`
   font-weight: 700;
+  margin-top: 10px;
 `;
 
 const SubTitle = styled.span`
