@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import Button from '../components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 import { NavLink } from 'react-router-dom';
-import KakaoImg from '../assets/kakao_login_large_wide.png';
-import NaverImg from '../assets/buttonNaver.png';
+import KakaoImg from '../assets/KakaoImg.png';
+import NaverImg from '../assets/NaverImg.png';
 export default function Login() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
@@ -46,9 +46,9 @@ export default function Login() {
         />
         <ButtonBox>
           {isFormValid ? (
-            <Button customSize='250px'>로그인</Button>
+            <Button customSize='350px'>로그인</Button>
           ) : (
-            <Button customSize='250px' isDisabled={!isFormValid}>
+            <Button customSize='350px' isDisabled={!isFormValid}>
               로그인
             </Button>
           )}
@@ -62,6 +62,7 @@ export default function Login() {
         <SocialLogin>
           <Img src={KakaoImg}></Img>
         </SocialLogin>
+
         <SocialLogin>
           <Img src={NaverImg}></Img>
         </SocialLogin>
@@ -69,10 +70,13 @@ export default function Login() {
     </Container>
   );
 }
-const SocialLogin = styled.div`
-  width: 250px;
+const SocialLogin = styled.button`
+  width: 350px;
   height: 40px;
-  margin: 30px auto;
+  display: block;
+  background-color: white;
+  margin: 20px auto;
+  border: none;
 `;
 const Img = styled.img`
   width: 100%;
