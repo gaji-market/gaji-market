@@ -7,14 +7,16 @@ const TEMP_COLOR = '#aaa';
 export default function InputTextBox({
   width,
   type,
+  padding,
   placeholder,
   placeholderPosition = 'left',
 }) {
   return (
-    <Container>
+    <Container width={width}>
       <Input
         width={width}
         type={type}
+        padding={padding}
         placeholder={placeholder}
         placeholderPosition={placeholderPosition}
       />
@@ -24,14 +26,16 @@ export default function InputTextBox({
 
 const Container = styled.div`
   margin-top: 8px;
+  width: ${({ width }) => width};
 `;
 
 const Input = styled.input`
   width : 200px;
   width: ${({ width }) => width};
 
-  border-radius: 5px;
+  border-radius: 8px;
   padding: 8px;
+  padding : ${({ padding }) => padding};
   border: 2px solid ${TEMP_COLOR};
   transition: all 0.2s;
 
