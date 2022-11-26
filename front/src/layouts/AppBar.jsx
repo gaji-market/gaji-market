@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import ToggleSwitch from 'components/common/ToggleSwitch';
 
-import { ReactComponent as BasicLogo } from '../assets/BasicLogo.svg';
+import { ReactComponent as GradationLogo } from '../assets/GradationLogo.svg';
 
 import { PRIMARY_COLOR } from 'components/common/commonColor';
 
@@ -23,7 +23,7 @@ export default function AppBar() {
         <MenuBtn onClick={menubarHandler}>
           <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
         </MenuBtn>
-        <BasicLogo height='60px' />
+        <GradationLogo height='60px' />
       </ItemGroup>
       <ItemGroup>
         <Search type='search' />
