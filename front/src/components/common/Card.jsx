@@ -33,7 +33,7 @@ export default function Card({ productImage, title, price, area, likes }) {
             <NoImage />
           </>
         )}
-        <StateBadge text='판매중' />
+        <StateBadge productState='판매중' />
       </CardHead>
       <CardBody>
         <CardTitle>{title}</CardTitle>
@@ -41,14 +41,14 @@ export default function Card({ productImage, title, price, area, likes }) {
           <PriceText>{price}원</PriceText>
           <SubContent>
             <AreaText>{area}</AreaText>
-            <LikeContainer>
+            <LikesWrapper>
               {fillHeart ? (
                 <FillHeartIcon onClick={onClickHeart} />
               ) : (
                 <HeartIcon onClick={onClickHeart} />
               )}
-              <LikeCount>{likes}</LikeCount>
-            </LikeContainer>
+              <LikesCount>{likes}</LikesCount>
+            </LikesWrapper>
           </SubContent>
         </CardContent>
       </CardBody>
@@ -65,6 +65,7 @@ const CardContainer = styled.div`
   color: #7353ab;
   margin: 8px;
   transition: all 0.2s;
+  cursor: pointer;
 
   &:hover {
     scale: 1.02;
@@ -112,7 +113,7 @@ const AreaText = styled.p`
   font-size: 13px;
 `;
 
-const LikeContainer = styled.div`
+const LikesWrapper = styled.div`
   display: flex;
   gap: 5px;
 `;
@@ -125,7 +126,7 @@ const FillHeartIcon = styled(AiFillHeart)`
   cursor: pointer;
 `;
 
-const LikeCount = styled.p`
+const LikesCount = styled.p`
   font-size: 13px;
 `;
 
