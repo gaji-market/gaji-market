@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export default function StateBadge({ text }) {
+export default function StateBadge({ productState }) {
   return (
-    <StateBadgeContainer>
-      <BadgeContent>{text}</BadgeContent>
-    </StateBadgeContainer>
+    <Container>
+      <Text>{productState}</Text>
+    </Container>
   );
 }
 
-const StateBadgeContainer = styled.div`
+const Container = styled.div`
   position: absolute;
   font-size: 13px;
   bottom: 0;
@@ -17,7 +17,7 @@ const StateBadgeContainer = styled.div`
   margin: 15px;
 `;
 
-const BadgeContent = styled.div`
+const Text = styled.div`
   background: #9747ff;
   color: #fff;
   padding: 5px;

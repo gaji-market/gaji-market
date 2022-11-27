@@ -146,13 +146,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Map<String,Object>> findSellAll(String search) {
-        return productDAO.findSellAll(search);
+    public List<Map<String,Object>> findSellAll(String search, String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
+        return productDAO.findSellAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
     }
 
     @Override
-    public List<Map<String, Object>> findBuyAll(String search) {
-        return productDAO.findBuyAll(search);
+    public List<Map<String, Object>> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
+        return productDAO.findBuyAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
     }
 
     @Override
@@ -161,7 +161,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Map<String, Object>> findSellHighPrice() {
-        return productDAO.findSellHighPrice();
+    public int findProdNoByCategoryNo(int prodNo) {
+        return productDAO.findProdNoByCategoryNo(prodNo);
+    }
+
+    @Override
+    public List<Map<String, Object>> categoryInfo() {
+        return productDAO.categoryInfo();
     }
 }
