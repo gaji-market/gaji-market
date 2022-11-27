@@ -21,7 +21,9 @@ export default function InputBox({
           {title}
         </InputTitle>
         {isVaild ? (
-          <InputSubTitle color='gray'>{subTitle}</InputSubTitle>
+          <InputSubTitle display='none' color='gray'>
+            {subTitle}
+          </InputSubTitle>
         ) : (
           <InputSubTitle color='#E8828D'>{subTitle}</InputSubTitle>
         )}
@@ -66,6 +68,7 @@ const Text = styled.div`
 `;
 const InputSubTitle = styled.div`
   font-size: 10px;
+  display: ${(props) => props.display};
   color: ${(props) => props.color};
   margin: 25px 0px 0px 10px;
 `;
