@@ -22,10 +22,12 @@ export default function SignUp() {
   const isIdVaild = isVaild('ID', id);
   const isPasswordVaild = isVaild('PW', password);
   const isPasswordConfirmVaild = confirmPassword.length <= 1 || password === confirmPassword;
-  const isNickNameVaild = nickName.length > 4;
+  const isNickNameVaild = nickName.length >= 4 || nickName.length < 1;
   const isFormValid =
     isIdVaild &&
+    id.length > 1 &&
     isPasswordVaild &&
+    password.length > 1 &&
     isNickNameVaild &&
     isPasswordConfirmVaild &&
     isVaild('ETC', [address, addressDetail, birthday, gender]);
@@ -86,7 +88,9 @@ export default function SignUp() {
           value={nickName}
           id={'nickName'}
           setVaule={setNickName}
+          subTitle={'4글자 이상이여야 합니다.'}
           type={'text'}
+          isVaild={isNickNameVaild}
         />
         <InputBox
           title={'주소'}
@@ -133,8 +137,8 @@ export default function SignUp() {
 }
 const Container = styled.div`
   width: 500px;
-  height: calc(100vh - 102px);
-  margin: 0 auto;
+  height: 600px;
+  margin: 100px auto;
   box-shadow: 0px 0px 10px gray;
   padding: 50px 100px;
 `;
@@ -149,7 +153,7 @@ const Date = styled.input`
   height: 20px;
 `;
 const SubTitle = styled.p`
-  margin-left: 30px;
+  margin-left: 15px;
   padding-top: 7px;
   font-size: 10px;
   vertical-align: bottom;
