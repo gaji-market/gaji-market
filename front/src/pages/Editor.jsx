@@ -2,11 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 import Button from '../components/common/Button';
 import CheckBox from '../components/common/Checkbox';
-import { PRIMARY_COLOR } from '../components/common/commonColor';
 import InputTextBox from '../components/common/InputTextBox';
 import InputTitle from '../components/common/InputTitle';
 
-const TEMP_COLOR = '#555';
+import {
+  PRIMARY_COLOR,
+  GRAY_COLOR,
+  DARK_GRAY_COLOR,
+} from '../components/common/commonColor';
+
 const PADDING = '10px';
 
 export default function Editor() {
@@ -19,27 +23,33 @@ export default function Editor() {
 
       <Contents>
         <ContentHeader>
-          <Image />
-          <div>
+          <ImageWrapper>
+            <Image />
+          </ImageWrapper>
+
+          <TitleAndPriceWrapper>
             <InputTitle title='제목' isRequired />
-            <InputTextBox padding={PADDING} placeholder='물품명' />
+            <InputTextBox width='100%' padding={PADDING} placeholder='물품명' />
 
             <PriceTitleContainer>
               <div>
                 <InputTitle isRequired title='가격'></InputTitle>
               </div>
-              <CheckBox id='proposition' title='가격 제안 허용' />
+              <CheckBoxWrapper>
+                <CheckBox id='proposition' title='가격 제안 허용' />
+              </CheckBoxWrapper>
             </PriceTitleContainer>
 
             <PriceInputContainer>
               <InputTextBox
+                width='95%'
                 padding={PADDING}
                 placeholder='원'
                 placeholderPosition='right'
               />
-              <CheckBox id='free' title='무료나눔' />
+              <CheckBox width='110px' id='free' title='무료나눔' />
             </PriceInputContainer>
-          </div>
+          </TitleAndPriceWrapper>
         </ContentHeader>
 
         <InputTitle title='카테고리' isRequired />
@@ -47,30 +57,28 @@ export default function Editor() {
           <Select>
             <Option>option</Option>
           </Select>
-
           <Select>
             <Option>option</Option>
           </Select>
-
           <Select>
             <Option>option</Option>
           </Select>
         </Categories>
 
         <InputContent>
-          <InputTitle title='내용' />
+          <InputTitle isRequired title='내용' />
           <br />
           <TextArea placeholder='물품 상세 정보를 입력해주세요.' />
         </InputContent>
 
         <HashTageContainer>
           <InputTitle title='해시태그' />
-          <InputTextBox width='80%' placeholder='#해시태그' />
+          <InputTextBox width='100%' placeholder='#해시태그' />
         </HashTageContainer>
       </Contents>
       <ButtonContainer>
-        <Button customSize='350px'>수정하기</Button>
-        <Button customSize='350px' isOutline>
+        <Button customSize='50%'>수정하기</Button>
+        <Button customSize='50%' isOutline>
           취소하기
         </Button>
       </ButtonContainer>
@@ -81,11 +89,13 @@ export default function Editor() {
 // 나중에 form 으로 변경하기
 
 const Container = styled.div`
+  width: 800px;
+  margin: 0 auto;
   padding: 50px;
   display: flex;
   flex-direction: column;
   gap: 30px;
-  height: 500px;
+  height: 100%;
 `;
 
 const Header = styled.div``;
@@ -96,7 +106,7 @@ const Title = styled.h2`
 `;
 
 const SubText = styled.div`
-  color: ${TEMP_COLOR};
+  color: ${DARK_GRAY_COLOR};
   margin-top: 10px;
 `;
 
@@ -106,21 +116,32 @@ const ContentHeader = styled.div`
   display: flex;
 `;
 
+const ImageWrapper = styled.div``;
+
 const Image = styled.div`
   width: 160px;
   height: 160px;
   border-radius: 10px;
-  background: ${TEMP_COLOR};
+  background: ${GRAY_COLOR};
   margin-right: 30px;
   margin-bottom: 30px;
 `;
 
+const TitleAndPriceWrapper = styled.div`
+  flex-grow: 2;
+  width: 100%;
+`;
+
 const PriceTitleContainer = styled.div`
-  width: 800px;
   display: flex;
   align-items: center;
-  margin-top: 15px;
+  justify-content: space-between;
+  margin-top: 20px;
   gap: 20px;
+`;
+
+const CheckBoxWrapper = styled.div`
+  margin-right: 123px;
 `;
 
 const PriceInputContainer = styled.div`
@@ -131,12 +152,13 @@ const PriceInputContainer = styled.div`
 
 const Categories = styled.div`
   display: flex;
+  width: 100%;
 `;
 
 const Select = styled.select`
   display: block;
   margin-right: 10px;
-  width: 200px;
+  width: 100%;
   border-radius: 5px;
   padding: 10px;
   margin-top: 10px;
@@ -151,25 +173,36 @@ const Option = styled.option`
 `;
 
 const InputContent = styled.div`
-  margin-top: 20px;
+  margin-top: 25px;
 `;
 
-const HashTageContainer = styled.div``;
+const HashTageContainer = styled.div`
+  margin-top: 25px;
+`;
 
 const TextArea = styled.textarea`
-  min-width: 600px;
-  max-width: 50%;
-  min-height: 100px;
+  min-width: 100%;
+  max-width: 100%;
+
+  min-height: 200px;
   max-height: 300px;
+
   border-radius: 10px;
+  border: 2px solid ${GRAY_COLOR};
   padding: 10px;
+  margin-top: 8px;
 
   &:focus {
     outline: 1px solid ${PRIMARY_COLOR};
+  }
+
+  &::placeholder {
+    color: ${GRAY_COLOR};
   }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
+  width: 100%;
   gap: 10px;
 `;
