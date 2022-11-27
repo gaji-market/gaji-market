@@ -4,24 +4,44 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
-
+import Button from '../components/common/Button';
+import { isVaild } from 'utils/checkVaildForm';
 export default function SignUp() {
-  const [email, setEmail] = useState('');
+  const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+
+  const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [nickName, setNickName] = useState('');
   const [address, setAddress] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
+  const [birthday, setBirthday] = useState('');
+  const [gender, setGender] = useState('');
 
-  const open = useDaumPostcodePopup(
-    'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
-  );
+  const open = useDaumPostcodePopup(DaumURL);
+  const isIdVaild = isVaild('ID', id);
+  const isPasswordVaild = isVaild('PW', password);
+  const isPasswordConfirmVaild = confirmPassword.length <= 1 || password === confirmPassword;
+  const isNickNameVaild = nickName.length > 4;
+  const isFormValid =
+    isIdVaild &&
+    isPasswordVaild &&
+    isNickNameVaild &&
+    isPasswordConfirmVaild &&
+    isVaild('ETC', [address, addressDetail, birthday, gender]);
 
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
     setAddress(fullAddress);
   };
+  const handerClick = (e) => {
+    if (e.target.name === 'gender') setGender(e.target.value);
+    else if (e.target.name === 'calender') setBirthday(e.target.value);
+  };
 
+  const submitHandler = (e) => {
+    e.preventDefault();
+  };
   return (
     <Container>
       <SignUpHead>
@@ -29,63 +49,84 @@ export default function SignUp() {
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line />
-      <Form>
+      <Form onSubmit={(e) => submitHandler(e)}>
         <InputBox
           title={'아이디'}
-          placeholder={'Id'}
-          value={email}
-          setVaule={setEmail}
-          subTitle={'8글자 이상 이여야 합니다'}
+          placeholder={'아이디를 입력하세요'}
+          value={id}
+          id={'id'}
+          setVaule={setId}
+          subTitle={'6글자 이상 이여야 합니다'}
+          type={'text'}
+          isVaild={isIdVaild}
         />
         <InputBox
           title={'비밀번호'}
-          placeholder={'Password'}
+          placeholder={'비밀번호를 입력하세요.'}
           value={password}
+          id={'password'}
           setVaule={setPassword}
           subTitle={'8글자 이상 이고 영어와 숫자가 포함되어야 합니다'}
+          type={'password'}
+          isVaild={isPasswordVaild}
         />
         <InputBox
           title={'비밀번호 확인'}
-          placeholder={'Password'}
+          placeholder={'비밀번호를 입력하세요.'}
           value={confirmPassword}
+          id={'confirmPassword'}
           setVaule={setConfirmPassword}
-          subTitle={'위의 비밀번호와 일치하여야 합니다'}
+          subTitle={'비밀번호와 일치하여야 합니다'}
+          type={'password'}
+          isVaild={isPasswordConfirmVaild}
         />
         <InputBox
           title={'닉네임'}
-          placeholder={'NickName'}
+          placeholder={'닉네임을 입력하세요.'}
           value={nickName}
+          id={'nickName'}
           setVaule={setNickName}
+          type={'text'}
         />
         <InputBox
           title={'주소'}
-          placeholder={'Address'}
+          placeholder={'주소를 입력하세요.'}
           value={address}
+          id={'address'}
           setVaule={setAddress}
           clickHandler={() => open({ onComplete: handleComplete })}
-          subTitle={'주소를 입력하세요.'}
         />
         <InputBox
           title={'상세주소'}
-          placeholder={'AddressDetail'}
+          placeholder={'상세주소를 입력하세요.'}
           value={addressDetail}
+          id={'addressDetail'}
           setVaule={setAddressDetail}
-          subTitle={'상세 주소를 입력해주세요.'}
+          type={'text'}
         />
-        <FlexBox>
+        <FlexBox onChange={(e) => handerClick(e)}>
           <FlexItem>
-            <Title margin={'20px'}>생년월일</Title>
-            <Date type='date' id='start' name='trip-start'></Date>
+            <Title margin={'50px'}>생년월일</Title>
+            <Date defaultValue={birthday} type='date' id='calender' name='calender'></Date>
           </FlexItem>
 
-          <FlexItem margin={'100px'}>
+          <FlexItem margin={'50px'}>
             <Title margin={'10px'}>성별</Title>
-            <Raido type='radio' name='gender' value='남자' />
+            <Raido type='radio' name='gender' value={'남자'} />
             남자
-            <Raido type='radio' name='gender' value='여자' />
+            <Raido type='radio' name='gender' value={'여자'} />
             여자
           </FlexItem>
         </FlexBox>
+        <ButtonBox>
+          {isFormValid ? (
+            <Button size='lg'>회원가입</Button>
+          ) : (
+            <Button size='lg' isDisabled={!isFormValid}>
+              회원가입
+            </Button>
+          )}
+        </ButtonBox>
       </Form>
     </Container>
   );
@@ -100,7 +141,8 @@ const Container = styled.div`
 const Title = styled.div`
   font-weight: 800;
   font-size: 16px;
-  margin-right: ${(props) => props.margin};
+  margin-right: 10px;
+  margin-left: ${(props) => props.margin};
 `;
 const Date = styled.input`
   width: 100px;
@@ -132,4 +174,9 @@ const FlexItem = styled.div`
   display: flex;
   align-items: center;
   margin-left: ${(props) => props.margin};
+`;
+const ButtonBox = styled.div`
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
 `;
