@@ -96,4 +96,7 @@ public interface ProductService {
 
     //상품번호로 카테고리 번호 찾기
     int findProdNoByCategoryNo(int prodNo);
+
+    //전체 카테고리 정보
+    List<Map<String, Object>> categoryInfo();
 }

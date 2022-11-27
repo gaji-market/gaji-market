@@ -164,4 +164,9 @@ public class ProductServiceImpl implements ProductService {
     public int findProdNoByCategoryNo(int prodNo) {
         return productDAO.findProdNoByCategoryNo(prodNo);
     }
+
+    @Override
+    public List<Map<String, Object>> categoryInfo() {
+        return productDAO.categoryInfo();
+    }
 }

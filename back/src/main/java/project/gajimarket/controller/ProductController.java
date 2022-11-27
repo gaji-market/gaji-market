@@ -30,10 +30,19 @@ public class ProductController {
     private final ProductService productService;
     private final FileService fileService;
 
+    //해시태그 글쓰면 자동작성으로 할건지..
+    //로그인 한 사람 찾아와서 넣기는 어떻게 할지..
+
     //상품 등록할때 카테고리 선택해야되니까 카테고리 정보 보내줘야하나?and 메인에서도 카테고리 정보 필요함
-    //검색기능에서 /슬래시 오는것는 어떻게 뺄건지.. 스페이스바도.. 기타도..
+    @GetMapping("/categoryInfo")
+    public Map<String,Object> categoryInfo(){
 
+        Map<String,Object> result = new LinkedHashMap<>();
+        List<Map<String,Object>> categoryInfo = productService.categoryInfo();
 
+        result.put("카테고리 정보",categoryInfo);
+        return result;
+    }
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
@@ -59,6 +68,9 @@ public class ProductController {
         productDTO.setAddress(findAddress);
 
         //입력한 상품 입력
+        /**
+         * 유저를 세션이용해서 가져와야될꺼같음 아이디로 유저번호 찾아서 저장 해야할듯
+         */
         productDTO.setUserNo(1);
         productDTO.setProdName("팔래요 테스트 상품 이름");
         productDTO.setProdPrice(50000);
@@ -418,9 +430,8 @@ public class ProductController {
     //태그 클릭햇을때
     @GetMapping("/{prodNo}/tag")
     public void tag(@PathVariable int prodNo, @RequestParam String tag, HttpServletResponse response) throws IOException {
-        log.info("tag={}",tag);
         /**
-         * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 오면 좋겟다
+         * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 와야될듯
          * 아니면 태그를 # 없애고 그냥 글로만 해도댐
          */
         // 팔래요인지, 살래요인지 가져온다
@@ -458,14 +469,12 @@ public class ProductController {
         }
     }
 
-    //메인창에서 카테고리 클릭했을때도 만들어야함(여성의류를 클릭하면 where LargeName='여성의류' 인거를 다 보여주면됨)
-    //근데 정렬로 해야됨 그냥 sellAll로 보낼수 있을까
-    //팔래요로 보낼지 살래요로 보낼지
+    //메인화면에서 카테고리 클릭
     @GetMapping("/category")
     public void category(@RequestParam(required = false) Integer largeCateNo,@RequestParam(required = false) Integer mediumCateNo,
                          @RequestParam(required = false) Integer smallCateNo,
                          HttpServletResponse response, @RequestParam String tradeState) throws IOException {
-        //먼저 팔래요선택햇는지, 살래요 선택햇는지를 알아야 어디로 보낼지 정해짐
+        //먼저 팔래요선택햇는지, 살래요 선택햇는지를 알아야 어디로 보낼지 정해짐 (팔래요 0, 살래요 1)
 
         //여성의류 클릭 -> 여성의류 전체
         //여성의류 -> 패딩/점퍼 클릭 largeNo, mediumNo 두개가 넘어와야될듯
@@ -517,8 +526,6 @@ public class ProductController {
          * 판매완료는 안나오게..
          * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
          */
-
-        //choose로 가격 높은순, 낮은순 , 좋아요 높은순 , 조회수 높은순 값이 넘어온다면?
 
         Map<String,Object> result = new LinkedHashMap<>();
         List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);

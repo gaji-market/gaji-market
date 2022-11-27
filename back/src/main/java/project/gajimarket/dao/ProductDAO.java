@@ -99,4 +99,7 @@ public interface ProductDAO {
 
     //거래구분 찾기
     String findTradeState(int prodNo);
+
+    //전체 카테고리 정보
+    List<Map<String, Object>> categoryInfo();
 }

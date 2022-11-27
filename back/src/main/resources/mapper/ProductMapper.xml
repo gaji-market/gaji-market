@@ -269,4 +269,9 @@
                     order by p.regDt desc;
                 </if>
     </select>
+
+    <!-- 카테고리 전체 정보 보기 -->
+    <select id="categoryInfo" resultType="map">
+        select * from category_info;
+    </select>
 </mapper>
