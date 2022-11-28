@@ -7,10 +7,13 @@ import Button from '../components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
-import { PRIMARY_COLOR } from 'components/common/commonColor';
-export default function SignUp() {
-  const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+import { GRAY_COLOR, PRIMARY_COLOR } from 'components/common/commonColor';
 
+const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+const NICK_NAME_MIX_LENGTH = 4;
+const INPUT_MIN_LENGTH = 1;
+
+export default function SignUp() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,13 +26,15 @@ export default function SignUp() {
   const open = useDaumPostcodePopup(DaumURL);
   const isIdVaild = isVaild('ID', id);
   const isPasswordVaild = isVaild('PW', password);
-  const isPasswordConfirmVaild = confirmPassword.length <= 1 || password === confirmPassword;
-  const isNickNameVaild = nickName.length >= 4 || nickName.length < 1;
+  const isPasswordConfirmVaild =
+    confirmPassword.length <= INPUT_MIN_LENGTH || password === confirmPassword;
+  const isNickNameVaild =
+    nickName.length >= NICK_NAME_MIX_LENGTH || nickName.length < INPUT_MIN_LENGTH;
   const isFormValid =
     isIdVaild &&
-    id.length > 1 &&
+    id.length > INPUT_MIN_LENGTH &&
     isPasswordVaild &&
-    password.length > 1 &&
+    password.length > INPUT_MIN_LENGTH &&
     isNickNameVaild &&
     isPasswordConfirmVaild &&
     isVaild('ETC', [address, addressDetail, birthday, gender]);
@@ -176,7 +181,7 @@ const Container = styled.div`
   width: 700px;
   height: 800px;
   margin: 50px auto;
-  box-shadow: 0px 0px 13px 1px ${PRIMARY_COLOR};
+  box-shadow: 0px 0px 20px 1px ${GRAY_COLOR};
   padding: 50px 100px;
 `;
 const Title = styled.div`
