@@ -1,13 +1,27 @@
 import React from 'react';
+import { useEffect } from 'react';
 import styled from 'styled-components';
 import { PRIMARY_COLOR } from './commonColor';
 
-export default function InputTitle({ title, subTitle, isRequired = false }) {
+export default function InputTitle({
+  title,
+  subTitle,
+  isVaild,
+  signUpSubTitle,
+  isRequired = false,
+}) {
   return (
     <>
       {isRequired && <Asterisk>*</Asterisk>}
       <Title>{title}</Title>
       {subTitle && <SubTitle>{subTitle}</SubTitle>}
+      {isVaild ? (
+        <SignUpSubTitle display='none' color='gray'>
+          {signUpSubTitle}
+        </SignUpSubTitle>
+      ) : (
+        <SignUpSubTitle color='#E8828D'>{signUpSubTitle}</SignUpSubTitle>
+      )}
     </>
   );
 }
@@ -26,4 +40,10 @@ const SubTitle = styled.span`
   margin-left: 8px;
   font-size: 12px;
   color: #aaa;
+`;
+const SignUpSubTitle = styled.span`
+  font-size: 10px;
+  display: ${(props) => props.display};
+  color: ${(props) => props.color};
+  margin: 25px 0px 0px 10px;
 `;
