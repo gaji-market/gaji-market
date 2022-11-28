@@ -1,10 +1,12 @@
-import InputBox from 'components/common/InputBox';
+import InputTextBox from 'components/common/InputTextBox';
+import InputTitle from 'components/common/InputTitle';
 import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import Button from '../components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 import { NavLink } from 'react-router-dom';
+import { GRAY_COLOR } from 'components/common/commonColor';
 import KakaoImg from '../assets/KakaoImg.png';
 import NaverImg from '../assets/NaverImg.png';
 export default function Login() {
@@ -26,23 +28,36 @@ export default function Login() {
       </SignUpHead>
       <Line />
       <Form onSubmit={(e) => submitHandler(e)}>
-        <InputBox
+        <InputTitle
           title={'아이디'}
-          placeholder={'아이디를 입력하세요'}
-          value={id}
+          signUpSubTitle={'6글자 이상 이여야 합니다'}
+          isVaild={isIdVaild}
+          isRequired
+        />
+        <InputTextBox
           id={'id'}
           setVaule={setId}
+          value={id}
+          containerBottom={'20px'}
+          width={'350px'}
+          placeholder={'아이디를 입력하세요'}
           type={'text'}
-          isVaild={isIdVaild}
         />
-        <InputBox
+
+        <InputTitle
           title={'비밀번호'}
-          placeholder={'비밀번호를 입력하세요.'}
-          value={password}
+          signUpSubTitle={'6글자 이상 이여야 합니다'}
+          isVaild={isPasswordVaild}
+          isRequired
+        />
+        <InputTextBox
           id={'password'}
           setVaule={setPassword}
+          value={password}
+          containerBottom={'20px'}
+          width={'350px'}
+          placeholder={'비밀번호를 입력하세요.'}
           type={'password'}
-          isVaild={isPasswordVaild}
         />
         <ButtonBox>
           {isFormValid ? (
@@ -53,16 +68,15 @@ export default function Login() {
             </Button>
           )}
         </ButtonBox>
-        <DD>
+        <SubBox>
           <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
           <NavLink to='/signup' style={{ textDecoration: 'none' }}>
             <ToSignUp>회원가입</ToSignUp>
           </NavLink>
-        </DD>
+        </SubBox>
         <SocialLogin>
           <Img src={KakaoImg}></Img>
         </SocialLogin>
-
         <SocialLogin>
           <Img src={NaverImg}></Img>
         </SocialLogin>
@@ -70,14 +84,7 @@ export default function Login() {
     </Container>
   );
 }
-const SocialLogin = styled.button`
-  width: 350px;
-  height: 40px;
-  display: block;
-  background-color: white;
-  margin: 20px auto;
-  border: none;
-`;
+
 const Img = styled.img`
   width: 100%;
 `;
@@ -91,19 +98,22 @@ const FindIdPw = styled.div`
   font-size: 13px;
 `;
 
-const DD = styled.div`
+const SubBox = styled.div`
   width: 300px;
   margin: 15px 0px 0px 100px;
   display: flex;
   justify-content: space-evenly;
 `;
+
 const Container = styled.div`
-  width: 500px;
-  height: calc(100vh - 102px);
-  margin: 0 auto;
-  box-shadow: 0px 0px 10px gray;
+  width: 700px;
+  height: 800px;
+  margin: 60px auto;
+  border-radius: 35px;
+  box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
   padding: 50px 100px;
 `;
+
 const Title = styled.div`
   font-weight: 800;
   font-size: 16px;
@@ -121,15 +131,26 @@ const SubTitle = styled.p`
 const SignUpHead = styled.div`
   display: flex;
 `;
+
 const Line = styled.div`
   border-bottom: 1px solid #eeeeee;
   margin-top: 15px;
+  margin-bottom: 30px;
   width: 500px;
 `;
+
 const Form = styled.form``;
 
 const ButtonBox = styled.div`
   margin-top: 30px;
   display: flex;
   justify-content: center;
+`;
+const SocialLogin = styled.button`
+  width: 350px;
+  height: 40px;
+  display: block;
+  background-color: white;
+  margin: 20px auto;
+  border: none;
 `;
