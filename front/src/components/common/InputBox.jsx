@@ -2,39 +2,41 @@ import React from 'react';
 import styled from 'styled-components';
 import { PRIMARY_COLOR } from './commonColor';
 
-export default function InputBox({
-  title,
-  placeholder,
-  subTitle,
-  value,
-  setVaule,
-  clickHandler,
-  id,
-  type,
-  isVaild,
-}) {
+export default function InputBox(
+  {
+    //title,
+    //placeholder,
+    //subTitle,
+    // value,
+    // setVaule,
+    // clickHandler,
+    // id,
+    // type,
+    // isVaild,
+  }
+) {
   return (
     <>
       <Text>
-        <InputTitle htmlFor={id}>
+        {/* <InputTitle htmlFor={id}>
           <StarIcon>*</StarIcon>
           {title}
-        </InputTitle>
-        {isVaild ? (
+        </InputTitle> */}
+        {/* {isVaild ? (
           <InputSubTitle display='none' color='gray'>
             {subTitle}
           </InputSubTitle>
         ) : (
           <InputSubTitle color='#E8828D'>{subTitle}</InputSubTitle>
-        )}
+        )} */}
       </Text>
       <Input
-        type={type}
-        onClick={clickHandler}
-        value={value}
-        id={id}
-        onChange={(e) => setVaule(e.target.value)}
-        placeholder={`${placeholder}`}
+      //type={type}
+      //onClick={clickHandler}
+      //value={value}
+      //id={id}
+      //onChange={(e) => setVaule(e.target.value)}
+      //placeholder={`${placeholder}`}
       />
     </>
   );
@@ -66,9 +68,9 @@ const InputTitle = styled.label`
 const Text = styled.div`
   display: flex;
 `;
-const InputSubTitle = styled.div`
-  font-size: 10px;
-  display: ${(props) => props.display};
-  color: ${(props) => props.color};
-  margin: 25px 0px 0px 10px;
-`;
+// const InputSubTitle = styled.div`
+//   font-size: 10px;
+//   display: ${(props) => props.display};
+//   color: ${(props) => props.color};
+//   margin: 25px 0px 0px 10px;
+// `;

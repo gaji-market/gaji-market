@@ -7,18 +7,27 @@ const TEMP_COLOR = '#aaa';
 export default function InputTextBox({
   width,
   type,
+  value,
+  setVaule,
+  clickHandler,
+  id,
+  containerBottom,
   padding,
   placeholder,
   placeholderPosition = 'left',
 }) {
   return (
-    <Container width={width}>
+    <Container width={width} containerBottom={containerBottom}>
       <Input
+        id={id}
         width={width}
         type={type}
+        value={value}
         padding={padding}
         placeholder={placeholder}
         placeholderPosition={placeholderPosition}
+        onClick={clickHandler}
+        onChange={(e) => setVaule(e.target.value)}
       />
     </Container>
   );
@@ -26,16 +35,17 @@ export default function InputTextBox({
 
 const Container = styled.div`
   margin-top: 8px;
+  margin-bottom: ${({ containerBottom }) => containerBottom};
   width: ${({ width }) => width};
 `;
 
 const Input = styled.input`
-  width : 200px;
+  width: 200px;
   width: ${({ width }) => width};
 
   border-radius: 8px;
   padding: 8px;
-  padding : ${({ padding }) => padding};
+  padding: ${({ padding }) => padding};
   border: 2px solid ${TEMP_COLOR};
   transition: all 0.2s;
 
@@ -46,5 +56,6 @@ const Input = styled.input`
 
   &::placeholder {
     color: ${TEMP_COLOR};
-    text-align: ${({ placeholderPosition }) => placeholderPosition}
+    text-align: ${({ placeholderPosition }) => placeholderPosition};
+  }
 `;
