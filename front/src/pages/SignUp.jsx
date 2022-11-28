@@ -157,7 +157,14 @@ export default function SignUp() {
         <FlexBox onChange={(e) => handerClick(e)}>
           <FlexItem>
             <Title margin={'50px'}>생년월일</Title>
-            <Date defaultValue={birthday} type='date' id='calender' name='calender'></Date>
+            <Date
+              defaultValue={birthday}
+              data-placeholder='생년월일'
+              type='date'
+              id='calender'
+              name='calender'
+              required
+            ></Date>
           </FlexItem>
 
           <FlexItem margin={'50px'}>
@@ -225,6 +232,13 @@ const Date = styled.input`
     color: transparent;
     cursor: pointer;
   }
+  &::before {
+    content: attr(data-placeholder);
+    width: 100%;
+  }
+  &:valid::before {
+    display: none;
+  }
   width: 125px;
   height: 20px;
 `;
@@ -240,13 +254,12 @@ const SignUpHead = styled.div`
 `;
 const RadioButton = styled.label`
   display: inline-block;
-  width: 55px;
-  height: 80px;
+  width: 40px;
+  height: 70px;
   border-radius: 20px;
 
   background: ${(props) =>
-    props.type === 'man' ? `url(${man}) no-repeat` : `url(${woman}) no-repeat`};
-  //background: url(${woman}) no-repeat;
+    props.type === 'man' ? `url(${man}) no-repeat` : `url(${woman}) no-repeat center`};
   cursor: pointer;
 `;
 const HiddenRadioButton = styled.input`
