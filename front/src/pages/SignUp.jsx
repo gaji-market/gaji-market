@@ -8,7 +8,6 @@ import { isVaild } from 'utils/checkVaildForm';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
 import { GRAY_COLOR, PRIMARY_COLOR } from 'components/common/commonColor';
-import { BsGenderMale } from 'react-icons/bs';
 import logo200 from '../assets/BasicLogo.svg';
 import man from '../assets/man.png';
 import woman from '../assets/woman.png';
@@ -67,7 +66,6 @@ export default function SignUp() {
           title='아이디'
           signUpSubTitle={'6글자 이상 이여야 합니다'}
           isVaild={isIdVaild}
-          margin={'10px'}
           isRequired
         />
         <InputTextBox
@@ -84,7 +82,6 @@ export default function SignUp() {
           title={'비밀번호'}
           signUpSubTitle={'8글자 이상 이고 영어와 숫자가 포함되어야 합니다'}
           isVaild={isPasswordVaild}
-          margin={'10px'}
           isRequired
         />
         <InputTextBox
