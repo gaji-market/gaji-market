@@ -1,4 +1,3 @@
-import InputBox from 'components/common/InputBox';
 import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
@@ -8,6 +7,7 @@ import Button from '../components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
+import { PRIMARY_COLOR } from 'components/common/commonColor';
 export default function SignUp() {
   const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
@@ -176,7 +176,7 @@ const Container = styled.div`
   width: 700px;
   height: 800px;
   margin: 50px auto;
-  box-shadow: 0px 0px 10px gray;
+  box-shadow: 0px 0px 13px 1px ${PRIMARY_COLOR};
   padding: 50px 100px;
 `;
 const Title = styled.div`

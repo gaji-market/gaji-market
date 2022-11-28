@@ -1,5 +1,4 @@
 import React from 'react';
-import { useEffect } from 'react';
 import styled from 'styled-components';
 import { PRIMARY_COLOR } from './commonColor';
 
