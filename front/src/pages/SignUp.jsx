@@ -6,6 +6,8 @@ import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
 import Button from '../components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
+import InputTextBox from 'components/common/InputTextBox';
+import InputTitle from 'components/common/InputTitle';
 export default function SignUp() {
   const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
@@ -52,62 +54,97 @@ export default function SignUp() {
       </SignUpHead>
       <Line />
       <Form onSubmit={(e) => submitHandler(e)}>
-        <InputBox
-          title={'아이디'}
-          placeholder={'아이디를 입력하세요'}
-          value={id}
+        <InputTitle
+          title='아이디'
+          signUpSubTitle={'6글자 이상 이여야 합니다'}
+          isVaild={isIdVaild}
+          margin={'10px'}
+          isRequired
+        />
+        <InputTextBox
           id={'id'}
           setVaule={setId}
-          subTitle={'6글자 이상 이여야 합니다'}
+          value={id}
+          containerBottom={'20px'}
+          width={'500px'}
+          placeholder={'아이디를 입력하세요'}
           type={'text'}
-          isVaild={isIdVaild}
         />
-        <InputBox
+
+        <InputTitle
           title={'비밀번호'}
-          placeholder={'비밀번호를 입력하세요.'}
-          value={password}
+          signUpSubTitle={'8글자 이상 이고 영어와 숫자가 포함되어야 합니다'}
+          isVaild={isPasswordVaild}
+          margin={'10px'}
+          isRequired
+        />
+        <InputTextBox
           id={'password'}
           setVaule={setPassword}
-          subTitle={'8글자 이상 이고 영어와 숫자가 포함되어야 합니다'}
-          type={'password'}
-          isVaild={isPasswordVaild}
-        />
-        <InputBox
-          title={'비밀번호 확인'}
+          containerBottom={'20px'}
+          value={password}
+          width={'500px'}
           placeholder={'비밀번호를 입력하세요.'}
-          value={confirmPassword}
+          type={'password'}
+        />
+
+        <InputTitle
+          title={'비밀번호 확인'}
+          signUpSubTitle={'비밀번호와 일치하여야 합니다'}
+          isVaild={isPasswordConfirmVaild}
+          isRequired
+        />
+        <InputTextBox
           id={'confirmPassword'}
           setVaule={setConfirmPassword}
-          subTitle={'비밀번호와 일치하여야 합니다'}
+          containerBottom={'20px'}
+          value={confirmPassword}
+          width={'500px'}
+          placeholder={'비밀번호를 입력하세요.'}
           type={'password'}
-          isVaild={isPasswordConfirmVaild}
         />
-        <InputBox
+
+        <InputTitle
           title={'닉네임'}
-          placeholder={'닉네임을 입력하세요.'}
-          value={nickName}
+          signUpSubTitle={'4글자 이상이여야 합니다.'}
+          isVaild={isNickNameVaild}
+          isRequired
+        />
+        <InputTextBox
           id={'nickName'}
           setVaule={setNickName}
-          subTitle={'4글자 이상이여야 합니다.'}
+          value={nickName}
+          containerBottom={'20px'}
+          width={'500px'}
+          placeholder={'닉네임을 입력하세요.'}
           type={'text'}
-          isVaild={isNickNameVaild}
         />
-        <InputBox
-          title={'주소'}
-          placeholder={'주소를 입력하세요.'}
-          value={address}
+
+        <InputTitle title={'주소'} isVaild={isNickNameVaild} isRequired />
+        <InputTextBox
           id={'address'}
           setVaule={setAddress}
+          value={address}
+          width={'500px'}
+          containerBottom={'20px'}
+          padding={'10px'}
+          placeholder={'주소를 입력하세요.'}
+          type={'text'}
           clickHandler={() => open({ onComplete: handleComplete })}
         />
-        <InputBox
-          title={'상세주소'}
-          placeholder={'상세주소를 입력하세요.'}
-          value={addressDetail}
+
+        <InputTitle title={'상세주소'} isRequired />
+        <InputTextBox
           id={'addressDetail'}
           setVaule={setAddressDetail}
+          value={addressDetail}
+          padding={'10px'}
+          containerBottom={'20px'}
+          width={'500px'}
+          placeholder={'상세주소를 입력하세요.'}
           type={'text'}
         />
+
         <FlexBox onChange={(e) => handerClick(e)}>
           <FlexItem>
             <Title margin={'50px'}>생년월일</Title>
@@ -136,9 +173,9 @@ export default function SignUp() {
   );
 }
 const Container = styled.div`
-  width: 500px;
-  height: 600px;
-  margin: 100px auto;
+  width: 700px;
+  height: 800px;
+  margin: 50px auto;
   box-shadow: 0px 0px 10px gray;
   padding: 50px 100px;
 `;
@@ -166,6 +203,7 @@ const Raido = styled.input``;
 const Line = styled.div`
   border-bottom: 1px solid #eeeeee;
   margin-top: 15px;
+  margin-bottom: 15px;
   width: 500px;
 `;
 const Form = styled.form``;
