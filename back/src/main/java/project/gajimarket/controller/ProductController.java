@@ -34,7 +34,7 @@ public class ProductController {
     //해시태그 글쓰면 자동작성으로 할건지..
     //로그인 한 사람 찾아와서 넣기는 어떻게 할지..
 
-    //상품 등록할때 카테고리 선택해야되니까 카테고리 정보 보내줘야하나?and 메인에서도 카테고리 정보 필요함
+    //카테고리 전체 정보
     @GetMapping("/categoryInfo")
     public Map<String,Object> categoryInfo(){
 
