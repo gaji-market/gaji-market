@@ -4,7 +4,6 @@ import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import Button from '../components/common/Button';
-import { isVaild } from 'utils/checkVaildForm';
 import { NavLink } from 'react-router-dom';
 import { GRAY_COLOR } from 'components/common/commonColor';
 import KakaoImg from '../assets/KakaoImg.png';
@@ -12,10 +11,6 @@ import NaverImg from '../assets/NaverImg.png';
 export default function Login() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
-
-  const isIdVaild = isVaild('ID', id, true);
-  const isPasswordVaild = isVaild('PW', password, true);
-  const isFormValid = isIdVaild && isPasswordVaild;
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -28,45 +23,31 @@ export default function Login() {
       </SignUpHead>
       <Line />
       <Form onSubmit={(e) => submitHandler(e)}>
-        <InputTitle
-          title={'아이디'}
-          signUpSubTitle={'6글자 이상 이여야 합니다'}
-          isVaild={isIdVaild}
-          isRequired
-        />
-        <InputTextBox
-          id={'id'}
-          setVaule={setId}
-          value={id}
-          containerBottom={'20px'}
-          width={'350px'}
-          placeholder={'아이디를 입력하세요'}
-          type={'text'}
-        />
+        <InputBox>
+          <InputTitle title={'아이디'} />
+          <InputTextBox
+            id={'id'}
+            setVaule={setId}
+            value={id}
+            containerBottom={'20px'}
+            width={'350px'}
+            placeholder={'아이디를 입력하세요'}
+            type={'text'}
+          />
 
-        <InputTitle
-          title={'비밀번호'}
-          signUpSubTitle={'6글자 이상 이여야 합니다'}
-          isVaild={isPasswordVaild}
-          isRequired
-        />
-        <InputTextBox
-          id={'password'}
-          setVaule={setPassword}
-          value={password}
-          containerBottom={'20px'}
-          width={'350px'}
-          placeholder={'비밀번호를 입력하세요.'}
-          type={'password'}
-        />
+          <InputTitle title={'비밀번호'} />
+          <InputTextBox
+            id={'password'}
+            setVaule={setPassword}
+            value={password}
+            containerBottom={'20px'}
+            width={'350px'}
+            placeholder={'비밀번호를 입력하세요.'}
+            type={'password'}
+          />
+        </InputBox>
         <ButtonBox>
-          {isFormValid ? (
-            <Button customSize='350px'>로그인</Button>
-          ) : (
-            <Button customSize='350px' isDisabled={!isFormValid}>
-              로그인
-            </Button>
-          )}
+          <Button customSize='342px'>로그인</Button>
         </ButtonBox>
         <SubBox>
           <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
@@ -84,7 +65,18 @@ export default function Login() {
     </Container>
   );
 }
+const Container = styled.div`
+  width: 700px;
 
+  height: 800px;
+  margin: 60px auto;
+  border-radius: 35px;
+  box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
+  padding: 50px 100px;
+`;
+const InputBox = styled.div`
+  margin-left: 75px;
+`;
 const Img = styled.img`
   width: 100%;
 `;
@@ -103,15 +95,6 @@ const SubBox = styled.div`
   margin: 15px 0px 0px 100px;
   display: flex;
   justify-content: space-evenly;
-`;
-
-const Container = styled.div`
-  width: 700px;
-  height: 800px;
-  margin: 60px auto;
-  border-radius: 35px;
-  box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
-  padding: 50px 100px;
 `;
 
 const Title = styled.div`
@@ -135,8 +118,8 @@ const SignUpHead = styled.div`
 const Line = styled.div`
   border-bottom: 1px solid #eeeeee;
   margin-top: 15px;
-  margin-bottom: 30px;
   width: 500px;
+  margin-bottom: 130px;
 `;
 
 const Form = styled.form``;
@@ -153,4 +136,5 @@ const SocialLogin = styled.button`
   background-color: white;
   margin: 20px auto;
   border: none;
+  margin-bottom: 30px;
 `;
