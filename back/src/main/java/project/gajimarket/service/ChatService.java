@@ -1,17 +1,19 @@
 package project.gajimarket.service;
 
 import org.springframework.web.socket.WebSocketSession;
+import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.chat.ChatRoom;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ChatService {
 
-    ChatRoom createChatRoom(String targetId);
+    int createChatRoom(ChatRoomDTO chatRoomDTO);
 
     List<ChatRoom> getChatRoomList();
 
-    ChatRoom getChatRoom(String roomId);
+    ChatRoom getChatRoom(int chatNo);
 
     <T> void sendMessage(WebSocketSession session, T message);
 }
