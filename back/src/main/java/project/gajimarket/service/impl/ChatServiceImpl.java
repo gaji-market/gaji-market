@@ -28,16 +28,38 @@ public class ChatServiceImpl implements ChatService {
         chatRooms = new LinkedHashMap<>();
     }
 
-    public int createChatRoom(ChatRoomDTO chatRoomDTO) {
-        return chatDAO.insertChatRoom(chatRoomDTO);
+    public Map<String, Object> createChatRoom(ChatRoomDTO chatRoomDTO) {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        int result = chatDAO.insertChatRoom(chatRoomDTO);
+        resultMap.put("result", result);
+
+        if (result == 1) {
+            resultMap.put("message", "SuccessFully");
+            resultMap.put("chatInfo", chatRoomDTO);
+        } else {
+            resultMap.put("message", "Failed!");
+        }
+
+        resultMap.put("resultMap", resultMap);
+        return resultMap;
     }
 
     public List<ChatRoom> getChatRoomList() {
         return new ArrayList<>(chatRooms.values());
     }
 
-    public ChatRoom getChatRoom(int chatNo) {
-        return chatDAO.selectChatRoom(chatNo);
+    public Map<String, Object> getChatRoom(int chatNo) {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(chatNo));
+        resultMap.put("chatMessageInfos", getChatMessage(chatNo));
+
+        return resultMap;
+    }
+
+    public List<Map<String, Object>> getChatMessage(int chatNo) {
+        return chatDAO.selectChatMessage(chatNo);
     }
 
     public <T> void sendMessage(WebSocketSession session, T message) {
