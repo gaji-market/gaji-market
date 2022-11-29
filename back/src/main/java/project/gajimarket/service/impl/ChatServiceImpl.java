@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import project.gajimarket.dao.ChatDAO;
+import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.chat.ChatRoom;
 import project.gajimarket.service.ChatService;
 
@@ -27,22 +28,16 @@ public class ChatServiceImpl implements ChatService {
         chatRooms = new LinkedHashMap<>();
     }
 
-    public ChatRoom createChatRoom(String name) {
-        String randomId = UUID.randomUUID().toString();
-        ChatRoom chatRoom = ChatRoom.builder()
-                .chatId(randomId)
-                .name(name)
-                .build();
-        chatRooms.put(randomId, chatRoom);
-        return chatRoom;
+    public int createChatRoom(ChatRoomDTO chatRoomDTO) {
+        return chatDAO.insertChatRoom(chatRoomDTO);
     }
 
     public List<ChatRoom> getChatRoomList() {
         return new ArrayList<>(chatRooms.values());
     }
 
-    public ChatRoom getChatRoom(String chatId) {
-        return chatDAO.selectChatRoom(chatId);
+    public ChatRoom getChatRoom(int chatNo) {
+        return chatDAO.selectChatRoom(chatNo);
     }
 
     public <T> void sendMessage(WebSocketSession session, T message) {

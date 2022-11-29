@@ -2,8 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="project.gajimarket.dao.ChatDAO">
 
-    <insert id="insertChatRoom" parameterMap="map">
-
+    <insert id="insertChatRoom" parameterMap="ChatRoomDTO" useGeneratedKeys="true" keyProperty="chatNo">
+        INSERT INTO chat_info
+        VALUES (${user.userNo}, ${prod.prodNo}, ${prod.tgUserNo})
     </insert>
+
+    <select id="selectChatRoom" parameterType="int" resultType="ChatRoomDTO">
+        SELECT *
+        FROM chat_info
+    </select>
+
+    <select id="selectChatMessage" parameterType="int" resultType="java.util.Map">
+        SELECT *
+        FROM chat_message
+        ORDER BY regDt, regTime
+    </select>
 
 </mapper>
