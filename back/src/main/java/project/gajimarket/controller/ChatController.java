@@ -30,28 +30,31 @@ public class ChatController {
         chatRoomDTO.setTgUserNo(productDTO.getUserNo());
         chatRoomDTO.setUserNo(1); //로그인 세션 값 가져오기
 
-        Map<String, Object> resultMap = new HashMap<>();
+        //insert 성공 시 getChatRoom 호출
+        return chatService.createChatRoom(chatRoomDTO);
+    }
 
-        int result = chatService.createChatRoom(chatRoomDTO);
+    @GetMapping
+    public Map<String, Object> getChatRoom(@RequestBody int chatNo) {
+        Map<String, Object> resultMap = chatService.getChatRoom(chatNo);
 
-        if (result == 1) {
-            chatService.createChatRoom(chatRoomDTO);
-        }
+        ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
+        resultMap.put("productInfo", getProduct(chatRoomDTO.getProdNo()));
+
+        resultMap.put("resultMap", resultMap);
         return resultMap;
     }
 
     @GetMapping
-    public ChatRoom getChatRoom(@RequestBody int chatNo) {
-        return chatService.getChatRoom(chatNo);
-    }
+    public Map<String, Object> getChatRoomList(@RequestBody int userNo) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("chatRoomInfos", chatService.getChatRoomList());
 
-    @GetMapping
-    public List<ChatRoom> getChatRoomList(@RequestBody int userNo) {
-        return chatService.getChatRoomList();
+        return resultMap;
     }
 
     //상품정보 공통 처리
-    private void getProduct() {
-
+    private ProductDTO getProduct(int productNo) {
+        return productService.findProductInfo(productNo);
     }
 }

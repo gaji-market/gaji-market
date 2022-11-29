@@ -9,11 +9,13 @@ import java.util.Map;
 
 public interface ChatService {
 
-    int createChatRoom(ChatRoomDTO chatRoomDTO);
+    Map<String, Object> createChatRoom(ChatRoomDTO chatRoomDTO);
 
     List<ChatRoom> getChatRoomList();
 
-    ChatRoom getChatRoom(int chatNo);
+    Map<String, Object> getChatRoom(int chatNo);
+
+    List<Map<String, Object>> getChatMessage(int chatNo);
 
     <T> void sendMessage(WebSocketSession session, T message);
 }
