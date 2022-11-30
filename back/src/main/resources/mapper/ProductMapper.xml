@@ -143,8 +143,14 @@
     </update>
 
     <!-- 좋아요 갯수 가져오기 -->
-    <select id="findInterestCnt" parameterType="int" resultType="int">
-        select count(*) from interest_info where prodNo=#{prodNo};
+    <select id="findInterestCnt" parameterType="int" resultType="map">
+        select count(*) as 'interestCnt' from interest_info where prodNo=#{prodNo};
+    </select>
+
+    <select id="findProductInfoDetail" resultType="map" parameterType="int">
+        select prodName,prodPrice,priceOffer,freeCheck,prodExplain,regDt,tradState,viewCnt,address
+        from product_info
+        where prodNo=#{prodNo};
     </select>
 
     <!-- 거래구분 찾아오기 -->
@@ -159,7 +165,7 @@
 
     <!-- 팔래요 최신순 전체보기 -->
     <select id="findSellAll" resultType="map">
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interest',f.dbFileName
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interestCnt',f.dbFileName
         from product_info p
                  left join interest_info i
                            on p.prodNo = i.prodNo

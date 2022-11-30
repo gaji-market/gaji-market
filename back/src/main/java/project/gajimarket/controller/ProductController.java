@@ -189,9 +189,7 @@ public class ProductController {
 
     //수정 (이미지, 제목, 가격, 가격제안, 무료나눔, 카테고리, 내용, 해시태그)
     @PostMapping("/{prodNo}/update")
-    public Map<String,Object> productUpdate(@PathVariable int prodNo, ProductDTO productDTO,CategoryDTO categoryDTO, FileForm fileForm, HashTagDTO hashTagDTO) throws IOException {
-
-        Map<String,Object> result = new LinkedHashMap<>();
+    public void productUpdate(@PathVariable int prodNo, ProductDTO productDTO,CategoryDTO categoryDTO, FileForm fileForm, HashTagDTO hashTagDTO) throws IOException {
 
         //카테고리 수정
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
@@ -215,7 +213,6 @@ public class ProductController {
         productDTO.setTradState("2");//거래중,거래완료 수정
         productService.productUpdate(prodNo,productDTO);
         //상태가 거래중, 거래완료 일때는 다른 글들은 수정불가능하다..
-        result.put("수정 상품 정보",productDTO);
 
         //이미지 수정
         //저장된 파일이름 가져오기
@@ -233,11 +230,6 @@ public class ProductController {
             //DB저장부분
         }
 
-        /**
-         * //나중에 잘됏는지 확인 필요
-         */
-        result.put("수정 파일 정보",storeImageFiles);
-
         //해시태그 수정
         //prodNo로 먼저 있던 해시태그 삭제
         productService.productHashTagDelete(prodNo);
@@ -247,9 +239,6 @@ public class ProductController {
         for (String tag : tagName){
             productService.productHashTagSave(prodNo,tag);
         }
-        result.put("수정 해시태그 정보",hashTagDTO);
-
-        return result;
     }
 
     //팔래요, 살래요 삭제
@@ -356,7 +345,8 @@ public class ProductController {
     public Map<String, Object> productDetail(@PathVariable int prodNo){
 
         /**
-         * 프로필인 판매자 정보도 가져와야함
+         * 프로필인 판매자 정보도 가져와야함(닉네임,주소,프로필 사진)
+         * prodNo로 등록한 사람 정보를 가져와야함
          */
 
         //조회수 1증가
@@ -365,33 +355,26 @@ public class ProductController {
         Map<String,Object> result = new LinkedHashMap<>();
 
         //좋아요 갯수 가져오기
-        int findInterestCnt = productService.findInterestCnt(prodNo);
-        result.put("좋아요 갯수",findInterestCnt);
+        Map<String,Object> interestCnt = productService.findInterestCnt(prodNo);
+        result.put("interestInfo",interestCnt);
 
         //prodNo로 보여줄 내용 찾기
-        //제목, 가격, 가격제안, 무료나눔, 내용 , 카테고리번호, 주소, 등록날짜, 거래상태, 해시태그
-        result = productService.findProductInfo(prodNo);
-//        int categoryNo = productDTO.getCategoryNo();
-//        result.put("상품 정보",productDTO);
+        //제목, 가격, 가격제안, 조회수, 무료나눔, 내용 , 주소, 등록날짜, 거래상태
+        Map<String,Object> productInfo = productService.findProductInfoDetail(prodNo);
+        result.put("productInfo",productInfo);
 
         //이미지 index 0- 메인이다 gubun으로 넘겨줘야할듯
-//        List<String> findFile =productService.findFileInfo(prodNo);
-//        log.info("findFile={}",findFile);
-//        result.put("0",findFile.get(0));
-//        result.put("1",findFile.get(1));
-//        result.put("2",findFile.get(2));
-//        result.put("3",findFile.get(3));
-//        result.put("4",findFile.get(4));
+        List<Map<String,Object>> fileInfo = productService.findFileInfo(prodNo);
+        result.put("fileInfos",fileInfo);
 
         //카테고리
-//        CategoryDTO categoryDTO = productService.findCategoryInfo(categoryNo);
-//        result.put("대분류",categoryDTO.getLargeCateNo());
-//        result.put("중분류",categoryDTO.getMediumCateNo());
-//        result.put("소분류",categoryDTO.getSmallCateNo());
+        int categoryNo = productService.findProdNoByCategoryNo(prodNo);
+        Map<String,Object> categoryInfo = productService.findCategoryInfo(categoryNo);
+        result.put("categoryInfo",categoryInfo);
 
         //해시태그
-//        List<String> tagName = productService.findHashTag(prodNo);
-//        result.put("태그",tagName);
+        List<Map<String,Object>> hashTagInfo = productService.findHashTag(prodNo);
+        result.put("hashTagInfos",hashTagInfo);
 
         return result;
     }
@@ -481,7 +464,7 @@ public class ProductController {
          */
         Map<String,Object> result = new LinkedHashMap<>();
         List<Map<String,Object>> findSellAll = productService.findSellAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
-        result.put("팔래요 정보",findSellAll);
+        result.put("sellInfos",findSellAll);
 
         return result;
     }
@@ -498,7 +481,7 @@ public class ProductController {
 
         Map<String,Object> result = new LinkedHashMap<>();
         List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
-        result.put("살래요 정보",findBuyAll);
+        result.put("buyInfos",findBuyAll);
 
         return result;
     }

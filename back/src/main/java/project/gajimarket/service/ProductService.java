@@ -83,7 +83,7 @@ public interface ProductService {
     void viewCntUpdate(int prodNo);
 
     //좋아요 갯수 가져오기
-    int findInterestCnt(int prodNo);
+    Map<String, Object> findInterestCnt(int prodNo);
 
     //팔래요 최신순 전체보기
     List<Map<String, Object>> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
@@ -99,4 +99,7 @@ public interface ProductService {
 
     //전체 카테고리 정보
     List<Map<String, Object>> categoryInfo();
+
+    //상세보기 상품 가져오기
+    Map<String, Object> findProductInfoDetail(int prodNo);
 }

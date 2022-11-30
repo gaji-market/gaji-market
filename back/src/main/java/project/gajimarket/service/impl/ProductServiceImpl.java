@@ -141,7 +141,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public int findInterestCnt(int prodNo) {
+    public Map<String, Object> findInterestCnt(int prodNo) {
         return productDAO.findInterestCnt(prodNo);
     }
 
@@ -168,5 +168,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Map<String, Object>> categoryInfo() {
         return productDAO.categoryInfo();
+    }
+
+    @Override
+    public Map<String, Object> findProductInfoDetail(int prodNo) {
+        return productDAO.findProductInfoDetail(prodNo);
     }
 }
