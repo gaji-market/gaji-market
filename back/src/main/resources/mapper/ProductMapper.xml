@@ -47,12 +47,12 @@
 
     <!-- 상품번호로 저장된 이미지 파일 찾기 -->
     <select id="productFindDBFile" parameterType="int" resultType="String">
-        select dbFileName from file where no=#{param1};
+        select dbFileName from file where no=#{prodNo} and gubun='2';
     </select>
 
     <!-- DB 이미지파일 삭제 -->
     <delete id="productFileDelete" parameterType="int">
-        delete from file where no=#{param1};
+        delete from file where no=#{param1} and gubun='2';
     </delete>
 
     <!-- 카테고리 번호 찾기 -->
@@ -66,26 +66,29 @@
     </delete>
 
     <!-- 상품 정보 찾기 -->
-    <select id="findProductInfo" parameterType="int" resultType="project.gajimarket.model.ProductDTO">
-        select *
+    <select id="findProductInfo" parameterType="int" resultType="map">
+        select prodName,prodPrice,priceOffer,freeCheck,prodExplain
         from product_info
-        where prodNo=#{param1};
+        where prodNo=#{prodNo};
     </select>
 
     <!-- 카테고리 정보 찾기 -->
-    <select id="findCategoryInfo" parameterType="int" resultType="project.gajimarket.model.CategoryDTO">
-        select * from category_info where categoryNo=#{param1};
+    <select id="findCategoryInfo" parameterType="int" resultType="map">
+        select largeCateNo,largeCateName,mediumCateNo,mediumCateName,smallCateNo,smallCateName
+        from category_info
+        where categoryNo=#{categoryNo};
     </select>
 
     <!-- 해시태그 정보 찾기 -->
-    <select id="findHashTag" parameterType="int" resultType="String">
-        select tagName from hash_tag where prodNo=#{param1};
+    <select id="findHashTag" parameterType="int" resultType="map">
+        select tagName from hash_tag where prodNo=#{prodNo};
     </select>
 
     <!-- DB파일 이름 찾기 -->
-    <select id="findFileInfo" parameterType="int" resultType="String">
-        select dbFileName
-        from file where no=#{param1};
+    <select id="findFileInfo" parameterType="int" resultType="map">
+        select fileOrder,dbFileName
+        from file
+        where no=#{prodNo} and gubun='2';
     </select>
 
     <!-- 좋아요 저장 -->
@@ -209,8 +212,6 @@
                 <if test="sort == null">
                     order by p.regDt desc;
                 </if>
-
-
     </select>
 
     <!-- 살래요 최신순 전체보기 -->

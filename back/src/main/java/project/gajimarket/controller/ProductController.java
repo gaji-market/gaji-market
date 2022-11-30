@@ -41,15 +41,14 @@ public class ProductController {
         Map<String,Object> result = new LinkedHashMap<>();
         List<Map<String,Object>> categoryInfo = productService.categoryInfo();
 
-        result.put("카테고리 정보",categoryInfo);
+        result.put("categoryInfos",categoryInfo);
+
         return result;
     }
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public Map<String,Object> sellSave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
-
-        Map<String,Object> result = new LinkedHashMap<>();
+    public void sellSave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
 
         //카테고리
         categoryDTO.setLargeCateNo(1);
@@ -80,7 +79,6 @@ public class ProductController {
         productDTO.setProdExplain("팔래요 테스트 상품 설명입니다");
         //팔래요 상품 등록
         productService.productSellSave(productDTO);
-        result.put("팔래요 상품 정보",productDTO);
 
         //해시태그 최대10
         List<String> hash= new ArrayList<>();
@@ -93,7 +91,6 @@ public class ProductController {
             productService.productHashTagSave(productDTO.getProdNo(),tagName);
         }
         //해시태그 10개를 저장
-        result.put("팔래요 해시태그 정보",hashtagDTO);
 
         //파일저장
         List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
@@ -103,20 +100,11 @@ public class ProductController {
             productService.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
             //DB저장부분
         }
-
-        /**
-         * //확인해봐야함(나중에)
-         */
-        result.put("팔래요 파일 정보",storeImageFiles);
-
-        return result;
     }
 
     //살래요 상품 등록 처리
     @PostMapping("/buySave")
-    public Map<String,Object> buySave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
-
-        Map<String,Object> result = new LinkedHashMap<>();
+    public void buySave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
 
         //카테고리
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
@@ -142,7 +130,6 @@ public class ProductController {
         productDTO.setProdExplain("살래요 테스트 상품 설명입니다");
         //살래요 상품 등록
         productService.productBuySave(productDTO);
-        result.put("살래요 상품 정보",productDTO);
 
         //해시태그 최대10
         List<String> tagName1 = hashtagDTO.getTagName();//해시태그 10개를 넣었다면 10개가 들어있다
@@ -150,7 +137,6 @@ public class ProductController {
             productService.productHashTagSave(productDTO.getProdNo(),tagName);
         }
         //해시태그 10개를 저장
-        result.put("살래요 해시태그 정보",hashtagDTO);
 
         //파일저장
         List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
@@ -160,12 +146,6 @@ public class ProductController {
             productService.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
             //DB저장부분
         }
-        /**
-         * //확인해봐야함(나중에)
-         */
-        result.put("살래요 파일 정보",storeImageFiles);
-
-        return result;
     }
 
     //이미지 파일 보여주기
@@ -187,33 +167,21 @@ public class ProductController {
 
         //prodNo로 보여줄 내용 찾기
         //제목, 가격, 가격제안, 무료나눔, 내용 , 카테고리번호
-        ProductDTO productDTO = productService.findProductInfo(prodNo);
-        int categoryNo = productDTO.getCategoryNo();
-
-        result.put("제목",productDTO.getProdName());
-        result.put("가격",productDTO.getProdPrice());
-        result.put("가격제안",productDTO.getPriceOffer());
-        result.put("무료나눔",productDTO.getFreeCheck());
-        result.put("내용",productDTO.getProdExplain());
+        Map<String,Object> productInfo= productService.findProductInfo(prodNo);
+        result.put("productInfo",productInfo);
 
         //이미지 index 0- 메인이다 gubun으로 넘겨줘야할듯
-        List<String> findFile =productService.findFileInfo(prodNo);
-        log.info("findFile={}",findFile);
-        result.put("메인이미지 = 0",findFile.get(0));
-        result.put("이미지 = 1",findFile.get(1));
-        result.put("이미지 = 2",findFile.get(2));
-        result.put("이미지 = 3",findFile.get(3));
-        result.put("이미지 = 4",findFile.get(4));
+        List<Map<String, Object>> fileInfo = productService.findFileInfo(prodNo);
+        result.put("fileInfos",fileInfo);
 
         //카테고리
-        CategoryDTO categoryDTO = productService.findCategoryInfo(categoryNo);
-        result.put("대분류",categoryDTO.getLargeCateNo());
-        result.put("중분류",categoryDTO.getMediumCateNo());
-        result.put("소분류",categoryDTO.getSmallCateNo());
+        int categoryNo = productService.findProdNoByCategoryNo(prodNo);
+        Map<String,Object> categoryInfo = productService.findCategoryInfo(categoryNo);
+        result.put("categoryInfo",categoryInfo);
 
         //해시태그
-        List<String> tagName = productService.findHashTag(prodNo);
-        result.put("태그",tagName);
+        List<Map<String,Object>> hashTagInfo = productService.findHashTag(prodNo);
+        result.put("hashTagInfos",hashTagInfo);
 
         return result;
     }
@@ -402,34 +370,34 @@ public class ProductController {
 
         //prodNo로 보여줄 내용 찾기
         //제목, 가격, 가격제안, 무료나눔, 내용 , 카테고리번호, 주소, 등록날짜, 거래상태, 해시태그
-        ProductDTO productDTO = productService.findProductInfo(prodNo);
-        int categoryNo = productDTO.getCategoryNo();
-        result.put("상품 정보",productDTO);
+        result = productService.findProductInfo(prodNo);
+//        int categoryNo = productDTO.getCategoryNo();
+//        result.put("상품 정보",productDTO);
 
         //이미지 index 0- 메인이다 gubun으로 넘겨줘야할듯
-        List<String> findFile =productService.findFileInfo(prodNo);
-        log.info("findFile={}",findFile);
-        result.put("메인이미지 = 0",findFile.get(0));
-        result.put("이미지 = 1",findFile.get(1));
-        result.put("이미지 = 2",findFile.get(2));
-        result.put("이미지 = 3",findFile.get(3));
-        result.put("이미지 = 4",findFile.get(4));
+//        List<String> findFile =productService.findFileInfo(prodNo);
+//        log.info("findFile={}",findFile);
+//        result.put("0",findFile.get(0));
+//        result.put("1",findFile.get(1));
+//        result.put("2",findFile.get(2));
+//        result.put("3",findFile.get(3));
+//        result.put("4",findFile.get(4));
 
         //카테고리
-        CategoryDTO categoryDTO = productService.findCategoryInfo(categoryNo);
-        result.put("대분류",categoryDTO.getLargeCateNo());
-        result.put("중분류",categoryDTO.getMediumCateNo());
-        result.put("소분류",categoryDTO.getSmallCateNo());
+//        CategoryDTO categoryDTO = productService.findCategoryInfo(categoryNo);
+//        result.put("대분류",categoryDTO.getLargeCateNo());
+//        result.put("중분류",categoryDTO.getMediumCateNo());
+//        result.put("소분류",categoryDTO.getSmallCateNo());
 
         //해시태그
-        List<String> tagName = productService.findHashTag(prodNo);
-        result.put("태그",tagName);
+//        List<String> tagName = productService.findHashTag(prodNo);
+//        result.put("태그",tagName);
 
         return result;
     }
 
     //태그 클릭햇을때
-    @GetMapping("/{prodNo}/tag")
+    @PostMapping("/{prodNo}/tag")
     public void tag(@PathVariable int prodNo, @RequestParam String tag, HttpServletResponse response) throws IOException {
         /**
          * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 와야될듯
@@ -452,7 +420,7 @@ public class ProductController {
     }
 
     //카테고리 클릭햇을때
-    @GetMapping("/{prodNo}/category")
+    @PostMapping("/{prodNo}/category")
     public void tag(@PathVariable int prodNo, HttpServletResponse response) throws IOException {
         //카테고리 번호 찾기
         int findProdNoByCategoryNo = productService.findProdNoByCategoryNo(prodNo);
@@ -471,7 +439,7 @@ public class ProductController {
     }
 
     //메인화면에서 카테고리 클릭
-    @GetMapping("/category")
+    @PostMapping("/category")
     public void category(@RequestParam(required = false) Integer largeCateNo,@RequestParam(required = false) Integer mediumCateNo,
                          @RequestParam(required = false) Integer smallCateNo,
                          HttpServletResponse response, @RequestParam String tradeState) throws IOException {

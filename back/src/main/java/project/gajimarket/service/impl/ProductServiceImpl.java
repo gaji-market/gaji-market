@@ -71,22 +71,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO findProductInfo(int prodNo) {
+    public Map<String, Object> findProductInfo(int prodNo) {
         return productDAO.findProductInfo(prodNo);
     }
 
     @Override
-    public CategoryDTO findCategoryInfo(int categoryNo) {
+    public Map<String, Object> findCategoryInfo(int categoryNo) {
         return productDAO.findCategoryInfo(categoryNo);
     }
 
     @Override
-    public List<String> findHashTag(int prodNo) {
+    public List<Map<String, Object>> findHashTag(int prodNo) {
         return productDAO.findHashTag(prodNo);
     }
 
     @Override
-    public List<String> findFileInfo(int prodNo) {
+    public List<Map<String, Object>> findFileInfo(int prodNo) {
         return productDAO.findFileInfo(prodNo);
     }
 

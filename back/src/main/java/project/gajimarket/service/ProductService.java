@@ -41,16 +41,16 @@ public interface ProductService {
     int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
 
     //상품 정보 찾기
-    ProductDTO findProductInfo(int prodNo);
+    Map<String, Object> findProductInfo(int prodNo);
 
     //카테고리 정보 가져오기
-    CategoryDTO findCategoryInfo(int categoryNo);
+    Map<String, Object> findCategoryInfo(int categoryNo);
 
     //해시태그 정보 가져오기
-    List<String> findHashTag(int prodNo);
+    List<Map<String, Object>> findHashTag(int prodNo);
 
     //DB에 저장된 이미지 파일이름 가져오기
-    List<String> findFileInfo(int prodNo);
+    List<Map<String, Object>> findFileInfo(int prodNo);
 
     //좋아요 저장
     void interestSave(InterestInfoDTO interestInfoDTO);
