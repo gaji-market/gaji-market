@@ -7,15 +7,25 @@
         VALUES (${user.userNo}, ${prod.prodNo}, ${prod.tgUserNo})
     </insert>
 
+    <insert id="insertChatMessage" parameterMap="java.util.Map">
+        INSERT INTO chat_message
+        VALUES (${chatNo}, ${chatMessage})
+    </insert>
+
     <select id="selectChatRoom" parameterType="int" resultType="ChatRoomDTO">
         SELECT *
-        FROM chat_info
+          FROM chat_info
     </select>
 
-    <select id="selectChatMessage" parameterType="int" resultType="java.util.Map">
+    <select id="selectChatMessage" parameterType="int" resultMap="java.util.Map">
         SELECT *
-        FROM chat_message
-        ORDER BY regDt, regTime
+          FROM chat_message
+         ORDER BY regDt, regTime
+    </select>
+
+    <select id="selectChatRoomList" resultMap="java.util.List">
+        SELECT *
+          FROM chat_info
     </select>
 
 </mapper>
