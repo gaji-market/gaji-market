@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.dao.NotifiDAO">
+
+    <insert id="insertNotification" parameterMap="java.util.Map">
+        INSERT INTO notification_info (userNo, gubun, senderUserNo, message, regDate)
+        VALUES (${user.userNo}, ${gubun}, ${senderUserNo}, ${message}, now())
+    </insert>
+
+    <select id="selectNotificationList" resultMap="java.util.List">
+        SELECT *
+          FROM notification_info
+    </select>
+
+    <update id="updateNotification" parameterMap="java.util.Map">
+        UPDATE notification_info
+           SET checkYn='Y'
+         WHERE notifiNo = ${notifiNo}
+    </update>
+</mapper>

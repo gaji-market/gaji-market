@@ -24,14 +24,14 @@ public class ChatController {
 
     //채팅방 생성
     @PostMapping
-    public Map<String, Object> createChatRoom(@RequestBody ProductDTO productDTO) {
+    public Map<String, Object> addChatRoom(@RequestBody ProductDTO productDTO) {
         ChatRoomDTO chatRoomDTO = new ChatRoomDTO();
         chatRoomDTO.setProdNo(productDTO.getProdNo());
         chatRoomDTO.setTgUserNo(productDTO.getUserNo());
         chatRoomDTO.setUserNo(1); //로그인 세션 값 가져오기
 
         //insert 성공 시 getChatRoom 호출
-        return chatService.createChatRoom(chatRoomDTO);
+        return chatService.addChatRoom(chatRoomDTO);
     }
 
     @GetMapping

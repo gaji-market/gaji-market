@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface ChatService {
 
-    Map<String, Object> createChatRoom(ChatRoomDTO chatRoomDTO);
+    Map<String, Object> addChatRoom(ChatRoomDTO chatRoomDTO);
 
     List<ChatRoom> getChatRoomList();
 

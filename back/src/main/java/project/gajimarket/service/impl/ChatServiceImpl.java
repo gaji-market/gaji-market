@@ -28,7 +28,7 @@ public class ChatServiceImpl implements ChatService {
         chatRooms = new LinkedHashMap<>();
     }
 
-    public Map<String, Object> createChatRoom(ChatRoomDTO chatRoomDTO) {
+    public Map<String, Object> addChatRoom(ChatRoomDTO chatRoomDTO) {
         Map<String, Object> resultMap = new HashMap<>();
 
         int result = chatDAO.insertChatRoom(chatRoomDTO);
