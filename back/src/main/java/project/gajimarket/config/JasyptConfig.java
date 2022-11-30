@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @EnableEncryptableProperties
 public class JasyptConfig {
 
-    @Bean("jasyptEncryptor")
+    /*@Bean("jasyptEncryptor")
     public StringEncryptor stringEncryptor() {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         encryptor.setProvider(new BouncyCastleProvider());
@@ -40,7 +40,7 @@ public class JasyptConfig {
         } catch (IOException e) {
             throw new RuntimeException("Not found Jasypt password file.");
         }
-    }
+    }*/
 }
 
 
