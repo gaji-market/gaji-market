@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import Card from 'components/common/Card';
-import PlusButton from '../components/common/PlusButton';
-import SkeletonCard from '../components/common/SkeletonCard';
+import PlusButton from 'components/common/PlusButton';
+import SkeletonCard from 'components/common/SkeletonCard';
 
 import { useInView } from 'react-intersection-observer';
 import { useCallback } from 'react';

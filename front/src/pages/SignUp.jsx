@@ -4,10 +4,11 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
-import Button from '../components/common/Button';
+import Button from 'components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 export default function SignUp() {
-  const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+  const DaumURL =
+    'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +22,8 @@ export default function SignUp() {
   const open = useDaumPostcodePopup(DaumURL);
   const isIdVaild = isVaild('ID', id);
   const isPasswordVaild = isVaild('PW', password);
-  const isPasswordConfirmVaild = confirmPassword.length <= 1 || password === confirmPassword;
+  const isPasswordConfirmVaild =
+    confirmPassword.length <= 1 || password === confirmPassword;
   const isNickNameVaild = nickName.length > 4;
   const isFormValid =
     isIdVaild &&
@@ -107,7 +109,12 @@ export default function SignUp() {
         <FlexBox onChange={(e) => handerClick(e)}>
           <FlexItem>
             <Title margin={'50px'}>생년월일</Title>
-            <Date defaultValue={birthday} type='date' id='calender' name='calender'></Date>
+            <Date
+              defaultValue={birthday}
+              type='date'
+              id='calender'
+              name='calender'
+            ></Date>
           </FlexItem>
 
           <FlexItem margin={'50px'}>

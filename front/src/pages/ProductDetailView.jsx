@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { PRIMARY_COLOR, SUB_COLOR } from '../components/common/commonColor';
-import Button from '../components/common/Button';
+import { PRIMARY_COLOR, SUB_COLOR } from 'components/common/commonColor';
+import Button from 'components/common/Button';
 
 import {
   AiOutlineAlert,
