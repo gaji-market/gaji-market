@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
-import ProductDetailView from 'pages/ProductDetailView';
 import {
   Home,
   Login,
@@ -11,7 +10,7 @@ import {
   ProductView,
   ProductDetailView,
   Editor,
-  MyPage
+  MyPage,
 } from 'pages';
 
 export default function index() {

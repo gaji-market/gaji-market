@@ -6,3 +6,4 @@ export { default as SignUp } from './SignUp';
 export { default as ProductView } from './ProductView';
 export { default as ProductDetailView } from './ProductDetailView';
 export { default as Editor } from './Editor';
+export { default as MyPage } from './MyPage';
