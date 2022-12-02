@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
-import ProductDetailView from '../pages/ProductDetailView';
 import {
   Home,
   Login,
@@ -9,6 +8,7 @@ import {
   SliceTest,
   SignUp,
   ProductView,
+  ProductDetailView,
   Editor,
 } from 'pages';
 
