@@ -3,11 +3,11 @@ import InputTitle from 'components/common/InputTitle';
 import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import Button from '../components/common/Button';
+import Button from 'components/common/Button';
 import { NavLink } from 'react-router-dom';
 import { GRAY_COLOR } from 'components/common/commonColor';
-import KakaoImg from '../assets/KakaoImg.png';
-import NaverImg from '../assets/NaverImg.png';
+import KakaoImg from 'assets/KakaoImg.png';
+import NaverImg from 'assets/NaverImg.png';
 export default function Login() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
