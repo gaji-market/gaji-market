@@ -27,6 +27,11 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// Jasypt
+	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
+	// 암호 알고리즘
+	implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
 }
 
 tasks.named('test') {

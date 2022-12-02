@@ -3,14 +3,14 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
-import Button from '../components/common/Button';
+import Button from 'components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
 import { GRAY_COLOR, PRIMARY_COLOR } from 'components/common/commonColor';
-import logo200 from '../assets/BasicLogo.svg';
-import man from '../assets/man.png';
-import woman from '../assets/woman.png';
+import logo200 from 'assets/BasicLogo.svg';
+import man from 'assets/man.png';
+import woman from 'assets/woman.png';
 
 const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 const NICK_NAME_MIX_LENGTH = 4;
@@ -161,6 +161,7 @@ export default function SignUp() {
               id='calender'
               name='calender'
               required
+
             ></Date>
           </FlexItem>
 

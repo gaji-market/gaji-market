@@ -1,8 +1,18 @@
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
-import ProductDetailView from '../pages/ProductDetailView';
-import { Home, Login, Test, SliceTest, SignUp, ProductView, Editor, MyPage } from 'pages';
+import ProductDetailView from 'pages/ProductDetailView';
+import {
+  Home,
+  Login,
+  Test,
+  SliceTest,
+  SignUp,
+  ProductView,
+  ProductDetailView,
+  Editor,
+  MyPage
+} from 'pages';
 
 export default function index() {
   return (

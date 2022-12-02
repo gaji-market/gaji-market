@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import InputTextBox from '../components/common/InputTextBox';
-import InputTitle from '../components/common/InputTitle';
+import InputTextBox from 'components/common/InputTextBox';
+import InputTitle from 'components/common/InputTitle';
 
 export default function Editor() {
   return (

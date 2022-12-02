@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import ToggleSwitch from 'components/common/ToggleSwitch';
 
-import { ReactComponent as GradationLogo } from '../assets/GradationLogo.svg';
+import { ReactComponent as GradationLogo } from 'assets/GradationLogo.svg';
 
 import { PRIMARY_COLOR } from 'components/common/commonColor';
 

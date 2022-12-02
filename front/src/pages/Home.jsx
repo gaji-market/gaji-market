@@ -2,8 +2,8 @@ import Button from 'components/common/Button';
 import Card from 'components/common/Card';
 import PlusButton from 'components/common/PlusButton';
 import React from 'react';
-import InputTextBox from '../components/common/InputTextBox';
-import InputTitle from '../components/common/InputTitle';
+import InputTextBox from 'components/common/InputTextBox';
+import InputTitle from 'components/common/InputTitle';
 
 export default function Home() {
   return (
