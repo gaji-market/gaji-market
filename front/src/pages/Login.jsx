@@ -21,7 +21,7 @@ export default function Login() {
         <Title>로그인</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
-      <Line />
+      <Line width={'500px'} marginBottom={'50px'} />
       <Form onSubmit={(e) => submitHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
@@ -30,7 +30,7 @@ export default function Login() {
             setVaule={setId}
             value={id}
             containerBottom={'20px'}
-            width={'350px'}
+            width={'400px'}
             placeholder={'아이디를 입력하세요'}
             type={'text'}
           />
@@ -41,20 +41,26 @@ export default function Login() {
             setVaule={setPassword}
             value={password}
             containerBottom={'20px'}
-            width={'350px'}
+            width={'400px'}
             placeholder={'비밀번호를 입력하세요.'}
             type={'password'}
           />
         </InputBox>
         <ButtonBox>
-          <Button customSize='342px'>로그인</Button>
+          <Button customSize='400px'>로그인</Button>
         </ButtonBox>
         <SubBox>
           <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
+
           <NavLink to='/signup' style={{ textDecoration: 'none' }}>
             <ToSignUp>회원가입</ToSignUp>
           </NavLink>
         </SubBox>
+        <LineBox>
+          <Line width={'200px'} marginBottom={'30px'} />
+          <LineOR>OR</LineOR>
+          <Line width={'200px'} marginBottom={'30px'} />
+        </LineBox>
         <SocialLogin>
           <Img src={KakaoImg}></Img>
         </SocialLogin>
@@ -67,7 +73,6 @@ export default function Login() {
 }
 const Container = styled.div`
   width: 700px;
-
   height: 800px;
   margin: 60px auto;
   border-radius: 35px;
@@ -75,7 +80,7 @@ const Container = styled.div`
   padding: 50px 100px;
 `;
 const InputBox = styled.div`
-  margin-left: 75px;
+  margin-left: 45px;
 `;
 const Img = styled.img`
   width: 100%;
@@ -89,12 +94,24 @@ const FindIdPw = styled.div`
   color: #cccccc;
   font-size: 13px;
 `;
-
 const SubBox = styled.div`
   width: 300px;
-  margin: 15px 0px 0px 100px;
+  margin: 15px auto;
   display: flex;
   justify-content: space-evenly;
+`;
+const LineBox = styled.div`
+  display: flex;
+  padding: 40px 50px;
+  color: #cccccc;
+`;
+const LineOR = styled.span`
+  margin: 0px 10px;
+`;
+const Line = styled.hr`
+  border: 1px solid #cccccc;
+  width: ${(props) => props.width};
+  margin-bottom: ${(props) => props.marginBottom};
 `;
 
 const Title = styled.div`
@@ -111,15 +128,10 @@ const SubTitle = styled.p`
   vertical-align: bottom;
   color: #9a9a9a;
 `;
+
 const SignUpHead = styled.div`
   display: flex;
-`;
-
-const Line = styled.div`
-  border-bottom: 1px solid #eeeeee;
-  margin-top: 15px;
-  width: 500px;
-  margin-bottom: 130px;
+  margin-bottom: 15px;
 `;
 
 const Form = styled.form``;
@@ -129,12 +141,13 @@ const ButtonBox = styled.div`
   display: flex;
   justify-content: center;
 `;
+
 const SocialLogin = styled.button`
-  width: 350px;
-  height: 40px;
+  width: 400px;
+  height: 60px;
   display: block;
   background-color: white;
-  margin: 20px auto;
+  margin: auto;
   border: none;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `;
