@@ -174,4 +174,9 @@ public class ProductServiceImpl implements ProductService {
     public Map<String, Object> findProductInfoDetail(int prodNo) {
         return productDAO.findProductInfoDetail(prodNo);
     }
+
+    @Override
+    public Map<String, Object> findUserInfo(int userNo) {
+        return productDAO.findUserInfo(userNo);
+    }
 }

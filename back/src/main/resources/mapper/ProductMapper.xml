@@ -178,24 +178,25 @@
         <where>
             <if test="search != null">
                 and (p.prodName like concat('%',#{search},'%') or p.address like concat('%',#{search},'%') or h.tagName like concat('%',#{search},'%'))
-                                  and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+                                  and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
             </if>
             <if test="category != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and p.categoryNo=#{category}
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
+                                  and p.categoryNo=#{category}
             </if>
             <if test="largeCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
                                   and c.LargeCateNo=#{largeCateNo}
             </if>
             <if test="largeCateNo != null and mediumCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
                                   and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo}
             </if>
             <if test="largeCateNo != null and mediumCateNo != null and smallCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
                                   and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo} and c.SmallCateNo=#{smallCateNo}
             </if>
-            and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+            and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
         </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
         <if test="sort != null">
@@ -235,24 +236,25 @@
         <where>
             <if test="search !=null">
                 and (p.prodName like concat('%',#{search},'%') or p.address like concat('%',#{search},'%') or h.tagName like concat('%',#{search},'%'))
-                                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+                                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
             </if>
             <if test="category != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and categoryNo=#{category}
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
+                        and categoryNo=#{category}
             </if>
             <if test="largeCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
                 and c.LargeCateNo=#{largeCateNo}
             </if>
             <if test="largeCateNo != null and mediumCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
                 and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo}
             </if>
             <if test="largeCateNo != null and mediumCateNo != null and smallCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
                 and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo} and c.SmallCateNo=#{smallCateNo}
             </if>
-            and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+            and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
         </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
         <if test="sort != null">
@@ -280,5 +282,13 @@
     <!-- 카테고리 전체 정보 보기 -->
     <select id="categoryInfo" resultType="map">
         select * from category_info;
+    </select>
+    
+    <select id="findUserInfo" resultType="map" parameterType="int">
+        select nickname,address,dbFileName
+        from user_info u
+                 inner join file f
+                            on u.no = f.no
+        where f.gubun='1' and u.no=#{userNo};
     </select>
 </mapper>

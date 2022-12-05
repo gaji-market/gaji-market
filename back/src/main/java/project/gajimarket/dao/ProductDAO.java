@@ -105,4 +105,7 @@ public interface ProductDAO {
 
     //상세보기 상품 가져오기
     Map<String, Object> findProductInfoDetail(int prodNo);
+
+    //상품 상세보기에서 회원정보 가져오기
+    Map<String, Object> findUserInfo(int userNo);
 }

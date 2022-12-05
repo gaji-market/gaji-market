@@ -48,12 +48,14 @@ public class ProductController {
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public void sellSave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
+    public void sellSave(@ModelAttribute ProductDTO productDTO,@ModelAttribute HashTagDTO hashtagDTO,
+                         @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm,HttpServletRequest request) throws IOException {
 
         //카테고리
-        categoryDTO.setLargeCateNo(1);
-        categoryDTO.setMediumCateNo(10);
-        categoryDTO.setSmallCateNo(100);
+        //프론트에서 받아야될것 - largeCateNo,mediumCateNo,smallCateNo
+        categoryDTO.setLargeCateNo(1); //x
+        categoryDTO.setMediumCateNo(10); //x
+        categoryDTO.setSmallCateNo(100); //x
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
         int largeCateNo = categoryDTO.getLargeCateNo();
         int mediumCateNo = categoryDTO.getMediumCateNo();
@@ -64,35 +66,41 @@ public class ProductController {
         productDTO.setCategoryNo(findCategoryNo);
 
         //상품 등록하는 유저의 주소 가져오기
-        String findAddress = productService.findUserAddress(1);
+        //로그인한 회원 아이디로 번호를 찾아온다(Session사용)
+        //세션 가져오기
+        HttpSession session = request.getSession();
+        //세션이름으로 들어가있는 아이디를 찾아온다
+        Object findSession = session.getAttribute("userInfo");
+        //로그인한 아이디로 회원번호 찾기
+        int findUserNo = productService.findSessionUser(findSession);
+        //유저번호 저장
+        productDTO.setUserNo(findUserNo);
+
+        //주소 저장
+        String findAddress = productService.findUserAddress(findUserNo);
         productDTO.setAddress(findAddress);
 
         //입력한 상품 입력
-        /**
-         * 유저를 세션이용해서 가져와야될꺼같음 아이디로 유저번호 찾아서 저장 해야할듯
-         */
-        productDTO.setUserNo(1);
-        productDTO.setProdName("팔래요 테스트 상품 이름");
-        productDTO.setProdPrice(50000);
-        productDTO.setPriceOffer("0");
-        productDTO.setFreeCheck("0");
-        productDTO.setProdExplain("팔래요 테스트 상품 설명입니다");
+        productDTO.setProdName("팔래요 테스트 상품 이름"); //x
+        productDTO.setProdPrice(50000); //x
+        productDTO.setPriceOffer("0"); //x
+        productDTO.setFreeCheck("0"); //x
+        productDTO.setProdExplain("팔래요 테스트 상품 설명입니다"); //x
         //팔래요 상품 등록
         productService.productSellSave(productDTO);
 
-        //해시태그 최대10
-        List<String> hash= new ArrayList<>();
-        hash.add("a");
-        hash.add("b");
-        hash.add("c");
-        hashtagDTO.setTagName(hash);
+        //해시태그 list로 프론트에서 받아야됨
+        List<String> hash= new ArrayList<>(); //x
+        hash.add("a"); //x
+        hash.add("b"); //x
+        hash.add("c"); //x
+        hashtagDTO.setTagName(hash); //x
         List<String> tagName1 = hashtagDTO.getTagName();//해시태그 10개를 넣었다면 10개가 들어있다
         for (String tagName : tagName1){
             productService.productHashTagSave(productDTO.getProdNo(),tagName);
         }
-        //해시태그 10개를 저장
 
-        //파일저장
+        //파일저장 imageFiles로 프론트에서 받아야됨
         List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
         for (int i=0; i<storeImageFiles.size(); i++) {
             String uploadFileName = storeImageFiles.get(i).getUploadFileName();
@@ -104,9 +112,12 @@ public class ProductController {
 
     //살래요 상품 등록 처리
     @PostMapping("/buySave")
-    public void buySave(ProductDTO productDTO, HashTagDTO hashtagDTO, CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm) throws IOException {
+    public void buySave(@ModelAttribute ProductDTO productDTO,@ModelAttribute HashTagDTO hashtagDTO,
+                        @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm, HttpServletRequest request) throws IOException {
 
         //카테고리
+        //프론트에서 받아야될것 - largeCateNo,mediumCateNo,smallCateNo
+
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
         int largeCateNo = categoryDTO.getLargeCateNo();
         int mediumCateNo = categoryDTO.getMediumCateNo();
@@ -117,17 +128,24 @@ public class ProductController {
         productDTO.setCategoryNo(findCategoryNo);
 
         //상품 등록하는 유저의 주소 가져오기
-        String findAddress = productService.findUserAddress(1);
+        //로그인한 회원 아이디로 번호를 찾아온다(Session사용)
+        //세션 가져오기
+        HttpSession session = request.getSession();
+        //세션이름으로 들어가있는 아이디를 찾아온다
+        Object findSession = session.getAttribute("userInfo");
+        //로그인한 아이디로 회원번호 찾기
+        int findUserNo = productService.findSessionUser(findSession);
+        productDTO.setUserNo(findUserNo);
+
+        String findAddress = productService.findUserAddress(findUserNo);
         productDTO.setAddress(findAddress);
 
         //입력한 상품 입력
-        productDTO.setUserNo(1);
-        productDTO.setCategoryNo(1);
-        productDTO.setProdName("살래요 테스트 상품 이름");
-        productDTO.setProdPrice(50000);
-        productDTO.setPriceOffer("0");
-        productDTO.setFreeCheck("1"); // 무료나눔 -> 1
-        productDTO.setProdExplain("살래요 테스트 상품 설명입니다");
+        productDTO.setProdName("살래요 테스트 상품 이름");//x
+        productDTO.setProdPrice(50000); //x
+        productDTO.setPriceOffer("0"); //x
+        productDTO.setFreeCheck("1"); // x
+        productDTO.setProdExplain("살래요 테스트 상품 설명입니다"); //x
         //살래요 상품 등록
         productService.productBuySave(productDTO);
 
@@ -136,7 +154,6 @@ public class ProductController {
         for (String tagName : tagName1){
             productService.productHashTagSave(productDTO.getProdNo(),tagName);
         }
-        //해시태그 10개를 저장
 
         //파일저장
         List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
@@ -161,7 +178,7 @@ public class ProductController {
 
     //수정버튼클릭시 이미 입력된 내용 보여주기
     @GetMapping("/{prodNo}/beforeUpdate")
-    public Map<String, Object> productBeforeUpdate(@PathVariable int prodNo) throws IOException {
+    public Map<String, Object> productBeforeUpdate(@PathVariable int prodNo){
 
         Map<String,Object> result = new LinkedHashMap<>();
 
@@ -186,10 +203,11 @@ public class ProductController {
         return result;
     }
 
-
     //수정 (이미지, 제목, 가격, 가격제안, 무료나눔, 카테고리, 내용, 해시태그)
     @PostMapping("/{prodNo}/update")
-    public void productUpdate(@PathVariable int prodNo, ProductDTO productDTO,CategoryDTO categoryDTO, FileForm fileForm, HashTagDTO hashTagDTO) throws IOException {
+    public void productUpdate(@PathVariable int prodNo,@ModelAttribute ProductDTO productDTO,
+                              @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm,
+                              @ModelAttribute HashTagDTO hashTagDTO,HttpServletRequest request) throws IOException {
 
         //카테고리 수정
         //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
@@ -200,17 +218,21 @@ public class ProductController {
         int findCategoryNo = productService.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
         productDTO.setCategoryNo(findCategoryNo);
 
+        HttpSession session = request.getSession();
+        Object findSession = session.getAttribute("userInfo");
+        int findUserNo = productService.findSessionUser(findSession);
+
         //상품 수정하는 유저의 주소 가져오기(주소가 바꼇을수도 있어서 다시 찾아서 넣어줘야함)
-        String findAddress = productService.findUserAddress(1);
+        String findAddress = productService.findUserAddress(findUserNo);
         productDTO.setAddress(findAddress);
 
         //상품 수정
-        productDTO.setProdName("수정제목");
-        productDTO.setProdPrice(1234);
-        productDTO.setPriceOffer("1");
-        productDTO.setFreeCheck("1");
-        productDTO.setProdExplain("수정한 내용입니다");
-        productDTO.setTradState("2");//거래중,거래완료 수정
+        productDTO.setProdName("수정제목"); //x
+        productDTO.setProdPrice(1234); //x
+        productDTO.setPriceOffer("1"); //x
+        productDTO.setFreeCheck("1"); //x
+        productDTO.setProdExplain("수정한 내용입니다"); //x
+        productDTO.setTradState("2");// x
         productService.productUpdate(prodNo,productDTO);
         //상태가 거래중, 거래완료 일때는 다른 글들은 수정불가능하다..
 
@@ -250,11 +272,14 @@ public class ProductController {
 
     //좋아요 버튼 눌렀을때
     @PostMapping("/{prodNo}/interest")
-    public InterestInfoDTO productInterest(@PathVariable int prodNo, InterestInfoDTO interestInfoDTO){
+    public InterestInfoDTO productInterest(@PathVariable int prodNo,InterestInfoDTO interestInfoDTO,HttpServletRequest request){
 
         interestInfoDTO.setProdNo(prodNo);
-        //회원번호가져오고
-        int userNo = 1;
+        HttpSession session = request.getSession();
+        Object id = session.getAttribute("userInfo");
+        int userNo = productService.findSessionUser(id);
+
+        //좋아요 클릭한 회원번호 저장
         interestInfoDTO.setUserNo(userNo);
         //좋아요 저장
         productService.interestSave(interestInfoDTO);
@@ -270,9 +295,12 @@ public class ProductController {
 
     //좋아요 버튼 다시 눌럿을때 삭제
     @PostMapping("/{prodNo}/interestDelete")
-    public void productInterestDelete(@PathVariable int prodNo){
-        //회원 번호 가져오고
-        int userNo = 1;
+    public void productInterestDelete(@PathVariable int prodNo,HttpServletRequest request){
+        //로그인한 회원 번호 가져오고
+        HttpSession session = request.getSession();
+        Object id = session.getAttribute("userInfo");
+        int userNo = productService.findSessionUser(id);
+
         productService.interestDelete(prodNo,userNo);
     }
 
@@ -281,9 +309,11 @@ public class ProductController {
     public void productScoreSave(@PathVariable int prodNo, ScoreInfoDTO scoreInfoDTO){
 
         /**
-        //판매완료 누르면 산사람 선택해서 들어가야함
+        //판매완료 누르면 산사람 선택해서 들어가야함 , 판매완료 누르면 채팅한사람들 가져오는거 만들어서 데이터 넘겨줘야될거같음
         //산사람 선택은... 채팅한 사람중에 한명 선택하면 그사람의 번호를 가져오면될듯..?
         //update
+         freecheck 값을 가져와서 0인지 1인지 본다음에 0이면 채팅한사람 목록 보여주고 선택하게 한뒤 별점쪽으로 넘어가면되고
+         1이면 가격높게 제시한사람 한명만 목록을 보여주고 선택하게 한뒤 별점 쪽으로 이동
          */
 
         //게시글 등록한 사람의 회원 번호가져오기
@@ -323,7 +353,7 @@ public class ProductController {
         //세션 가져오기
         HttpSession session = request.getSession();
         //세션이름으로 들어가있는 아이디를 찾아온다
-        Object findSession = session.getAttribute("넘어온세션이름");
+        Object findSession = session.getAttribute("userInfo");
         //로그인한 아이디로 회원번호 찾기
         int findUserNo = productService.findSessionUser(findSession);
 
@@ -349,10 +379,14 @@ public class ProductController {
          * prodNo로 등록한 사람 정보를 가져와야함
          */
 
+        Map<String,Object> result = new LinkedHashMap<>();
+
+        int userNo = productService.findUserNo(prodNo);
+        Map<String,Object> findUserInfo = productService.findUserInfo(userNo);
+        result.put("userInfo",findUserInfo);
+
         //조회수 1증가
         productService.viewCntUpdate(prodNo);
-
-        Map<String,Object> result = new LinkedHashMap<>();
 
         //좋아요 갯수 가져오기
         Map<String,Object> interestCnt = productService.findInterestCnt(prodNo);
