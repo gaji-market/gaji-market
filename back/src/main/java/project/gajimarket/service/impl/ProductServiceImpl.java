@@ -179,4 +179,14 @@ public class ProductServiceImpl implements ProductService {
     public Map<String, Object> findUserInfo(int userNo) {
         return productDAO.findUserInfo(userNo);
     }
+
+    @Override
+    public List<Map<String, Object>> findChatUserInfo(int prodNo) {
+        return productDAO.findChatUserInfo(prodNo);
+    }
+
+    @Override
+    public void buyUserUpdate(int userNo, int prodNo) {
+        productDAO.buyUserUpdate(userNo,prodNo);
+    }
 }

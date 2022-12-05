@@ -283,7 +283,8 @@
     <select id="categoryInfo" resultType="map">
         select * from category_info;
     </select>
-    
+
+    <!-- 상세보기에서 유저 정보 찾기 -->
     <select id="findUserInfo" resultType="map" parameterType="int">
         select nickname,address,dbFileName
         from user_info u
@@ -291,4 +292,20 @@
                             on u.no = f.no
         where f.gubun='1' and u.no=#{userNo};
     </select>
+
+    <!-- 채팅한 유저 정보 찾기 -->
+    <select id="findChatUserInfo" resultType="map" parameterType="int">
+        select nickname,dbFileName,c.userNo
+        from user_info u
+        inner join file f
+        on u.no = f.no
+        inner join chat_info c
+        on u.no = c.userNo
+        where f.gubun='1' and c.prodNo=#{prodNo};
+    </select>
+
+    <!-- 판매완료 후 update -->
+    <update id="buyUserUpdate">
+        update product_info set tradState='3', buyUserNo=#{userNo} where prodNo=#{prodNo};
+    </update>
 </mapper>

@@ -304,17 +304,21 @@ public class ProductController {
         productService.interestDelete(prodNo,userNo);
     }
 
-    //별점정보 입력할때 (구매자 들어가야됨), 구매완료 -> 별점등록 -> 후기작성
-    @PostMapping("/{prodNo}/scoreSave")
-    public void productScoreSave(@PathVariable int prodNo, ScoreInfoDTO scoreInfoDTO){
+    //판매완료 눌렀을때 채팅한사람 보여주기(닉네임,프로필사진?)
+    @GetMapping("/{prodNo}/chat")
+    public Map<String,Object> chatInfo(@PathVariable int prodNo){
 
-        /**
-        //판매완료 누르면 산사람 선택해서 들어가야함 , 판매완료 누르면 채팅한사람들 가져오는거 만들어서 데이터 넘겨줘야될거같음
-        //산사람 선택은... 채팅한 사람중에 한명 선택하면 그사람의 번호를 가져오면될듯..?
-        //update
-         freecheck 값을 가져와서 0인지 1인지 본다음에 0이면 채팅한사람 목록 보여주고 선택하게 한뒤 별점쪽으로 넘어가면되고
-         1이면 가격높게 제시한사람 한명만 목록을 보여주고 선택하게 한뒤 별점 쪽으로 이동
-         */
+        Map<String,Object> result = new LinkedHashMap<>();
+        List<Map<String,Object>> userInfo = productService.findChatUserInfo(prodNo);
+        result.put("userInfos",userInfo);
+        return result;
+        //where=prodNo join userNo nickname img
+    }
+
+    //별점이랑 후기 저장
+    //채팅한사람 클릭후 여기로 넘어옴 별점정보랑 후기작성 데이터 넘어오면 가지고와서 저장
+    @PostMapping("/{prodNo}/scoreSave")
+    public void productScoreSave(@PathVariable int prodNo, ScoreInfoDTO scoreInfoDTO,@RequestParam int userNo){
 
         //게시글 등록한 사람의 회원 번호가져오기
         int findUserNo = productService.findUserNo(prodNo);
@@ -331,6 +335,10 @@ public class ProductController {
         scoreInfoDTO.setTradeReview("거래후기 테스트");
         //DB 별점 정보 저장
         productService.productScoreSave(scoreInfoDTO);
+
+        //update (product_info 에서 구매자No에 채팅한사람클릭한거 저장(update))
+        //넘어온 userNo로 product update 후 판매완료로 상태변경
+        productService.buyUserUpdate(userNo,prodNo);
     }
 
     //신고 버튼 눌렀을때
@@ -374,13 +382,9 @@ public class ProductController {
     @GetMapping("/{prodNo}")
     public Map<String, Object> productDetail(@PathVariable int prodNo){
 
-        /**
-         * 프로필인 판매자 정보도 가져와야함(닉네임,주소,프로필 사진)
-         * prodNo로 등록한 사람 정보를 가져와야함
-         */
-
         Map<String,Object> result = new LinkedHashMap<>();
 
+        //회원 정보 가져오기(닉네임,주소,프로필 사진 이미지)
         int userNo = productService.findUserNo(prodNo);
         Map<String,Object> findUserInfo = productService.findUserInfo(userNo);
         result.put("userInfo",findUserInfo);
@@ -492,10 +496,7 @@ public class ProductController {
     public Map<String,Object> sellAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
                                       @RequestParam(required = false) Integer category,@RequestParam(required = false) Integer largeCateNo,
                                       @RequestParam(required = false) Integer mediumCateNo,@RequestParam(required = false) Integer smallCateNo){
-        /**
-         * 판매완료는 안나오게..
-         * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
-         */
+
         Map<String,Object> result = new LinkedHashMap<>();
         List<Map<String,Object>> findSellAll = productService.findSellAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
         result.put("sellInfos",findSellAll);
@@ -508,10 +509,6 @@ public class ProductController {
     public Map<String,Object> buyAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
                                      @RequestParam(required = false) Integer category,@RequestParam(required = false) Integer largeCateNo,
                                      @RequestParam(required = false) Integer mediumCateNo,@RequestParam(required = false) Integer smallCateNo){
-        /**
-         * 판매완료는 안나오게..
-         * 등록 날짜로 최신순이지만 수정을 햇다면 수정시간이 최신이 되게 쿼리문....?
-         */
 
         Map<String,Object> result = new LinkedHashMap<>();
         List<Map<String,Object>> findBuyAll = productService.findBuyAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
