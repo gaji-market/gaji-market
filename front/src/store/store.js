@@ -1,14 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import tempSlice from './tempSlice';
-
-import { tempApi } from 'services/tempApi';
+import { productApi } from 'services/productApi';
 
 export const store = configureStore({
   reducer: {
-    temp: tempSlice,
-    [tempApi.reducerPath]: tempApi.reducer,
+    [productApi.reducerPath]: productApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(tempApi.middleware),
+    getDefaultMiddleware().concat(productApi.middleware),
 });
