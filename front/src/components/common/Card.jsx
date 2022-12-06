@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+
 import styled from 'styled-components';
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import StateBadge from './StateBadge';
 
+const PRODUCT_STATE = {
+  0: '판매중',
+  1: '구매중',
+  2: '거래중',
+  3: '거래완료',
+};
+
 const TEMP_IMG_URL =
   'https://png.pngtree.com/element_our/20190528/ourlarge/pngtree-cartoon-eggplant-image_1128846.jpg';
 
-export default function Card({ productImage, title, price, area, likes }) {
+export default function Card({
+  productImage,
+  title,
+  price,
+  area,
+  likes,
+  state,
+}) {
   const [fillHeart, setFillHeart] = useState(false);
 
   const onClickHeart = () => {
@@ -19,7 +35,7 @@ export default function Card({ productImage, title, price, area, likes }) {
     <CardContainer>
       <CardHead>
         {productImage ? (
-          <CardImage alt='상품 이미지' src='url' />
+          <CardImage alt={title} src={productImage} />
         ) : (
           <>
             <CardImage
@@ -33,7 +49,7 @@ export default function Card({ productImage, title, price, area, likes }) {
             <NoImage />
           </>
         )}
-        <StateBadge productState='판매중' />
+        <StateBadge productState={PRODUCT_STATE[Number(state)]} />
       </CardHead>
       <CardBody>
         <CardTitle>{title}</CardTitle>
