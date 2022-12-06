@@ -71,22 +71,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO findProductInfo(int prodNo) {
+    public Map<String, Object> findProductInfo(int prodNo) {
         return productDAO.findProductInfo(prodNo);
     }
 
     @Override
-    public CategoryDTO findCategoryInfo(int categoryNo) {
+    public Map<String, Object> findCategoryInfo(int categoryNo) {
         return productDAO.findCategoryInfo(categoryNo);
     }
 
     @Override
-    public List<String> findHashTag(int prodNo) {
+    public List<Map<String, Object>> findHashTag(int prodNo) {
         return productDAO.findHashTag(prodNo);
     }
 
     @Override
-    public List<String> findFileInfo(int prodNo) {
+    public List<Map<String, Object>> findFileInfo(int prodNo) {
         return productDAO.findFileInfo(prodNo);
     }
 
@@ -141,7 +141,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public int findInterestCnt(int prodNo) {
+    public Map<String, Object> findInterestCnt(int prodNo) {
         return productDAO.findInterestCnt(prodNo);
     }
 
@@ -168,5 +168,25 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Map<String, Object>> categoryInfo() {
         return productDAO.categoryInfo();
+    }
+
+    @Override
+    public Map<String, Object> findProductInfoDetail(int prodNo) {
+        return productDAO.findProductInfoDetail(prodNo);
+    }
+
+    @Override
+    public Map<String, Object> findUserInfo(int userNo) {
+        return productDAO.findUserInfo(userNo);
+    }
+
+    @Override
+    public List<Map<String, Object>> findChatUserInfo(int prodNo) {
+        return productDAO.findChatUserInfo(prodNo);
+    }
+
+    @Override
+    public void buyUserUpdate(int userNo, int prodNo) {
+        productDAO.buyUserUpdate(userNo,prodNo);
     }
 }
