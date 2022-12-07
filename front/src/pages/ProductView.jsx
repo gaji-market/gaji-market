@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import { useInView } from 'react-intersection-observer';
+import { useCallback } from 'react';
+import { useGetSellAllQuery } from 'services/productApi';
 import styled from 'styled-components';
 
 import Card from 'components/common/Card';
 import PlusButton from 'components/common/PlusButton';
 import SkeletonCard from 'components/common/SkeletonCard';
-
-import { useInView } from 'react-intersection-observer';
-import { useCallback } from 'react';
-
-import { useGetSellAllQuery } from 'services/productApi';
 import Loading from 'components/common/Loading';
 
-const LOADING_CARD_COUNT = 4;
-const TITLE = Object.freeze({
-  sal: '신규 구매중 상품',
-  pal: '신규 판매중 상품',
-});
-const SUB_TITLE = Object.freeze({
-  sal: '구매하고 싶은 상품이 있다면 직접 구매글을 올려보세요!',
-  pal: '따끈따끈! 신규 등록된 판매중인 상품 목록이에요.',
-});
+import {
+  LOADING_CARD_COUNT,
+  TITLE,
+  SUB_TITLE,
+  SELL,
+  BUY,
+} from 'constants/productView';
 
 export default function ProductView() {
   const { type } = useParams();
@@ -44,11 +40,11 @@ export default function ProductView() {
   } = useGetSellAllQuery();
 
   useEffect(() => {
-    if (type === 'sal') {
-      setCurrentPage('sal');
+    if (type === BUY) {
+      setCurrentPage(BUY);
     }
-    if (type === 'pal') {
-      setCurrentPage('pal');
+    if (type === SELL) {
+      setCurrentPage(SELL);
     }
   }, [type]);
 
