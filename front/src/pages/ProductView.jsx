@@ -61,7 +61,7 @@ export default function ProductView() {
     // 서버에서 카드 데이터 받아오면 수정하기
     setTimeout(() => {
       setShowSkeletonCard(false);
-    }, 1000);
+    }, 500);
   }, [pageNumber]);
 
   useEffect(() => {
@@ -115,16 +115,14 @@ export default function ProductView() {
                     likes={interestCnt.toLocaleString()}
                     state={tradState}
                     onClick={moveProductDetail(prodNo)}
-                  ></Card>
+                  />
                 );
               })}
             {showSkeletonCard &&
               Array(LOADING_CARD_COUNT)
                 .fill()
                 .map((_, idx) => {
-                  return (
-                    <SkeletonCard key={`SkeletonCard ${idx}`}></SkeletonCard>
-                  );
+                  return <SkeletonCard key={`SkeletonCard ${idx}`} />;
                 })}
             <div ref={cardRef}></div>
           </CardContainer>
