@@ -10,6 +10,7 @@ import Card from 'components/common/Card';
 import PlusButton from 'components/common/PlusButton';
 import SkeletonCard from 'components/common/SkeletonCard';
 import Loading from 'components/common/Loading';
+import { Error } from './index';
 
 import {
   LOADING_CARD_COUNT,
@@ -31,13 +32,7 @@ export default function ProductView() {
 
   const [cardRef, inView] = useInView();
 
-  const {
-    data: datas,
-    isLoading,
-    isSuccess,
-    isError,
-    error,
-  } = useGetSellAllQuery();
+  const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
 
   useEffect(() => {
     if (type === BUY) {
@@ -81,54 +76,58 @@ export default function ProductView() {
     navigate(`/products/${type}/detail/${prodNo}`);
   };
 
+  if (isError) {
+    return <Error />;
+  }
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <Container>
-          <Header>
-            <Title>{currentPage === 'sal' ? TITLE.sal : TITLE.pal}</Title>
-            <SubText>
-              {currentPage === 'sal' ? SUB_TITLE.sal : SUB_TITLE.pal}
-            </SubText>
-          </Header>
-          <CardContainer>
-            {cards.length > 0 &&
-              cards.map((product) => {
-                const {
-                  address,
-                  dbFileName,
-                  interestCnt,
-                  prodName,
-                  prodNo,
-                  prodPrice,
-                  tradState,
-                } = product;
-                return (
-                  <Card
-                    key={prodNo}
-                    // productImage={dbFileName}
-                    title={prodName}
-                    price={prodPrice.toLocaleString()}
-                    area={address}
-                    likes={interestCnt.toLocaleString()}
-                    state={tradState}
-                    onClick={moveProductDetail(prodNo)}
-                  />
-                );
+      <Container>
+        <Header>
+          <Title>{currentPage === 'sal' ? TITLE.sal : TITLE.pal}</Title>
+          <SubText>
+            {currentPage === 'sal' ? SUB_TITLE.sal : SUB_TITLE.pal}
+          </SubText>
+        </Header>
+        <CardContainer>
+          {cards.length > 0 &&
+            cards.map((product) => {
+              const {
+                address,
+                dbFileName,
+                interestCnt,
+                prodName,
+                prodNo,
+                prodPrice,
+                tradState,
+              } = product;
+              return (
+                <Card
+                  key={prodNo}
+                  // productImage={dbFileName}
+                  title={prodName}
+                  price={prodPrice.toLocaleString()}
+                  area={address}
+                  likes={interestCnt.toLocaleString()}
+                  state={tradState}
+                  onClick={moveProductDetail(prodNo)}
+                />
+              );
+            })}
+          {showSkeletonCard &&
+            Array(LOADING_CARD_COUNT)
+              .fill()
+              .map((_, idx) => {
+                return <SkeletonCard key={`SkeletonCard ${idx}`} />;
               })}
-            {showSkeletonCard &&
-              Array(LOADING_CARD_COUNT)
-                .fill()
-                .map((_, idx) => {
-                  return <SkeletonCard key={`SkeletonCard ${idx}`} />;
-                })}
-            <div ref={cardRef}></div>
-          </CardContainer>
-          <PlusButton />
-        </Container>
-      )}
+          <div ref={cardRef}></div>
+        </CardContainer>
+        <PlusButton />
+      </Container>
     </>
   );
 }
