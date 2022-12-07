@@ -78,7 +78,7 @@ public class LoginController {
             if (userDto != null) {
                 resultMap.put("result", "success");
                 resultMap.put("userInfo", userDto);
-            } else {
+            } else { 
                 resultMap.put("result", "false");
             }
         }catch (Exception e) {
