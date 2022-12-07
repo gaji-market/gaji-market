@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 export default function SkeletonCard() {
   return (
     <Card>
-      <Content></Content>
+      <Content />
     </Card>
   );
 }
