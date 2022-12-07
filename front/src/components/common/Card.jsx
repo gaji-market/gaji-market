@@ -59,9 +59,9 @@ export default function Card({
             <AreaText>{area}</AreaText>
             <LikesWrapper>
               {fillHeart ? (
-                <FillHeartIcon onClick={onClickHeart} />
+                <FillHeartIcon className='fill-heart' onClick={onClickHeart} />
               ) : (
-                <HeartIcon onClick={onClickHeart} />
+                <HeartIcon className='empty-heart' onClick={onClickHeart} />
               )}
               <LikesCount>{likes}</LikesCount>
             </LikesWrapper>

@@ -72,7 +72,11 @@ export default function ProductView() {
     }
   }, [inView, isLoading]);
 
-  const moveProductDetail = (prodNo) => () => {
+  const moveProductDetail = (prodNo) => (e) => {
+    const className = e.target.className;
+    if (className.includes('empty-heart') || className.includes('fill-heart'))
+      return;
+
     navigate(`/products/${type}/detail/${prodNo}`);
   };
 
@@ -88,9 +92,9 @@ export default function ProductView() {
     <>
       <Container>
         <Header>
-          <Title>{currentPage === 'sal' ? TITLE.sal : TITLE.pal}</Title>
+          <Title>{currentPage === BUY ? TITLE.sal : TITLE.pal}</Title>
           <SubText>
-            {currentPage === 'sal' ? SUB_TITLE.sal : SUB_TITLE.pal}
+            {currentPage === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}
           </SubText>
         </Header>
         <CardContainer>
