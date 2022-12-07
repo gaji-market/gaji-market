@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.dao.UserDAO">
+
+    <sql id="userCondition">
+        <where>
+            outYn != 'Y'
+            <if test='userId != null and userId != "" and userPwd != null and userPwd != ""'>
+                AND userId = #{userId}
+                AND userPwd = #{userPwd}
+            </if>
+
+            <if test='userNo != null and userNo != ""'>
+                AND no = #{userNo}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 회원가입 -->
+    <insert id="insertUser" parameterType="project.gajimarket.model.UserDTO">
+        INSERT
+        INTO user_info
+        ( id
+        , pwd
+        , name
+        , nickname
+        , gender
+        , birth
+        , phone
+        , address
+        , profileImg
+        , socialKind
+        )
+        VALUES
+            ( #{userId}
+            , #{userPwd}
+            , #{userName}
+            , #{userNickName}
+            , #{userGender}
+            , #{userBirth}
+            , #{userPhone}
+            , #{userAddress}
+            , #{profileImgNum}
+            , #{socialKind}
+    </insert>
+
+    <!-- 회원조회 -->
+    <select id="selectUser" parameterType="java.util.HashMap" resultType="project.gajimarket.model.UserDTO">
+        SELECT no AS userNo
+        , id AS userId
+        , pwd AS userPwd
+        , name AS userName
+        , nickname AS userNickName
+        , gender AS userGender
+        , birth AS userBirth
+        , phone AS userPhone
+        , address AS userAddress
+        , reportCnt
+        , profileImg AS profileImgNum
+        , starScore
+        , socialKind
+        , chatNtfct
+        , cmntsNtfct
+        , interstNtfct
+        FROM user_info
+        <include refid="userCondition"/>
+    </select>
+
+    <!-- 회원정보 수정 -->
+    <update id="updateUser" parameterType="project.gajimarket.model.UserDTO">
+        UPDATE user_info
+        SET pwd = #{userPwd}
+          , nickname = #{userNickName}
+          , address = #{userAddress}
+        WHERE no = #{userNo}
+    </update>
+</mapper>
