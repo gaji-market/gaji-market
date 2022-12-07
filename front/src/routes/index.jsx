@@ -23,7 +23,7 @@ export default function index() {
         <Route path='/products' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />
           <Route path=':type' element={<ProductView />} />
-          <Route path=':type/detail' element={<ProductDetailView />} />
+          <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
       </Route>
       <Route element={<LayoutWithoutBar />}>
