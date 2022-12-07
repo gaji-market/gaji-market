@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import styled from 'styled-components';
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
@@ -22,6 +21,7 @@ export default function Card({
   area,
   likes,
   state,
+  onClick,
 }) {
   const [fillHeart, setFillHeart] = useState(false);
 
@@ -32,7 +32,7 @@ export default function Card({
   };
 
   return (
-    <CardContainer>
+    <CardContainer onClick={onClick}>
       <CardHead>
         {productImage ? (
           <CardImage alt={title} src={productImage} />

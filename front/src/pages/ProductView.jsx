@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -24,6 +25,8 @@ const SUB_TITLE = Object.freeze({
 
 export default function ProductView() {
   const { type } = useParams();
+
+  const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState('');
   const [cards, setCards] = useState([]);
@@ -78,6 +81,10 @@ export default function ProductView() {
     }
   }, [inView, isLoading]);
 
+  const moveProductDetail = (prodNo) => () => {
+    navigate(`/products/${type}/detail/${prodNo}`);
+  };
+
   return (
     <>
       {isLoading ? (
@@ -111,6 +118,7 @@ export default function ProductView() {
                     area={address}
                     likes={interestCnt.toLocaleString()}
                     state={tradState}
+                    onClick={moveProductDetail(prodNo)}
                   ></Card>
                 );
               })}
