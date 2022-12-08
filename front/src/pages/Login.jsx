@@ -21,7 +21,7 @@ export default function Login() {
         <Title>로그인</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
-      <Line width={'500px'} marginBottom={'50px'} />
+      <Line width={'500px'} marginBottom={'80px'} />
       <Form onSubmit={(e) => submitHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
@@ -96,7 +96,7 @@ const FindIdPw = styled.div`
 `;
 const SubBox = styled.div`
   width: 300px;
-  margin: 15px auto;
+  margin: 25px auto;
   display: flex;
   justify-content: space-evenly;
 `;
