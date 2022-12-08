@@ -17,42 +17,51 @@ const NICK_NAME_MIX_LENGTH = 4;
 const INPUT_MIN_LENGTH = 1;
 
 export default function SignUp() {
-  const [id, setId] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [nickName, setNickName] = useState('');
-  const [address, setAddress] = useState('');
-  const [addressDetail, setAddressDetail] = useState('');
-  const [birthday, setBirthday] = useState('');
-  const [gender, setGender] = useState('');
-
+  const [signUpForm, setSignUpForm] = useState({
+    id: '',
+    password: '',
+    confirmPassword: '',
+    nickName: '',
+    address: '',
+    addressDetail: '',
+    birthday: '',
+    gender: '',
+  });
   const open = useDaumPostcodePopup(DaumURL);
-  const isIdVaild = isVaild('ID', id);
-  const isPasswordVaild = isVaild('PW', password);
+  const isIdVaild = isVaild('ID', signUpForm.id);
+  const isPasswordVaild = isVaild('PW', signUpForm.password);
   const isPasswordConfirmVaild =
-    confirmPassword.length <= INPUT_MIN_LENGTH || password === confirmPassword;
+    signUpForm.confirmPassword.length <= INPUT_MIN_LENGTH ||
+    signUpForm.password === signUpForm.confirmPassword;
   const isNickNameVaild =
-    nickName.length >= NICK_NAME_MIX_LENGTH || nickName.length < INPUT_MIN_LENGTH;
+    signUpForm.nickName.length >= NICK_NAME_MIX_LENGTH ||
+    signUpForm.nickName.length < INPUT_MIN_LENGTH;
   const isFormValid =
     isIdVaild &&
-    id.length > INPUT_MIN_LENGTH &&
+    signUpForm.id.length > INPUT_MIN_LENGTH &&
     isPasswordVaild &&
-    password.length > INPUT_MIN_LENGTH &&
+    signUpForm.password.length > INPUT_MIN_LENGTH &&
     isNickNameVaild &&
     isPasswordConfirmVaild &&
-    isVaild('ETC', [address, addressDetail, birthday, gender]);
+    isVaild('ETC', [
+      signUpForm.address,
+      signUpForm.addressDetail,
+      signUpForm.birthday,
+      signUpForm.gender,
+    ]);
 
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
-    setAddress(fullAddress);
-  };
-  const handerClick = (e) => {
-    if (e.target.name === 'gender') setGender(e.target.value);
-    else if (e.target.name === 'calender') setBirthday(e.target.value);
+    setSignUpForm({ ...signUpForm, address: fullAddress });
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
+  };
+  const changeHandler = (e) => {
+    if (e.target.type === 'radio')
+      setSignUpForm({ ...signUpForm, [e.target.name]: e.target.value });
+    else setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
   };
   return (
     <Container>
@@ -61,7 +70,7 @@ export default function SignUp() {
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line />
-      <Form onSubmit={(e) => submitHandler(e)}>
+      <Form onChange={(e) => changeHandler(e)} onSubmit={(e) => submitHandler(e)}>
         <InputTitle
           title='아이디'
           signUpSubTitle={'6글자 이상 이여야 합니다'}
@@ -70,8 +79,7 @@ export default function SignUp() {
         />
         <InputTextBox
           id={'id'}
-          setVaule={setId}
-          value={id}
+          value={signUpForm.id}
           containerBottom={'20px'}
           width={'500px'}
           placeholder={'아이디를 입력하세요'}
@@ -86,9 +94,8 @@ export default function SignUp() {
         />
         <InputTextBox
           id={'password'}
-          setVaule={setPassword}
           containerBottom={'20px'}
-          value={password}
+          value={signUpForm.password}
           width={'500px'}
           placeholder={'비밀번호를 입력하세요.'}
           type={'password'}
@@ -102,9 +109,8 @@ export default function SignUp() {
         />
         <InputTextBox
           id={'confirmPassword'}
-          setVaule={setConfirmPassword}
           containerBottom={'20px'}
-          value={confirmPassword}
+          value={signUpForm.confirmPassword}
           width={'500px'}
           placeholder={'비밀번호를 입력하세요.'}
           type={'password'}
@@ -118,8 +124,7 @@ export default function SignUp() {
         />
         <InputTextBox
           id={'nickName'}
-          setVaule={setNickName}
-          value={nickName}
+          value={signUpForm.nickName}
           containerBottom={'20px'}
           width={'500px'}
           placeholder={'닉네임을 입력하세요.'}
@@ -129,8 +134,7 @@ export default function SignUp() {
         <InputTitle title={'주소'} isVaild={isNickNameVaild} isRequired />
         <InputTextBox
           id={'address'}
-          setVaule={setAddress}
-          value={address}
+          value={signUpForm.address}
           width={'500px'}
           containerBottom={'20px'}
           padding={'10px'}
@@ -142,8 +146,7 @@ export default function SignUp() {
         <InputTitle title={'상세주소'} isRequired />
         <InputTextBox
           id={'addressDetail'}
-          setVaule={setAddressDetail}
-          value={addressDetail}
+          value={signUpForm.addressDetail}
           padding={'10px'}
           containerBottom={'20px'}
           width={'500px'}
@@ -151,25 +154,24 @@ export default function SignUp() {
           type={'text'}
         />
 
-        <FlexBox onChange={(e) => handerClick(e)}>
+        <FlexBox>
           <FlexItem>
             <Title margin={'50px'}>생년월일</Title>
             <Date
-              defaultValue={birthday}
+              defaultValue={signUpForm.birthday}
               data-placeholder='생년월일'
               type='date'
-              id='calender'
+              id='birthday'
               name='calender'
               required
-
             ></Date>
           </FlexItem>
 
           <FlexItem margin={'50px'}>
             <Title margin={'10px'}>성별</Title>
-            <HiddenRadioButton id='man' type='radio' name='gender' value={'남자'} />
+            <HiddenRadioButton id='man' type='radio' name='gender' value={'0'} />
             <RadioButton htmlFor='man' type={'man'}></RadioButton>
-            <HiddenRadioButton id='woman' type='radio' name='gender' value={'여자'} />
+            <HiddenRadioButton id='woman' type='radio' name='gender' value={'1'} />
             <RadioButton htmlFor='woman' type={'woman'}></RadioButton>
           </FlexItem>
         </FlexBox>
