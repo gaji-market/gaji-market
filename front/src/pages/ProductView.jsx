@@ -88,6 +88,10 @@ export default function ProductView() {
     return <Loading />;
   }
 
+  const addProduct = () => {
+    navigate('/write');
+  };
+
   return (
     <>
       <Container>
@@ -130,7 +134,7 @@ export default function ProductView() {
               })}
           <div ref={cardRef}></div>
         </CardContainer>
-        <PlusButton />
+        <PlusButton onClick={addProduct} />
       </Container>
     </>
   );
