@@ -8,7 +8,6 @@ export default function InputTextBox({
   width,
   type,
   value,
-  setVaule,
   clickHandler,
   id,
   containerBottom,
@@ -22,12 +21,11 @@ export default function InputTextBox({
         id={id}
         width={width}
         type={type}
-        value={value}
+        defaultValue={value}
         padding={padding}
         placeholder={placeholder}
         placeholderPosition={placeholderPosition}
         onClick={clickHandler}
-        onChange={(e) => setVaule(e.target.value)}
       />
     </Container>
   );
