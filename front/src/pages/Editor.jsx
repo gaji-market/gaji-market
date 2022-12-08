@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import Button from '../components/common/Button';
-import CheckBox from '../components/common/Checkbox';
-import InputTextBox from '../components/common/InputTextBox';
-import InputTitle from '../components/common/InputTitle';
+import Button from 'components/common/Button';
+import CheckBox from 'components/common/Checkbox';
+import InputTextBox from 'components/common/InputTextBox';
+import InputTitle from 'components/common/InputTitle';
 
 import {
   PRIMARY_COLOR,
   GRAY_COLOR,
   DARK_GRAY_COLOR,
-} from '../components/common/commonColor';
+} from 'components/common/commonColor';
 
 const PADDING = '10px';
 
