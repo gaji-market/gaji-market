@@ -2,9 +2,9 @@ import { PRIMARY_COLOR } from './commonColor';
 import { CgMathPlus } from 'react-icons/cg';
 import styled from 'styled-components';
 
-export default function PlusButton({ customSize }) {
+export default function PlusButton({ customSize, onClick }) {
   return (
-    <Container customSize={customSize}>
+    <Container onClick={onClick} customSize={customSize}>
       <Plus customsize={customSize} />
     </Container>
   );
@@ -41,5 +41,6 @@ const Container = styled.div`
 const Plus = styled(CgMathPlus)`
   color: white;
   text-align: center;
-  font-size: ${({ customsize }) => (customsize ? `${parseInt(customsize) - 15}px` : '50px')};
+  font-size: ${({ customsize }) =>
+    customsize ? `${parseInt(customsize) - 15}px` : '50px'};
 `;
