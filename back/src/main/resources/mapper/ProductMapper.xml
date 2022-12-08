@@ -102,8 +102,13 @@
     </delete>
 
     <!-- 좋아요 찾기 -->
-    <select id="findInterest" resultType="project.gajimarket.model.InterestInfoDTO">
-        select * from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
+    <select id="findInterest" resultType="int">
+        select interestNo as 'interestYN' from interest_info where prodNo=#{prodNo} and userNo=#{loginUserNo};
+    </select>
+
+    <!-- 좋아요 갯수 가져오기 -->
+    <select id="findInterestCnt" parameterType="int" resultType="int">
+        select count(*) as 'interestCnt' from interest_info where prodNo=#{prodNo};
     </select>
 
     <!-- 신고 횟수 증가 -->
@@ -142,13 +147,9 @@
         update product_info set viewCnt = viewCnt + 1 where prodNo=#{prodNo};
     </update>
 
-    <!-- 좋아요 갯수 가져오기 -->
-    <select id="findInterestCnt" parameterType="int" resultType="map">
-        select count(*) as 'interestCnt' from interest_info where prodNo=#{prodNo};
-    </select>
-
+    <!-- 상세화면 파일 정보 -->
     <select id="findProductInfoDetail" resultType="map" parameterType="int">
-        select prodName,prodPrice,priceOffer,freeCheck,prodExplain,regDt,tradState,viewCnt,address
+        select prodName,prodPrice,priceOffer,freeCheck,prodExplain,regDt,tradState,viewCnt,address,reportCnt
         from product_info
         where prodNo=#{prodNo};
     </select>

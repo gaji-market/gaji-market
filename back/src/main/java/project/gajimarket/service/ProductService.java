@@ -58,8 +58,8 @@ public interface ProductService {
     //좋아요 삭제
     void interestDelete(int prodNo, int userNo);
 
-    //좋아요 찾기
-    InterestInfoDTO findInterest(int prodNo, int userNo);
+    //좋아요 유무 찾기
+    Integer findInterest(int prodNo, int loginUserNo);
 
     //신고횟수 증가
     void reportCountUp(int prodNo);
@@ -83,7 +83,7 @@ public interface ProductService {
     void viewCntUpdate(int prodNo);
 
     //좋아요 갯수 가져오기
-    Map<String, Object> findInterestCnt(int prodNo);
+    int findInterestCnt(int prodNo);
 
     //팔래요 최신순 전체보기
     List<Map<String, Object>> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);

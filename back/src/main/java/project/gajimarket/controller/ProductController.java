@@ -265,36 +265,35 @@ public class ProductController {
 
     //좋아요 버튼 눌렀을때
     @PostMapping("/{prodNo}/interest")
-    public InterestInfoDTO productInterest(@PathVariable int prodNo,InterestInfoDTO interestInfoDTO,HttpServletRequest request){
+    public Map<String,Object> productInterest(@PathVariable int prodNo,InterestInfoDTO interestInfoDTO,HttpServletRequest request){
 
         interestInfoDTO.setProdNo(prodNo);
+
         HttpSession session = request.getSession();
         Object id = session.getAttribute("userInfo");
         int userNo = productService.findSessionUser(id);
 
-        //좋아요 클릭한 회원번호 저장
         interestInfoDTO.setUserNo(userNo);
-        //좋아요 저장
-        productService.interestSave(interestInfoDTO);
-        //하나의 유저는 게시물 하나당 좋아요 한개씩 밖에 안된다
 
-        /**
-         * //한회원이 게시물에 좋아요를 햇는지 알려줘야한다...json으로 보내면되나?
-         */
-        InterestInfoDTO interest = productService.findInterest(prodNo,userNo);
+        Integer interestYN = productService.findInterest(prodNo,userNo);
+        if (interestYN==null){
+            productService.interestSave(interestInfoDTO);
+        }else {
+            productService.interestDelete(prodNo,userNo);
+        }
 
-        return interest;
-    }
+        Map<String,Object> result = new LinkedHashMap<>();
+        Map<String,Object> interestInfo = new LinkedHashMap<>();
 
-    //좋아요 버튼 다시 눌럿을때 삭제
-    @PostMapping("/{prodNo}/interestDelete")
-    public void productInterestDelete(@PathVariable int prodNo,HttpServletRequest request){
-        //로그인한 회원 번호 가져오고
-        HttpSession session = request.getSession();
-        Object id = session.getAttribute("userInfo");
-        int userNo = productService.findSessionUser(id);
-
-        productService.interestDelete(prodNo,userNo);
+        //다시 찾아서 보내줘야하나 일단 만들어놓음
+        Integer interest = productService.findInterest(prodNo, userNo);
+        if (interest==null){
+            interestInfo.put("interestYN",null);
+        }else {
+            interestInfo.put("interestYN",interestInfo);
+        }
+        result.put("interestInfo",interestInfo);
+        return result;
     }
 
     //판매완료 눌렀을때 채팅한사람 보여주기(닉네임,프로필사진?)
@@ -305,7 +304,6 @@ public class ProductController {
         List<Map<String,Object>> userInfo = productService.findChatUserInfo(prodNo);
         result.put("userInfos",userInfo);
         return result;
-        //where=prodNo join userNo nickname img
     }
 
     //별점이랑 후기 저장
@@ -337,13 +335,7 @@ public class ProductController {
     //신고 버튼 눌렀을때
     @PostMapping("/{prodNo}/report")
     public void productReport(@PathVariable int prodNo){
-
-        /**
-         * //카운트 1증가한것도 Json으로 보내줘야하나??(확인해볼것)
-         * 카운트 5되면 자동 삭제?..
-         */
         productService.reportCountUp(prodNo);
-
     }
 
     //가격 제시 했을때 높은금액으로 update
@@ -373,7 +365,7 @@ public class ProductController {
 
     //상세보기
     @GetMapping("/{prodNo}")
-    public Map<String, Object> productDetail(@PathVariable int prodNo){
+    public Map<String, Object> productDetail(@PathVariable int prodNo,HttpServletRequest request){
 
         Map<String,Object> result = new LinkedHashMap<>();
 
@@ -385,9 +377,23 @@ public class ProductController {
         //조회수 1증가
         productService.viewCntUpdate(prodNo);
 
+        //좋아요 유무
+        HttpSession session = request.getSession();
+        Object loginUser = session.getAttribute("userInfo");
+        int loginUserNo = productService.findSessionUser(loginUser);
+
+        Map<String,Object> interestInfo = new LinkedHashMap<>();
+        Integer interestYN = productService.findInterest(prodNo,loginUserNo);
+        if (interestYN==null){
+            interestInfo.put("interestYN",null);
+        }else {
+            interestInfo.put("interestYN",interestYN);
+        }
         //좋아요 갯수 가져오기
-        Map<String,Object> interestCnt = productService.findInterestCnt(prodNo);
-        result.put("interestInfo",interestCnt);
+        int interestCnt = productService.findInterestCnt(prodNo);
+        interestInfo.put("interestCnt",interestCnt);
+
+        result.put("interestInfo",interestInfo);
 
         //prodNo로 보여줄 내용 찾기
         //제목, 가격, 가격제안, 조회수, 무료나눔, 내용 , 주소, 등록날짜, 거래상태

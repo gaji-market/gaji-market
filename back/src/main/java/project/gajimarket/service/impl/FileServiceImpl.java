@@ -23,8 +23,6 @@ public class FileServiceImpl implements FileService {
     String bucketName = "gaji-market-storage";
     String keyFileName = "gajimarket-123-cb4059fbbfd5.json";
 
-
-
     @Override
     public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
 
@@ -47,7 +45,6 @@ public class FileServiceImpl implements FileService {
         if (multipartFile.isEmpty()){
             return null;
         }
-
         //오리지널 파일 이름 가져오기
         String originFilename = multipartFile.getOriginalFilename();
 

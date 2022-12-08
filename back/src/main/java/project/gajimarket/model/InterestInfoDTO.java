@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class InterestInfoDTO {
-    private int interestNo;
-    private int prodNo;
-    private int userNo;
+    private int interestNo; //좋아요 번호
+    private int prodNo; // 상품 번호
+    private int userNo; // 좋아요 누른 사람 번호
 }

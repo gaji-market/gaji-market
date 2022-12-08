@@ -101,8 +101,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public InterestInfoDTO findInterest(int prodNo, int userNo) {
-        return productDAO.findInterest(prodNo,userNo);
+    public Integer findInterest(int prodNo, int loginUserNo) {
+        return productDAO.findInterest(prodNo,loginUserNo);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Map<String, Object> findInterestCnt(int prodNo) {
+    public int findInterestCnt(int prodNo) {
         return productDAO.findInterestCnt(prodNo);
     }
 
