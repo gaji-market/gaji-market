@@ -79,7 +79,7 @@ public class UserController {
                 resultMap.put("result", "success");
                 resultMap.put("userInfo", userDto);
             } else {
-                resultMap.put("result", "false");
+                resultMap.put("result", "fail");
             }
         }catch (Exception e) {
             System.out.println("LoginController mypage : " + e);
@@ -94,7 +94,7 @@ public class UserController {
         Map<String, Object> param = new HashMap<>();
         UserDTO updateUser = null;
         try {
-            result.put("result", "false");
+            result.put("result", "fail");
 
             if (userDto != null) {
                 int update = userService.updateUser(userDto);
