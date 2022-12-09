@@ -22,7 +22,7 @@ public class UserDTO {
     private FileDTO profileImg; // 프로필이미지
     private int profileImgNum; // 프로필이미지 num
     private float starScore; // 별점평균
-    private char socialKind; // 소셜로그인종류 (0: 카카오, 1: 구글)
+    private char socialKind; // 소셜로그인종류 (0: 일반, 1: 카카오, 2: 구글)
     private char chatNtfct; // 채팅알림유무 (Y, N)
     private char cmntsNtfct; // 댓글알림유무 (Y, N)
     private char interstNtfct; // 좋아요알림유무 (Y, N)

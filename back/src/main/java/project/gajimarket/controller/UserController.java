@@ -18,7 +18,7 @@ import java.util.*;
 @Slf4j
 @Transactional
 @CrossOrigin(origins = "http://localhost:3000")
-public class LoginController {
+public class UserController {
 
     private final UserService userService;
     private final FileService fileService;
