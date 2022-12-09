@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
@@ -6,68 +6,76 @@ import CheckBox from 'components/common/Checkbox';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
 
+import 'styles/editor.scss';
+
 import {
   PRIMARY_COLOR,
   GRAY_COLOR,
   DARK_GRAY_COLOR,
   WHITE_COLOR,
 } from 'components/common/commonColor';
-import { useEffect } from 'react';
 import { SELL, BUY } from '../constants/params';
 import { TITLE, SUB_TITLE } from '../constants/editor';
 
 export default function Editor() {
-  const [imageSrc, setImageSrc] = useState('');
-  const [title, setTitle] = useState('');
-  const [subTitle, setSubTitle] = useState('');
+  const [formTitle, setFormTitle] = useState('');
+  const [subFormTitle, setFormSubTitle] = useState('');
+  const [uploadImg, setUploadImg] = useState([]);
 
   const { type: param } = useParams();
+
   useEffect(() => {
     if (param === SELL) {
-      setTitle(TITLE.addPal);
-      setSubTitle(SUB_TITLE.addPal);
+      setFormTitle(TITLE.addPal);
+      setFormSubTitle(SUB_TITLE.addPal);
     }
-
     if (param === BUY) {
-      setTitle(TITLE.addSal);
-      setSubTitle(SUB_TITLE.addSal);
+      setFormTitle(TITLE.addSal);
+      setFormSubTitle(SUB_TITLE.addSal);
     }
   }, [param]);
 
   const submitHandler = () => {
-    console.log('test');
+    console.log('폼 전송');
   };
 
-  const encodeFileToBase64 = (fileBlob) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(fileBlob);
-    return new Promise((resolve) => {
-      reader.onload = () => {
-        setImageSrc(reader.result);
-        resolve();
-      };
+  const changeFileUploadHandler = ({ target }) => {
+    const imgUrls = [];
+    [...target.files].forEach((file) => {
+      const url = URL.createObjectURL(file);
+      if (!(imgUrls.length >= 5) && uploadImg.length < 5) imgUrls.push(url);
     });
+
+    setUploadImg((prev) => prev.concat(imgUrls));
   };
 
-  const changeFileUploadHandler = (e) => {
-    encodeFileToBase64(e.target.files[0]);
-  };
+  console.log(!uploadImg.length);
+  console.log(uploadImg);
 
   return (
     <Form onSubmit={submitHandler}>
       <Header>
-        <Title>{title}</Title>
-        <SubText>{subTitle}</SubText>
+        <Title>{formTitle}</Title>
+        <SubText>{subFormTitle}</SubText>
       </Header>
 
       <Contents>
         <ImageWrapper>
-          {imageSrc && <Image src={imageSrc} alt='upload_image' />}
-          {!imageSrc && (
+          {!uploadImg.length && (
             <ImageUpLoaderLabel htmlFor='image-uploader'>
               이미지 등록
             </ImageUpLoaderLabel>
           )}
+          <ul className='imgSlider'>
+            {uploadImg.map((imageUrl) => {
+              return (
+                <li key={imageUrl} className='imgList'>
+                  <Image src={imageUrl} alt='upload_image' />
+                </li>
+              );
+            })}
+          </ul>
+
           <ImageUpLoaderInput
             id='image-uploader'
             name='image-uploader'
@@ -148,7 +156,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 30px;
-  height: 100%;
+  overflow: hidden;
 `;
 
 const Header = styled.div``;
