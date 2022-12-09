@@ -12,13 +12,8 @@ import SkeletonCard from 'components/common/SkeletonCard';
 import Loading from 'components/common/Loading';
 import { Error } from './index';
 
-import {
-  LOADING_CARD_COUNT,
-  TITLE,
-  SUB_TITLE,
-  SELL,
-  BUY,
-} from 'constants/productView';
+import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
+import { SELL, BUY } from 'constants/params';
 
 export default function ProductView() {
   const { type } = useParams();
