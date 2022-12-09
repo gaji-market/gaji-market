@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
@@ -78,7 +78,7 @@ public class LoginController {
             if (userDto != null) {
                 resultMap.put("result", "success");
                 resultMap.put("userInfo", userDto);
-            } else { 
+            } else {
                 resultMap.put("result", "false");
             }
         }catch (Exception e) {
@@ -114,6 +114,37 @@ public class LoginController {
             System.out.println("LoginController userUpdate : " + e);
         }
         return result;
+    }
+
+    // 알림 수정
+    @GetMapping("/updateNtfct")
+    public Map<String, Object> updateNtfct(@PathVariable String gubun, String useYn, HttpServletRequest request) {
+        Map<String, Object> param = new HashMap<>();
+        Map<String, Object> resultMap = new HashMap<>();
+        String result = "fail";
+        try {
+            UserDTO user = (UserDTO) request.getSession().getAttribute("userInfo");
+
+            // gubun ( 0: 채팅, 1: 댓글, 2: 좋아요 )
+            if (gubun != null && "".equals(gubun)){
+                if (useYn != null && "".equals(useYn)){
+                    param.put("gubun", gubun);
+                    param.put("useYn", useYn);
+                }
+            }
+            if (user != null) {
+                param.put("userNo", user.getUserNo());
+            }
+
+            int updateNtfctResult = userService.updateNtfct(param);
+            if (updateNtfctResult > 0) {
+                result = "success";
+            }
+            resultMap.put("result", result);
+        } catch (Exception e) {
+            System.out.println("LoginController updateNtfct : " + e);
+        }
+        return resultMap;
     }
 
     // 신고당할 경우
