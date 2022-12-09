@@ -10,6 +10,9 @@ import java.util.Map;
 @Mapper
 public interface UserDAO {
 
+    // 아이디 중복확인
+    public int checkUserId(String id);
+
     // 회원가입
     public int insertUser(UserDTO userDto);
 

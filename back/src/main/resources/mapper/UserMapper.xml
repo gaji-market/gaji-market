@@ -16,6 +16,13 @@
         </where>
     </sql>
 
+    <!-- 아이디 중복 확인 -->
+    <select id="checkUserId" parameterType="String" resultType="int">
+        SELECT COUNT(no) AS userCnt
+          FROM user_info
+         WHERE userId = #{userId}
+    </select>
+
     <!-- 회원가입 -->
     <insert id="insertUser" parameterType="project.gajimarket.model.UserDTO">
         INSERT

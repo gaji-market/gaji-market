@@ -7,6 +7,8 @@ import java.util.Map;
 
 public interface UserService {
 
+    public int checkUserId(String id);
+
     public int insertUser(UserDTO userDto);
 
     public UserDTO selectUser(Map<String, Object> param);

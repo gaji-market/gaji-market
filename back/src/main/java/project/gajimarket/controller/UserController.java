@@ -23,6 +23,23 @@ public class UserController {
     private final UserService userService;
     private final FileService fileService;
 
+    // 아이디 중복확인
+    @GetMapping("/checkUserId")
+    public Map<String, Object> checkUserId(@PathVariable String userId) throws Exception{
+        Map<String, Object> resultMap = new HashMap<>();
+        String result = "success";
+        try {
+            int checkUserId = userService.checkUserId(userId);
+            if (checkUserId > 0) {
+                result = "fail";
+            }
+            resultMap.put("result", result);
+        } catch (Exception e) {
+            System.out.println("UserController checkUserId : " + e);
+        }
+        return resultMap;
+    }
+
     // 회원가입
     @PostMapping("/signUp")
     public Map<String,Object> signUp(@RequestBody UserDTO userDto) throws IOException {

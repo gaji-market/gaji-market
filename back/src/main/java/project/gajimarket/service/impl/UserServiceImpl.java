@@ -18,6 +18,10 @@ public class UserServiceImpl implements UserService {
     private final UserDAO userDao;
 
     @Override
+    public int checkUserId(String id) {
+        return userDao.checkUserId(id);
+    }
+    @Override
     public int insertUser(UserDTO userDto) {
         return userDao.insertUser(userDto);
     }
