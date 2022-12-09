@@ -8,9 +8,6 @@ import java.util.List;
 
 public interface FileService {
 
-    //이미지 저장될 경로
-    String getFullPath(String filename);
-
     //여러개 파일저장
     List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException;
 
@@ -21,5 +18,5 @@ public interface FileService {
     String createDBFileName(String originFilename);
 
     //업로드한 이미지 파일 삭제
-    void fileDelete(List<String> findFileDB);
+    void fileDelete(List<String> findFileDB) throws IOException;
 }
