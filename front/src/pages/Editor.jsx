@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
 import CheckBox from 'components/common/Checkbox';
@@ -9,12 +10,14 @@ import {
   PRIMARY_COLOR,
   GRAY_COLOR,
   DARK_GRAY_COLOR,
+  WHITE_COLOR,
 } from 'components/common/commonColor';
-
-const PADDING = '10px';
 
 export default function Editor() {
   const [imageSrc, setImageSrc] = useState('');
+
+  const { type: pram } = useParams();
+  console.log(pram);
 
   const submitHandler = () => {
     console.log('test');
@@ -43,50 +46,63 @@ export default function Editor() {
       </Header>
 
       <Contents>
-        <ContentHeader>
-          <ImageWrapper>
-            <Image />
-            {imageSrc && <img src={imageSrc} alt='upload_image' />}
-            <input type='file' multiple onChange={changeFileUploadHandler} />
-          </ImageWrapper>
+        <ImageWrapper>
+          {imageSrc && <Image src={imageSrc} alt='upload_image' />}
+          {!imageSrc && (
+            <ImageUpLoaderLabel htmlFor='image-uploader'>
+              이미지 등록
+            </ImageUpLoaderLabel>
+          )}
+          <ImageUpLoaderInput
+            id='image-uploader'
+            name='image-uploader'
+            type='file'
+            onChange={changeFileUploadHandler}
+          />
+        </ImageWrapper>
 
-          <TitleAndPriceWrapper>
-            <InputTitle title='제목' isRequired />
-            <InputTextBox width='100%' padding={PADDING} placeholder='물품명' />
+        <TitleAndPriceWrapper>
+          <InputTitle title='제목' isRequired />
+          <InputTextBox width='100%' padding='10px' placeholder='물품명' />
 
-            <PriceTitleContainer>
-              <div>
-                <InputTitle isRequired title='가격'></InputTitle>
-              </div>
-              <CheckBoxWrapper>
-                <CheckBox id='proposition' title='가격 제안 허용' />
-              </CheckBoxWrapper>
-            </PriceTitleContainer>
-
-            <PriceInputContainer>
-              <InputTextBox
-                width='95%'
-                padding={PADDING}
-                placeholder='원'
-                placeholderPosition='right'
+          <PriceTitleContainer>
+            <div>
+              <InputTitle isRequired title='가격'></InputTitle>
+            </div>
+            <CheckBoxWrapper>
+              <CheckBox
+                marginRight='140px'
+                id='proposition'
+                title='가격 제안 허용'
               />
-              <CheckBox width='110px' id='free' title='무료나눔' />
-            </PriceInputContainer>
-          </TitleAndPriceWrapper>
-        </ContentHeader>
+            </CheckBoxWrapper>
+          </PriceTitleContainer>
 
-        <InputTitle title='카테고리' isRequired />
-        <Categories>
-          <Select>
-            <Option>option</Option>
-          </Select>
-          <Select>
-            <Option>option</Option>
-          </Select>
-          <Select>
-            <Option>option</Option>
-          </Select>
-        </Categories>
+          <PriceInputContainer>
+            <InputTextBox
+              width='95%'
+              padding='10px'
+              placeholder='원'
+              placeholderPosition='right'
+            />
+            <CheckBox width='110px' id='free' title='무료나눔' />
+          </PriceInputContainer>
+        </TitleAndPriceWrapper>
+
+        <CategoryContainer>
+          <InputTitle title='카테고리' isRequired />
+          <Categories>
+            <Select>
+              <Option>option</Option>
+            </Select>
+            <Select>
+              <Option>option</Option>
+            </Select>
+            <Select>
+              <Option>option</Option>
+            </Select>
+          </Categories>
+        </CategoryContainer>
 
         <InputContent>
           <InputTitle isRequired title='내용' />
@@ -99,6 +115,7 @@ export default function Editor() {
           <InputTextBox width='100%' placeholder='#해시태그' />
         </HashTageContainer>
       </Contents>
+
       <ButtonContainer>
         <Button customSize='50%'>수정하기</Button>
         <Button customSize='50%' isOutline>
@@ -133,19 +150,35 @@ const SubText = styled.div`
 
 const Contents = styled.div``;
 
-const ContentHeader = styled.div`
-  display: flex;
+// 이미지 업로드
+const ImageWrapper = styled.div`
+  margin-bottom: 20px;
 `;
 
-const ImageWrapper = styled.div``;
-
-const Image = styled.div`
-  width: 160px;
-  height: 160px;
-  border-radius: 10px;
+const ImageUpLoaderLabel = styled.label`
+  width: 100%;
+  display: block;
   background: ${GRAY_COLOR};
-  margin-right: 30px;
-  margin-bottom: 30px;
+  color: ${WHITE_COLOR};
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+`;
+
+const ImageUpLoaderInput = styled.input.attrs({
+  multiple: true,
+  accept: 'image/*',
+})`
+  display: none;
+`;
+
+const Image = styled.img`
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
 `;
 
 const TitleAndPriceWrapper = styled.div`
@@ -158,17 +191,18 @@ const PriceTitleContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-top: 20px;
-  gap: 20px;
 `;
 
-const CheckBoxWrapper = styled.div`
-  margin-right: 123px;
-`;
+const CheckBoxWrapper = styled.div``;
 
 const PriceInputContainer = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
+`;
+
+const CategoryContainer = styled.div`
+  margin-top: 20px;
 `;
 
 const Categories = styled.div`
@@ -194,11 +228,11 @@ const Option = styled.option`
 `;
 
 const InputContent = styled.div`
-  margin-top: 25px;
+  margin-top: 20px;
 `;
 
 const HashTageContainer = styled.div`
-  margin-top: 25px;
+  margin-top: 20px;
 `;
 
 const TextArea = styled.textarea`
