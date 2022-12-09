@@ -74,4 +74,21 @@
           , address = #{userAddress}
         WHERE no = #{userNo}
     </update>
+
+    <!-- 알림 수정 -->
+    <update id="updateNtfct" parameterType="java.util.HashMap">
+        UPDATE user_info
+           <set>
+                <if test="gubun == 0 or gubun == '0'">
+                    chatNtfct = #{useYn}
+                </if>
+                <if test="gubun == 1 or gubun == '1'">
+                    cmntsNtfct = #{useYn}
+                </if>
+               <if test="gubun == 2 or gubun == '2'">
+                   interstNtfct = #{useYn}
+               </if>
+           </set>
+         WHERE no = #{userNo}
+    </update>
 </mapper>

@@ -18,4 +18,7 @@ public interface UserDAO {
 
     // 정보수정
     public int updateUser(UserDTO userDto);
+
+    // 알림 수정
+    public int updateNtfct (Map<String, Object> param);
 }
