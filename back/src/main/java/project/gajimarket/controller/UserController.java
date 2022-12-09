@@ -32,7 +32,7 @@ public class UserController {
             if (result > 0) {
                 resultMap.put("result", "success");
             } else {
-                resultMap.put("result", "false");
+                resultMap.put("result", "fail");
             }
         }catch (Exception e) {
             System.out.println("LoginController signUp : " + e);
