@@ -1,9 +1,26 @@
+@import './global.scss';
+
 .imgSlider {
   background-color: #eee;
   display: flex;
+  margin-top: 15px;
 
   li {
     flex-grow: 1;
     width: 100%;
+    position: relative;
   }
+}
+
+.deleteImgBtn {
+  position: absolute;
+  background-color: $PRIMARY;
+  right: 0;
+  top: 0;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  color: $WHITE;
+  margin: 5px;
+  cursor: pointer;
 }
