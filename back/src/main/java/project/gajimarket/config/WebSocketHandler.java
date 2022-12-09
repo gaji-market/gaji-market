@@ -15,9 +15,6 @@ import project.gajimarket.service.ChatService;
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
 
-    private final ObjectMapper objectMapper;
-    //private final ChatService chatService;
-
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);

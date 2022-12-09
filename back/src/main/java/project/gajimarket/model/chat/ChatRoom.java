@@ -21,7 +21,7 @@ public class ChatRoom {
         this.name = name;
     }
 
-    public void handlerActions(WebSocketSession session, ChatMessage chatMessage, ChatServiceImpl chatService) {
+   /* public void handlerActions(WebSocketSession session, ChatMessage chatMessage, ChatServiceImpl chatService) {
         if (chatMessage.getType().equals(ChatMessage.MessageType.ENTER)) {
             sessions.add(session);
             chatMessage.setMessage(chatMessage.getSenderId() + "님이 입장했습니다.");
@@ -33,5 +33,5 @@ public class ChatRoom {
     private <T> void sendMessage(T message, ChatServiceImpl chatService) {
         sessions.parallelStream()
                 .forEach(session -> chatService.sendMessage(session, message));
-    }
+    }*/
 }

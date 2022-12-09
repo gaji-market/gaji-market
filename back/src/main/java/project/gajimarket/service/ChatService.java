@@ -17,5 +17,5 @@ public interface ChatService {
 
     List<Map<String, Object>> getChatMessage(int chatNo);
 
-    <T> void sendMessage(WebSocketSession session, T message);
+   // <T> void sendMessage(WebSocketSession session, T message);
 }

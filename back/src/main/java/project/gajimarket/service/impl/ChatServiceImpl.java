@@ -17,16 +17,16 @@ import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
+@Service("chatService")
 public class ChatServiceImpl implements ChatService {
-    private final ObjectMapper objectMapper;
+    //private final ObjectMapper objectMapper;
     private final ChatDAO chatDAO;
     private Map<String, ChatRoom> chatRooms;
 
-    @PostConstruct
-    private void init() {
-        chatRooms = new LinkedHashMap<>();
-    }
+//    @PostConstruct
+//    private void init() {
+//        chatRooms = new LinkedHashMap<>();
+//    }
 
     public Map<String, Object> addChatRoom(ChatRoomDTO chatRoomDTO) {
         Map<String, Object> resultMap = new HashMap<>();
@@ -62,11 +62,11 @@ public class ChatServiceImpl implements ChatService {
         return chatDAO.selectChatMessage(chatNo);
     }
 
-    public <T> void sendMessage(WebSocketSession session, T message) {
-        try{
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-    }
+//    public <T> void sendMessage(WebSocketSession session, T message) {
+//        try{
+//            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+//        } catch (IOException e) {
+//            log.error(e.getMessage(), e);
+//        }
+//    }
 }

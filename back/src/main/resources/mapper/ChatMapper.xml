@@ -3,7 +3,7 @@
 <mapper namespace="project.gajimarket.dao.ChatDAO">
 
     <insert id="insertChatRoom" parameterType="ChatRoomDTO" useGeneratedKeys="true" keyProperty="chatNo">
-        INSERT INTO chat_info
+        INSERT INTO chat_info (userNo, prodNo, tgUserNo)
         VALUES (${user.userNo}, ${prod.prodNo}, ${prod.tgUserNo})
     </insert>
 
