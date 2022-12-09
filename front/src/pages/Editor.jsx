@@ -90,7 +90,7 @@ export default function Editor() {
               </ImageUpLoaderLabel>
             )}
             <ul className='imgSlider'>
-              {uploadImg.map((imageUrl) => {
+              {uploadImg.map((imageUrl, idx) => {
                 return (
                   <li
                     onMouseOver={mouseOverHandler}
@@ -99,6 +99,9 @@ export default function Editor() {
                     className='imgList'
                   >
                     <Image src={imageUrl} alt='upload_image' />
+                    <p className='imgPage'>{`${idx + 1}/${
+                      uploadImg.length
+                    }`}</p>
                     {showImgDeleteBtn && (
                       <button
                         type='button'
@@ -198,6 +201,7 @@ const Container = styled.div`
 
 const Form = styled.form`
   overflow: hidden;
+  padding: 5px;
 `;
 
 const Header = styled.div``;
@@ -219,6 +223,7 @@ const Contents = styled.div``;
 // 이미지 업로드
 const ImageWrapper = styled.div`
   margin-bottom: 20px;
+  overflow: hidden;
 `;
 
 const ImageUpLoaderLabel = styled.label`
@@ -240,9 +245,9 @@ const ImageUpLoaderInput = styled.input.attrs({
 `;
 
 const Image = styled.img`
-  width: 700px;
+  width: 690px;
   height: 250px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   display: block;
 `;

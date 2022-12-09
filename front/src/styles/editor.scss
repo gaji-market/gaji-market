@@ -7,20 +7,27 @@
 
   li {
     flex-grow: 1;
-    width: 100%;
+    // width: 100%;
     position: relative;
   }
-}
 
-.deleteImgBtn {
-  position: absolute;
-  background-color: $PRIMARY;
-  right: 0;
-  top: 0;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  color: $WHITE;
-  margin: 5px;
-  cursor: pointer;
+  .imgPage {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+  }
+
+  .deleteImgBtn {
+    position: absolute;
+    background-color: $PRIMARY;
+    right: 0;
+    top: 0;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    color: $WHITE;
+    margin: 5px;
+    cursor: pointer;
+  }
 }
