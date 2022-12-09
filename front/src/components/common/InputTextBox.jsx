@@ -5,18 +5,25 @@ import { PRIMARY_COLOR, GRAY_COLOR } from './commonColor';
 export default function InputTextBox({
   width,
   type,
+  value,
+  clickHandler,
+  id,
+  containerBottom,
   padding,
   placeholder,
   placeholderPosition = 'left',
 }) {
   return (
-    <Container width={width}>
+    <Container width={width} containerBottom={containerBottom}>
       <Input
+        id={id}
         width={width}
         type={type}
+        defaultValue={value}
         padding={padding}
         placeholder={placeholder}
         placeholderPosition={placeholderPosition}
+        onClick={clickHandler}
       />
     </Container>
   );
@@ -24,6 +31,7 @@ export default function InputTextBox({
 
 const Container = styled.div`
   margin-top: 8px;
+  margin-bottom: ${({ containerBottom }) => containerBottom};
   width: ${({ width }) => width};
 `;
 

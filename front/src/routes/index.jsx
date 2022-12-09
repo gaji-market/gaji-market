@@ -10,6 +10,7 @@ import {
   ProductView,
   ProductDetailView,
   Editor,
+  MyPage,
 } from 'pages';
 
 export default function index() {
@@ -25,7 +26,9 @@ export default function index() {
           <Route path=':type' element={<ProductView />} />
           <Route path=':type/detail' element={<ProductDetailView />} />
         </Route>
+        <Route path='mypage' elements={<MyPage />} />
       </Route>
+
       <Route element={<LayoutWithoutBar />}>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<SignUp />} />

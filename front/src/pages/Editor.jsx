@@ -3,11 +3,7 @@ import styled from 'styled-components';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
 
-import {
-  PRIMARY_COLOR,
-  GRAY_COLOR,
-  DARK_GRAY_COLOR,
-} from '../components/common/commonColor';
+import { PRIMARY_COLOR, GRAY_COLOR, DARK_GRAY_COLOR } from '../components/common/commonColor';
 
 const PADDING = '10px';
 
