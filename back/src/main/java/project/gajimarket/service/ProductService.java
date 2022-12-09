@@ -20,13 +20,13 @@ public interface ProductService {
     void productDelete(int prodNo);
 
     //해시태그 저장
-    void productHashTagSave(int prodNo,String hashTag);
+    void productHashTagSave(int prodNo, String hashTag);
 
     //파일 업로드
-    void productFileSave(String uploadFileName,String dbFilename,int prodNo,String i);
+    void productFileSave(String uploadFileName, String dbFilename, int prodNo, String i);
 
     //상품 수정
-    void productUpdate(int prodNo,ProductDTO productDTO);
+    void productUpdate(int prodNo, ProductDTO productDTO);
 
     //상품 번호로 업로드한 파일 찾기
     List<String> productFindDBFile(int prodNo);
@@ -41,16 +41,16 @@ public interface ProductService {
     int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
 
     //상품 정보 찾기
-    ProductDTO findProductInfo(int prodNo);
+    Map<String, Object> findProductInfo(int prodNo);
 
     //카테고리 정보 가져오기
-    CategoryDTO findCategoryInfo(int categoryNo);
+    Map<String, Object> findCategoryInfo(int categoryNo);
 
     //해시태그 정보 가져오기
-    List<String> findHashTag(int prodNo);
+    List<Map<String, Object>> findHashTag(int prodNo);
 
     //DB에 저장된 이미지 파일이름 가져오기
-    List<String> findFileInfo(int prodNo);
+    List<Map<String, Object>> findFileInfo(int prodNo);
 
     //좋아요 저장
     void interestSave(InterestInfoDTO interestInfoDTO);
@@ -77,25 +77,38 @@ public interface ProductService {
     int findProductPrice(int prodNo);
 
     //가격 경매 update
-    void priceOfferUpdate(int offerPrice, int findUserNo,int prodNo);
+    void priceOfferUpdate(int offerPrice, int findUserNo, int prodNo);
 
     //조회수 증가
     void viewCntUpdate(int prodNo);
 
     //좋아요 갯수 가져오기
-    int findInterestCnt(int prodNo);
+    Map<String, Object> findInterestCnt(int prodNo);
 
     //팔래요 최신순 전체보기
-    List<Map<String,Object>> findSellAll(String search);
+    List<Map<String, Object>> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
 
     //살래요 최신순 전체보기
-    List<Map<String, Object>> findBuyAll(String search);
+    List<Map<String, Object>> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
 
     //거래구분 찾기
     String findTradeState(int prodNo);
 
-    //팔래요 가격 높은순
-    List<Map<String, Object>> findSellHighPrice();
+    //상품번호로 카테고리 번호 찾기
+    int findProdNoByCategoryNo(int prodNo);
 
+    //전체 카테고리 정보
+    List<Map<String, Object>> categoryInfo();
 
+    //상세보기 상품 가져오기
+    Map<String, Object> findProductInfoDetail(int prodNo);
+
+    //상품 상세보기에서 회원정보 가져오기
+    Map<String, Object> findUserInfo(int userNo);
+
+    //채팅한 사람정보 가져오기
+    List<Map<String, Object>> findChatUserInfo(int prodNo);
+
+    //판매완료 후 update
+    void buyUserUpdate(int userNo,int prodNo);
 }

@@ -115,4 +115,7 @@ fabric.properties
 # https://plugins.jetbrains.com/plugin/8053-azure-toolkit-for-intellij
 .idea/**/azureSettings.xml
 
+#Jasypt txt file
+src/main/resources/data/jasypt-encryptor-password.txt
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij

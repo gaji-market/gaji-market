@@ -13,7 +13,7 @@
 
     <!-- 팔래요,살래요 상품 등록할때 회원 주소 가져오기 -->
     <select id="findUserAddress" parameterType="int" resultType="String">
-        select address from user_info where no = #{a}
+        select address from user_info where no = #{userNo}
     </select>
 
     <!-- 살래요 상품 등록 -->
@@ -47,12 +47,12 @@
 
     <!-- 상품번호로 저장된 이미지 파일 찾기 -->
     <select id="productFindDBFile" parameterType="int" resultType="String">
-        select dbFileName from file where no=#{param1};
+        select dbFileName from file where no=#{prodNo} and gubun='2';
     </select>
 
     <!-- DB 이미지파일 삭제 -->
     <delete id="productFileDelete" parameterType="int">
-        delete from file where no=#{param1};
+        delete from file where no=#{param1} and gubun='2';
     </delete>
 
     <!-- 카테고리 번호 찾기 -->
@@ -66,26 +66,29 @@
     </delete>
 
     <!-- 상품 정보 찾기 -->
-    <select id="findProductInfo" parameterType="int" resultType="project.gajimarket.model.ProductDTO">
-        select *
+    <select id="findProductInfo" parameterType="int" resultType="map">
+        select prodName,prodPrice,priceOffer,freeCheck,prodExplain
         from product_info
-        where prodNo=#{param1};
+        where prodNo=#{prodNo};
     </select>
 
     <!-- 카테고리 정보 찾기 -->
-    <select id="findCategoryInfo" parameterType="int" resultType="project.gajimarket.model.CategoryDTO">
-        select * from category_info where categoryNo=#{param1};
+    <select id="findCategoryInfo" parameterType="int" resultType="map">
+        select largeCateNo,largeCateName,mediumCateNo,mediumCateName,smallCateNo,smallCateName
+        from category_info
+        where categoryNo=#{categoryNo};
     </select>
 
     <!-- 해시태그 정보 찾기 -->
-    <select id="findHashTag" parameterType="int" resultType="String">
-        select tagName from hash_tag where prodNo=#{param1};
+    <select id="findHashTag" parameterType="int" resultType="map">
+        select tagName from hash_tag where prodNo=#{prodNo};
     </select>
 
     <!-- DB파일 이름 찾기 -->
-    <select id="findFileInfo" parameterType="int" resultType="String">
-        select dbFileName
-        from file where no=#{param1};
+    <select id="findFileInfo" parameterType="int" resultType="map">
+        select fileOrder,dbFileName
+        from file
+        where no=#{prodNo} and gubun='2';
     </select>
 
     <!-- 좋아요 저장 -->
@@ -140,13 +143,29 @@
     </update>
 
     <!-- 좋아요 갯수 가져오기 -->
-    <select id="findInterestCnt" parameterType="int" resultType="int">
-        select count(*) from interest_info where prodNo=#{prodNo};
+    <select id="findInterestCnt" parameterType="int" resultType="map">
+        select count(*) as 'interestCnt' from interest_info where prodNo=#{prodNo};
+    </select>
+
+    <select id="findProductInfoDetail" resultType="map" parameterType="int">
+        select prodName,prodPrice,priceOffer,freeCheck,prodExplain,regDt,tradState,viewCnt,address
+        from product_info
+        where prodNo=#{prodNo};
+    </select>
+
+    <!-- 거래구분 찾아오기 -->
+    <select id="findTradeState" resultType="String" parameterType="int">
+        select tradeKind from product_info where prodNo=#{prodNo};
+    </select>
+    
+    <!-- 상품번호로 카테고리번호 찾기 -->
+    <select id="findProdNoByCategoryNo" parameterType="int" resultType="int">
+        select categoryNo from product_info where prodNo=#{prodNo};
     </select>
 
     <!-- 팔래요 최신순 전체보기 -->
     <select id="findSellAll" resultType="map">
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interest',f.dbFileName
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interestCnt',f.dbFileName
         from product_info p
                  left join interest_info i
                            on p.prodNo = i.prodNo
@@ -154,15 +173,52 @@
                            on p.prodNo = f.no
                  left join hash_tag h
                            on p.prodNo = h.prodNo
+                 left join category_info c
+                           on p.categoryNo = c.categoryNo
         <where>
-            <if test="search !=null">
+            <if test="search != null">
                 and (p.prodName like concat('%',#{search},'%') or p.address like concat('%',#{search},'%') or h.tagName like concat('%',#{search},'%'))
-                                  and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+                                  and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
             </if>
-            and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
+            <if test="category != null">
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
+                                  and p.categoryNo=#{category}
+            </if>
+            <if test="largeCateNo != null">
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
+                                  and c.LargeCateNo=#{largeCateNo}
+            </if>
+            <if test="largeCateNo != null and mediumCateNo != null">
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
+                                  and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo}
+            </if>
+            <if test="largeCateNo != null and mediumCateNo != null and smallCateNo != null">
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
+                                  and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo} and c.SmallCateNo=#{smallCateNo}
+            </if>
+            and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
         </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
-        order by p.regDt desc;
+        <if test="sort != null">
+                <if test="sort.equals('priceHigh')">
+                    order by p.prodPrice desc;
+                </if>
+                <if test="sort.equals('priceLow')">
+                    order by p.prodPrice asc;
+                </if>
+                <if test="sort.equals('interestHigh')">
+                    order by count(i.prodNo) desc;
+                </if>
+                <if test="sort.equals('viewCntHigh')">
+                    order by p.viewCnt desc;
+                </if>
+                <if test="sort.equals('prodNameAsc')">
+                    order by p.prodName asc;
+                </if>
+        </if>
+                <if test="sort == null">
+                    order by p.regDt desc;
+                </if>
     </select>
 
     <!-- 살래요 최신순 전체보기 -->
@@ -175,31 +231,81 @@
                            on p.prodNo = f.no
                  left join hash_tag h
                            on p.prodNo = h.prodNo
+                 left join category_info c
+                 on p.categoryNo = c.categoryNo
         <where>
             <if test="search !=null">
                 and (p.prodName like concat('%',#{search},'%') or p.address like concat('%',#{search},'%') or h.tagName like concat('%',#{search},'%'))
-                                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+                                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
             </if>
-            and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2')
+            <if test="category != null">
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
+                        and categoryNo=#{category}
+            </if>
+            <if test="largeCateNo != null">
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
+                and c.LargeCateNo=#{largeCateNo}
+            </if>
+            <if test="largeCateNo != null and mediumCateNo != null">
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
+                and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo}
+            </if>
+            <if test="largeCateNo != null and mediumCateNo != null and smallCateNo != null">
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
+                and c.LargeCateNo=#{largeCateNo} and c.MediumCateNo=#{mediumCateNo} and c.SmallCateNo=#{smallCateNo}
+            </if>
+            and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
         </where>
         group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
-        order by p.regDt desc;
+        <if test="sort != null">
+                <if test="sort.equals('priceHigh')">
+                    order by p.prodPrice desc;
+                </if>
+                <if test="sort.equals('priceLow')">
+                    order by p.prodPrice asc;
+                </if>
+                <if test="sort.equals('interestHigh')">
+                    order by count(i.prodNo) desc;
+                </if>
+                <if test="sort.equals('viewCntHigh')">
+                    order by p.viewCnt desc;
+                </if>
+                <if test="sort.equals('prodNameAsc')">
+                    order by p.prodName asc;
+                </if>
+        </if>
+                <if test="sort == null">
+                    order by p.regDt desc;
+                </if>
     </select>
 
-    <select id="findTradeState" resultType="String" parameterType="int">
-        select tradeKind from product_info where prodNo=#{prodNo};
+    <!-- 카테고리 전체 정보 보기 -->
+    <select id="categoryInfo" resultType="map">
+        select * from category_info;
     </select>
 
-    <!-- 팔래요 가격 높은순 -->
-    <select id="findSellHighPrice" resultType="map">
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interest',f.dbFileName
-        from product_info p
-                 left join interest_info i
-                           on p.prodNo = i.prodNo
-                 left join file f
-                           on p.prodNo = f.no
-        where p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2')
-        group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
-        order by p.prodPrice desc;
+    <!-- 상세보기에서 유저 정보 찾기 -->
+    <select id="findUserInfo" resultType="map" parameterType="int">
+        select nickname,address,dbFileName
+        from user_info u
+                 inner join file f
+                            on u.no = f.no
+        where f.gubun='1' and u.no=#{userNo};
     </select>
+
+    <!-- 채팅한 유저 정보 찾기 -->
+    <select id="findChatUserInfo" resultType="map" parameterType="int">
+        select nickname,dbFileName,c.userNo
+        from user_info u
+        inner join file f
+        on u.no = f.no
+        inner join chat_info c
+        on u.no = c.userNo
+        where f.gubun='1' and c.prodNo=#{prodNo};
+    </select>
+
+    <!-- 판매완료 후 update -->
+    <update id="buyUserUpdate">
+        update product_info set tradState='3', buyUserNo=#{userNo} where prodNo=#{prodNo};
+    </update>
 </mapper>

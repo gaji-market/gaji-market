@@ -7,6 +7,5 @@ import java.util.List;
 
 @Data
 public class FileForm {
-    private int id;
     private List<MultipartFile> imageFiles;
 }
