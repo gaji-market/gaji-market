@@ -12,12 +12,27 @@ import {
   DARK_GRAY_COLOR,
   WHITE_COLOR,
 } from 'components/common/commonColor';
+import { useEffect } from 'react';
+import { SELL, BUY } from '../constants/params';
+import { TITLE, SUB_TITLE } from '../constants/editor';
 
 export default function Editor() {
   const [imageSrc, setImageSrc] = useState('');
+  const [title, setTitle] = useState('');
+  const [subTitle, setSubTitle] = useState('');
 
-  const { type: pram } = useParams();
-  console.log(pram);
+  const { type: param } = useParams();
+  useEffect(() => {
+    if (param === SELL) {
+      setTitle(TITLE.addPal);
+      setSubTitle(SUB_TITLE.addPal);
+    }
+
+    if (param === BUY) {
+      setTitle(TITLE.addSal);
+      setSubTitle(SUB_TITLE.addSal);
+    }
+  }, [param]);
 
   const submitHandler = () => {
     console.log('test');
@@ -41,8 +56,8 @@ export default function Editor() {
   return (
     <Form onSubmit={submitHandler}>
       <Header>
-        <Title>팔래요 등록하기</Title>
-        <SubText>썸네일을 포함한 이미지를 1장 이상 업로드 해주세요.</SubText>
+        <Title>{title}</Title>
+        <SubText>{subTitle}</SubText>
       </Header>
 
       <Contents>
@@ -146,6 +161,8 @@ const Title = styled.h2`
 const SubText = styled.div`
   color: ${DARK_GRAY_COLOR};
   margin-top: 10px;
+  white-space: pre-line;
+  line-height: 21px;
 `;
 
 const Contents = styled.div``;
