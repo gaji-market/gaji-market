@@ -66,12 +66,13 @@ export default function Editor() {
     setShowImgDeleteBtn(false);
   };
 
-  const deleteImg = (e) => {
-    console.log(e);
-  };
+  const deleteImg = (deleteTargetImg) => () => {
+    const imgs = uploadImg.filter((img) => {
+      return img !== deleteTargetImg;
+    });
 
-  console.log(!uploadImg.length);
-  console.log(uploadImg);
+    setUploadImg(imgs);
+  };
 
   return (
     <Container>
@@ -102,7 +103,7 @@ export default function Editor() {
                       <button
                         type='button'
                         className='deleteImgBtn'
-                        onClick={deleteImg}
+                        onClick={deleteImg(imageUrl)}
                       >
                         삭제
                       </button>
