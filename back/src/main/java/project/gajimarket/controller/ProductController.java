@@ -51,6 +51,10 @@ public class ProductController {
     public void sellSave(@ModelAttribute ProductDTO productDTO,@ModelAttribute HashTagDTO hashtagDTO,
                          @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm,HttpServletRequest request) throws IOException {
 
+        /**
+         * 회원만 가능, 비회원 불가능 session 있으면 가능
+         */
+
         //카테고리
         //프론트에서 받아야될것 - largeCateNo,mediumCateNo,smallCateNo
         categoryDTO.setLargeCateNo(1); //x
@@ -163,17 +167,6 @@ public class ProductController {
             productService.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
             //DB저장부분
         }
-    }
-
-    //이미지 파일 보여주기
-    //지수님 마이페이지에서 이미지넘기는 코드 보고 다시 확인
-    /**
-     * 파일 보여주는부분 다시 확인해보기
-     */
-    @GetMapping("/images/{filename}")
-    public Resource showImage(@PathVariable String filename) throws MalformedURLException {
-        //경로에 있는 이미지를 찾아와서 return
-        return new UrlResource("file:" + fileService.getFullPath(filename));
     }
 
     //수정버튼클릭시 이미 입력된 내용 보여주기
