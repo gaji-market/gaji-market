@@ -4,13 +4,19 @@ import styled from 'styled-components';
 
 export default function PlusButton({ customSize, onClick }) {
   return (
-    <Container onClick={onClick} customSize={customSize}>
-      <Plus customsize={customSize} />
+    <Container>
+      <Bg onClick={onClick} customSize={customSize}>
+        <Plus customsize={customSize} />
+      </Bg>
     </Container>
   );
 }
 
 const Container = styled.div`
+  position: relative;
+`;
+
+const Bg = styled.div`
   width: ${({ customSize }) => customSize || '70px'};
   height: ${({ customSize }) => customSize || '70px'};
   border-radius: 160px;
@@ -26,11 +32,11 @@ const Container = styled.div`
   ${({ customSize }) =>
     !customSize &&
     `
-    margin: 0 0 0 1045px;
-    bottom: 40px;
-    left: 70%;
+    margin : 0 auto;
     position: sticky;
     z-index: 10;
+    position : absolute;
+    right : 0;
   `}
 
   &:hover {
