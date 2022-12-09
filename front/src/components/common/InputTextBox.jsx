@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PRIMARY_COLOR } from './commonColor';
-
-const TEMP_COLOR = '#aaa';
+import { PRIMARY_COLOR, GRAY_COLOR } from './commonColor';
 
 export default function InputTextBox({
   width,
@@ -44,7 +42,7 @@ const Input = styled.input`
   border-radius: 8px;
   padding: 8px;
   padding: ${({ padding }) => padding};
-  border: 2px solid ${TEMP_COLOR};
+  border: 2px solid ${GRAY_COLOR};
   transition: all 0.2s;
 
   &:focus {
@@ -53,7 +51,7 @@ const Input = styled.input`
   }
 
   &::placeholder {
-    color: ${TEMP_COLOR};
+    color: ${GRAY_COLOR};
     text-align: ${({ placeholderPosition }) => placeholderPosition};
   }
 `;
