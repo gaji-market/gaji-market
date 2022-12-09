@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+
 import styled from 'styled-components';
 import Button from 'components/common/Button';
 import CheckBox from 'components/common/Checkbox';
@@ -14,13 +15,16 @@ import {
   DARK_GRAY_COLOR,
   WHITE_COLOR,
 } from 'components/common/commonColor';
-import { SELL, BUY } from '../constants/params';
-import { TITLE, SUB_TITLE } from '../constants/editor';
+import { SELL, BUY } from 'constants/params';
+import { TITLE, SUB_TITLE } from 'constants/editor';
+
+const MAX_UPLOAD_COUNT = 5;
 
 export default function Editor() {
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
   const [uploadImg, setUploadImg] = useState([]);
+  const [showImgDeleteBtn, setShowImgDeleteBtn] = useState(false);
 
   const { type: param } = useParams();
 
@@ -35,7 +39,8 @@ export default function Editor() {
     }
   }, [param]);
 
-  const submitHandler = () => {
+  const submitHandler = (e) => {
+    e.preventDefault();
     console.log('폼 전송');
   };
 
@@ -43,119 +48,154 @@ export default function Editor() {
     const imgUrls = [];
     [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
-      if (!(imgUrls.length >= 5) && uploadImg.length < 5) imgUrls.push(url);
+      if (
+        !(imgUrls.length >= MAX_UPLOAD_COUNT) &&
+        uploadImg.length < MAX_UPLOAD_COUNT
+      )
+        imgUrls.push(url);
     });
 
     setUploadImg((prev) => prev.concat(imgUrls));
+  };
+
+  const mouseOverHandler = () => {
+    setShowImgDeleteBtn(true);
+  };
+
+  const mouseLeaveHandler = () => {
+    setShowImgDeleteBtn(false);
+  };
+
+  const deleteImg = (e) => {
+    console.log(e);
   };
 
   console.log(!uploadImg.length);
   console.log(uploadImg);
 
   return (
-    <Form onSubmit={submitHandler}>
-      <Header>
-        <Title>{formTitle}</Title>
-        <SubText>{subFormTitle}</SubText>
-      </Header>
+    <Container>
+      <Form onSubmit={submitHandler}>
+        <Header>
+          <Title>{formTitle}</Title>
+          <SubText>{subFormTitle}</SubText>
+        </Header>
 
-      <Contents>
-        <ImageWrapper>
-          {!uploadImg.length && (
-            <ImageUpLoaderLabel htmlFor='image-uploader'>
-              이미지 등록
-            </ImageUpLoaderLabel>
-          )}
-          <ul className='imgSlider'>
-            {uploadImg.map((imageUrl) => {
-              return (
-                <li key={imageUrl} className='imgList'>
-                  <Image src={imageUrl} alt='upload_image' />
-                </li>
-              );
-            })}
-          </ul>
+        <Contents>
+          <ImageWrapper>
+            {!uploadImg.length && (
+              <ImageUpLoaderLabel htmlFor='image-uploader'>
+                이미지 등록
+              </ImageUpLoaderLabel>
+            )}
+            <ul className='imgSlider'>
+              {uploadImg.map((imageUrl) => {
+                return (
+                  <li
+                    onMouseOver={mouseOverHandler}
+                    onMouseLeave={mouseLeaveHandler}
+                    key={imageUrl}
+                    className='imgList'
+                  >
+                    <Image src={imageUrl} alt='upload_image' />
+                    {showImgDeleteBtn && (
+                      <button
+                        type='button'
+                        className='deleteImgBtn'
+                        onClick={deleteImg}
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
 
-          <ImageUpLoaderInput
-            id='image-uploader'
-            name='image-uploader'
-            type='file'
-            onChange={changeFileUploadHandler}
-          />
-        </ImageWrapper>
-
-        <TitleAndPriceWrapper>
-          <InputTitle title='제목' isRequired />
-          <InputTextBox width='100%' padding='10px' placeholder='물품명' />
-
-          <PriceTitleContainer>
-            <div>
-              <InputTitle isRequired title='가격'></InputTitle>
-            </div>
-            <CheckBoxWrapper>
-              <CheckBox
-                marginRight='140px'
-                id='proposition'
-                title='가격 제안 허용'
-              />
-            </CheckBoxWrapper>
-          </PriceTitleContainer>
-
-          <PriceInputContainer>
-            <InputTextBox
-              width='95%'
-              padding='10px'
-              placeholder='원'
-              placeholderPosition='right'
+            <ImageUpLoaderInput
+              id='image-uploader'
+              name='image-uploader'
+              type='file'
+              onChange={changeFileUploadHandler}
             />
-            <CheckBox width='110px' id='free' title='무료나눔' />
-          </PriceInputContainer>
-        </TitleAndPriceWrapper>
+          </ImageWrapper>
 
-        <CategoryContainer>
-          <InputTitle title='카테고리' isRequired />
-          <Categories>
-            <Select>
-              <Option>option</Option>
-            </Select>
-            <Select>
-              <Option>option</Option>
-            </Select>
-            <Select>
-              <Option>option</Option>
-            </Select>
-          </Categories>
-        </CategoryContainer>
+          <TitleAndPriceWrapper>
+            <InputTitle title='제목' isRequired />
+            <InputTextBox width='100%' padding='10px' placeholder='물품명' />
 
-        <InputContent>
-          <InputTitle isRequired title='내용' />
-          <br />
-          <TextArea placeholder='물품 상세 정보를 입력해주세요.' />
-        </InputContent>
+            <PriceTitleContainer>
+              <div>
+                <InputTitle isRequired title='가격'></InputTitle>
+              </div>
+              <CheckBoxWrapper>
+                <CheckBox
+                  marginRight='140px'
+                  id='proposition'
+                  title='가격 제안 허용'
+                />
+              </CheckBoxWrapper>
+            </PriceTitleContainer>
 
-        <HashTageContainer>
-          <InputTitle title='해시태그' />
-          <InputTextBox width='100%' placeholder='#해시태그' />
-        </HashTageContainer>
-      </Contents>
+            <PriceInputContainer>
+              <InputTextBox
+                width='95%'
+                padding='10px'
+                placeholder='원'
+                placeholderPosition='right'
+              />
+              <CheckBox width='110px' id='free' title='무료나눔' />
+            </PriceInputContainer>
+          </TitleAndPriceWrapper>
 
-      <ButtonContainer>
-        <Button customSize='50%'>수정하기</Button>
-        <Button customSize='50%' isOutline>
-          취소하기
-        </Button>
-      </ButtonContainer>
-    </Form>
+          <CategoryContainer>
+            <InputTitle title='카테고리' isRequired />
+            <Categories>
+              <Select>
+                <Option>option</Option>
+              </Select>
+              <Select>
+                <Option>option</Option>
+              </Select>
+              <Select>
+                <Option>option</Option>
+              </Select>
+            </Categories>
+          </CategoryContainer>
+
+          <InputContent>
+            <InputTitle isRequired title='내용' />
+            <br />
+            <TextArea placeholder='물품 상세 정보를 입력해주세요.' />
+          </InputContent>
+
+          <HashTageContainer>
+            <InputTitle title='해시태그' />
+            <InputTextBox width='100%' placeholder='#해시태그' />
+          </HashTageContainer>
+        </Contents>
+
+        <ButtonContainer>
+          <Button customSize='50%'>수정하기</Button>
+          <Button customSize='50%' isOutline>
+            취소하기
+          </Button>
+        </ButtonContainer>
+      </Form>
+    </Container>
   );
 }
 
-const Form = styled.form`
+const Container = styled.div`
   width: 800px;
-  margin: 0 auto;
   padding: 50px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 30px;
+`;
+
+const Form = styled.form`
   overflow: hidden;
 `;
 
@@ -199,7 +239,7 @@ const ImageUpLoaderInput = styled.input.attrs({
 `;
 
 const Image = styled.img`
-  width: 100%;
+  width: 700px;
   height: 250px;
   object-fit: cover;
   border-radius: 10px;
