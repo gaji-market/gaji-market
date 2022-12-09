@@ -89,7 +89,7 @@ export default function ProductView() {
         ref={modalRef}
         text='등록하기 페이지로 이동할까요?'
         leftBtnText='네! 좋아요.'
-        rightBtnText='조금 더 둘러볼래요!'
+        rightBtnText='아니요, 괜찮아요!'
       />
 
       <Container>
