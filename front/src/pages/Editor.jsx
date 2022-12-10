@@ -1,17 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import Button from 'components/common/Button';
+import CheckBox from 'components/common/Checkbox';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
 
-import { PRIMARY_COLOR, GRAY_COLOR, DARK_GRAY_COLOR } from '../components/common/commonColor';
+import {
+  PRIMARY_COLOR,
+  GRAY_COLOR,
+  DARK_GRAY_COLOR,
+} from 'components/common/commonColor';
 
 const PADDING = '10px';
 
 export default function Editor() {
+  const [imageSrc, setImageSrc] = useState('');
+
+  const submitHandler = () => {
+    console.log('test');
+  };
+
+  const encodeFileToBase64 = (fileBlob) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(fileBlob);
+    return new Promise((resolve) => {
+      reader.onload = () => {
+        setImageSrc(reader.result);
+        resolve();
+      };
+    });
+  };
+
+  const changeFileUploadHandler = (e) => {
+    encodeFileToBase64(e.target.files[0]);
+  };
+
   return (
-    <Container>
+    <Form onSubmit={submitHandler}>
       <Header>
-        <Title>팔래요 수정하기</Title>
+        <Title>팔래요 등록하기</Title>
         <SubText>썸네일을 포함한 이미지를 1장 이상 업로드 해주세요.</SubText>
       </Header>
 
@@ -19,6 +46,8 @@ export default function Editor() {
         <ContentHeader>
           <ImageWrapper>
             <Image />
+            {imageSrc && <img src={imageSrc} alt='upload_image' />}
+            <input type='file' multiple onChange={changeFileUploadHandler} />
           </ImageWrapper>
 
           <TitleAndPriceWrapper>
@@ -76,13 +105,11 @@ export default function Editor() {
           취소하기
         </Button>
       </ButtonContainer>
-    </Container>
+    </Form>
   );
 }
 
-// 나중에 form 으로 변경하기
-
-const Container = styled.div`
+const Form = styled.form`
   width: 800px;
   margin: 0 auto;
   padding: 50px;

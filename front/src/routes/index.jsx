@@ -10,6 +10,7 @@ import {
   ProductView,
   ProductDetailView,
   Editor,
+  Error,
   MyPage,
 } from 'pages';
 
@@ -24,7 +25,7 @@ export default function index() {
         <Route path='/products' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />
           <Route path=':type' element={<ProductView />} />
-          <Route path=':type/detail' element={<ProductDetailView />} />
+          <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
         <Route path='mypage' elements={<MyPage />} />
       </Route>
@@ -33,6 +34,7 @@ export default function index() {
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<SignUp />} />
       </Route>
+      <Route path='*' element={<Error />} />
     </Routes>
   );
 }
