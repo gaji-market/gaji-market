@@ -6,12 +6,14 @@ export default function InputTextBox({
   width,
   type,
   padding,
+  required,
   placeholder,
   placeholderPosition = 'left',
 }) {
   return (
     <Container width={width}>
       <Input
+        required={required}
         width={width}
         type={type}
         padding={padding}
