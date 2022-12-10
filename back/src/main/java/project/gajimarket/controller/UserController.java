@@ -65,6 +65,10 @@ public class UserController {
         try {
             String userId = userDto.getUserId();
             String userPwd = userDto.getUserPwd();
+            System.out.println("userController signIn");
+            System.out.println("userDto : " + userDto);
+            System.out.println("userId : " + userId);
+            System.out.println("userPwd : " + userPwd);
 
             if (userId != null && "".equals(userId)){
                 param.put("userId", userId);
