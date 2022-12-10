@@ -49,6 +49,7 @@
             , #{userAddress}
             , #{profileImgNum}
             , #{socialKind}
+        )
     </insert>
 
     <!-- 회원조회 -->
