@@ -72,7 +72,8 @@
             , interstNtfct
             , outYn
         FROM user_info
-        <include refid="userCondition"/>
+       WHERE userId = #{userId}
+         AND userPwd = #{userPwd}
     </select>
 
     <!-- 회원정보 수정 -->
