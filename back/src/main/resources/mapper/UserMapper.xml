@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.dao.UserDAO">
+
+    <sql id="userCondition">
+        <where>
+            1 = 1
+            <if test='userId != null and userId != "" and userPwd != null and userPwd != ""'>
+                AND userId = #{userId}
+                AND userPwd = #{userPwd}
+            </if>
+
+            <if test='userNo != null and userNo != ""'>
+                AND no = #{userNo}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 아이디 중복 확인 -->
+    <select id="checkUserId" parameterType="String" resultType="int">
+        SELECT COUNT(no) AS userCnt
+          FROM user_info
+         WHERE userId = #{userId}
+    </select>
+
+    <!-- 회원가입 -->
+    <insert id="insertUser" parameterType="project.gajimarket.model.UserDTO">
+        INSERT
+        INTO user_info
+        ( id
+        , pwd
+        , name
+        , nickname
+        , gender
+        , birth
+        , phone
+        , address
+        , profileImg
+        , socialKind
+        )
+        VALUES
+            ( #{userId}
+            , #{userPwd}
+            , #{userName}
+            , #{userNickName}
+            , #{userGender}
+            , #{userBirth}
+            , #{userPhone}
+            , #{userAddress}
+            , #{profileImgNum}
+            , #{socialKind}
+    </insert>
+
+    <!-- 회원조회 -->
+    <select id="selectUser" parameterType="java.util.HashMap" resultType="project.gajimarket.model.UserDTO">
+        SELECT no AS userNo
+            , id AS userId
+            , pwd AS userPwd
+            , name AS userName
+            , nickname AS userNickName
+            , gender AS userGender
+            , birth AS userBirth
+            , phone AS userPhone
+            , address AS userAddress
+            , reportCnt
+            , profileImg AS profileImgNum
+            , starScore
+            , socialKind
+            , chatNtfct
+            , cmntsNtfct
+            , interstNtfct
+            , outYn
+        FROM user_info
+        <include refid="userCondition"/>
+    </select>
+
+    <!-- 회원정보 수정 -->
+    <update id="updateUser" parameterType="project.gajimarket.model.UserDTO">
+        UPDATE user_info
+        SET pwd = #{userPwd}
+          , nickname = #{userNickName}
+          , address = #{userAddress}
+        WHERE no = #{userNo}
+    </update>
+
+    <!-- 알림 수정 -->
+    <update id="updateNtfct" parameterType="java.util.HashMap">
+        UPDATE user_info
+           <set>
+                <if test="gubun == 0 or gubun == '0'">
+                    chatNtfct = #{useYn}
+                </if>
+                <if test="gubun == 1 or gubun == '1'">
+                    cmntsNtfct = #{useYn}
+                </if>
+               <if test="gubun == 2 or gubun == '2'">
+                   interstNtfct = #{useYn}
+               </if>
+           </set>
+         WHERE no = #{userNo}
+    </update>
+
+    <!-- 회원탈퇴 -->
+    <update id="updateOutUser" parameterType="int">
+        UPDATE user_info
+           SET outYn = 'Y'
+         WHERE no = #{userNo}
+    </update>
+</mapper>
