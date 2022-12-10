@@ -72,8 +72,8 @@
             , interstNtfct
             , outYn
         FROM user_info
-       WHERE userId = #{userId}
-         AND userPwd = #{userPwd}
+       WHERE id = #{userId}
+         AND pwd = #{userPwd}
     </select>
 
     <!-- 회원정보 수정 -->
