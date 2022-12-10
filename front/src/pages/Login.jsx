@@ -8,13 +8,24 @@ import { NavLink } from 'react-router-dom';
 import { GRAY_COLOR } from 'components/common/commonColor';
 import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
+import { usePostUserLoginMutation } from 'services/signUpApi';
+
 export default function Login() {
-  const [id, setId] = useState('');
-  const [password, setPassword] = useState('');
+  const { login, data } = usePostUserLoginMutation();
+
+  const [signUpForm, setSignUpForm] = useState({
+    id: '',
+    password: '',
+  });
 
   const submitHandler = (e) => {
     e.preventDefault();
+    login({ userId: signUpForm.id, userPwd: signUpForm.password });
   };
+  const changeHandler = (e) => {
+    setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+  };
+
   return (
     <Container>
       <SignUpHead>
@@ -22,13 +33,12 @@ export default function Login() {
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line width={'500px'} marginBottom={'80px'} />
-      <Form onSubmit={(e) => submitHandler(e)}>
+      <Form onSubmit={(e) => submitHandler(e)} onChange={(e) => changeHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
           <InputTextBox
             id={'id'}
-            setVaule={setId}
-            value={id}
+            value={signUpForm.id}
             containerBottom={'20px'}
             width={'400px'}
             placeholder={'아이디를 입력하세요'}
@@ -38,8 +48,7 @@ export default function Login() {
           <InputTitle title={'비밀번호'} />
           <InputTextBox
             id={'password'}
-            setVaule={setPassword}
-            value={password}
+            value={signUpForm.password}
             containerBottom={'20px'}
             width={'400px'}
             placeholder={'비밀번호를 입력하세요.'}
