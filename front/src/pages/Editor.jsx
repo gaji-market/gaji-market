@@ -19,6 +19,7 @@ import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
 const MAX_UPLOAD_COUNT = 5;
+const NEXT_X = -690;
 
 export default function Editor() {
   const [formTitle, setFormTitle] = useState('');
@@ -27,6 +28,7 @@ export default function Editor() {
   const [showImgDeleteBtn, setShowImgDeleteBtn] = useState(false);
 
   const imgSliderRef = useRef(null);
+  const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
 
   const { type: param } = useParams();
 
@@ -71,15 +73,57 @@ export default function Editor() {
     });
 
     setUploadImg(imgs);
+
+    console.log(uploadImg.length, currentSlideNumber);
+    if (currentSlideNumber - 1 === uploadImg.length) {
+      setCurrentSlideNumber(0);
+    }
   };
-
-  const clickPrevImg = () => {};
-
-  const clickNextImg = () => {};
 
   const createPost = () => {
     console.log('등록');
   };
+
+  /**
+   * 캐러셀
+   */
+  const clickPrevImg = () => {
+    setCurrentSlideNumber(currentSlideNumber - 1);
+  };
+
+  const clickNextImg = () => {
+    setCurrentSlideNumber(currentSlideNumber + 1);
+  };
+
+  useEffect(() => {
+    const { current } = imgSliderRef;
+
+    if (currentSlideNumber < 0) {
+      setCurrentSlideNumber(uploadImg.length - 1);
+      return;
+    }
+
+    if (currentSlideNumber > uploadImg.length - 1) {
+      setCurrentSlideNumber(0);
+      current.style.transform = 'translateX(0px)';
+      return;
+    }
+    if (currentSlideNumber <= uploadImg.length - 1) {
+      current.style.opacity = '0';
+
+      setTimeout(() => {
+        current.style.opacity = '1';
+        if (currentSlideNumber >= 0) {
+          current.style.transform = `translateX(${NEXT_X * currentSlideNumber}px)`;
+        }
+      }, 100);
+
+      return () => {
+        current.style.opacity = '0';
+        current.style.transition = 'opacity .4s';
+      };
+    }
+  }, [currentSlideNumber, uploadImg.length]);
 
   return (
     <Container>
@@ -96,31 +140,40 @@ export default function Editor() {
             )}
 
             <ul className='imgSlider' ref={imgSliderRef}>
-              {uploadImg.map((imageUrl, idx) => {
-                return (
-                  <li
-                    onMouseOver={mouseOverHandler}
-                    onMouseLeave={mouseLeaveHandler}
-                    key={imageUrl}
-                    className='imgList'
-                  >
-                    <Image src={imageUrl} alt='upload_image' />
-                    <p className='imgPage'>{`${idx + 1}/${uploadImg.length}`}</p>
-                    {showImgDeleteBtn && (
-                      <button type='button' className='deleteImgBtn' onClick={deleteImg(imageUrl)}>
-                        삭제
-                      </button>
-                    )}
-                  </li>
-                );
-              })}
+              {uploadImg.length > 0 &&
+                uploadImg.map((imageUrl, idx) => {
+                  return (
+                    <li
+                      onMouseOver={mouseOverHandler}
+                      onMouseLeave={mouseLeaveHandler}
+                      key={imageUrl}
+                      className='imgList'
+                    >
+                      <Image src={imageUrl} alt='upload_image' />
+                      <p className='imgPage'>{`${idx + 1}/${uploadImg.length}`}</p>
+                      {showImgDeleteBtn && (
+                        <button
+                          type='button'
+                          className='deleteImgBtn'
+                          onClick={deleteImg(imageUrl)}
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
             </ul>
-            <button onClick={clickPrevImg} type='button'>
-              ◀
-            </button>
-            <button onClick={clickNextImg} type='button'>
-              ▶
-            </button>
+            {uploadImg.length > 0 && (
+              <>
+                <button onClick={clickPrevImg} type='button'>
+                  ◀
+                </button>
+                <button onClick={clickNextImg} type='button'>
+                  ▶
+                </button>
+              </>
+            )}
 
             <ImageUpLoaderInput
               id='image-uploader'
@@ -178,7 +231,7 @@ export default function Editor() {
 
           <HashTageContainer>
             <InputTitle title='해시태그' />
-            <InputTextBox width='100%' placeholder='#해시태그' />
+            <InputTextBox width='100%' placeholder='해시태그는 최대 10개까지 등록할 수 있습니다.' />
           </HashTageContainer>
         </Contents>
 
@@ -240,6 +293,7 @@ const ImageUpLoaderLabel = styled.label`
   border-radius: 5px;
   cursor: pointer;
   text-align: center;
+  margin-top: 15px;
 `;
 
 const ImageUpLoaderInput = styled.input.attrs({
@@ -336,4 +390,5 @@ const ButtonContainer = styled.div`
   display: flex;
   width: 100%;
   gap: 10px;
+  margin-top: 20px;
 `;
