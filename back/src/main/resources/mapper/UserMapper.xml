@@ -4,7 +4,7 @@
 
     <sql id="userCondition">
         <where>
-            outYn != 'Y'
+            1 = 1
             <if test='userId != null and userId != "" and userPwd != null and userPwd != ""'>
                 AND userId = #{userId}
                 AND userPwd = #{userPwd}
@@ -54,21 +54,22 @@
     <!-- 회원조회 -->
     <select id="selectUser" parameterType="java.util.HashMap" resultType="project.gajimarket.model.UserDTO">
         SELECT no AS userNo
-        , id AS userId
-        , pwd AS userPwd
-        , name AS userName
-        , nickname AS userNickName
-        , gender AS userGender
-        , birth AS userBirth
-        , phone AS userPhone
-        , address AS userAddress
-        , reportCnt
-        , profileImg AS profileImgNum
-        , starScore
-        , socialKind
-        , chatNtfct
-        , cmntsNtfct
-        , interstNtfct
+            , id AS userId
+            , pwd AS userPwd
+            , name AS userName
+            , nickname AS userNickName
+            , gender AS userGender
+            , birth AS userBirth
+            , phone AS userPhone
+            , address AS userAddress
+            , reportCnt
+            , profileImg AS profileImgNum
+            , starScore
+            , socialKind
+            , chatNtfct
+            , cmntsNtfct
+            , interstNtfct
+            , outYn
         FROM user_info
         <include refid="userCondition"/>
     </select>
