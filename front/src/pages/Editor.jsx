@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 import styled from 'styled-components';
@@ -26,6 +26,8 @@ export default function Editor() {
   const [uploadImg, setUploadImg] = useState([]);
   const [showImgDeleteBtn, setShowImgDeleteBtn] = useState(false);
 
+  const imgSliderRef = useRef(null);
+
   const { type: param } = useParams();
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function Editor() {
   }, [param]);
 
   const submitHandler = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     console.log('폼 전송');
   };
 
@@ -48,10 +50,7 @@ export default function Editor() {
     const imgUrls = [];
     [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
-      if (
-        !(imgUrls.length >= MAX_UPLOAD_COUNT) &&
-        uploadImg.length < MAX_UPLOAD_COUNT
-      )
+      if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && uploadImg.length < MAX_UPLOAD_COUNT)
         imgUrls.push(url);
     });
 
@@ -74,6 +73,14 @@ export default function Editor() {
     setUploadImg(imgs);
   };
 
+  const clickPrevImg = () => {};
+
+  const clickNextImg = () => {};
+
+  const createPost = () => {
+    console.log('등록');
+  };
+
   return (
     <Container>
       <Form onSubmit={submitHandler}>
@@ -85,11 +92,10 @@ export default function Editor() {
         <Contents>
           <ImageWrapper>
             {!uploadImg.length && (
-              <ImageUpLoaderLabel htmlFor='image-uploader'>
-                이미지 등록
-              </ImageUpLoaderLabel>
+              <ImageUpLoaderLabel htmlFor='image-uploader'>이미지 등록</ImageUpLoaderLabel>
             )}
-            <ul className='imgSlider'>
+
+            <ul className='imgSlider' ref={imgSliderRef}>
               {uploadImg.map((imageUrl, idx) => {
                 return (
                   <li
@@ -99,15 +105,9 @@ export default function Editor() {
                     className='imgList'
                   >
                     <Image src={imageUrl} alt='upload_image' />
-                    <p className='imgPage'>{`${idx + 1}/${
-                      uploadImg.length
-                    }`}</p>
+                    <p className='imgPage'>{`${idx + 1}/${uploadImg.length}`}</p>
                     {showImgDeleteBtn && (
-                      <button
-                        type='button'
-                        className='deleteImgBtn'
-                        onClick={deleteImg(imageUrl)}
-                      >
+                      <button type='button' className='deleteImgBtn' onClick={deleteImg(imageUrl)}>
                         삭제
                       </button>
                     )}
@@ -115,6 +115,12 @@ export default function Editor() {
                 );
               })}
             </ul>
+            <button onClick={clickPrevImg} type='button'>
+              ◀
+            </button>
+            <button onClick={clickNextImg} type='button'>
+              ▶
+            </button>
 
             <ImageUpLoaderInput
               id='image-uploader'
@@ -126,23 +132,20 @@ export default function Editor() {
 
           <TitleAndPriceWrapper>
             <InputTitle title='제목' isRequired />
-            <InputTextBox width='100%' padding='10px' placeholder='물품명' />
+            <InputTextBox required width='100%' padding='10px' placeholder='물품명' />
 
             <PriceTitleContainer>
               <div>
                 <InputTitle isRequired title='가격'></InputTitle>
               </div>
               <CheckBoxWrapper>
-                <CheckBox
-                  marginRight='140px'
-                  id='proposition'
-                  title='가격 제안 허용'
-                />
+                <CheckBox marginRight='140px' id='proposition' title='가격 제안 허용' />
               </CheckBoxWrapper>
             </PriceTitleContainer>
 
             <PriceInputContainer>
               <InputTextBox
+                required
                 width='95%'
                 padding='10px'
                 placeholder='원'
@@ -155,14 +158,14 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <Select>
-                <Option>option</Option>
+              <Select required>
+                <Option value=''>대분류</Option>
               </Select>
-              <Select>
-                <Option>option</Option>
+              <Select required>
+                <Option value=''>중분류</Option>
               </Select>
-              <Select>
-                <Option>option</Option>
+              <Select required>
+                <Option value=''>소분류</Option>
               </Select>
             </Categories>
           </CategoryContainer>
@@ -170,7 +173,7 @@ export default function Editor() {
           <InputContent>
             <InputTitle isRequired title='내용' />
             <br />
-            <TextArea placeholder='물품 상세 정보를 입력해주세요.' />
+            <TextArea required placeholder='물품 상세 정보를 입력해주세요.' />
           </InputContent>
 
           <HashTageContainer>
@@ -180,7 +183,9 @@ export default function Editor() {
         </Contents>
 
         <ButtonContainer>
-          <Button customSize='50%'>수정하기</Button>
+          <Button type='submit' onClick={createPost} customSize='50%'>
+            등록하기
+          </Button>
           <Button customSize='50%' isOutline>
             취소하기
           </Button>
