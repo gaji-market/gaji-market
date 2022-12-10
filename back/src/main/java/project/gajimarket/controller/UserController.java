@@ -62,15 +62,15 @@ public class UserController {
     public Map<String, Object> signIn(@RequestBody UserDTO userDto, HttpServletRequest request) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
-
         try {
-            if (userDto.getSocialKind() == 0) {
+            String userId = userDto.getUserId();
+            String userPwd = userDto.getUserPwd();
 
-            } else if (userDto.getSocialKind() == 1) {
-
-            } else {
-                param.put("userId", userDto.getUserId());
-                param.put("userPwd", userDto.getUserPwd());
+            if (userId != null && "".equals(userId)){
+                param.put("userId", userId);
+            }
+            if (userPwd != null && "".equals(userPwd)){
+                param.put("userPwd", userPwd);
             }
 
             UserDTO selectUser = userService.selectUser(param);
@@ -91,13 +91,13 @@ public class UserController {
     public Map<String, Object> myPage(HttpServletRequest request) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         UserDTO userDto = (UserDTO) request.getSession().getAttribute("userInfo");
+        String result = "fail";
         try {
             if (userDto != null) {
-                resultMap.put("result", "success");
+                result = "success";
                 resultMap.put("userInfo", userDto);
-            } else {
-                resultMap.put("result", "fail");
             }
+            resultMap.put("result", result);
         }catch (Exception e) {
             System.out.println("LoginController mypage : " + e);
         }
@@ -109,7 +109,6 @@ public class UserController {
     public Map<String, Object> userUpdate(@RequestBody UserDTO userDto, HttpServletRequest request) throws IOException {
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
-        UserDTO updateUser = null;
         try {
             result.put("result", "fail");
 
@@ -179,5 +178,24 @@ public class UserController {
             System.out.println("LoginController reportUser : " + e);
         }
         return result;
+    }
+
+    @GetMapping("/outUser")
+    public Map<String, Object> outUser(@PathVariable int userNo, HttpServletRequest request) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String result = "fail";
+        try {
+            if (userNo > 0) {
+                int updateOutUser = userService.updateOutUser(userNo);
+                if (updateOutUser > 0) {
+                    result = "success";
+                    request.getSession().setAttribute("userInfo", null);
+                }
+            }
+            resultMap.put("result", result);
+        } catch (Exception e) {
+            System.out.println("UserController outUser : " + e );
+        }
+        return resultMap;
     }
 }

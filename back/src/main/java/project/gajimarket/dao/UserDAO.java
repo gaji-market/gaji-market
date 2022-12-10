@@ -24,4 +24,7 @@ public interface UserDAO {
 
     // 알림 수정
     public int updateNtfct (Map<String, Object> param);
+
+    // 회원탈퇴
+    public int updateOutUser (int userNo);
 }

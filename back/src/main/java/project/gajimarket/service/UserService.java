@@ -16,4 +16,6 @@ public interface UserService {
     public int updateUser(UserDTO userDto);
 
     public int updateNtfct(Map<String, Object> param);
+
+    public int updateOutUser(int userNo);
 }

@@ -40,4 +40,9 @@ public class UserServiceImpl implements UserService {
     public int updateNtfct(Map<String, Object> param) {
         return userDao.updateNtfct(param);
     }
+
+    @Override
+    public int updateOutUser(int userNo) {
+        return userDao.updateOutUser(userNo);
+    }
 }

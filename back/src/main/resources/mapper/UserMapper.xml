@@ -98,4 +98,11 @@
            </set>
          WHERE no = #{userNo}
     </update>
+
+    <!-- 회원탈퇴 -->
+    <update id="updateOutUser" parameterType="int">
+        UPDATE user_info
+           SET outYn = 'Y'
+         WHERE no = #{userNo}
+    </update>
 </mapper>
