@@ -108,6 +108,7 @@ export default function Editor() {
       current.style.transform = 'translateX(0px)';
       return;
     }
+
     if (currentSlideNumber <= uploadImg.length - 1) {
       current.style.opacity = '0';
 
@@ -165,14 +166,14 @@ export default function Editor() {
                 })}
             </ul>
             {uploadImg.length > 0 && (
-              <>
-                <button onClick={clickPrevImg} type='button'>
-                  ◀
+              <div className='btnWrapper'>
+                <button className='prevBtn' onClick={clickPrevImg} type='button'>
+                  ⥢ PREV
                 </button>
-                <button onClick={clickNextImg} type='button'>
-                  ▶
+                <button className='nextBtn' onClick={clickNextImg} type='button'>
+                  NEXT ⥤
                 </button>
-              </>
+              </div>
             )}
 
             <ImageUpLoaderInput
@@ -369,7 +370,7 @@ const TextArea = styled.textarea`
   min-width: 100%;
   max-width: 100%;
 
-  min-height: 200px;
+  min-height: 130px;
   max-height: 300px;
 
   border-radius: 10px;

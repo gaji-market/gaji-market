@@ -30,3 +30,27 @@
     cursor: pointer;
   }
 }
+
+.btnWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.prevBtn,
+.nextBtn {
+  background-color: $SUB;
+  border: none;
+  width: 100%;
+  margin: 0 auto;
+  cursor: pointer;
+  padding: 5px;
+  color: $WHITE;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: #1e1e1e;
+  }
+}
