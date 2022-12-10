@@ -2,13 +2,12 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import tempSlice from './tempSlice';
 
-import { tempApi } from 'services/tempApi';
+import { signUpApi } from 'services/signUpApi';
 
 export const store = configureStore({
   reducer: {
     temp: tempSlice,
-    [tempApi.reducerPath]: tempApi.reducer,
+    [signUpApi.reducerPath]: signUpApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(tempApi.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(signUpApi.middleware),
 });
