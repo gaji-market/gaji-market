@@ -52,7 +52,7 @@ public class UserController {
                 resultMap.put("result", "fail");
             }
         }catch (Exception e) {
-            System.out.println("LoginController signUp : " + e);
+            System.out.println("UserController signUp : " + e);
         }
         return resultMap;
     }
@@ -80,7 +80,7 @@ public class UserController {
             }
 
         }catch (Exception e) {
-            System.out.println("LoginController signIn : " + e);
+            System.out.println("UserController signIn : " + e);
         }
 
         return resultMap;
@@ -99,7 +99,7 @@ public class UserController {
             }
             resultMap.put("result", result);
         }catch (Exception e) {
-            System.out.println("LoginController mypage : " + e);
+            System.out.println("UserController mypage : " + e);
         }
         return resultMap;
     }
@@ -127,7 +127,7 @@ public class UserController {
             }
 
         }catch (Exception e) {
-            System.out.println("LoginController userUpdate : " + e);
+            System.out.println("UserController userUpdate : " + e);
         }
         return result;
     }
@@ -158,7 +158,7 @@ public class UserController {
             }
             resultMap.put("result", result);
         } catch (Exception e) {
-            System.out.println("LoginController updateNtfct : " + e);
+            System.out.println("UserController updateNtfct : " + e);
         }
         return resultMap;
     }
