@@ -22,6 +22,20 @@ const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
 
 export default function Editor() {
+  const [formDatas, setFormDatas] = useState({
+    title: '',
+    price: 0,
+    isAllowPriceSuggestions: false,
+    isSharing: false,
+    categories: {
+      large: '',
+      medium: '',
+      small: '',
+    },
+    centents: '',
+    hashtags: [],
+  });
+
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
   const [uploadImg, setUploadImg] = useState([]);
@@ -49,7 +63,15 @@ export default function Editor() {
   };
 
   const changeFileUploadHandler = ({ target }) => {
+    const fileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
+    const extension = target.files[0].name.slice(findExtensionsIndex + 1).toLowerCase();
+
+    if (!fileExtensions.includes(extension)) {
+      return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
+    }
     const imgUrls = [];
+
     [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
       if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && uploadImg.length < MAX_UPLOAD_COUNT)
@@ -74,7 +96,6 @@ export default function Editor() {
 
     setUploadImg(imgs);
 
-    console.log(uploadImg.length, currentSlideNumber);
     if (currentSlideNumber - 1 === uploadImg.length) {
       setCurrentSlideNumber(0);
     }
@@ -186,7 +207,15 @@ export default function Editor() {
 
           <TitleAndPriceWrapper>
             <InputTitle title='제목' isRequired />
-            <InputTextBox required width='100%' padding='10px' placeholder='물품명' />
+            <InputTextBox
+              onChange={() => {
+                console.log('테스트');
+              }}
+              required
+              width='100%'
+              padding='10px'
+              placeholder='물품명'
+            />
 
             <PriceTitleContainer>
               <div>
@@ -214,12 +243,15 @@ export default function Editor() {
             <Categories>
               <Select required>
                 <Option value=''>대분류</Option>
+                <Option value=''>테스트1</Option>
               </Select>
               <Select required>
                 <Option value=''>중분류</Option>
+                <Option value=''>테스트2</Option>
               </Select>
               <Select required>
                 <Option value=''>소분류</Option>
+                <Option value=''>테스트3</Option>
               </Select>
             </Categories>
           </CategoryContainer>
@@ -354,9 +386,7 @@ const Select = styled.select`
   }
 `;
 
-const Option = styled.option`
-  color: ${PRIMARY_COLOR};
-`;
+const Option = styled.option``;
 
 const InputContent = styled.div`
   margin-top: 20px;
