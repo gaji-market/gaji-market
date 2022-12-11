@@ -21,7 +21,12 @@ export default function index() {
         <Route index element={<Home />} />
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
-        <Route path='/write' element={<Editor />} />
+
+        <Route path='/write' element={<Outlet />}>
+          <Route index element={<Navigate to='/products/pal' />} />
+          <Route path=':type' element={<Editor />} />
+        </Route>
+
         <Route path='/products' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />
           <Route path=':type' element={<ProductView />} />

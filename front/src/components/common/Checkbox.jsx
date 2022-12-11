@@ -8,9 +8,10 @@ export default function CheckBox({
   width,
   checkBoxWidth,
   checkBoxHeight,
+  marginRight,
 }) {
   return (
-    <Container width={width}>
+    <Container marginRight={marginRight} width={width}>
       <Label htmlFor={id}>{title}</Label>
       <Check width={checkBoxWidth} height={checkBoxHeight} id={id} />
     </Container>
@@ -21,6 +22,7 @@ const Container = styled.div`
   width: ${({ width }) => width};
   margin-left: 10px;
   margin-top: 5px;
+  margin-right: ${({ marginRight }) => marginRight};
 `;
 
 const Label = styled.label`

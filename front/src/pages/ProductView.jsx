@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
-import { useCallback } from 'react';
 import { useGetSellAllQuery } from 'services/productApi';
 import styled from 'styled-components';
 
@@ -10,15 +8,11 @@ import Card from 'components/common/Card';
 import PlusButton from 'components/common/PlusButton';
 import SkeletonCard from 'components/common/SkeletonCard';
 import Loading from 'components/common/Loading';
+import Modal from 'components/common/Modal';
 import { Error } from './index';
 
-import {
-  LOADING_CARD_COUNT,
-  TITLE,
-  SUB_TITLE,
-  SELL,
-  BUY,
-} from 'constants/productView';
+import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
+import { SELL, BUY } from 'constants/params';
 
 export default function ProductView() {
   const { type } = useParams();
@@ -29,6 +23,8 @@ export default function ProductView() {
   const [cards, setCards] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [showSkeletonCard, setShowSkeletonCard] = useState(false);
+
+  const modalRef = useRef(null);
 
   const [cardRef, inView] = useInView();
 
@@ -74,8 +70,7 @@ export default function ProductView() {
 
   const moveProductDetail = (prodNo) => (e) => {
     const className = e.target.className;
-    if (className.includes('empty-heart') || className.includes('fill-heart'))
-      return;
+    if (className.includes('empty-heart') || className.includes('fill-heart')) return;
 
     navigate(`/products/${type}/detail/${prodNo}`);
   };
@@ -88,31 +83,25 @@ export default function ProductView() {
     return <Loading />;
   }
 
-  const addProduct = () => {
-    navigate('/write');
-  };
-
   return (
     <>
+      <Modal
+        ref={modalRef}
+        text='등록하기 페이지로 이동할까요?'
+        leftBtnText='네! 좋아요.'
+        rightBtnText='아니요, 괜찮아요!'
+      />
+
       <Container>
         <Header>
           <Title>{currentPage === BUY ? TITLE.sal : TITLE.pal}</Title>
-          <SubText>
-            {currentPage === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}
-          </SubText>
+          <SubText>{currentPage === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}</SubText>
         </Header>
         <CardContainer>
           {cards.length > 0 &&
             cards.map((product) => {
-              const {
-                address,
-                dbFileName,
-                interestCnt,
-                prodName,
-                prodNo,
-                prodPrice,
-                tradState,
-              } = product;
+              const { address, dbFileName, interestCnt, prodName, prodNo, prodPrice, tradState } =
+                product;
               return (
                 <Card
                   key={prodNo}
@@ -134,7 +123,9 @@ export default function ProductView() {
               })}
           <div ref={cardRef}></div>
         </CardContainer>
-        <PlusButton onClick={addProduct} />
+        <AddButtonContainer>
+          <PlusButton onClick={() => modalRef.current?.showModal()} />
+        </AddButtonContainer>
       </Container>
     </>
   );
@@ -171,4 +162,10 @@ const CardContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   margin: 0 auto;
+`;
+
+const AddButtonContainer = styled.div`
+  heigth: 100px;
+  position: relative;
+  background: #eee;
 `;
