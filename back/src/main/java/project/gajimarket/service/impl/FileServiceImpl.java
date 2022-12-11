@@ -1,14 +1,16 @@
 package project.gajimarket.service.impl;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,14 +19,11 @@ import java.util.UUID;
 @Service
 public class FileServiceImpl implements FileService {
 
-    //이미지 저장될 경로
-    @Value("${file}")
-    private String fileDir;
+    String projectId = "gajimarket-123";
+    String bucketName = "gaji-market-storage";
+    String keyFileName = "gajimarket-123-cb4059fbbfd5.json";
 
-    @Override
-    public String getFullPath(String filename) {
-        return fileDir + filename;
-    }
+
 
     @Override
     public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
@@ -55,8 +54,20 @@ public class FileServiceImpl implements FileService {
         //서버에 저장하는 파일명을 가져옴
         String DBFileName = createDBFileName(originFilename);
 
-        //지정한 경로로 DB파일명으로 저장
-        multipartFile.transferTo(new File(getFullPath(DBFileName)));
+        //키값 설정
+        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
+        Storage.BlobTargetOption precondition = Storage.BlobTargetOption.doesNotExist();
+
+        //권한 설정
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId)
+                .setCredentials(GoogleCredentials.fromStream(keyFile))
+                .build().getService();
+
+        //버킷이름 설정, storage에 저장할 이름 설정
+        BlobId blobId = BlobId.of(bucketName, DBFileName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+
+        storage.create(blobInfo, multipartFile.getBytes(),precondition);
 
         return new UploadFile(originFilename,DBFileName);
     }
@@ -79,12 +90,26 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void fileDelete(List<String> findFileDB) {
-        for(String findFile : findFileDB){
-            if (!findFile.isEmpty()) {
-                File file = new File(getFullPath(findFile));
-                file.delete();
+    public void fileDelete(List<String> findFileDB) throws IOException {
+
+        //키값 설정
+        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
+
+        //권한 설정
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId)
+                .setCredentials(GoogleCredentials.fromStream(keyFile))
+                .build().getService();
+
+        for (String findFile : findFileDB) {
+            Blob blob = storage.get(bucketName, findFile);
+            if (blob == null) {
+                System.out.println("The object " + findFile + " wasn't found in " + bucketName);
+                return;
             }
+            Storage.BlobSourceOption precondition = Storage.BlobSourceOption.generationMatch(blob.getGeneration());
+            storage.delete(bucketName, findFile, precondition);
+
+            System.out.println("Object " + findFile + " was deleted from " + bucketName);
         }
     }
 }

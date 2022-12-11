@@ -11,6 +11,7 @@ import {
   ProductDetailView,
   Editor,
   Error,
+  MyPage,
 } from 'pages';
 
 export default function index() {
@@ -31,7 +32,9 @@ export default function index() {
           <Route path=':type' element={<ProductView />} />
           <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
+        <Route path='mypage' elements={<MyPage />} />
       </Route>
+
       <Route element={<LayoutWithoutBar />}>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<SignUp />} />
