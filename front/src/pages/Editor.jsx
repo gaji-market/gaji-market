@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
+import {
+  useCreateSaleProductMutation,
+  useCreatePurchaseProductMutation,
+} from 'services/productApi';
+
 import styled from 'styled-components';
 import Button from 'components/common/Button';
 import CheckBox from 'components/common/Checkbox';
@@ -24,26 +29,30 @@ const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
 
 export default function Editor() {
+  const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
-    title: '',
-    price: 0,
-    isAllowPriceSuggestions: false,
-    isSharing: false,
-    categories: {
-      large: '',
-      medium: '',
-      small: '',
-    },
-    centents: '',
+    // 백엔드 key값 맞춰 보내기
+    prodName: '', // required
+    prodPrice: 0, // required
+    imageFiles: [], // required
+    priceOffer: false, // 가격제안유무(0: 제안X, 1: 제안O) required
+    freeCheck: false, // 무료나눔(0: X, 1: O) required
+    largeCateNo: '', // required
+    mediumCateNo: '', // required
+    smallCateNo: '', // required
+    prodExplain: '', // 상품설명 required
     hashtags: [],
   });
+
+  const [createSaleProduct] = useCreateSaleProductMutation();
+  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
   const [inputHashTag, setInputHashTag] = useState('');
   const [hashTags, setHashTags] = useState([]);
 
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
-  const [uploadImg, setUploadImg] = useState([]);
+
   const [showImgDeleteBtn, setShowImgDeleteBtn] = useState(false);
 
   const imgSliderRef = useRef(null);
@@ -67,6 +76,16 @@ export default function Editor() {
     console.log('폼 전송');
   };
 
+  const createPost = () => {
+    console.log('등록');
+  };
+
+  const checkedAllowPriceSuggestions = (e) => {};
+
+  /**
+   * 이미지 업로드
+   */
+
   const changeFileUploadHandler = ({ target }) => {
     const fileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
@@ -80,11 +99,12 @@ export default function Editor() {
 
     [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
-      if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && uploadImg.length < MAX_UPLOAD_COUNT)
+
+      if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && imgUrls.length < MAX_UPLOAD_COUNT)
         imgUrls.push(url);
     });
 
-    setUploadImg((prev) => prev.concat(imgUrls));
+    setFormDatas((prev) => ({ ...prev, imageFiles: formDatas.imageFiles.concat(imgUrls) }));
   };
 
   const mouseOverHandler = () => {
@@ -95,20 +115,17 @@ export default function Editor() {
     setShowImgDeleteBtn(false);
   };
 
+  // TODO
   const deleteImg = (deleteTargetImg) => () => {
-    const imgs = uploadImg.filter((img) => {
+    const imgs = formDatas.imageFiles.filter((img) => {
       return img !== deleteTargetImg;
     });
 
-    setUploadImg(imgs);
+    setFormDatas((prev) => ({ ...prev, imageFiles: imgs }));
 
-    if (currentSlideNumber - 1 === uploadImg.length) {
+    if (currentSlideNumber - 1 === formDatas.imageFiles.length) {
       setCurrentSlideNumber(0);
     }
-  };
-
-  const createPost = () => {
-    console.log('등록');
   };
 
   /**
@@ -126,17 +143,17 @@ export default function Editor() {
     const { current } = imgSliderRef;
 
     if (currentSlideNumber < 0) {
-      setCurrentSlideNumber(uploadImg.length - 1);
+      setCurrentSlideNumber(formDatas.imageFiles.length - 1);
       return;
     }
 
-    if (currentSlideNumber > uploadImg.length - 1) {
+    if (currentSlideNumber > formDatas.imageFiles.length - 1) {
       setCurrentSlideNumber(0);
       current.style.transform = 'translateX(0px)';
       return;
     }
 
-    if (currentSlideNumber <= uploadImg.length - 1) {
+    if (currentSlideNumber <= formDatas.imageFiles.length - 1) {
       current.style.opacity = '0';
 
       setTimeout(() => {
@@ -151,7 +168,7 @@ export default function Editor() {
         current.style.transition = 'opacity .4s';
       };
     }
-  }, [currentSlideNumber, uploadImg.length]);
+  }, [currentSlideNumber, formDatas.imageFiles.length]);
 
   /**
    * 해시태그
@@ -177,7 +194,7 @@ export default function Editor() {
     if (isEmptyValue(newHashTag)) return;
 
     setHashTags((prevHashTags) => {
-      return [...new Set([...prevHashTags, newHashTag])];
+      return [...new Set([...prevHashTags, newHashTag.trim()])];
     });
 
     setInputHashTag('');
@@ -212,13 +229,13 @@ export default function Editor() {
 
         <Contents>
           <ImageWrapper>
-            {!uploadImg.length && (
+            {!formDatas.imageFiles.length && (
               <ImageUpLoaderLabel htmlFor='image-uploader'>이미지 등록</ImageUpLoaderLabel>
             )}
 
             <ul className='imgSlider' ref={imgSliderRef}>
-              {uploadImg.length > 0 &&
-                uploadImg.map((imageUrl, idx) => {
+              {formDatas.imageFiles.length > 0 &&
+                formDatas.imageFiles.map((imageUrl, idx) => {
                   return (
                     <li
                       onMouseOver={mouseOverHandler}
@@ -227,7 +244,7 @@ export default function Editor() {
                       className='imgList'
                     >
                       <Image src={imageUrl} alt='upload_image' />
-                      <p className='imgPage'>{`${idx + 1}/${uploadImg.length}`}</p>
+                      <p className='imgPage'>{`${idx + 1}/${formDatas.imageFiles.length}`}</p>
                       {showImgDeleteBtn && (
                         <button
                           type='button'
@@ -241,7 +258,7 @@ export default function Editor() {
                   );
                 })}
             </ul>
-            {uploadImg.length > 0 && (
+            {formDatas.imageFiles.length > 0 && (
               <div className='btnWrapper'>
                 <button className='prevBtn' onClick={clickPrevImg} type='button'>
                   ⥢ PREV
@@ -277,7 +294,14 @@ export default function Editor() {
                 <InputTitle isRequired title='가격'></InputTitle>
               </div>
               <CheckBoxWrapper>
-                <CheckBox marginRight='140px' id='proposition' title='가격 제안 허용' />
+                <CheckBox
+                  onChange={(e) => {
+                    console.log(e.target.checked);
+                  }}
+                  marginRight='140px'
+                  id='proposition'
+                  title='가격 제안 허용'
+                />
               </CheckBoxWrapper>
             </PriceTitleContainer>
 
@@ -342,7 +366,7 @@ export default function Editor() {
         </Contents>
 
         <ButtonContainer>
-          <Button type='submit' onClick={createPost} customSize='50%'>
+          <Button isDisabled={!isCompleteForm} type='submit' onClick={createPost} customSize='50%'>
             등록하기
           </Button>
           <Button customSize='50%' isOutline>
