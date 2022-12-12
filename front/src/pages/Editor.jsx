@@ -48,7 +48,6 @@ export default function Editor() {
   const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
   const [inputHashTag, setInputHashTag] = useState('');
-  const [hashTags, setHashTags] = useState([]);
 
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
@@ -193,8 +192,8 @@ export default function Editor() {
 
     if (isEmptyValue(newHashTag)) return;
 
-    setHashTags((prevHashTags) => {
-      return [...new Set([...prevHashTags, newHashTag.trim()])];
+    setFormDatas((prev) => {
+      return { ...prev, hashtags: [...new Set([...prev.hashtags, newHashTag])] };
     });
 
     setInputHashTag('');
@@ -214,10 +213,11 @@ export default function Editor() {
     setInputHashTag(e.target.value);
   };
 
-  useEffect(() => {
-    if (hashTags.length === 10) {
-    }
-  }, [hashTags]);
+  // TODO : 해시태그 10개 제한하기
+  // useEffect(() => {
+  //   if (hashTags.length === 10) {
+  //   }
+  // }, [hashTags]);
 
   return (
     <Container>
@@ -344,8 +344,8 @@ export default function Editor() {
           <HashTageContainer>
             <InputTitle title='해시태그' />
             <div className='hashTags'>
-              {hashTags.length > 0 &&
-                hashTags.map((hashTag) => {
+              {formDatas.hashtags.length > 0 &&
+                formDatas.hashtags.map((hashTag) => {
                   return (
                     <div key={hashTag} className='tag'>
                       {hashTag}
