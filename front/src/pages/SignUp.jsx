@@ -65,8 +65,8 @@ export default function SignUp() {
   };
 
   const submitHandler = (e) => {
+    console.log('??');
     e.preventDefault();
-
     createUser({
       userId: signUpForm.id,
       userPwd: signUpForm.password,
@@ -96,7 +96,7 @@ export default function SignUp() {
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line />
-      <Form onChange={(e) => changeHandler(e)} onSubmit={(e) => submitHandler(e)}>
+      <Form onChange={(e) => changeHandler(e)}>
         <InputTitle
           title='아이디'
           signUpSubTitle={'6글자 이상이여야 합니다'}
@@ -216,9 +216,16 @@ export default function SignUp() {
         </FlexBox>
         <ButtonBox>
           {isFormValid ? (
-            <Button size='lg'>회원가입</Button>
+            <Button size='lg' type='submit'>
+              회원가입
+            </Button>
           ) : (
-            <Button size='lg' isDisabled={!isFormValid}>
+            <Button
+              size='lg'
+              type='submit'
+              onClick={(e) => submitHandler(e)}
+              isDisabled={!isFormValid}
+            >
               회원가입
             </Button>
           )}
