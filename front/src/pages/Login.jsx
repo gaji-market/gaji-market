@@ -11,7 +11,7 @@ import NaverImg from 'assets/NaverImg.png';
 import { usePostUserLoginMutation } from 'services/signUpApi';
 
 export default function Login() {
-  const { login, data } = usePostUserLoginMutation();
+  const [login, data] = usePostUserLoginMutation();
 
   const [signUpForm, setSignUpForm] = useState({
     id: '',
@@ -33,7 +33,7 @@ export default function Login() {
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line width={'500px'} marginBottom={'80px'} />
-      <Form onSubmit={(e) => submitHandler(e)} onChange={(e) => changeHandler(e)}>
+      <Form onChange={(e) => changeHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
           <InputTextBox
@@ -56,7 +56,9 @@ export default function Login() {
           />
         </InputBox>
         <ButtonBox>
-          <Button customSize='400px'>로그인</Button>
+          <Button customSize='400px' onClick={(e) => submitHandler(e)}>
+            로그인
+          </Button>
         </ButtonBox>
         <SubBox>
           <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
