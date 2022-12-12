@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const signUpApi = createApi({
   reducerPath: 'signUpApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://34.64.164.223:8080/user/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'http://114.201.230.148:8090/user/' }),
   endpoints: (builder) => ({
     postUserSignForm: builder.mutation({
       query: (userData) => ({

@@ -33,13 +33,17 @@ export default function SignUp() {
   const open = useDaumPostcodePopup(DaumURL);
 
   const isIdVaild = isVaild('ID', signUpForm.id);
+
   const isPasswordVaild = isVaild('PW', signUpForm.password);
+
   const isPasswordConfirmVaild =
     signUpForm.confirmPassword.length <= INPUT_MIN_LENGTH ||
     signUpForm.password === signUpForm.confirmPassword;
+
   const isNickNameVaild =
     signUpForm.nickName.length >= NICK_NAME_MIX_LENGTH ||
     signUpForm.nickName.length < INPUT_MIN_LENGTH;
+
   const isFormValid =
     isIdVaild &&
     signUpForm.id.length > INPUT_MIN_LENGTH &&
@@ -60,9 +64,10 @@ export default function SignUp() {
     setSignUpForm({ ...signUpForm, address: fullAddress });
   };
 
-  const submitHandler = async (e) => {
+  const submitHandler = (e) => {
     e.preventDefault();
-    const returnd = await createUser({
+
+    createUser({
       userId: signUpForm.id,
       userPwd: signUpForm.password,
       userName: signUpForm.name,
@@ -72,9 +77,7 @@ export default function SignUp() {
       userPhone: '',
       userAddress: signUpForm.address,
       socialKind: '0',
-    }).unwrap();
-
-    console.log(returnd);
+    });
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
