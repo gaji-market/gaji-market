@@ -193,11 +193,21 @@ export default function Editor() {
     if (isEmptyValue(newHashTag)) return;
 
     setFormDatas((prev) => {
-      return { ...prev, hashtags: [...new Set([...prev.hashtags, newHashTag])] };
+      return { ...prev, hashtags: [...new Set([...prev.hashtags, newHashTag.trim()])] };
     });
 
     setInputHashTag('');
   };
+
+  useEffect(() => {
+    if (formDatas.hashtags.length) {
+      const removeSpace = formDatas.hashtags.map((tag) => {
+        return tag.replace(' ', '');
+      });
+
+      setFormDatas((prev) => ({ ...prev, hashtags: removeSpace }));
+    }
+  }, [formDatas.hashtags.length]);
 
   const keyDownHandler = (e) => {
     if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
