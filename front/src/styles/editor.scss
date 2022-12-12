@@ -1,0 +1,56 @@
+@import './global.scss';
+
+.imgSlider {
+  display: flex;
+  margin-top: 15px;
+
+  li {
+    flex-grow: 1;
+    // width: 100%;
+    position: relative;
+  }
+
+  .imgPage {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+  }
+
+  .deleteImgBtn {
+    position: absolute;
+    background-color: $PRIMARY;
+    right: 0;
+    top: 0;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    color: $WHITE;
+    margin: 5px;
+    cursor: pointer;
+  }
+}
+
+.btnWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.prevBtn,
+.nextBtn {
+  background-color: $SUB;
+  border: none;
+  width: 100%;
+  margin: 0 auto;
+  cursor: pointer;
+  padding: 5px;
+  color: $WHITE;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: #1e1e1e;
+  }
+}

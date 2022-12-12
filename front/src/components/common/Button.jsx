@@ -13,16 +13,20 @@ export default function Button({
   customSize,
   isOutline,
   isDisabled,
+  onClick,
+  type = 'button',
   size = 'md',
   isDarkColor = false,
 }) {
   return (
     <ButtonStyles
+      type={type}
       isOutline={isOutline}
       size={size}
       customSize={customSize}
       isDarkColor={isDarkColor}
       disabled={isDisabled}
+      onClick={onClick}
     >
       {children}
     </ButtonStyles>

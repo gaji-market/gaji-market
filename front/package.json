@@ -2,7 +2,13 @@
   "name": "front",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://34.64.164.223:8080",
+  "options": {
+    "allowedHosts": [
+      "localhost",
+      ".localhost"
+    ],
+    "proxy": "http://114.201.230.148:8090"
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.6",
     "@testing-library/jest-dom": "^5.16.5",
