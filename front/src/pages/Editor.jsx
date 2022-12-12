@@ -18,6 +18,8 @@ import {
 import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
+import isEmptyValue from 'utils/isEmptyValue';
+
 const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
 
@@ -35,6 +37,9 @@ export default function Editor() {
     centents: '',
     hashtags: [],
   });
+
+  const [inputHashTag, setInputHashTag] = useState('');
+  const [hashTags, setHashTags] = useState([]);
 
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
@@ -70,6 +75,7 @@ export default function Editor() {
     if (!fileExtensions.includes(extension)) {
       return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
     }
+
     const imgUrls = [];
 
     [...target.files].forEach((file) => {
@@ -146,6 +152,55 @@ export default function Editor() {
       };
     }
   }, [currentSlideNumber, uploadImg.length]);
+
+  /**
+   * 해시태그
+   */
+
+  const addHashTag = (e) => {
+    const allowedCommand = ['Comma', 'Enter', 'Space', 'NumpadEnter'];
+    if (!allowedCommand.includes(e.code)) return;
+
+    if (isEmptyValue(e.target.value.trim())) {
+      return setInputHashTag('');
+    }
+
+    let newHashTag = e.target.value.trim();
+    const regExp = /[\{\}\[\]\/?.;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g;
+    if (regExp.test(newHashTag)) {
+      newHashTag = newHashTag.replace(regExp, '');
+    }
+    if (newHashTag.includes(',')) {
+      newHashTag = newHashTag.split(',').join('');
+    }
+
+    if (isEmptyValue(newHashTag)) return;
+
+    setHashTags((prevHashTags) => {
+      return [...new Set([...prevHashTags, newHashTag])];
+    });
+
+    setInputHashTag('');
+  };
+
+  const keyDownHandler = (e) => {
+    if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
+    e.preventDefault();
+
+    const regExp = /^[a-z|A-Z|가-힣|ㄱ-ㅎ|ㅏ-ㅣ|0-9| \t|]+$/g;
+    if (!regExp.test(e.target.value)) {
+      setInputHashTag('');
+    }
+  };
+
+  const changeHashTagInput = (e) => {
+    setInputHashTag(e.target.value);
+  };
+
+  useEffect(() => {
+    if (hashTags.length === 10) {
+    }
+  }, [hashTags]);
 
   return (
     <Container>
@@ -264,7 +319,25 @@ export default function Editor() {
 
           <HashTageContainer>
             <InputTitle title='해시태그' />
-            <InputTextBox width='100%' placeholder='해시태그는 최대 10개까지 등록할 수 있습니다.' />
+            <div className='hashTags'>
+              {hashTags.length > 0 &&
+                hashTags.map((hashTag) => {
+                  return (
+                    <div key={hashTag} className='tag'>
+                      {hashTag}
+                    </div>
+                  );
+                })}
+
+              <input
+                value={inputHashTag}
+                onChange={changeHashTagInput}
+                onKeyUp={addHashTag}
+                onKeyDown={keyDownHandler}
+                placeholder='#해시태그를 등록해보세요. (최대 10개)'
+                className='hashTagInput'
+              />
+            </div>
           </HashTageContainer>
         </Contents>
 
