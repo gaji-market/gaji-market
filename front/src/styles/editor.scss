@@ -1,5 +1,6 @@
 @import './global.scss';
 
+// 캐러셀 슬라이드
 .imgSlider {
   display: flex;
   margin-top: 15px;
@@ -52,5 +53,43 @@
 
   &:hover {
     background-color: #1e1e1e;
+  }
+}
+
+// 해시태그
+.hashTags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  width: 100%;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 5px;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.hashTagInput {
+  outline: none;
+  border: none;
+  font-size: 16px;
+  padding: 5px;
+  width: 100%;
+}
+
+.tag {
+  display: inline-flex;
+  flex-direction: row;
+  background: #9747ffab;
+  color: $WHITE;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &::before {
+    content: '#';
+  }
+
+  &:hover {
+    background: #9747ffc9;
   }
 }
