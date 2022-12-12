@@ -60,9 +60,9 @@ export default function SignUp() {
     setSignUpForm({ ...signUpForm, address: fullAddress });
   };
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    createUser({
+    const returnd = await createUser({
       userId: signUpForm.id,
       userPwd: signUpForm.password,
       userName: signUpForm.name,
@@ -72,7 +72,9 @@ export default function SignUp() {
       userPhone: '',
       userAddress: signUpForm.address,
       socialKind: '0',
-    });
+    }).unwrap();
+
+    console.log(returnd);
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
@@ -83,9 +85,7 @@ export default function SignUp() {
     e.preventDefault();
     CheckUserId({ userId: signUpForm.id });
   };
-  const CheckIdRespon = () => {
-    return !isIdVaild && <>6글자 이상이여야 합니다</>;
-  };
+
   return (
     <Container>
       <SignUpHead>
@@ -96,7 +96,7 @@ export default function SignUp() {
       <Form onChange={(e) => changeHandler(e)} onSubmit={(e) => submitHandler(e)}>
         <InputTitle
           title='아이디'
-          signUpSubTitle={CheckIdRespon()}
+          signUpSubTitle={'6글자 이상이여야 합니다'}
           isVaild={isIdVaild}
           isRequired
         />
@@ -233,12 +233,12 @@ const CkeckIdButton = styled.button`
   color: ${WHITE_COLOR};
   cursor: pointer;
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 5px;
   transition: all 0.2s;
   margin-left: 5px;
 `;
+
 const Container = styled.div`
   width: 700px;
   height: 800px;
@@ -247,6 +247,7 @@ const Container = styled.div`
   box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
   padding: 20px 100px;
 `;
+
 const Title = styled.div`
   font-weight: 800;
   font-size: 16px;
