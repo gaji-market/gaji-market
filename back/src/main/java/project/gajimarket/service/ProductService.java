@@ -37,11 +37,14 @@ public interface ProductService {
     //DB 해시태그 삭제
     void productHashTagDelete(int prodNo);
 
-    //카테고리 번호 찾기
-    int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
-
     //상품 정보 찾기
     Map<String, Object> findProductInfo(int prodNo);
+
+    //전체 카테고리 정보
+    List<Map<String, Object>> categoryInfo();
+
+    //카테고리 번호 찾기
+    int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
 
     //카테고리 정보 가져오기
     Map<String, Object> findCategoryInfo(int categoryNo);
@@ -65,7 +68,7 @@ public interface ProductService {
     void reportCountUp(int prodNo);
 
     //별점 정보 저장
-    void productScoreSave(ScoreInfoDTO scoreInfoDTO);
+    void productScoreSave(ScoreDTO scoreDTO);
 
     //상품 번호로 회원번호 찾기
     int findUserNo(int prodNo);
@@ -96,9 +99,6 @@ public interface ProductService {
 
     //상품번호로 카테고리 번호 찾기
     int findProdNoByCategoryNo(int prodNo);
-
-    //전체 카테고리 정보
-    List<Map<String, Object>> categoryInfo();
 
     //상세보기 상품 가져오기
     Map<String, Object> findProductInfoDetail(int prodNo);

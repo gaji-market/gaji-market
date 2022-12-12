@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.dao.InterestDAO">
+
+    <!-- 좋아요 저장 -->
+    <insert id="interestSave" useGeneratedKeys="true" keyProperty="interestNo" parameterType="project.gajimarket.model.InterestInfoDTO">
+        insert into interest_info (interestNo,prodNo,userNo) values (#{interestNo},#{prodNo},#{userNo});
+    </insert>
+
+    <!-- 좋아요 삭제 -->
+    <delete id="interestDelete">
+        delete from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
+    </delete>
+
+    <!-- 좋아요 찾기 -->
+    <select id="findInterest" resultType="int">
+        select interestNo as 'interestYN' from interest_info where prodNo=#{prodNo} and userNo=#{loginUserNo};
+    </select>
+
+    <!-- 좋아요 갯수 가져오기 -->
+    <select id="findInterestCnt" parameterType="int" resultType="int">
+        select count(*) as 'interestCnt' from interest_info where prodNo=#{prodNo};
+    </select>
+</mapper>

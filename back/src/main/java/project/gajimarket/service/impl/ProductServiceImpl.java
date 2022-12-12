@@ -2,7 +2,7 @@ package project.gajimarket.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.gajimarket.dao.ProductDAO;
+import project.gajimarket.dao.*;
 import project.gajimarket.model.*;
 import project.gajimarket.service.ProductService;
 
@@ -14,6 +14,11 @@ import java.util.Map;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductDAO productDAO;
+    private final CategoryDAO categoryDAO;
+    private final HashTagDAO hashTagDAO;
+    private final FileDAO fileDAO;
+    private final InterestDAO interestDAO;
+    private final ScoreDAO scoreDAO;
 
     @Override
     public void productSellSave(ProductDTO productDTO) {
@@ -37,12 +42,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void productHashTagSave(int prodNo,String hashTag) {
-        productDAO.productHashTagSave(prodNo,hashTag);
+        hashTagDAO.productHashTagSave(prodNo,hashTag);
     }
 
     @Override
     public void productFileSave(String uploadFileName, String dbFilename,int prodNo,String i) {
-        productDAO.productFileSave(uploadFileName,dbFilename,prodNo,i);
+        fileDAO.productFileSave(uploadFileName,dbFilename,prodNo,i);
     }
 
     @Override
@@ -52,22 +57,32 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<String> productFindDBFile(int prodNo) {
-        return productDAO.productFindDBFile(prodNo);
+        return fileDAO.productFindDBFile(prodNo);
     }
 
     @Override
     public void productFileDelete(int prodNo) {
-        productDAO.productFileDelete(prodNo);
+        fileDAO.productFileDelete(prodNo);
     }
 
     @Override
     public void productHashTagDelete(int prodNo) {
-        productDAO.productHashTagDelete(prodNo);
+        hashTagDAO.productHashTagDelete(prodNo);
+    }
+
+    @Override
+    public List<Map<String, Object>> categoryInfo() {
+        return categoryDAO.categoryInfo();
     }
 
     @Override
     public int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo) {
-        return productDAO.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
+        return categoryDAO.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
+    }
+
+    @Override
+    public Map<String, Object> findCategoryInfo(int categoryNo) {
+        return categoryDAO.findCategoryInfo(categoryNo);
     }
 
     @Override
@@ -75,34 +90,30 @@ public class ProductServiceImpl implements ProductService {
         return productDAO.findProductInfo(prodNo);
     }
 
-    @Override
-    public Map<String, Object> findCategoryInfo(int categoryNo) {
-        return productDAO.findCategoryInfo(categoryNo);
-    }
 
     @Override
     public List<Map<String, Object>> findHashTag(int prodNo) {
-        return productDAO.findHashTag(prodNo);
+        return hashTagDAO.findHashTag(prodNo);
     }
 
     @Override
     public List<Map<String, Object>> findFileInfo(int prodNo) {
-        return productDAO.findFileInfo(prodNo);
+        return fileDAO.findFileInfo(prodNo);
     }
 
     @Override
     public void interestSave(InterestInfoDTO interestInfoDTO) {
-        productDAO.interestSave(interestInfoDTO);
+        interestDAO.interestSave(interestInfoDTO);
     }
 
     @Override
     public void interestDelete(int prodNo, int userNo) {
-        productDAO.interestDelete(prodNo,userNo);
+        interestDAO.interestDelete(prodNo,userNo);
     }
 
     @Override
     public Integer findInterest(int prodNo, int loginUserNo) {
-        return productDAO.findInterest(prodNo,loginUserNo);
+        return interestDAO.findInterest(prodNo,loginUserNo);
     }
 
     @Override
@@ -111,8 +122,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productScoreSave(ScoreInfoDTO scoreInfoDTO) {
-        productDAO.productScoreSave(scoreInfoDTO);
+    public void productScoreSave(ScoreDTO scoreDTO) {
+        scoreDAO.productScoreSave(scoreDTO);
     }
 
     @Override
@@ -142,7 +153,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public int findInterestCnt(int prodNo) {
-        return productDAO.findInterestCnt(prodNo);
+        return interestDAO.findInterestCnt(prodNo);
     }
 
     @Override
@@ -163,11 +174,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public int findProdNoByCategoryNo(int prodNo) {
         return productDAO.findProdNoByCategoryNo(prodNo);
-    }
-
-    @Override
-    public List<Map<String, Object>> categoryInfo() {
-        return productDAO.categoryInfo();
     }
 
     @Override

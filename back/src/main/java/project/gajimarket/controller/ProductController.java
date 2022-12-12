@@ -2,8 +2,6 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.*;
@@ -16,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -30,9 +27,6 @@ public class ProductController {
 
     private final ProductService productService;
     private final FileService fileService;
-
-    //해시태그 글쓰면 자동작성으로 할건지..
-    //로그인 한 사람 찾아와서 넣기는 어떻게 할지..
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
@@ -50,10 +44,6 @@ public class ProductController {
     @PostMapping("/sellSave")
     public void sellSave(@ModelAttribute ProductDTO productDTO,@ModelAttribute HashTagDTO hashtagDTO,
                          @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm,HttpServletRequest request) throws IOException {
-
-        /**
-         * 회원만 가능, 비회원 불가능 session 있으면 가능
-         */
 
         //카테고리
         //프론트에서 받아야될것 - largeCateNo,mediumCateNo,smallCateNo
@@ -99,6 +89,7 @@ public class ProductController {
         hash.add("b"); //x
         hash.add("c"); //x
         hashtagDTO.setTagName(hash); //x
+
         List<String> tagName1 = hashtagDTO.getTagName();//해시태그 10개를 넣었다면 10개가 들어있다
         for (String tagName : tagName1){
             productService.productHashTagSave(productDTO.getProdNo(),tagName);
@@ -309,23 +300,23 @@ public class ProductController {
     //별점이랑 후기 저장
     //채팅한사람 클릭후 여기로 넘어옴 별점정보랑 후기작성 데이터 넘어오면 가지고와서 저장
     @PostMapping("/{prodNo}/scoreSave")
-    public void productScoreSave(@PathVariable int prodNo, ScoreInfoDTO scoreInfoDTO,@RequestParam int userNo){
+    public void productScoreSave(@PathVariable int prodNo,@ModelAttribute ScoreDTO scoreDTO, @RequestParam int userNo){
 
         //게시글 등록한 사람의 회원 번호가져오기
         int findUserNo = productService.findUserNo(prodNo);
-        scoreInfoDTO.setUserNo(findUserNo);
+        scoreDTO.setUserNo(findUserNo);
         //상품 번호 저장
-        scoreInfoDTO.setProdNo(prodNo);
+        scoreDTO.setProdNo(prodNo);
         //별점 정보 저장 (후기포함)
-        scoreInfoDTO.setScore1(5);
-        scoreInfoDTO.setTag1("약속을 잘 지켜요");
-        scoreInfoDTO.setScore2(4);
-        scoreInfoDTO.setTag2("친절해요");
-        scoreInfoDTO.setScore3(4);
-        scoreInfoDTO.setTag3("물건이 좋아요");
-        scoreInfoDTO.setTradeReview("거래후기 테스트");
+        scoreDTO.setScore1(5);
+        scoreDTO.setTag1("약속을 잘 지켜요");
+        scoreDTO.setScore2(4);
+        scoreDTO.setTag2("친절해요");
+        scoreDTO.setScore3(4);
+        scoreDTO.setTag3("물건이 좋아요");
+        scoreDTO.setTradeReview("거래후기 테스트");
         //DB 별점 정보 저장
-        productService.productScoreSave(scoreInfoDTO);
+        productService.productScoreSave(scoreDTO);
 
         //update (product_info 에서 구매자No에 채팅한사람클릭한거 저장(update))
         //넘어온 userNo로 product update 후 판매완료로 상태변경
@@ -422,7 +413,10 @@ public class ProductController {
         /**
          * #태그로 넘어오니까 #을 빼줘야한다 근데 api에 특수 문자가 오면 인식이 안된다? 프론트에서 지워서 와야될듯
          * 아니면 태그를 # 없애고 그냥 글로만 해도댐
+         * body로 넘어오니까 그냥 #만 빼줘도 될거같긴함
          */
+        //여기서 #빼주기
+
         // 팔래요인지, 살래요인지 가져온다
         String findTradeState = productService.findTradeState(prodNo);
 
