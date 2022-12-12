@@ -6,6 +6,8 @@ export default function CheckBox({
   title,
   id,
   width,
+  onChange,
+  isChecked,
   checkBoxWidth,
   checkBoxHeight,
   marginRight,
@@ -13,7 +15,13 @@ export default function CheckBox({
   return (
     <Container marginRight={marginRight} width={width}>
       <Label htmlFor={id}>{title}</Label>
-      <Check width={checkBoxWidth} height={checkBoxHeight} id={id} />
+      <Check
+        onChange={onChange}
+        checked={isChecked}
+        width={checkBoxWidth}
+        height={checkBoxHeight}
+        id={id}
+      />
     </Container>
   );
 }
