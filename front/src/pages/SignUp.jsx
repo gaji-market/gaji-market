@@ -64,10 +64,10 @@ export default function SignUp() {
     setSignUpForm({ ...signUpForm, address: fullAddress });
   };
 
-  const submitHandler = (e) => {
-    console.log('??');
+  const submitHandler = async (e) => {
     e.preventDefault();
-    createUser({
+
+    const res = await createUser({
       userId: signUpForm.id,
       userPwd: signUpForm.password,
       userName: signUpForm.name,
@@ -77,7 +77,7 @@ export default function SignUp() {
       userPhone: '',
       userAddress: signUpForm.address,
       socialKind: '0',
-    });
+    }).unwrap();
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
@@ -179,6 +179,7 @@ export default function SignUp() {
           padding={'10px'}
           placeholder={'주소를 입력하세요.'}
           type={'text'}
+          isReadOnly={true}
           clickHandler={() => open({ onComplete: handleComplete })}
         />
 
@@ -216,16 +217,11 @@ export default function SignUp() {
         </FlexBox>
         <ButtonBox>
           {isFormValid ? (
-            <Button size='lg' type='submit'>
+            <Button size='lg' type='submit' onClick={(e) => submitHandler(e)}>
               회원가입
             </Button>
           ) : (
-            <Button
-              size='lg'
-              type='submit'
-              onClick={(e) => submitHandler(e)}
-              isDisabled={!isFormValid}
-            >
+            <Button size='lg' type='submit' isDisabled={!isFormValid}>
               회원가입
             </Button>
           )}
