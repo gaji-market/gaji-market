@@ -21,10 +21,15 @@
         )
     </insert>
 
+    <select id="selectNotification" parameterType="java.util.Map" resultType="java.util.Map">
+
+    </select>
+
     <select id="selectNotificationList" parameterType="java.util.Map" resultType="java.util.List">
         SELECT *
           FROM notification_info
-         WHERE userNo = #{userNo} AND gubun = #{gubun}
+         WHERE userNo = #{userNo}
+           AND gubun = #{gubun}
 
     </select>
 
@@ -38,7 +43,8 @@
         SELECT COUNT(*)
           FROM ( SELECT *
                    FROM notification_info
-                  WHERE userNo = #{userNo} AND gubun = #{gubun}
+                  WHERE userNo = #{userNo}
+                    AND gubun = #{gubun}
                 )
     </select>
 
@@ -46,6 +52,7 @@
         SELECT COUNT(CASE WHEN gubun = 1 THEN 0 END) AS chatCheckCount,
                COUNT(CASE WHEN gubun = 2 THEN 0 END) AS intstCheckCount
           FROM notification_info
-         WHERE userNo = #{userNo} AND checkYn = 'N'
+         WHERE userNo = #{userNo}
+           AND checkYn = 'N'
     </select>
 </mapper>

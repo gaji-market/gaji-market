@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import project.gajimarket.Utils;
 import project.gajimarket.dao.ChatDAO;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.service.ChatService;
@@ -28,18 +29,18 @@ public class ChatServiceImpl implements ChatService {
 
         int result = chatDAO.insertChatRoom(chatRoomDTO);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("value", result);
+        resultMap.put("result", Utils.resultMsg(result));
+        resultMap.put("chatInfo", chatRoomDTO);
 
-        if (result > 0) {
-            map.put("message", "Success");
-            resultMap.put("chatInfo", chatRoomDTO);
-        } else {
-            map.put("message", "Fail");
-        }
-
-        resultMap.put("result", map);
         return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> addChatMessage(Map<String, Object> map) {
+
+        int result = chatDAO.insertChatMessage(map);
+
+        return Utils.resultMsg(result);
     }
 
     public List<ChatRoomDTO> getChatRoomList() {
@@ -50,15 +51,14 @@ public class ChatServiceImpl implements ChatService {
     public Map<String, Object> getChatRoom(int chatNo) {
         Map<String, Object> resultMap = new HashMap<>();
 
-        //resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(chatNo));
+        resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(chatNo));
         resultMap.put("chatMessageInfos", getChatMessage(chatNo));
 
         return resultMap;
     }
 
     public List<Map<String, Object>> getChatMessage(int chatNo) {
-        return null;
-        //return chatDAO.selectChatMessage(chatNo);
+        return chatDAO.selectChatMessage(chatNo);
     }
 
 //    public <T> void sendMessage(WebSocketSession session, T message) {

@@ -44,14 +44,19 @@ public class ChatController {
         return chatService.addChatRoom(chatRoomDTO);
     }
 
-    @GetMapping("/getChatRoom")
-    public Map<String, Object> getChatRoom( int chatNo) {
+    @GetMapping("/getChatRoom/{chatNo}")
+    public Map<String, Object> getChatRoom(@PathVariable int chatNo) {
         Map<String, Object> resultMap = chatService.getChatRoom(chatNo);
 
-        ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
-        resultMap.put("productInfo", getProduct(chatRoomDTO.getProdNo()));
+        try {
+            ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
+            resultMap.put("productInfo", getProduct(chatRoomDTO.getProdNo()));
 
-        resultMap.put("resultMap", resultMap);
+            log.info("resultMap :: " + resultMap);
+        } catch (Exception e) {
+           log.error(e.toString());
+        }
+
         return resultMap;
     }
 

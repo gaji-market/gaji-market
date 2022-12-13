@@ -8,11 +8,15 @@ import java.util.Map;
 
 @Mapper
 public interface ChatDAO {
-    public int insertChatRoom(ChatRoomDTO chatRoomDTO);
+    int insertChatRoom(ChatRoomDTO chatRoomDTO);
 
-    //ChatRoomDTO selectChatRoom(int chatNo);
+    int insertChatMessage(Map<String, Object> map);
 
-    //List<ChatRoomDTO> selectChatRoomList(int userNo);
+    ChatRoomDTO selectChatRoom(int chatNo);
 
-    //List<Map<String, Object>> selectChatMessage(int chatNo);
+    List<Map<String, Object>> selectChatMessage(int chatNo);
+
+    List<ChatRoomDTO> selectChatRoomList(int userNo);
+
+    int updateChatMessageCheck(Map<String, Object> map);
 }

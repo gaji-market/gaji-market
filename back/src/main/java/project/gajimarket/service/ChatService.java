@@ -8,8 +8,10 @@ import java.util.Map;
 
 public interface ChatService {
 
-    //Map<String, Object> addChatRoom(ChatRoomDTO chatRoomDTO);
     Map<String, Object> addChatRoom(ChatRoomDTO chatRoomDTO);
+
+    Map<String, Object> addChatMessage(Map<String, Object> map);
+
     List<ChatRoomDTO> getChatRoomList();
 
     Map<String, Object> getChatRoom(int chatNo);
