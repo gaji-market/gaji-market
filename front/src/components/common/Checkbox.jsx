@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { GRAY_COLOR, PRIMARY_COLOR, WHITE_COLOR } from './commonColor';
 
-export default function CheckBox({
+function CheckBox({
   title,
   id,
   width,
@@ -25,6 +25,8 @@ export default function CheckBox({
     </Container>
   );
 }
+
+export default memo(CheckBox);
 
 const Container = styled.div`
   width: ${({ width }) => width};
