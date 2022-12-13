@@ -10,7 +10,6 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.ProductDTO;
-import project.gajimarket.model.chat.ChatRoom;
 import project.gajimarket.service.ChatService;
 import project.gajimarket.service.ProductService;
 
@@ -28,20 +27,25 @@ public class ChatController {
     private final ProductService productService; //상품정보를 가져오기 위한 서비스
 
     //채팅방 생성
-    //@PostMapping("/addChatRoom")\
+    @PostMapping("/addChatRoom")
     public Map<String, Object> addChatRoom(@RequestBody ProductDTO productDTO) {
+        log.info("request ProductDTO :: "+productDTO.toString());
+
         ChatRoomDTO chatRoomDTO = new ChatRoomDTO();
-        //chatRoomDTO.setProdNo(productDTO.getProdNo());
-        //chatRoomDTO.setTgUserNo(productDTO.getUserNo());
+        chatRoomDTO.setProdNo(productDTO.getProdNo());
+        chatRoomDTO.setTgUserNo(productDTO.getUserNo());
         chatRoomDTO.setUserNo(1); //로그인 세션 값 가져오기
-        chatRoomDTO.setProdNo(1);
-        chatRoomDTO.setTgUserNo(2);
+        //chatRoomDTO.setProdNo(1);
+        //chatRoomDTO.setTgUserNo(2);
+
+        log.info("chatRoomDTO :: "+chatRoomDTO.toString());
+
         //insert 성공 시 getChatRoom 호출
         return chatService.addChatRoom(chatRoomDTO);
     }
 
     @GetMapping("/getChatRoom")
-    public Map<String, Object> getChatRoom(@RequestBody int chatNo) {
+    public Map<String, Object> getChatRoom( int chatNo) {
         Map<String, Object> resultMap = chatService.getChatRoom(chatNo);
 
         ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
@@ -52,7 +56,7 @@ public class ChatController {
     }
 
     @GetMapping("/getChatRoomList")
-    public Map<String, Object> getChatRoomList(@RequestBody int userNo) {
+    public Map<String, Object> getChatRoomList( int userNo) {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("chatRoomInfos", chatService.getChatRoomList());
 

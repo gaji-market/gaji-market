@@ -2,36 +2,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="project.gajimarket.dao.ChatDAO">
 
-    <insert id="insertChatRoom" parameterType="ChatRoomDTO" useGeneratedKeys="true" keyProperty="chatNo">
+    <insert id="insertChatRoom" parameterType="project.gajimarket.model.ChatRoomDTO" useGeneratedKeys="true" keyProperty="chatNo">
         INSERT INTO chat_info (userNo, prodNo, tgUserNo)
-        VALUES (${user.userNo}, ${prod.prodNo}, ${prod.tgUserNo})
+        VALUES (#{userNo}, #{prodNo}, #{tgUserNo})
     </insert>
 
-    <insert id="insertChatMessage" parameterMap="java.util.Map">
-        INSERT INTO chat_message (chatNo, message, regDate, regTime)
-        VALUES (${chatNo}, ${message}, DATE_FORMAT(now(), '%Y년 %m월 %d일'), DATE_FORMAT(now(), '%p %h:%i'))
-    </insert>
+<!--    <insert id="insertChatMessage" parameterMap="java.util.Map">-->
+<!--        INSERT INTO chat_message (chatNo, message, regDate, regTime)-->
+<!--        VALUES (${chatNo}, ${message}, DATE_FORMAT(now(), '%Y년 %m월 %d일'), DATE_FORMAT(now(), '%p %h:%i'))-->
+<!--    </insert>-->
 
-    <select id="selectChatRoom" parameterType="int" resultType="ChatRoomDTO">
-        SELECT *
-          FROM chat_info
-    </select>
+<!--    <select id="selectChatRoom" parameterType="int" resultType="project.gajimarket.model.ChatRoomDTO">-->
+<!--        SELECT *-->
+<!--          FROM chat_info-->
+<!--    </select>-->
 
-    <select id="selectChatMessage" parameterType="int" resultMap="java.util.Map">
-        SELECT *
-          FROM chat_message
-         ORDER BY regDate, regTime
-    </select>
+<!--    <select id="selectChatMessage" parameterType="int" resultMap="java.util.Map">-->
+<!--        SELECT *-->
+<!--          FROM chat_message-->
+<!--         ORDER BY regDate, regTime-->
+<!--    </select>-->
 
-    <!-- 채팅리스트, 확인하지 않은 내역 존재하는지 확인 (checkYn Count 확인) -->
-    <select id="selectChatRoomList" resultMap="java.util.List">
-        SELECT *
-          FROM chat_info
-    </select>
+<!--    &lt;!&ndash; 채팅리스트, 확인하지 않은 내역 존재하는지 확인 (checkYn Count 확인) &ndash;&gt;-->
+<!--    <select id="selectChatRoomList" resultMap="java.util.List">-->
+<!--        SELECT *-->
+<!--          FROM chat_info-->
+<!--    </select>-->
 
-    <update id="updateChatMessageCheck" parameterMap="java.util.Map">
-        UPDATE chat_info
-           SET checkYn='Y'
-         WHERE chatNo = ${chatNo}
-    </update>
+<!--    <update id="updateChatMessageCheck" parameterMap="java.util.Map">-->
+<!--        UPDATE chat_info-->
+<!--           SET checkYn='Y'-->
+<!--         WHERE chatNo = ${chatNo}-->
+<!--    </update>-->
 </mapper>
