@@ -2,10 +2,17 @@ package project.gajimarket.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.gajimarket.dao.ProductDAO;
+import org.springframework.web.multipart.MultipartFile;
+import project.gajimarket.dao.*;
 import project.gajimarket.model.*;
+import project.gajimarket.model.file.UploadFile;
+import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,9 +21,30 @@ import java.util.Map;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductDAO productDAO;
+    private final CategoryDAO categoryDAO;
+    private final HashTagDAO hashTagDAO;
+    private final FileDAO fileDAO;
+    private final InterestDAO interestDAO;
+    private final ScoreDAO scoreDAO;
+    private final FileService fileService;
 
     @Override
-    public void productSellSave(ProductDTO productDTO) {
+    public void productSellSave(ProductDTO productDTO,Map<String,Object> param,
+                                HttpServletRequest request) {
+
+        int categoryNo = findCategoryNo(param);
+        productDTO.setCategoryNo(categoryNo);
+        //int userNo = findSessionUser(request);
+        int userNo =1;
+        productDTO.setUserNo(userNo);//테스트 유저번호
+        String address = findUserAddress(userNo);//테스트 유저번호
+        productDTO.setAddress(address);
+
+        productDTO.setProdName((String) param.get("prodName"));
+        productDTO.setProdPrice((Integer) param.get("prodPrice"));
+        productDTO.setProdExplain((String) param.get("prodExplain"));
+        productDTO.setFreeCheck((String) param.get("freeCheck"));
+        productDTO.setPriceOffer((String) param.get("priceOffer"));
         productDAO.productSellSave(productDTO);
     }
 
@@ -26,7 +54,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productBuySave(ProductDTO productDTO) {
+    public void productBuySave(ProductDTO productDTO,Map<String,Object> param,
+                               HttpServletRequest request) {
+
+        int categoryNo = findCategoryNo(param);
+        productDTO.setCategoryNo(categoryNo);
+        //int userNo = findSessionUser(request);
+        int userNo =1;
+        productDTO.setUserNo(userNo);//테스트 유저번호
+        String address = findUserAddress(userNo);//테스트 유저번호
+        productDTO.setAddress(address);
+
+        productDTO.setProdName((String) param.get("prodName"));
+        productDTO.setProdPrice((Integer) param.get("prodPrice"));
+        productDTO.setProdExplain((String) param.get("prodExplain"));
+        productDTO.setFreeCheck((String) param.get("freeCheck"));
+        productDTO.setPriceOffer((String) param.get("priceOffer"));
+        productDAO.productSellSave(productDTO);
         productDAO.productBuySave(productDTO);
     }
 
@@ -36,13 +80,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productHashTagSave(int prodNo,String hashTag) {
-        productDAO.productHashTagSave(prodNo,hashTag);
+    public void productHashTagSave(Map<String,Object> param ,int prodNo) {
+        List<String> tagNames = (List<String>) param.get("tagName");
+        for (String tagName : tagNames){
+        hashTagDAO.productHashTagSave(prodNo,tagName);
+        }
     }
 
     @Override
-    public void productFileSave(String uploadFileName, String dbFilename,int prodNo,String i) {
-        productDAO.productFileSave(uploadFileName,dbFilename,prodNo,i);
+    public void productFileSave(Map<String,Object> param,int prodNo) throws IOException {
+        List<MultipartFile> imageFiles = (List<MultipartFile>) param.get("imageFiles");
+        List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+        for (int i=0; i<storeImageFiles.size(); i++) {
+            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+            String dbFileName = storeImageFiles.get(i).getDbFileName();
+            fileDAO.productFileSave(uploadFileName,dbFileName, prodNo, Integer.toString(i));
+        }
     }
 
     @Override
@@ -52,22 +105,38 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<String> productFindDBFile(int prodNo) {
-        return productDAO.productFindDBFile(prodNo);
+        return fileDAO.productFindDBFile(prodNo);
     }
 
     @Override
     public void productFileDelete(int prodNo) {
-        productDAO.productFileDelete(prodNo);
+        fileDAO.productFileDelete(prodNo);
     }
 
     @Override
     public void productHashTagDelete(int prodNo) {
-        productDAO.productHashTagDelete(prodNo);
+        hashTagDAO.productHashTagDelete(prodNo);
     }
 
     @Override
-    public int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo) {
-        return productDAO.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
+    public Map<String, Object> categoryInfo() {
+        Map<String,Object> result = new LinkedHashMap<>();
+        List<Map<String, Object>> categoryInfo = categoryDAO.categoryInfo();
+        result.put("categoryInfos",categoryInfo);
+        return result;
+    }
+
+    @Override
+    public int findCategoryNo(Map<String,Object> param) {
+        int largeCateNo = (int) param.get("largeCateNo");
+        int mediumCateNo = (int) param.get("mediumCateNo");
+        int smallCateNo = (int) param.get("smallCateNo");
+        return categoryDAO.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
+    }
+
+    @Override
+    public Map<String, Object> findCategoryInfo(int categoryNo) {
+        return categoryDAO.findCategoryInfo(categoryNo);
     }
 
     @Override
@@ -75,34 +144,30 @@ public class ProductServiceImpl implements ProductService {
         return productDAO.findProductInfo(prodNo);
     }
 
-    @Override
-    public Map<String, Object> findCategoryInfo(int categoryNo) {
-        return productDAO.findCategoryInfo(categoryNo);
-    }
 
     @Override
     public List<Map<String, Object>> findHashTag(int prodNo) {
-        return productDAO.findHashTag(prodNo);
+        return hashTagDAO.findHashTag(prodNo);
     }
 
     @Override
     public List<Map<String, Object>> findFileInfo(int prodNo) {
-        return productDAO.findFileInfo(prodNo);
+        return fileDAO.findFileInfo(prodNo);
     }
 
     @Override
     public void interestSave(InterestInfoDTO interestInfoDTO) {
-        productDAO.interestSave(interestInfoDTO);
+        interestDAO.interestSave(interestInfoDTO);
     }
 
     @Override
     public void interestDelete(int prodNo, int userNo) {
-        productDAO.interestDelete(prodNo,userNo);
+        interestDAO.interestDelete(prodNo,userNo);
     }
 
     @Override
-    public InterestInfoDTO findInterest(int prodNo, int userNo) {
-        return productDAO.findInterest(prodNo,userNo);
+    public Integer findInterest(int prodNo, int loginUserNo) {
+        return interestDAO.findInterest(prodNo,loginUserNo);
     }
 
     @Override
@@ -111,8 +176,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productScoreSave(ScoreInfoDTO scoreInfoDTO) {
-        productDAO.productScoreSave(scoreInfoDTO);
+    public void productScoreSave(ScoreDTO scoreDTO) {
+        scoreDAO.productScoreSave(scoreDTO);
     }
 
     @Override
@@ -121,7 +186,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public int findSessionUser(Object findSession) {
+    public int findSessionUser(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Object findSession = session.getAttribute("userInfo");
         return productDAO.findSessionUser(findSession);
     }
 
@@ -141,8 +208,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Map<String, Object> findInterestCnt(int prodNo) {
-        return productDAO.findInterestCnt(prodNo);
+    public int findInterestCnt(int prodNo) {
+        return interestDAO.findInterestCnt(prodNo);
     }
 
     @Override
@@ -163,11 +230,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public int findProdNoByCategoryNo(int prodNo) {
         return productDAO.findProdNoByCategoryNo(prodNo);
-    }
-
-    @Override
-    public List<Map<String, Object>> categoryInfo() {
-        return productDAO.categoryInfo();
     }
 
     @Override
