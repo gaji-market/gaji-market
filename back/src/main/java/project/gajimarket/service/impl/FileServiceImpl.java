@@ -3,12 +3,14 @@ package project.gajimarket.service.impl;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -19,9 +21,17 @@ import java.util.UUID;
 @Service
 public class FileServiceImpl implements FileService {
 
-    String projectId = "gajimarket-123";
-    String bucketName = "gaji-market-storage";
-    String keyFileName = "gajimarket-123-cb4059fbbfd5.json";
+    //String projectId = "gajimarket-123";
+    //String bucketName = "gaji-market-storage";
+    //String keyFileName = "gajimarket-123-cb4059fbbfd5.json";
+
+    @Value("${file}")
+    private String fileDir;
+    //이미지가 저장될 경로
+
+    public String getFullPath(String filename){
+        return fileDir + filename;
+    }
 
     @Override
     public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
@@ -51,6 +61,11 @@ public class FileServiceImpl implements FileService {
         //서버에 저장하는 파일명을 가져옴
         String DBFileName = createDBFileName(originFilename);
 
+        //지정한 경로로 서버에 저장할 파일명을 보냄
+        multipartFile.transferTo(new File(getFullPath(DBFileName)));
+
+        /**
+         gcs 파일 업로드
         //키값 설정
         InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
         Storage.BlobTargetOption precondition = Storage.BlobTargetOption.doesNotExist();
@@ -65,6 +80,8 @@ public class FileServiceImpl implements FileService {
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
 
         storage.create(blobInfo, multipartFile.getBytes(),precondition);
+         *
+         */
 
         return new UploadFile(originFilename,DBFileName);
     }
@@ -85,6 +102,19 @@ public class FileServiceImpl implements FileService {
         String DBFileName = uuid + "." + ext;
         return DBFileName;
     }
+
+    @Override
+    public void fileDelete(List<String> findFileDB) {
+        for(String findFile : findFileDB){
+            if (!findFile.isEmpty()) {
+                File file = new File(getFullPath(findFile));
+                file.delete();
+            }
+        }
+    }
+
+    /**
+     *  gcs 파일 삭제부분
 
     @Override
     public void fileDelete(List<String> findFileDB) throws IOException {
@@ -109,4 +139,6 @@ public class FileServiceImpl implements FileService {
             System.out.println("Object " + findFile + " was deleted from " + bucketName);
         }
     }
+     *
+     */
 }

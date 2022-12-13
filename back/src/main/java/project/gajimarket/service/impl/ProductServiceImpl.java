@@ -2,10 +2,17 @@ package project.gajimarket.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.dao.*;
 import project.gajimarket.model.*;
+import project.gajimarket.model.file.UploadFile;
+import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +26,25 @@ public class ProductServiceImpl implements ProductService {
     private final FileDAO fileDAO;
     private final InterestDAO interestDAO;
     private final ScoreDAO scoreDAO;
+    private final FileService fileService;
 
     @Override
-    public void productSellSave(ProductDTO productDTO) {
+    public void productSellSave(ProductDTO productDTO,Map<String,Object> param,
+                                HttpServletRequest request) {
+
+        int categoryNo = findCategoryNo(param);
+        productDTO.setCategoryNo(categoryNo);
+        //int userNo = findSessionUser(request);
+        int userNo =1;
+        productDTO.setUserNo(userNo);//테스트 유저번호
+        String address = findUserAddress(userNo);//테스트 유저번호
+        productDTO.setAddress(address);
+
+        productDTO.setProdName((String) param.get("prodName"));
+        productDTO.setProdPrice((Integer) param.get("prodPrice"));
+        productDTO.setProdExplain((String) param.get("prodExplain"));
+        productDTO.setFreeCheck((String) param.get("freeCheck"));
+        productDTO.setPriceOffer((String) param.get("priceOffer"));
         productDAO.productSellSave(productDTO);
     }
 
@@ -31,7 +54,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productBuySave(ProductDTO productDTO) {
+    public void productBuySave(ProductDTO productDTO,Map<String,Object> param,
+                               HttpServletRequest request) {
+
+        int categoryNo = findCategoryNo(param);
+        productDTO.setCategoryNo(categoryNo);
+        //int userNo = findSessionUser(request);
+        int userNo =1;
+        productDTO.setUserNo(userNo);//테스트 유저번호
+        String address = findUserAddress(userNo);//테스트 유저번호
+        productDTO.setAddress(address);
+
+        productDTO.setProdName((String) param.get("prodName"));
+        productDTO.setProdPrice((Integer) param.get("prodPrice"));
+        productDTO.setProdExplain((String) param.get("prodExplain"));
+        productDTO.setFreeCheck((String) param.get("freeCheck"));
+        productDTO.setPriceOffer((String) param.get("priceOffer"));
+        productDAO.productSellSave(productDTO);
         productDAO.productBuySave(productDTO);
     }
 
@@ -41,13 +80,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productHashTagSave(int prodNo,String hashTag) {
-        hashTagDAO.productHashTagSave(prodNo,hashTag);
+    public void productHashTagSave(Map<String,Object> param ,int prodNo) {
+        List<String> tagNames = (List<String>) param.get("tagName");
+        for (String tagName : tagNames){
+        hashTagDAO.productHashTagSave(prodNo,tagName);
+        }
     }
 
     @Override
-    public void productFileSave(String uploadFileName, String dbFilename,int prodNo,String i) {
-        fileDAO.productFileSave(uploadFileName,dbFilename,prodNo,i);
+    public void productFileSave(Map<String,Object> param,int prodNo) throws IOException {
+        List<MultipartFile> imageFiles = (List<MultipartFile>) param.get("imageFiles");
+        List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+        for (int i=0; i<storeImageFiles.size(); i++) {
+            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+            String dbFileName = storeImageFiles.get(i).getDbFileName();
+            fileDAO.productFileSave(uploadFileName,dbFileName, prodNo, Integer.toString(i));
+        }
     }
 
     @Override
@@ -71,12 +119,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Map<String, Object>> categoryInfo() {
-        return categoryDAO.categoryInfo();
+    public Map<String, Object> categoryInfo() {
+        Map<String,Object> result = new LinkedHashMap<>();
+        List<Map<String, Object>> categoryInfo = categoryDAO.categoryInfo();
+        result.put("categoryInfos",categoryInfo);
+        return result;
     }
 
     @Override
-    public int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo) {
+    public int findCategoryNo(Map<String,Object> param) {
+        int largeCateNo = (int) param.get("largeCateNo");
+        int mediumCateNo = (int) param.get("mediumCateNo");
+        int smallCateNo = (int) param.get("smallCateNo");
         return categoryDAO.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
     }
 
@@ -132,7 +186,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public int findSessionUser(Object findSession) {
+    public int findSessionUser(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Object findSession = session.getAttribute("userInfo");
         return productDAO.findSessionUser(findSession);
     }
 

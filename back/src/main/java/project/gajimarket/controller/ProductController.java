@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.*;
 import project.gajimarket.model.file.FileForm;
 import project.gajimarket.model.file.UploadFile;
@@ -31,133 +32,42 @@ public class ProductController {
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
     public Map<String,Object> categoryInfo(){
-
-        Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> categoryInfo = productService.categoryInfo();
-
-        result.put("categoryInfos",categoryInfo);
-
-        return result;
+        return productService.categoryInfo();
     }
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public void sellSave(@ModelAttribute ProductDTO productDTO,@ModelAttribute HashTagDTO hashtagDTO,
-                         @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm,HttpServletRequest request) throws IOException {
+    public void sellSave(@RequestBody Map<String,Object> param,ProductDTO productDTO,HttpServletRequest request) throws IOException {
 
-        //카테고리
-        //프론트에서 받아야될것 - largeCateNo,mediumCateNo,smallCateNo
-        categoryDTO.setLargeCateNo(1); //x
-        categoryDTO.setMediumCateNo(10); //x
-        categoryDTO.setSmallCateNo(100); //x
-        //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
-        int largeCateNo = categoryDTO.getLargeCateNo();
-        int mediumCateNo = categoryDTO.getMediumCateNo();
-        int smallCateNo = categoryDTO.getSmallCateNo();
-        //들어온 값으로 category 번호를 찾아야함
-        int findCategoryNo = productService.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
-        //찾은 카테고리 번호로 상품에 insert
-        productDTO.setCategoryNo(findCategoryNo);
+        log.info("param={}",param);
 
-        //상품 등록하는 유저의 주소 가져오기
-        //로그인한 회원 아이디로 번호를 찾아온다(Session사용)
-        //세션 가져오기
-        HttpSession session = request.getSession();
-        //세션이름으로 들어가있는 아이디를 찾아온다
-        Object findSession = session.getAttribute("userInfo");
-        //로그인한 아이디로 회원번호 찾기
-        int findUserNo = productService.findSessionUser(findSession);
-        //유저번호 저장
-        productDTO.setUserNo(findUserNo);
-
-        //주소 저장
-        String findAddress = productService.findUserAddress(findUserNo);
-        productDTO.setAddress(findAddress);
-
-        //입력한 상품 입력
-        productDTO.setProdName("팔래요 테스트 상품 이름"); //x
-        productDTO.setProdPrice(50000); //x
-        productDTO.setPriceOffer("0"); //x
-        productDTO.setFreeCheck("0"); //x
-        productDTO.setProdExplain("팔래요 테스트 상품 설명입니다"); //x
         //팔래요 상품 등록
-        productService.productSellSave(productDTO);
+        productService.productSellSave(productDTO,param,request);
+        log.info("productDTO={}",productDTO);
 
-        //해시태그 list로 프론트에서 받아야됨
-        List<String> hash= new ArrayList<>(); //x
-        hash.add("a"); //x
-        hash.add("b"); //x
-        hash.add("c"); //x
-        hashtagDTO.setTagName(hash); //x
+        //해시태그 저장
+        productService.productHashTagSave(param,productDTO.getProdNo());
 
-        List<String> tagName1 = hashtagDTO.getTagName();//해시태그 10개를 넣었다면 10개가 들어있다
-        for (String tagName : tagName1){
-            productService.productHashTagSave(productDTO.getProdNo(),tagName);
-        }
+        //파일저장
+        productService.productFileSave(param,productDTO.getProdNo());
 
-        //파일저장 imageFiles로 프론트에서 받아야됨
-        List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
-        for (int i=0; i<storeImageFiles.size(); i++) {
-            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-            String dbFileName = storeImageFiles.get(i).getDbFileName();
-            productService.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
-            //DB저장부분
-        }
     }
 
     //살래요 상품 등록 처리
     @PostMapping("/buySave")
-    public void buySave(@ModelAttribute ProductDTO productDTO,@ModelAttribute HashTagDTO hashtagDTO,
-                        @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm, HttpServletRequest request) throws IOException {
+    public void buySave(@RequestBody Map<String,Object> param,ProductDTO productDTO, HttpServletRequest request) throws IOException {
 
-        //카테고리
-        //프론트에서 받아야될것 - largeCateNo,mediumCateNo,smallCateNo
+        log.info("param={}",param);
 
-        //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
-        int largeCateNo = categoryDTO.getLargeCateNo();
-        int mediumCateNo = categoryDTO.getMediumCateNo();
-        int smallCateNo = categoryDTO.getSmallCateNo();
-        //들어온 값으로 category 번호를 찾아야함
-        int findCategoryNo = productService.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
-        //찾은 카테고리 번호로 상품에 insert
-        productDTO.setCategoryNo(findCategoryNo);
-
-        //상품 등록하는 유저의 주소 가져오기
-        //로그인한 회원 아이디로 번호를 찾아온다(Session사용)
-        //세션 가져오기
-        HttpSession session = request.getSession();
-        //세션이름으로 들어가있는 아이디를 찾아온다
-        Object findSession = session.getAttribute("userInfo");
-        //로그인한 아이디로 회원번호 찾기
-        int findUserNo = productService.findSessionUser(findSession);
-        productDTO.setUserNo(findUserNo);
-
-        String findAddress = productService.findUserAddress(findUserNo);
-        productDTO.setAddress(findAddress);
-
-        //입력한 상품 입력
-        productDTO.setProdName("살래요 테스트 상품 이름");//x
-        productDTO.setProdPrice(50000); //x
-        productDTO.setPriceOffer("0"); //x
-        productDTO.setFreeCheck("1"); // x
-        productDTO.setProdExplain("살래요 테스트 상품 설명입니다"); //x
         //살래요 상품 등록
-        productService.productBuySave(productDTO);
+        productService.productBuySave(productDTO,param,request);
+        log.info("productDTO={}",productDTO);
 
-        //해시태그 최대10
-        List<String> tagName1 = hashtagDTO.getTagName();//해시태그 10개를 넣었다면 10개가 들어있다
-        for (String tagName : tagName1){
-            productService.productHashTagSave(productDTO.getProdNo(),tagName);
-        }
+        //해시태그 저장
+        productService.productHashTagSave(param,productDTO.getProdNo());
 
         //파일저장
-        List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
-        for (int i=0; i<storeImageFiles.size(); i++) {
-            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-            String dbFileName = storeImageFiles.get(i).getDbFileName();
-            productService.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
-            //DB저장부분
-        }
+        productService.productFileSave(param,productDTO.getProdNo());
     }
 
     //수정버튼클릭시 이미 입력된 내용 보여주기
@@ -189,34 +99,20 @@ public class ProductController {
 
     //수정 (이미지, 제목, 가격, 가격제안, 무료나눔, 카테고리, 내용, 해시태그)
     @PostMapping("/{prodNo}/update")
-    public void productUpdate(@PathVariable int prodNo,@ModelAttribute ProductDTO productDTO,
-                              @ModelAttribute CategoryDTO categoryDTO,@ModelAttribute FileForm fileForm,
-                              @ModelAttribute HashTagDTO hashTagDTO,HttpServletRequest request) throws IOException {
+    public void productUpdate(@PathVariable int prodNo,@RequestBody Map<String,Object> param,
+                              HttpServletRequest request,ProductDTO productDTO) throws IOException {
 
         //카테고리 수정
-        //카테고리 선택한 번호가 들어온다 선택한 번호의 categoryNo를 insert해줘야함
-        int largeCateNo = categoryDTO.getLargeCateNo();
-        int mediumCateNo = categoryDTO.getMediumCateNo();
-        int smallCateNo = categoryDTO.getSmallCateNo();
         //들어온 값으로 category 번호를 찾아야함
-        int findCategoryNo = productService.findCategoryNo(largeCateNo,mediumCateNo,smallCateNo);
+        int findCategoryNo = productService.findCategoryNo(param);
         productDTO.setCategoryNo(findCategoryNo);
 
-        HttpSession session = request.getSession();
-        Object findSession = session.getAttribute("userInfo");
-        int findUserNo = productService.findSessionUser(findSession);
+        int findUserNo = productService.findSessionUser(request);
 
         //상품 수정하는 유저의 주소 가져오기(주소가 바꼇을수도 있어서 다시 찾아서 넣어줘야함)
         String findAddress = productService.findUserAddress(findUserNo);
         productDTO.setAddress(findAddress);
 
-        //상품 수정
-        productDTO.setProdName("수정제목"); //x
-        productDTO.setProdPrice(1234); //x
-        productDTO.setPriceOffer("1"); //x
-        productDTO.setFreeCheck("1"); //x
-        productDTO.setProdExplain("수정한 내용입니다"); //x
-        productDTO.setTradState("2");// x
         productService.productUpdate(prodNo,productDTO);
         //상태가 거래중, 거래완료 일때는 다른 글들은 수정불가능하다..
 
@@ -227,24 +123,17 @@ public class ProductController {
         fileService.fileDelete(findDBFile);
         //DB정보도 삭제해야됨
         productService.productFileDelete(prodNo);
+
         //파일저장
-        List<UploadFile> storeImageFiles = fileService.storeFiles(fileForm.getImageFiles());
-        for (int i=0; i<storeImageFiles.size(); i++){
-            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-            String dbFileName = storeImageFiles.get(i).getDbFileName();
-            productService.productFileSave(uploadFileName,dbFileName,prodNo,Integer.toString(i));
-            //DB저장부분
-        }
+        productService.productFileSave(param,productDTO.getProdNo());
 
         //해시태그 수정
         //prodNo로 먼저 있던 해시태그 삭제
         productService.productHashTagDelete(prodNo);
 
         //다시 처음부터 해시태그 등록
-        List<String> tagName = hashTagDTO.getTagName();
-        for (String tag : tagName){
-            productService.productHashTagSave(prodNo,tag);
-        }
+        productService.productHashTagSave(param,prodNo);
+
     }
 
     //팔래요, 살래요 삭제
@@ -260,9 +149,7 @@ public class ProductController {
 
         interestInfoDTO.setProdNo(prodNo);
 
-        HttpSession session = request.getSession();
-        Object id = session.getAttribute("userInfo");
-        int userNo = productService.findSessionUser(id);
+        int userNo = productService.findSessionUser(request);
 
         interestInfoDTO.setUserNo(userNo);
 
@@ -333,13 +220,8 @@ public class ProductController {
     @PostMapping("/{prodNo}/priceOffer")
     public void priceOfferUpdate(@PathVariable int prodNo, int offerPrice, HttpServletRequest request){
 
-        //로그인한 회원 아이디로 번호를 찾아온다(Session사용)
-        //세션 가져오기
-        HttpSession session = request.getSession();
-        //세션이름으로 들어가있는 아이디를 찾아온다
-        Object findSession = session.getAttribute("userInfo");
         //로그인한 아이디로 회원번호 찾기
-        int findUserNo = productService.findSessionUser(findSession);
+        int findUserNo = productService.findSessionUser(request);
 
         //가격 가져오기
         int findPrice = productService.findProductPrice(prodNo);
@@ -369,9 +251,7 @@ public class ProductController {
         productService.viewCntUpdate(prodNo);
 
         //좋아요 유무
-        HttpSession session = request.getSession();
-        Object loginUser = session.getAttribute("userInfo");
-        int loginUserNo = productService.findSessionUser(loginUser);
+        int loginUserNo = productService.findSessionUser(request);
 
         Map<String,Object> interestInfo = new LinkedHashMap<>();
         Integer interestYN = productService.findInterest(prodNo,loginUserNo);
