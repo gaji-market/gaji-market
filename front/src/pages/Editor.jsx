@@ -15,12 +15,7 @@ import InputTitle from 'components/common/InputTitle';
 
 import 'styles/editor.scss';
 
-import {
-  PRIMARY_COLOR,
-  GRAY_COLOR,
-  DARK_GRAY_COLOR,
-  WHITE_COLOR,
-} from 'components/common/commonColor';
+import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
@@ -36,19 +31,21 @@ export default function Editor() {
     prodName: '', // required
     prodPrice: 0, // required
     imageFiles: [], // required
-    priceOffer: false, // 가격제안유무(0: 제안X, 1: 제안O) required
-    freeCheck: false, // 무료나눔(0: X, 1: O) required
-    largeCateNo: '', // required
-    mediumCateNo: '', // required
-    smallCateNo: '', // required
+    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
+    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
+    largeCateNo: 0, // required
+    mediumCateNo: 0, // required
+    smallCateNo: 0, // required
     prodExplain: '', // 상품설명 required
     hashtags: [],
   });
 
   const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
-  console.log(productCategories);
+
   const [createSaleProduct] = useCreateSaleProductMutation();
   const [createPurchaseProduct] = useCreatePurchaseProductMutation();
+
+  const [imgSlide, setImgSlide] = useState([]);
 
   const [inputHashTag, setInputHashTag] = useState('');
 
@@ -59,6 +56,8 @@ export default function Editor() {
 
   const imgSliderRef = useRef(null);
   const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
+
+  console.log(formDatas);
 
   const { type: param } = useParams();
 
@@ -83,14 +82,14 @@ export default function Editor() {
   const checkedAllowPriceSuggestions = useCallback(({ target }) => {
     setFormDatas((prev) => ({
       ...prev,
-      priceOffer: target.checked,
+      priceOffer: target.checked ? '1' : '0',
     }));
   }, []);
 
   const checkedFreeSharing = useCallback(({ target }) => {
     setFormDatas((prev) => ({
       ...prev,
-      freeCheck: target.checked,
+      freeCheck: target.checked ? '1' : '0',
     }));
   }, []);
 
@@ -110,15 +109,26 @@ export default function Editor() {
     }));
   }, []);
 
-  console.log(formDatas);
-
-  const submitHandler = useCallback((e) => {
-    // e.preventDefault();
-    console.log('폼 전송');
+  const changeProductContent = useCallback(({ target }) => {
+    setFormDatas((prev) => ({
+      ...prev,
+      prodExplain: target.value,
+    }));
   }, []);
 
-  const createPost = useCallback(() => {
-    console.log('등록');
+  const createPost = useCallback((e) => {
+    e.preventDefault();
+    if (param === SELL) {
+      console.log('상품 판매 등록');
+      createSaleProduct({ ...formDatas, tagName: formDatas.hashtags });
+    }
+
+    // if(param === BUY){
+    //   console.log('상품 판매 등록');
+    //   createSaleProduct({
+    //     formDatas,
+    //   });
+    // }
   }, []);
 
   /**
@@ -135,18 +145,26 @@ export default function Editor() {
         return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
       }
 
-      const imgUrls = [];
+      const imgFiles = []; // 서버 전송 배열
+      const imgUrls = []; // 이미지 슬라이드 배열
 
       [...target.files].forEach((file) => {
         const url = URL.createObjectURL(file);
 
-        if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && imgUrls.length < MAX_UPLOAD_COUNT)
+        if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && imgUrls.length < MAX_UPLOAD_COUNT) {
           imgUrls.push(url);
+          imgFiles.push(file);
+        }
       });
 
-      setFormDatas((prev) => ({ ...prev, imageFiles: formDatas.imageFiles.concat(imgUrls) }));
+      setImgSlide((prev) => [...prev, ...imgUrls]);
+
+      setFormDatas((prev) => ({
+        ...prev,
+        imageFiles: formDatas.imageFiles.concat(imgFiles),
+      }));
     },
-    [formDatas.imageFiles]
+    [formDatas.imageFiles, imgSlide]
   );
 
   const mouseOverHandler = useCallback(() => {
@@ -159,18 +177,23 @@ export default function Editor() {
 
   // TODO
   const deleteImg = useCallback(
-    (deleteTargetImg) => () => {
-      const imgs = formDatas.imageFiles.filter((img) => {
+    (deleteTargetImg, deleteImageIdx) => () => {
+      const imgs = imgSlide.filter((img) => {
         return img !== deleteTargetImg;
       });
 
-      setFormDatas((prev) => ({ ...prev, imageFiles: imgs }));
+      const serverImgs = formDatas.imageFiles.filter((_, index) => {
+        return index !== deleteImageIdx;
+      });
 
-      if (currentSlideNumber - 1 === formDatas.imageFiles.length) {
+      setImgSlide(imgs);
+      setFormDatas((prev) => ({ ...prev, imageFiles: serverImgs }));
+
+      if (currentSlideNumber - 1 === imgSlide.length) {
         setCurrentSlideNumber(0);
       }
     },
-    [formDatas.imageFiles, currentSlideNumber]
+    [imgSlide, currentSlideNumber]
   );
 
   /**
@@ -188,17 +211,17 @@ export default function Editor() {
     const { current } = imgSliderRef;
 
     if (currentSlideNumber < 0) {
-      setCurrentSlideNumber(formDatas.imageFiles.length - 1);
+      setCurrentSlideNumber(imgSlide.length - 1);
       return;
     }
 
-    if (currentSlideNumber > formDatas.imageFiles.length - 1) {
+    if (currentSlideNumber > imgSlide.length - 1) {
       setCurrentSlideNumber(0);
       current.style.transform = 'translateX(0px)';
       return;
     }
 
-    if (currentSlideNumber <= formDatas.imageFiles.length - 1) {
+    if (currentSlideNumber <= imgSlide.length - 1) {
       current.style.opacity = '0';
 
       setTimeout(() => {
@@ -213,7 +236,7 @@ export default function Editor() {
         current.style.transition = 'opacity .4s';
       };
     }
-  }, [currentSlideNumber, formDatas.imageFiles.length]);
+  }, [currentSlideNumber, imgSlide.length]);
 
   /**
    * 해시태그
@@ -277,7 +300,7 @@ export default function Editor() {
 
   return (
     <div className='container'>
-      <form className='form' onSubmit={submitHandler}>
+      <form encType='multipart/form-data' className='form'>
         <div className='contentHeader'>
           <h2 className='editorTitle'>{formTitle}</h2>
           <h3 className='editorSubTitle'>{subFormTitle}</h3>
@@ -285,13 +308,13 @@ export default function Editor() {
 
         <div>
           <ImageWrapper>
-            {!formDatas.imageFiles.length && (
+            {!imgSlide.length && (
               <ImageUpLoaderLabel htmlFor='image-uploader'>이미지 등록</ImageUpLoaderLabel>
             )}
 
             <ul className='imgSlider' ref={imgSliderRef}>
-              {formDatas.imageFiles.length > 0 &&
-                formDatas.imageFiles.map((imageUrl, idx) => {
+              {imgSlide.length > 0 &&
+                imgSlide.map((imageUrl, idx) => {
                   return (
                     <li
                       onMouseOver={mouseOverHandler}
@@ -300,12 +323,12 @@ export default function Editor() {
                       className='imgList'
                     >
                       <Image src={imageUrl} alt='upload_image' />
-                      <p className='imgPage'>{`${idx + 1}/${formDatas.imageFiles.length}`}</p>
+                      <p className='imgPage'>{`${idx + 1}/${imgSlide.length}`}</p>
                       {showImgDeleteBtn && (
                         <button
                           type='button'
                           className='deleteImgBtn'
-                          onClick={deleteImg(imageUrl)}
+                          onClick={deleteImg(imageUrl, idx)}
                         >
                           삭제
                         </button>
@@ -314,7 +337,7 @@ export default function Editor() {
                   );
                 })}
             </ul>
-            {formDatas.imageFiles.length > 0 && (
+            {imgSlide.length > 0 && (
               <div className='btnWrapper'>
                 <button className='prevBtn' onClick={clickPrevImg} type='button'>
                   ⥢ PREV
@@ -362,8 +385,8 @@ export default function Editor() {
 
             <PriceInputContainer>
               <InputTextBox
-                isReadOnly={formDatas.freeCheck && 'readonly'}
-                isDisabled={formDatas.freeCheck}
+                isReadOnly={formDatas.freeCheck === '1' && 'readonly'}
+                isDisabled={formDatas.freeCheck === '1'}
                 inputRef={productPriceRef}
                 onChange={changeProductPrice}
                 required
@@ -398,7 +421,12 @@ export default function Editor() {
           <InputContent>
             <InputTitle isRequired title='내용' />
             <br />
-            <textarea className='textArea' required placeholder='물품 상세 정보를 입력해주세요.' />
+            <textarea
+              onChange={changeProductContent}
+              className='textArea'
+              required
+              placeholder='물품 상세 정보를 입력해주세요.'
+            />
           </InputContent>
 
           <HashTageContainer>
@@ -426,7 +454,7 @@ export default function Editor() {
         </div>
 
         <div className='buttonContainer'>
-          <Button isDisabled={!isCompleteForm} type='submit' onClick={createPost} customSize='50%'>
+          <Button type='submit' onClick={createPost} customSize='50%'>
             등록하기
           </Button>
           <Button customSize='50%' isOutline>
