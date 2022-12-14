@@ -1,5 +1,73 @@
 @import './global.scss';
 
+.container {
+  width: 800px;
+  padding: 50px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.form {
+  overflow: hidden;
+  padding: 5px;
+}
+
+.editorTitle {
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.editorSubTitle {
+  color: $SUB;
+  margin-top: 10px;
+  white-space: pre-line;
+  line-height: 21px;
+}
+
+.buttonContainer {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.selectBox {
+  display: block;
+  margin-right: 10px;
+  width: 100%;
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 10px;
+
+  &:focus {
+    outline: 1px solid $PRIMARY;
+  }
+}
+
+.textArea {
+  min-width: 100%;
+  max-width: 100%;
+
+  min-height: 130px;
+  max-height: 300px;
+
+  border-radius: 10px;
+  border: 2px solid $GRAY;
+  padding: 10px;
+  margin-top: 8px;
+
+  &:focus {
+    outline: 1px solid $PRIMARY;
+  }
+
+  &::placeholder {
+    color: $GRAY;
+  }
+}
+
+// 캐러셀 슬라이드
 .imgSlider {
   display: flex;
   margin-top: 15px;
@@ -52,5 +120,43 @@
 
   &:hover {
     background-color: #1e1e1e;
+  }
+}
+
+// 해시태그
+.hashTags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  width: 100%;
+  border: 2px solid $GRAY;
+  border-radius: 10px;
+  padding: 5px;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.hashTagInput {
+  outline: none;
+  border: none;
+  font-size: 16px;
+  padding: 5px;
+  width: 100%;
+}
+
+.tag {
+  display: inline-flex;
+  flex-direction: row;
+  background: #9747ffab;
+  color: $WHITE;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &::before {
+    content: '#';
+  }
+
+  &:hover {
+    background: #9747ffc9;
   }
 }

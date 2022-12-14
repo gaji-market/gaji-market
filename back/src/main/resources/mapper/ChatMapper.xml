@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.dao.ChatDAO">
+
+    <insert id="insertChatRoom" parameterType="ChatRoomDTO" useGeneratedKeys="true" keyProperty="chatNo">
+        INSERT INTO chat_info
+        (
+            userNo,
+            prodNo,
+            tgUserNo
+        )
+        VALUES
+        (
+            #{userNo},
+            #{prodNo},
+            #{tgUserNo}
+        )
+    </insert>
+
+    <insert id="insertChatMessage" parameterType="java.util.Map">
+        INSERT INTO chat_message
+        (
+            chatNo,
+            message,
+            userNo,
+            regDate,
+            regTime
+        )
+        VALUES
+        (
+            #{chatNo},
+            #{message},
+            #{userNo},
+            DATE_FORMAT(now(), '%Y년 %m월 %d일'),
+            DATE_FORMAT(now(), '%p %h:%i')
+        )
+    </insert>
+
+    <select id="selectChatRoom" parameterType="int" resultType="ChatRoomDTO">
+        SELECT *
+          FROM chat_info
+         WHERE chatNo = #{chatNo}
+    </select>
+
+    <select id="selectChatMessage" parameterType="int" resultType="java.util.List">
+        SELECT *
+          FROM chat_message
+         WHERE chatNo = #{chatNo}
+         ORDER BY regDate, regTime
+    </select>
+
+    <!-- 채팅리스트, 확인하지 않은 내역 존재하는지 확인 (checkYn Count 확인) -->
+    <select id="selectChatRoomList" resultType="java.util.List">
+        SELECT *
+          FROM chat_info
+    </select>
+
+    <update id="updateChatMessageCheck" parameterType="java.util.Map">
+        UPDATE chat_info
+           SET checkYn='Y'
+         WHERE chatNo = ${chatNo}
+    </update>
+</mapper>

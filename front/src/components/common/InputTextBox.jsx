@@ -3,9 +3,15 @@ import styled from 'styled-components';
 import { PRIMARY_COLOR, GRAY_COLOR } from './commonColor';
 
 export default function InputTextBox({
+  inputRef,
   width,
+  title,
   type,
   value,
+  isReadOnly,
+  isDisabled,
+  minLength,
+  maxLength,
   clickHandler,
   id,
   containerBottom,
@@ -18,8 +24,14 @@ export default function InputTextBox({
   return (
     <Container width={width} containerBottom={containerBottom}>
       <Input
+        ref={inputRef}
+        title={title}
+        minLength={minLength}
+        maxLength={maxLength}
         onChange={onChange}
         required={required}
+        readOnly={isReadOnly}
+        disabled={isDisabled}
         id={id}
         width={width}
         type={type}

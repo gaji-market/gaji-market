@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.dao.NotifiDAO">
+
+    <insert id="insertNotification" parameterType="java.util.Map">
+        INSERT INTO notification_info
+        (
+            userNo,
+            gubun,
+            senderUserNo,
+            message,
+            regDate
+        )
+        VALUES
+        (
+            #{userNo},
+            #{gubun},
+            #{senderUserNo},
+            #{message},
+            now()
+        )
+    </insert>
+
+    <select id="selectNotification" parameterType="java.util.Map" resultType="java.util.Map">
+
+    </select>
+
+    <select id="selectNotificationList" parameterType="java.util.Map" resultType="java.util.List">
+        SELECT *
+          FROM notification_info
+         WHERE userNo = #{userNo}
+           AND gubun = #{gubun}
+
+    </select>
+
+    <update id="updateNotification" parameterType="java.util.Map">
+        UPDATE notification_info
+           SET checkYn='Y'
+         WHERE notifiNo = #{notifiNo}
+    </update>
+
+    <select id="selectNotificationCnt" parameterType="java.util.Map" resultType="int">
+        SELECT COUNT(*)
+          FROM ( SELECT *
+                   FROM notification_info
+                  WHERE userNo = #{userNo}
+                    AND gubun = #{gubun}
+                )
+    </select>
+
+    <select id="selectNotificationCheckCnt" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT COUNT(CASE WHEN gubun = 1 THEN 0 END) AS chatCheckCount,
+               COUNT(CASE WHEN gubun = 2 THEN 0 END) AS intstCheckCount
+          FROM notification_info
+         WHERE userNo = #{userNo}
+           AND checkYn = 'N'
+    </select>
+</mapper>

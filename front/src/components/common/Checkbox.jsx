@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { GRAY_COLOR, PRIMARY_COLOR, WHITE_COLOR } from './commonColor';
 
-export default function CheckBox({
+function CheckBox({
   title,
   id,
   width,
+  onChange,
+  isChecked,
   checkBoxWidth,
   checkBoxHeight,
   marginRight,
@@ -13,10 +15,18 @@ export default function CheckBox({
   return (
     <Container marginRight={marginRight} width={width}>
       <Label htmlFor={id}>{title}</Label>
-      <Check width={checkBoxWidth} height={checkBoxHeight} id={id} />
+      <Check
+        onChange={onChange}
+        checked={isChecked}
+        width={checkBoxWidth}
+        height={checkBoxHeight}
+        id={id}
+      />
     </Container>
   );
 }
+
+export default memo(CheckBox);
 
 const Container = styled.div`
   width: ${({ width }) => width};
