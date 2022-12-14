@@ -28,13 +28,14 @@ public interface ProductService {
     void productFileSave(Map<String,Object> param,int prodNo) throws IOException;
 
     //상품 수정
-    void productUpdate(int prodNo, ProductDTO productDTO);
+    void productUpdate(Map<String,Object> param,ProductDTO productDTO,
+                       HttpServletRequest request);
 
     //상품 번호로 업로드한 파일 찾기
     List<String> productFindDBFile(int prodNo);
 
     //DB file 테이블 정보 삭제
-    void productFileDelete(int prodNo);
+    void productFileDelete(int prodNo) throws IOException;
 
     //DB 해시태그 삭제
     void productHashTagDelete(int prodNo);
@@ -58,13 +59,13 @@ public interface ProductService {
     List<Map<String, Object>> findFileInfo(int prodNo);
 
     //좋아요 저장
-    void interestSave(InterestInfoDTO interestInfoDTO);
+    void interestSave(InterestDTO interestInfoDTO);
 
     //좋아요 삭제
     void interestDelete(int prodNo, int userNo);
 
     //좋아요 유무 찾기
-    Integer findInterest(int prodNo, int loginUserNo);
+    Map<String, Object> detailInterest(int prodNo, HttpServletRequest request);
 
     //신고횟수 증가
     void reportCountUp(int prodNo);
@@ -106,11 +107,15 @@ public interface ProductService {
     Map<String, Object> findProductInfoDetail(int prodNo);
 
     //상품 상세보기에서 회원정보 가져오기
-    Map<String, Object> findUserInfo(int userNo);
+    Map<String, Object> findUserInfo(Map<String,Object> param);
 
     //채팅한 사람정보 가져오기
     List<Map<String, Object>> findChatUserInfo(int prodNo);
 
     //판매완료 후 update
     void buyUserUpdate(int userNo,int prodNo);
+
+    //좋아요 버튼 클릭
+    void interestButton(InterestDTO interestInfoDTO,Map<String,Object> param,
+                        HttpServletRequest request);
 }

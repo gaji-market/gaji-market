@@ -3,7 +3,7 @@
 <mapper namespace="project.gajimarket.dao.InterestDAO">
 
     <!-- 좋아요 저장 -->
-    <insert id="interestSave" useGeneratedKeys="true" keyProperty="interestNo" parameterType="project.gajimarket.model.InterestInfoDTO">
+    <insert id="interestSave" useGeneratedKeys="true" keyProperty="interestNo" parameterType="project.gajimarket.model.InterestDTO">
         insert into interest_info (interestNo,prodNo,userNo) values (#{interestNo},#{prodNo},#{userNo});
     </insert>
 

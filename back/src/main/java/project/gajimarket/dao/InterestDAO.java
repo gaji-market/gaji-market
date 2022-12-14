@@ -1,7 +1,7 @@
 package project.gajimarket.dao;
 
 import org.apache.ibatis.annotations.Mapper;
-import project.gajimarket.model.InterestInfoDTO;
+import project.gajimarket.model.InterestDTO;
 
 @Mapper
 public interface InterestDAO {
@@ -10,7 +10,7 @@ public interface InterestDAO {
     int findInterestCnt(int prodNo);
 
     //좋아요 저장
-    void interestSave(InterestInfoDTO interestInfoDTO);
+    void interestSave(InterestDTO interestInfoDTO);
 
     //좋아요 삭제
     void interestDelete(int prodNo, int userNo);
