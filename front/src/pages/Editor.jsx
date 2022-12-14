@@ -93,6 +93,15 @@ export default function Editor() {
     }));
   }, []);
 
+  useEffect(() => {
+    if (formDatas.freeCheck === '1') {
+      setFormDatas((prev) => ({
+        ...prev,
+        prodPrice: 0,
+      }));
+    }
+  }, [formDatas.freeCheck]);
+
   const productPriceRef = useRef(null);
 
   useEffect(() => {
