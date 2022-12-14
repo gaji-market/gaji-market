@@ -33,12 +33,14 @@ export default function Editor() {
     imageFiles: [], // required
     priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
     freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
-    largeCateNo: 0, // required
-    mediumCateNo: 0, // required
-    smallCateNo: 0, // required
+    largeCateNo: 1, // required
+    mediumCateNo: 1, // required
+    smallCateNo: 1, // required
     prodExplain: '', // 상품설명 required
     hashtags: [],
   });
+
+  //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
 
   const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
 
@@ -123,56 +125,71 @@ export default function Editor() {
     }));
   }, []);
 
-  const createPost = useCallback((e) => {
+  const createPost = (e) => {
     e.preventDefault();
+
     if (param === SELL) {
       console.log('상품 판매 등록');
-      createSaleProduct({ ...formDatas, tagName: formDatas.hashtags });
+
+      const formData = new FormData();
+
+      formDatas.imageFiles.forEach((item, idx) => {
+        formData.append(idx, item);
+      });
+
+      let entries = formData.entries();
+
+      const imgs = [];
+
+      for (const pair of entries) {
+        imgs.push(pair);
+      }
+
+      createSaleProduct({
+        ...formDatas,
+        tagName: formDatas.hashtags,
+        imgs,
+      });
+
+      console.log(imgs);
     }
 
     // if(param === BUY){
-    //   console.log('상품 판매 등록');
-    //   createSaleProduct({
-    //     formDatas,
-    //   });
     // }
-  }, []);
+  };
 
   /**
    * 이미지 업로드
    */
 
-  const changeFileUploadHandler = useCallback(
-    ({ target }) => {
-      const fileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-      const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
-      const extension = target.files[0].name.slice(findExtensionsIndex + 1).toLowerCase();
+  const changeFileUploadHandler = ({ target }) => {
+    const fileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
+    const extension = target.files[0].name.slice(findExtensionsIndex + 1).toLowerCase();
 
-      if (!fileExtensions.includes(extension)) {
-        return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
+    if (!fileExtensions.includes(extension)) {
+      return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
+    }
+
+    const imgFiles = []; // 서버 전송 배열
+    const imgUrls = []; // 이미지 슬라이드 배열
+
+    [...target.files].forEach((file) => {
+      const url = URL.createObjectURL(file);
+
+      if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && imgUrls.length < MAX_UPLOAD_COUNT) {
+        imgUrls.push(url);
+        imgFiles.push(file);
       }
+    });
 
-      const imgFiles = []; // 서버 전송 배열
-      const imgUrls = []; // 이미지 슬라이드 배열
+    setImgSlide((prev) => [...prev, ...imgUrls]);
 
-      [...target.files].forEach((file) => {
-        const url = URL.createObjectURL(file);
-
-        if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && imgUrls.length < MAX_UPLOAD_COUNT) {
-          imgUrls.push(url);
-          imgFiles.push(file);
-        }
-      });
-
-      setImgSlide((prev) => [...prev, ...imgUrls]);
-
-      setFormDatas((prev) => ({
-        ...prev,
-        imageFiles: formDatas.imageFiles.concat(imgFiles),
-      }));
-    },
-    [formDatas.imageFiles, imgSlide]
-  );
+    setFormDatas((prev) => ({
+      ...prev,
+      imageFiles: formDatas.imageFiles.concat(imgFiles),
+    }));
+  };
 
   const mouseOverHandler = useCallback(() => {
     setShowImgDeleteBtn(true);
@@ -183,25 +200,22 @@ export default function Editor() {
   }, []);
 
   // TODO
-  const deleteImg = useCallback(
-    (deleteTargetImg, deleteImageIdx) => () => {
-      const imgs = imgSlide.filter((img) => {
-        return img !== deleteTargetImg;
-      });
+  const deleteImg = (deleteTargetImg, deleteImageIdx) => () => {
+    const imgs = imgSlide.filter((img) => {
+      return img !== deleteTargetImg;
+    });
 
-      const serverImgs = formDatas.imageFiles.filter((_, index) => {
-        return index !== deleteImageIdx;
-      });
+    const serverImgs = formDatas.imageFiles.filter((_, index) => {
+      return index !== deleteImageIdx;
+    });
 
-      setImgSlide(imgs);
-      setFormDatas((prev) => ({ ...prev, imageFiles: serverImgs }));
+    setImgSlide(imgs);
+    setFormDatas((prev) => ({ ...prev, imageFiles: serverImgs }));
 
-      if (currentSlideNumber - 1 === imgSlide.length) {
-        setCurrentSlideNumber(0);
-      }
-    },
-    [imgSlide, currentSlideNumber]
-  );
+    if (currentSlideNumber - 1 === imgSlide.length) {
+      setCurrentSlideNumber(0);
+    }
+  };
 
   /**
    * 캐러셀
@@ -312,7 +326,6 @@ export default function Editor() {
           <h2 className='editorTitle'>{formTitle}</h2>
           <h3 className='editorSubTitle'>{subFormTitle}</h3>
         </div>
-
         <div>
           <ImageWrapper>
             {!imgSlide.length && (
@@ -461,7 +474,6 @@ export default function Editor() {
         </div>
 
         <div className='buttonContainer'>
-          //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
           <Button
             formEncType='multipart/form-data'
             type='submit'
