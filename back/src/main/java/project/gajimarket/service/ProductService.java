@@ -2,28 +2,30 @@ package project.gajimarket.service;
 
 import project.gajimarket.model.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 public interface ProductService {
 
     //팔래요 상품 등록
-    void productSellSave(ProductDTO productDTO);
+    void productSellSave(ProductDTO productDTO,Map<String,Object> param,HttpServletRequest request);
 
     //유저 주소 가져오기
     String findUserAddress(int userNo);
 
     //살래요 상품 등록
-    void productBuySave(ProductDTO productDTO);
+    void productBuySave(ProductDTO productDTO,Map<String,Object> param,HttpServletRequest request);
 
     //팔래요, 살래요 상품 삭제
     void productDelete(int prodNo);
 
     //해시태그 저장
-    void productHashTagSave(int prodNo, String hashTag);
+    void productHashTagSave(Map<String,Object> param , int prodNo);
 
     //파일 업로드
-    void productFileSave(String uploadFileName, String dbFilename, int prodNo, String i);
+    void productFileSave(Map<String,Object> param,int prodNo) throws IOException;
 
     //상품 수정
     void productUpdate(int prodNo, ProductDTO productDTO);
@@ -37,11 +39,14 @@ public interface ProductService {
     //DB 해시태그 삭제
     void productHashTagDelete(int prodNo);
 
-    //카테고리 번호 찾기
-    int findCategoryNo(int largeCateNo, int mediumCateNo, int smallCateNo);
-
     //상품 정보 찾기
     Map<String, Object> findProductInfo(int prodNo);
+
+    //전체 카테고리 정보
+    Map<String,Object> categoryInfo();
+
+    //카테고리 번호 찾기
+    int findCategoryNo(Map<String,Object> param);
 
     //카테고리 정보 가져오기
     Map<String, Object> findCategoryInfo(int categoryNo);
@@ -58,20 +63,20 @@ public interface ProductService {
     //좋아요 삭제
     void interestDelete(int prodNo, int userNo);
 
-    //좋아요 찾기
-    InterestInfoDTO findInterest(int prodNo, int userNo);
+    //좋아요 유무 찾기
+    Integer findInterest(int prodNo, int loginUserNo);
 
     //신고횟수 증가
     void reportCountUp(int prodNo);
 
     //별점 정보 저장
-    void productScoreSave(ScoreInfoDTO scoreInfoDTO);
+    void productScoreSave(ScoreDTO scoreDTO);
 
     //상품 번호로 회원번호 찾기
     int findUserNo(int prodNo);
 
     //세션값으로 회원 번호 가져오기
-    int findSessionUser(Object findSession);
+    int findSessionUser(HttpServletRequest request);
 
     //상품 가격 가져오기
     int findProductPrice(int prodNo);
@@ -83,7 +88,7 @@ public interface ProductService {
     void viewCntUpdate(int prodNo);
 
     //좋아요 갯수 가져오기
-    Map<String, Object> findInterestCnt(int prodNo);
+    int findInterestCnt(int prodNo);
 
     //팔래요 최신순 전체보기
     List<Map<String, Object>> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
@@ -96,9 +101,6 @@ public interface ProductService {
 
     //상품번호로 카테고리 번호 찾기
     int findProdNoByCategoryNo(int prodNo);
-
-    //전체 카테고리 정보
-    List<Map<String, Object>> categoryInfo();
 
     //상세보기 상품 가져오기
     Map<String, Object> findProductInfoDetail(int prodNo);

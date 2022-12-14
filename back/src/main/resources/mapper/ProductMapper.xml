@@ -11,11 +11,6 @@
         #{prodExplain},now(),null,default,default,'0',0,'0',null,null,#{address});
     </insert>
 
-    <!-- 팔래요,살래요 상품 등록할때 회원 주소 가져오기 -->
-    <select id="findUserAddress" parameterType="int" resultType="String">
-        select address from user_info where no = #{userNo}
-    </select>
-
     <!-- 살래요 상품 등록 -->
     <insert id="productBuySave" parameterType="project.gajimarket.model.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
         insert into product_info (prodNo,userNo,categoryNo,prodName,prodPrice,
@@ -30,40 +25,10 @@
         update product_info set delYn = 'Y' where prodNo = #{param};
     </update>
 
-    <!-- 해시태그 저장 -->
-    <insert id="productHashTagSave">
-        insert into hash_tag (prodNo,tagName) values (#{param1},#{param2});
-    </insert>
-
-    <!-- 파일 저장 -->
-    <insert id="productFileSave">
-        insert into file (no,gubun,fileOrder,uploadFileName,dbFileName) values (#{param3},'2',#{param4},#{param1},#{param2})
-    </insert>
-
     <!-- 상품 수정 -->
     <update id="productUpdate">
         update product_info set categoryNo=#{dto.categoryNo},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address} where prodNo=#{param1};
     </update>
-
-    <!-- 상품번호로 저장된 이미지 파일 찾기 -->
-    <select id="productFindDBFile" parameterType="int" resultType="String">
-        select dbFileName from file where no=#{prodNo} and gubun='2';
-    </select>
-
-    <!-- DB 이미지파일 삭제 -->
-    <delete id="productFileDelete" parameterType="int">
-        delete from file where no=#{param1} and gubun='2';
-    </delete>
-
-    <!-- 카테고리 번호 찾기 -->
-    <select id="findCategoryNo" resultType="int">
-        select categoryNo from category_info where LargeCateNo=#{param1} and MediumCateNo=#{param2} and SmallCateNo=#{param3};
-    </select>
-
-    <!-- 해시태그 삭제 -->
-    <delete id="productHashTagDelete" parameterType="int">
-        delete from hash_tag where prodNo=#{param1};
-    </delete>
 
     <!-- 상품 정보 찾기 -->
     <select id="findProductInfo" parameterType="int" resultType="map">
@@ -72,59 +37,14 @@
         where prodNo=#{prodNo};
     </select>
 
-    <!-- 카테고리 정보 찾기 -->
-    <select id="findCategoryInfo" parameterType="int" resultType="map">
-        select largeCateNo,largeCateName,mediumCateNo,mediumCateName,smallCateNo,smallCateName
-        from category_info
-        where categoryNo=#{categoryNo};
-    </select>
-
-    <!-- 해시태그 정보 찾기 -->
-    <select id="findHashTag" parameterType="int" resultType="map">
-        select tagName from hash_tag where prodNo=#{prodNo};
-    </select>
-
-    <!-- DB파일 이름 찾기 -->
-    <select id="findFileInfo" parameterType="int" resultType="map">
-        select fileOrder,dbFileName
-        from file
-        where no=#{prodNo} and gubun='2';
-    </select>
-
-    <!-- 좋아요 저장 -->
-    <insert id="interestSave" useGeneratedKeys="true" keyProperty="interestNo" parameterType="project.gajimarket.model.InterestInfoDTO">
-        insert into interest_info (interestNo,prodNo,userNo) values (#{interestNo},#{prodNo},#{userNo});
-    </insert>
-
-    <!-- 좋아요 삭제 -->
-    <delete id="interestDelete">
-        delete from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
-    </delete>
-
-    <!-- 좋아요 찾기 -->
-    <select id="findInterest" resultType="project.gajimarket.model.InterestInfoDTO">
-        select * from interest_info where prodNo=#{prodNo} and userNo=#{userNo};
-    </select>
-
     <!-- 신고 횟수 증가 -->
     <update id="reportCountUp" parameterType="int">
         update product_info set reportCnt = reportCnt + 1 where prodNo=#{prodNo};
     </update>
 
-    <!-- 별점 정보 저장 -->
-    <insert id="productScoreSave" parameterType="project.gajimarket.model.ScoreInfoDTO">
-        insert into score_info (userNo,prodNo,score1,tag1,score2,tag2,score3,tag3,tradeReview)
-        values (#{userNo},#{prodNo},#{score1},#{tag1},#{score2},#{tag2},#{score3},#{tag3},#{tradeReview});
-    </insert>
-
     <!-- 상품 번호로 회원번호 찾기 -->
     <select id="findUserNo" parameterType="int" resultType="int">
         select userNo from product_info where prodNo = #{prodNo};
-    </select>
-
-    <!-- 세션 값으로 회원번호 찾기 -->
-    <select id="findSessionUser" resultType="int">
-        select no from user_info where id=#{param1};
     </select>
 
     <!-- 상품 가격 가져오기 -->
@@ -142,13 +62,9 @@
         update product_info set viewCnt = viewCnt + 1 where prodNo=#{prodNo};
     </update>
 
-    <!-- 좋아요 갯수 가져오기 -->
-    <select id="findInterestCnt" parameterType="int" resultType="map">
-        select count(*) as 'interestCnt' from interest_info where prodNo=#{prodNo};
-    </select>
-
+    <!-- 상세화면 파일 정보 -->
     <select id="findProductInfoDetail" resultType="map" parameterType="int">
-        select prodName,prodPrice,priceOffer,freeCheck,prodExplain,regDt,tradState,viewCnt,address
+        select prodName,prodPrice,priceOffer,freeCheck,prodExplain,regDt,tradState,viewCnt,address,reportCnt
         from product_info
         where prodNo=#{prodNo};
     </select>
@@ -162,6 +78,11 @@
     <select id="findProdNoByCategoryNo" parameterType="int" resultType="int">
         select categoryNo from product_info where prodNo=#{prodNo};
     </select>
+
+    <!-- 판매완료 후 update -->
+    <update id="buyUserUpdate">
+        update product_info set tradState='3', buyUserNo=#{userNo} where prodNo=#{prodNo};
+    </update>
 
     <!-- 팔래요 최신순 전체보기 -->
     <select id="findSellAll" resultType="map">
@@ -279,11 +200,6 @@
                 </if>
     </select>
 
-    <!-- 카테고리 전체 정보 보기 -->
-    <select id="categoryInfo" resultType="map">
-        select * from category_info;
-    </select>
-
     <!-- 상세보기에서 유저 정보 찾기 -->
     <select id="findUserInfo" resultType="map" parameterType="int">
         select nickname,address,dbFileName
@@ -304,8 +220,14 @@
         where f.gubun='1' and c.prodNo=#{prodNo};
     </select>
 
-    <!-- 판매완료 후 update -->
-    <update id="buyUserUpdate">
-        update product_info set tradState='3', buyUserNo=#{userNo} where prodNo=#{prodNo};
-    </update>
+    <!-- 팔래요,살래요 상품 등록할때 회원 주소 가져오기 -->
+    <select id="findUserAddress" parameterType="int" resultType="String">
+        select address from user_info where no = #{userNo}
+    </select>
+
+    <!-- 세션 값으로 회원번호 찾기 -->
+    <select id="findSessionUser" resultType="int">
+        select no from user_info where id=#{param1};
+    </select>
+
 </mapper>

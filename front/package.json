@@ -8,6 +8,7 @@
       ".localhost"
     ],
     "proxy": "http://114.201.230.148:8080"
+
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.6",
