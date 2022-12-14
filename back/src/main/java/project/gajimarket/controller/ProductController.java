@@ -6,14 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.*;
-import project.gajimarket.model.file.FileForm;
-import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
@@ -29,6 +26,11 @@ public class ProductController {
     private final ProductService productService;
     private final FileService fileService;
 
+    @PostMapping(value = "/file")
+    public void file(@RequestPart List<MultipartFile> imageFiles){
+        log.info("imageFiles={}",imageFiles);
+    }
+
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
     public Map<String,Object> categoryInfo(){
@@ -37,8 +39,10 @@ public class ProductController {
 
     //팔래요 상품 등록 처리
     @PostMapping("/sellSave")
-    public void sellSave(@RequestBody Map<String,Object> param,ProductDTO productDTO,HttpServletRequest request) throws IOException {
+    public void sellSave(@RequestBody(required = false) Map<String,Object> param, @RequestPart(required = false) List<MultipartFile> imageFiles,
+                         ProductDTO productDTO,HttpServletRequest request) throws IOException {
 
+        log.info("imageFiles={}",imageFiles);
         log.info("param={}",param);
 
         //팔래요 상품 등록
@@ -48,6 +52,7 @@ public class ProductController {
         //해시태그 저장
         productService.productHashTagSave(param,productDTO.getProdNo());
 
+        //넘어오면 imageFiles를 넣어줘야댐
         //파일저장
         productService.productFileSave(param,productDTO.getProdNo());
 
@@ -71,8 +76,10 @@ public class ProductController {
     }
 
     //수정버튼클릭시 이미 입력된 내용 보여주기
-    @GetMapping("/{prodNo}/beforeUpdate")
-    public Map<String, Object> productBeforeUpdate(@PathVariable int prodNo){
+    @GetMapping("beforeUpdate")
+    public Map<String, Object> productBeforeUpdate(@RequestBody Map<String,Object> param){
+
+        int prodNo = (int) param.get("prodNo");
 
         Map<String,Object> result = new LinkedHashMap<>();
 
@@ -98,78 +105,44 @@ public class ProductController {
     }
 
     //수정 (이미지, 제목, 가격, 가격제안, 무료나눔, 카테고리, 내용, 해시태그)
-    @PostMapping("/{prodNo}/update")
-    public void productUpdate(@PathVariable int prodNo,@RequestBody Map<String,Object> param,
+    @PostMapping("/update")
+    public void productUpdate(@RequestBody Map<String,Object> param,
                               HttpServletRequest request,ProductDTO productDTO) throws IOException {
 
-        //카테고리 수정
-        //들어온 값으로 category 번호를 찾아야함
-        int findCategoryNo = productService.findCategoryNo(param);
-        productDTO.setCategoryNo(findCategoryNo);
-
-        int findUserNo = productService.findSessionUser(request);
-
-        //상품 수정하는 유저의 주소 가져오기(주소가 바꼇을수도 있어서 다시 찾아서 넣어줘야함)
-        String findAddress = productService.findUserAddress(findUserNo);
-        productDTO.setAddress(findAddress);
-
-        productService.productUpdate(prodNo,productDTO);
-        //상태가 거래중, 거래완료 일때는 다른 글들은 수정불가능하다..
+        int prodNo = (int) param.get("prodNo");
+        productService.productUpdate(param,productDTO,request);
 
         //이미지 수정
-        //저장된 파일이름 가져오기
-        List<String> findDBFile = productService.productFindDBFile(prodNo);
-        //지정한 경로에 저장된 이미지 삭제
-        fileService.fileDelete(findDBFile);
         //DB정보도 삭제해야됨
         productService.productFileDelete(prodNo);
-
         //파일저장
-        productService.productFileSave(param,productDTO.getProdNo());
+        productService.productFileSave(param,prodNo);
 
         //해시태그 수정
-        //prodNo로 먼저 있던 해시태그 삭제
+        //해시태그 삭제
         productService.productHashTagDelete(prodNo);
-
         //다시 처음부터 해시태그 등록
         productService.productHashTagSave(param,prodNo);
 
     }
 
     //팔래요, 살래요 삭제
-    @PostMapping("/{prodNo}/delete")
-    public void productDelete (@PathVariable int prodNo){
+    @PostMapping("/delete")
+    public void productDelete (@RequestBody Map<String,Object> param){
+        int prodNo = (int) param.get("prodNo");
         productService.productDelete(prodNo);
         //Y로만 바꾸고 나머지 데이터도 남겨둔다
     }
 
     //좋아요 버튼 눌렀을때
-    @PostMapping("/{prodNo}/interest")
-    public Map<String,Object> productInterest(@PathVariable int prodNo,InterestInfoDTO interestInfoDTO,HttpServletRequest request){
+    @PostMapping("/interest")
+    public Map<String,Object> productInterest(@RequestBody Map<String,Object> param, InterestDTO interestInfoDTO, HttpServletRequest request){
 
-        interestInfoDTO.setProdNo(prodNo);
-
-        int userNo = productService.findSessionUser(request);
-
-        interestInfoDTO.setUserNo(userNo);
-
-        Integer interestYN = productService.findInterest(prodNo,userNo);
-        if (interestYN==null){
-            productService.interestSave(interestInfoDTO);
-        }else {
-            productService.interestDelete(prodNo,userNo);
-        }
+        productService.interestButton(interestInfoDTO,param,request);
 
         Map<String,Object> result = new LinkedHashMap<>();
-        Map<String,Object> interestInfo = new LinkedHashMap<>();
-
         //다시 찾아서 보내줘야하나 일단 만들어놓음
-        Integer interest = productService.findInterest(prodNo, userNo);
-        if (interest==null){
-            interestInfo.put("interestYN",null);
-        }else {
-            interestInfo.put("interestYN",interestInfo);
-        }
+        Map<String, Object> interestInfo = productService.detailInterest(interestInfoDTO.getProdNo(), request);
         result.put("interestInfo",interestInfo);
         return result;
     }
@@ -211,8 +184,9 @@ public class ProductController {
     }
 
     //신고 버튼 눌렀을때
-    @PostMapping("/{prodNo}/report")
-    public void productReport(@PathVariable int prodNo){
+    @PostMapping("/report")
+    public void productReport(@RequestBody Map<String,Object> param){
+        int prodNo = (int) param.get("prodNo");
         productService.reportCountUp(prodNo);
     }
 
@@ -237,33 +211,21 @@ public class ProductController {
     }
 
     //상세보기
-    @GetMapping("/{prodNo}")
-    public Map<String, Object> productDetail(@PathVariable int prodNo,HttpServletRequest request){
+    @GetMapping("/detail")
+    public Map<String, Object> productDetail(@RequestBody Map<String,Object> param,HttpServletRequest request){
+
+        int prodNo = (int) param.get("prodNo");
 
         Map<String,Object> result = new LinkedHashMap<>();
 
         //회원 정보 가져오기(닉네임,주소,프로필 사진 이미지)
-        int userNo = productService.findUserNo(prodNo);
-        Map<String,Object> findUserInfo = productService.findUserInfo(userNo);
+        Map<String,Object> findUserInfo = productService.findUserInfo(param);
         result.put("userInfo",findUserInfo);
 
         //조회수 1증가
         productService.viewCntUpdate(prodNo);
 
-        //좋아요 유무
-        int loginUserNo = productService.findSessionUser(request);
-
-        Map<String,Object> interestInfo = new LinkedHashMap<>();
-        Integer interestYN = productService.findInterest(prodNo,loginUserNo);
-        if (interestYN==null){
-            interestInfo.put("interestYN",null);
-        }else {
-            interestInfo.put("interestYN",interestYN);
-        }
-        //좋아요 갯수 가져오기
-        int interestCnt = productService.findInterestCnt(prodNo);
-        interestInfo.put("interestCnt",interestCnt);
-
+        Map<String,Object> interestInfo = productService.detailInterest(prodNo, request);
         result.put("interestInfo",interestInfo);
 
         //prodNo로 보여줄 내용 찾기

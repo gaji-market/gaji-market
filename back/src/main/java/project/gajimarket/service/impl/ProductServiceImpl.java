@@ -99,7 +99,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productUpdate(int prodNo, ProductDTO productDTO) {
+    public void productUpdate(Map<String,Object> param,ProductDTO productDTO,
+                              HttpServletRequest request) {
+        int categoryNo = findCategoryNo(param);
+        productDTO.setCategoryNo(categoryNo);
+        //int userNo = findSessionUser(request);
+        int userNo =1;
+        productDTO.setUserNo(userNo);//테스트 유저번호
+        String address = findUserAddress(userNo);//테스트 유저번호
+        productDTO.setAddress(address);
+
+        int prodNo = (int) param.get("prodNo");
+
+        productDTO.setProdName((String) param.get("prodName"));
+        productDTO.setProdPrice((Integer) param.get("prodPrice"));
+        productDTO.setProdExplain((String) param.get("prodExplain"));
+        productDTO.setFreeCheck((String) param.get("freeCheck"));
+        productDTO.setPriceOffer((String) param.get("priceOffer"));
+        productDTO.setTradState((String) param.get("tradState"));
         productDAO.productUpdate(prodNo,productDTO);
     }
 
@@ -109,7 +126,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void productFileDelete(int prodNo) {
+    public void productFileDelete(int prodNo) throws IOException {
+        List<String> findDBFile = productFindDBFile(prodNo);
+        fileService.fileDelete(findDBFile);
         fileDAO.productFileDelete(prodNo);
     }
 
@@ -156,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void interestSave(InterestInfoDTO interestInfoDTO) {
+    public void interestSave(InterestDTO interestInfoDTO) {
         interestDAO.interestSave(interestInfoDTO);
     }
 
@@ -166,8 +185,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Integer findInterest(int prodNo, int loginUserNo) {
-        return interestDAO.findInterest(prodNo,loginUserNo);
+    public Map<String, Object> detailInterest(int prodNo, HttpServletRequest request) {
+        //int loginUserNo = findSessionUser(request);
+        int loginUserNo =1;//테스트
+        Map<String,Object> interestInfo = new LinkedHashMap<>();
+
+        Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
+        if (interestYN==null){
+            interestInfo.put("interestYN",null);
+        }else {
+            interestInfo.put("interestYN",interestYN);
+        }
+        //좋아요 갯수 가져오기
+        int interestCnt = findInterestCnt(prodNo);
+        interestInfo.put("interestCnt",interestCnt);
+
+        return interestInfo;
     }
 
     @Override
@@ -238,7 +271,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Map<String, Object> findUserInfo(int userNo) {
+    public Map<String, Object> findUserInfo(Map<String,Object> param) {
+        int prodNo = (int) param.get("prodNo");
+        int userNo = findUserNo(prodNo);
         return productDAO.findUserInfo(userNo);
     }
 
@@ -250,5 +285,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void buyUserUpdate(int userNo, int prodNo) {
         productDAO.buyUserUpdate(userNo,prodNo);
+    }
+
+    @Override
+    public void interestButton(InterestDTO interestInfoDTO,Map<String,Object> param,
+                               HttpServletRequest request) {
+        int prodNo = (int) param.get("prodNo");
+        interestInfoDTO.setProdNo(prodNo);
+        int userNo = findSessionUser(request);
+        interestInfoDTO.setUserNo(userNo);
+        Integer interestYN = interestDAO.findInterest(interestInfoDTO.getProdNo(), interestInfoDTO.getUserNo());
+        if (interestYN==null){
+            interestDAO.interestSave(interestInfoDTO);
+        }else {
+            interestDAO.interestDelete(interestInfoDTO.getProdNo(), interestInfoDTO.getUserNo());
+        }
     }
 }
