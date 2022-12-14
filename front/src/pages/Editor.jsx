@@ -57,8 +57,6 @@ export default function Editor() {
   const imgSliderRef = useRef(null);
   const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
 
-  console.log(formDatas);
-
   const { type: param } = useParams();
 
   useEffect(() => {
@@ -309,7 +307,7 @@ export default function Editor() {
 
   return (
     <div className='container'>
-      <form encType='multipart/form-data' className='form'>
+      <form className='form'>
         <div className='contentHeader'>
           <h2 className='editorTitle'>{formTitle}</h2>
           <h3 className='editorSubTitle'>{subFormTitle}</h3>
@@ -463,7 +461,13 @@ export default function Editor() {
         </div>
 
         <div className='buttonContainer'>
-          <Button type='submit' onClick={createPost} customSize='50%'>
+          //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
+          <Button
+            formEncType='multipart/form-data'
+            type='submit'
+            onClick={createPost}
+            customSize='50%'
+          >
             등록하기
           </Button>
           <Button customSize='50%' isOutline>

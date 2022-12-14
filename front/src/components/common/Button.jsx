@@ -14,6 +14,7 @@ export default function Button({
   isOutline,
   isDisabled,
   onClick,
+  formEncType,
   type = 'button',
   size = 'md',
   isDarkColor = false,
@@ -27,6 +28,7 @@ export default function Button({
       isDarkColor={isDarkColor}
       disabled={isDisabled}
       onClick={onClick}
+      formEncType={formEncType}
     >
       {children}
     </ButtonStyles>
