@@ -4,7 +4,6 @@ import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
 import {
   Home,
   Login,
-  Test,
   SliceTest,
   SignUp,
   ProductView,
@@ -12,6 +11,8 @@ import {
   Editor,
   Error,
   MyPage,
+  Test,
+  FileTest,
 } from 'pages';
 
 export default function index() {
@@ -21,6 +22,7 @@ export default function index() {
         <Route index element={<Home />} />
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
+        <Route path='/file' element={<FileTest />} />
 
         <Route path='/write' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />
@@ -39,6 +41,7 @@ export default function index() {
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<SignUp />} />
       </Route>
+
       <Route path='*' element={<Error />} />
     </Routes>
   );

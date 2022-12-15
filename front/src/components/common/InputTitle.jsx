@@ -1,14 +1,9 @@
 import React from 'react';
+import { memo } from 'react';
 import styled from 'styled-components';
 import { PRIMARY_COLOR } from './commonColor';
 
-export default function InputTitle({
-  title,
-  subTitle,
-  isVaild,
-  signUpSubTitle,
-  isRequired = false,
-}) {
+function InputTitle({ title, subTitle, isVaild, signUpSubTitle, isRequired = false }) {
   return (
     <>
       {isRequired && <Asterisk>*</Asterisk>}
@@ -24,6 +19,9 @@ export default function InputTitle({
     </>
   );
 }
+
+export default memo(InputTitle);
+
 const Asterisk = styled.span`
   font-weight: 900;
   margin-right: 10px;

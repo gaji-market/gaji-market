@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.gajimarket.dao.ScoreDAO">
+
+    <!-- 별점 정보 저장 -->
+    <insert id="productScoreSave" parameterType="project.gajimarket.model.ScoreDTO">
+        insert into score_info (userNo,prodNo,score1,tag1,score2,tag2,score3,tag3,tradeReview)
+        values (#{userNo},#{prodNo},#{score1},#{tag1},#{score2},#{tag2},#{score3},#{tag3},#{tradeReview});
+    </insert>
+
+</mapper>
