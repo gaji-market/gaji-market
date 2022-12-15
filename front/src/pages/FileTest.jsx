@@ -23,13 +23,26 @@ export default function FileTest() {
   // onChange
   const uploadHandler = (e) => {
     const imageList = [];
+    console.log(e.target.files);
+    [...e.target.files].forEach((file) => {
+      imageList.push(file);
+    });
+    console.log(imageList);
+    setImg(imageList);
   };
 
   // submit
   const submitFiles = (e) => {
     e.preventDefault();
+    console.log(img);
 
     const formData = new FormData();
+
+    img.forEach((i) => {
+      formData.append('imageFiles', i);
+    });
+
+    postFile(formData);
   };
 
   return (

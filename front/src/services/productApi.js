@@ -18,11 +18,6 @@ export const productApi = createApi({
       query: (product) => ({
         url: '/sellSave',
         method: 'POST',
-        headers: {
-          // 'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'multipart/form-data',
-        },
-        credentials: 'include',
         body: product,
       }),
     }),
