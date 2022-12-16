@@ -46,8 +46,6 @@ public interface ProductDAO {
     //조회수 증가
     void viewCntUpdate(int prodNo);
 
-
-
     //팔래요 최신순 전체보기
     List<Map<String,Object>> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
 
