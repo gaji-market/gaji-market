@@ -16,13 +16,8 @@ export const productApi = createApi({
     }),
     createSaleProduct: builder.mutation({
       query: (product) => ({
-        url: '/file',
+        url: '/sellSave',
         method: 'POST',
-        headers: {
-          // 'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'multipart/form-data',
-        },
-        credentials: 'include',
         body: product,
       }),
     }),
@@ -42,4 +37,6 @@ export const {
   useGetCategoryQuery,
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
+
+  useTestFileMutation,
 } = productApi;

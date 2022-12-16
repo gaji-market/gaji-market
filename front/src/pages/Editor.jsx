@@ -132,24 +132,14 @@ export default function Editor() {
       console.log('상품 판매 등록');
 
       const formData = new FormData();
-
-      formDatas.imageFiles.forEach((item, idx) => {
-        formData.append(idx, item);
+      formDatas.imageFiles.forEach((item) => {
+        formData.append('imageFiles', item);
       });
 
-      let entries = formData.entries();
-
+      formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
       const imgs = [];
-
-      for (const pair of entries) {
-        imgs.push(pair);
-      }
-
-      createSaleProduct({
-        ...formDatas,
-        tagName: formDatas.hashtags,
-        imgs,
-      });
+      formDatas.imageFiles = formData;
+      createSaleProduct(formData);
 
       console.log(imgs);
     }
