@@ -28,19 +28,6 @@ export const productApi = createApi({
         body: product,
       }),
     }),
-
-    // 파일 테스트용
-    testFile: builder.mutation({
-      query: (product) => ({
-        url: '/file',
-        method: 'POST',
-        body: product,
-        // headers: {
-        //   'Content-Type': 'multipart/form-data',
-        // },
-        credentials: 'include',
-      }),
-    }),
   }),
 });
 
