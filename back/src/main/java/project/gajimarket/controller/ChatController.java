@@ -1,15 +1,16 @@
 package project.gajimarket.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.ProductDTO;
+import project.gajimarket.model.SearchPagination;
 import project.gajimarket.service.ChatService;
 import project.gajimarket.service.ProductService;
 
@@ -60,9 +61,10 @@ public class ChatController {
         return resultMap;
     }
 
-    @GetMapping("/getChatRoomList")
-    public Map<String, Object> getChatRoomList( int userNo) {
+    @PostMapping("/getChatRoomList/{userNo}")
+    public Map<String, Object> getChatRoomList(@PathVariable int userNo, @RequestBody SearchPagination searchPagination) {
         Map<String, Object> resultMap = new HashMap<>();
+
         resultMap.put("chatRoomInfos", chatService.getChatRoomList());
 
         return resultMap;
@@ -89,7 +91,25 @@ public class ChatController {
     */
 
     //상품정보 공통 처리
-    private ProductDTO getProduct(int productNo) {
+    private Map<String, Object> getProduct(int productNo) {
         return productService.findProductInfo(productNo);
+    }
+
+    @PostMapping("/multiTest")
+    public int multiTest(@RequestBody ObjectNode objectNode) {
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ChatRoomDTO chatRoomDTO = objectMapper.treeToValue(objectNode.get("chatRoomInfo"), ChatRoomDTO.class);
+            SearchPagination searchPagination = objectMapper.treeToValue(objectNode.get("searchPagination"), SearchPagination.class);
+
+            log.info(chatRoomDTO.toString());
+            log.info(searchPagination.toString());
+
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+
+        return 1;
     }
 }
