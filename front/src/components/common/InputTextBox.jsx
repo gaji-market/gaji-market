@@ -20,7 +20,6 @@ export default function InputTextBox({
   onChange,
   placeholder,
   placeholderPosition = 'left',
-  isReadOnly = false,
 }) {
   return (
     <Container width={width} containerBottom={containerBottom}>
@@ -41,7 +40,6 @@ export default function InputTextBox({
         placeholder={placeholder}
         placeholderPosition={placeholderPosition}
         onClick={clickHandler}
-        readOnly={isReadOnly}
       />
     </Container>
   );
