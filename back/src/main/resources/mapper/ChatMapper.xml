@@ -3,14 +3,12 @@
 <mapper namespace="project.gajimarket.dao.ChatDAO">
 
     <insert id="insertChatRoom" parameterType="ChatRoomDTO" useGeneratedKeys="true" keyProperty="chatNo">
-        INSERT INTO chat_info
-        (
+        INSERT INTO chat_info (
             userNo,
             prodNo,
             tgUserNo
         )
-        VALUES
-        (
+        VALUES (
             #{userNo},
             #{prodNo},
             #{tgUserNo}
@@ -18,21 +16,19 @@
     </insert>
 
     <insert id="insertChatMessage" parameterType="java.util.Map">
-        INSERT INTO chat_message
-        (
+        INSERT INTO chat_message (
             chatNo,
             message,
             userNo,
             regDate,
             regTime
         )
-        VALUES
-        (
+        VALUES (
             #{chatNo},
             #{message},
             #{userNo},
-            DATE_FORMAT(now(), '%Y년 %m월 %d일'),
-            DATE_FORMAT(now(), '%p %h:%i')
+            DATE_FORMAT(now(), '%Y-%m-%d'),
+            DATE_FORMAT(now(), '%H:%i:%s')
         )
     </insert>
 
@@ -43,10 +39,14 @@
     </select>
 
     <select id="selectChatMessage" parameterType="int" resultType="java.util.List">
-        SELECT *
+        SELECT CASE WHEN delYn = 'Y' THEN '삭제된 메시지' ELSE message END AS message,
+               checkYn,
+               userNo,
+               DATE_FORMAT(regDate, '%Y년 %m월 %d일'),
+               DATE_FORMAT(regTime, '%p %h:%i')
           FROM chat_message
          WHERE chatNo = #{chatNo}
-         ORDER BY regDate, regTime
+         ORDER BY regDate DESC, regTime DESC
     </select>
 
     <!-- 채팅리스트, 확인하지 않은 내역 존재하는지 확인 (checkYn Count 확인) -->
@@ -58,6 +58,7 @@
     <update id="updateChatMessageCheck" parameterType="java.util.Map">
         UPDATE chat_info
            SET checkYn='Y'
-         WHERE chatNo = ${chatNo}
+         WHERE chatNo = #{chatNo}
+           AND userNo <![CDATA[<>]]> #{userNo}
     </update>
 </mapper>

@@ -3,16 +3,14 @@
 <mapper namespace="project.gajimarket.dao.NotifiDAO">
 
     <insert id="insertNotification" parameterType="java.util.Map">
-        INSERT INTO notification_info
-        (
+        INSERT INTO notification_info (
             userNo,
             gubun,
             senderUserNo,
             message,
             regDate
         )
-        VALUES
-        (
+        VALUES (
             #{userNo},
             #{gubun},
             #{senderUserNo},

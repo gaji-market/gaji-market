@@ -1,20 +1,16 @@
 package project.gajimarket.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 import project.gajimarket.Utils;
 import project.gajimarket.dao.ChatDAO;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.service.ChatService;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,10 +21,9 @@ public class ChatServiceImpl implements ChatService {
     //private Map<String, ChatRoom> chatRooms;
 
     public Map<String, Object> addChatRoom(ChatRoomDTO chatRoomDTO) {
-        Map<String, Object> resultMap = new HashMap<>();
-
         int result = chatDAO.insertChatRoom(chatRoomDTO);
 
+        Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("result", Utils.resultMsg(result));
         resultMap.put("chatInfo", chatRoomDTO);
 
@@ -48,18 +43,33 @@ public class ChatServiceImpl implements ChatService {
         //return chatDAO.selectChatRoomList(1);
     }
 
-    public Map<String, Object> getChatRoom(int chatNo) {
+    public Map<String, Object> getChatRoom(Map<String, Object> map) {
         Map<String, Object> resultMap = new HashMap<>();
 
-        resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(chatNo));
-        resultMap.put("chatMessageInfos", getChatMessage(chatNo));
+        resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(map));
+        resultMap.put("chatMessageInfos", chatDAO.selectChatMessage(map));
+
+        if (resultMap.get("chatMessageInfos") != null) {
+            chatDAO.updateChatMessageCheck(map);
+        }
 
         return resultMap;
     }
 
-    public List<Map<String, Object>> getChatMessage(int chatNo) {
-        return chatDAO.selectChatMessage(chatNo);
+    @Override
+    public Map<String, Object> removeChatRoom(Map<String, Object> map) {
+        int result = chatDAO.deleteChatRoom(map);
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("result", Utils.resultMsg(result));
+
+        return resultMap;
     }
+
+
+//    public List<Map<String, Object>> getChatMessage(Map<String, Object> map) {
+//        return chatDAO.selectChatMessage(map);
+//    }
 
 //    public <T> void sendMessage(WebSocketSession session, T message) {
 //        try{

@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.ChatRoomDTO;
@@ -13,8 +11,8 @@ import project.gajimarket.model.ProductDTO;
 import project.gajimarket.service.ChatService;
 import project.gajimarket.service.ProductService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -46,7 +44,11 @@ public class ChatController {
 
     @GetMapping("/getChatRoom/{chatNo}")
     public Map<String, Object> getChatRoom(@PathVariable int chatNo) {
-        Map<String, Object> resultMap = chatService.getChatRoom(chatNo);
+        Map<String, Object> map = new HashMap<>();
+        map.put("chatNo", chatNo);
+        map.put("userNo", 2); //session
+
+        Map<String, Object> resultMap = chatService.getChatRoom(map);
 
         try {
             ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
@@ -61,11 +63,17 @@ public class ChatController {
     }
 
     @GetMapping("/getChatRoomList")
-    public Map<String, Object> getChatRoomList( int userNo) {
+    public Map<String, Object> getChatRoomList(HttpServletRequest request) {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("chatRoomInfos", chatService.getChatRoomList());
 
         return resultMap;
+    }
+
+    @GetMapping("/chatTest/{chatNo}")
+    public String chatTest(@PathVariable String chatNo) {
+
+        return chatNo;
     }
 
     @MessageMapping //목적지가 path와 일치하는 메시지를 수신하였을 경우 해당 메소드 호출
@@ -89,7 +97,7 @@ public class ChatController {
     */
 
     //상품정보 공통 처리
-    private ProductDTO getProduct(int productNo) {
+    private Map<String, Object> getProduct(int productNo) {
         return productService.findProductInfo(productNo);
     }
 }

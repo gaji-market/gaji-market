@@ -12,11 +12,13 @@ public interface ChatDAO {
 
     int insertChatMessage(Map<String, Object> map);
 
-    ChatRoomDTO selectChatRoom(int chatNo);
+    ChatRoomDTO selectChatRoom(Map<String, Object> map);
 
-    List<Map<String, Object>> selectChatMessage(int chatNo);
+    List<Map<String, Object>> selectChatMessage(Map<String, Object> map);
 
     List<ChatRoomDTO> selectChatRoomList(int userNo);
 
     int updateChatMessageCheck(Map<String, Object> map);
+
+    int deleteChatRoom(Map<String, Object> map);
 }

@@ -1,6 +1,5 @@
 package project.gajimarket.service;
 
-import org.springframework.web.socket.WebSocketSession;
 import project.gajimarket.model.ChatRoomDTO;
 
 import java.util.List;
@@ -14,9 +13,11 @@ public interface ChatService {
 
     List<ChatRoomDTO> getChatRoomList();
 
-    Map<String, Object> getChatRoom(int chatNo);
+    Map<String, Object> getChatRoom(Map<String, Object> map);
 
-    List<Map<String, Object>> getChatMessage(int chatNo);
+    Map<String, Object> removeChatRoom(Map<String, Object> map);
+
+   // List<Map<String, Object>> getChatMessage(Map<String, Object> map);
 
    // <T> void sendMessage(WebSocketSession session, T message);
 }
