@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { PRIMARY_COLOR } from './commonColor';
-
+const PATH_D =
+  'M9,2l2.163,4.279L16,6.969,12.5,10.3l.826,4.7L9,12.779,4.674,15,5.5,10.3,2,6.969l4.837-.69Z';
 function StarRate({ vote_average, width, children }) {
   const [ratesResArr, setRatesResArr] = useState([0, 0, 0, 0, 0]);
   const calcStarRates = () => {
@@ -37,11 +38,7 @@ function StarRate({ vote_average, width, children }) {
               <clipPath id={`${item}StarClip`}>
                 <rect width={`${ratesResArr[idx]}`} height='39' />
               </clipPath>
-              <path
-                id={`${item}Star`}
-                d='M9,2l2.163,4.279L16,6.969,12.5,10.3l.826,4.7L9,12.779,4.674,15,5.5,10.3,2,6.969l4.837-.69Z'
-                transform='translate(-2 -2)'
-              />
+              <path id={`${item}Star`} d={PATH_D} transform='translate(-2 -2)' />
               <use clipPath={`url(#${item}StarClip)`} href={`#${item}Star`} fill={PRIMARY_COLOR} />
             </svg>
           </Star>
