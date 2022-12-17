@@ -6,8 +6,8 @@
         <where>
             1 = 1
             <if test='userId != null and userId != "" and userPwd != null and userPwd != ""'>
-                AND userId = #{userId}
-                AND userPwd = #{userPwd}
+                AND id = #{userId}
+                AND pwd = #{userPwd}
             </if>
 
             <if test='userNo != null and userNo != ""'>
@@ -20,7 +20,7 @@
     <select id="checkUserId" parameterType="String" resultType="int">
         SELECT COUNT(no) AS userCnt
           FROM user_info
-         WHERE userId = #{userId}
+         WHERE id = #{userId}
     </select>
 
     <!-- 회원가입 -->
@@ -72,8 +72,7 @@
             , interstNtfct
             , outYn
         FROM user_info
-       WHERE id = #{userId}
-         AND pwd = #{userPwd}
+        <include refid="userCondition"/>
     </select>
 
     <!-- 회원정보 수정 -->

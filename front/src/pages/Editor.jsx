@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
+import {
+  useCreateSaleProductMutation,
+  useCreatePurchaseProductMutation,
+  useGetCategoryQuery,
+} from 'services/productApi';
+
 import styled from 'styled-components';
 import Button from 'components/common/Button';
 import CheckBox from 'components/common/Checkbox';
@@ -9,36 +15,45 @@ import InputTitle from 'components/common/InputTitle';
 
 import 'styles/editor.scss';
 
-import {
-  PRIMARY_COLOR,
-  GRAY_COLOR,
-  DARK_GRAY_COLOR,
-  WHITE_COLOR,
-} from 'components/common/commonColor';
+import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
+
+import isEmptyValue from 'utils/isEmptyValue';
+import { useCallback } from 'react';
 
 const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
 
 export default function Editor() {
+  const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
-    title: '',
-    price: 0,
-    isAllowPriceSuggestions: false,
-    isSharing: false,
-    categories: {
-      large: '',
-      medium: '',
-      small: '',
-    },
-    centents: '',
+    prodName: '', // required
+    prodPrice: 0, // required
+    imageFiles: [], // required
+    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
+    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
+    largeCateNo: 1, // required
+    mediumCateNo: 1, // required
+    smallCateNo: 1, // required
+    prodExplain: '', // 상품설명 required
     hashtags: [],
   });
 
+  //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
+
+  const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
+
+  const [createSaleProduct] = useCreateSaleProductMutation();
+  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
+
+  const [imgSlide, setImgSlide] = useState([]);
+
+  const [inputHashTag, setInputHashTag] = useState('');
+
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
-  const [uploadImg, setUploadImg] = useState([]);
+
   const [showImgDeleteBtn, setShowImgDeleteBtn] = useState(false);
 
   const imgSliderRef = useRef(null);
@@ -57,10 +72,85 @@ export default function Editor() {
     }
   }, [param]);
 
-  const submitHandler = (e) => {
-    // e.preventDefault();
-    console.log('폼 전송');
+  const changeProductTitle = useCallback(({ target }) => {
+    setFormDatas((prev) => ({
+      ...prev,
+      prodName: target.value,
+    }));
+  }, []);
+
+  const checkedAllowPriceSuggestions = useCallback(({ target }) => {
+    setFormDatas((prev) => ({
+      ...prev,
+      priceOffer: target.checked ? '1' : '0',
+    }));
+  }, []);
+
+  const checkedFreeSharing = useCallback(({ target }) => {
+    setFormDatas((prev) => ({
+      ...prev,
+      freeCheck: target.checked ? '1' : '0',
+    }));
+  }, []);
+
+  useEffect(() => {
+    if (formDatas.freeCheck === '1') {
+      setFormDatas((prev) => ({
+        ...prev,
+        prodPrice: 0,
+      }));
+    }
+  }, [formDatas.freeCheck]);
+
+  const productPriceRef = useRef(null);
+
+  useEffect(() => {
+    if (formDatas.freeCheck) {
+      productPriceRef.current.value = '';
+    }
+  }, [formDatas.freeCheck]);
+
+  const changeProductPrice = useCallback(({ target }) => {
+    // TODO : 문자가 섞여있는 경우 강제 삭제시키기
+    setFormDatas((prev) => ({
+      ...prev,
+      prodPrice: target.value,
+    }));
+  }, []);
+
+  const changeProductContent = useCallback(({ target }) => {
+    setFormDatas((prev) => ({
+      ...prev,
+      prodExplain: target.value,
+    }));
+  }, []);
+
+  const createPost = (e) => {
+    e.preventDefault();
+
+    if (param === SELL) {
+      console.log('상품 판매 등록');
+
+      const formData = new FormData();
+      formDatas.imageFiles.forEach((item) => {
+        formData.append('imageFiles', item);
+      });
+
+      formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
+      const imgs = [];
+      formDatas.imageFiles = formData;
+      createSaleProduct(formData);
+
+      console.log(imgs);
+    }
+
+    // if(param === BUY){
+    // }
   };
+
+  /**
+   * 이미지 업로드
+   */
 
   const changeFileUploadHandler = ({ target }) => {
     const fileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
@@ -70,67 +160,79 @@ export default function Editor() {
     if (!fileExtensions.includes(extension)) {
       return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
     }
-    const imgUrls = [];
+
+    const imgFiles = []; // 서버 전송 배열
+    const imgUrls = []; // 이미지 슬라이드 배열
 
     [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
-      if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && uploadImg.length < MAX_UPLOAD_COUNT)
+
+      if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && imgUrls.length < MAX_UPLOAD_COUNT) {
         imgUrls.push(url);
+        imgFiles.push(file);
+      }
     });
 
-    setUploadImg((prev) => prev.concat(imgUrls));
+    setImgSlide((prev) => [...prev, ...imgUrls]);
+
+    setFormDatas((prev) => ({
+      ...prev,
+      imageFiles: formDatas.imageFiles.concat(imgFiles),
+    }));
   };
 
-  const mouseOverHandler = () => {
+  const mouseOverHandler = useCallback(() => {
     setShowImgDeleteBtn(true);
-  };
+  }, []);
 
-  const mouseLeaveHandler = () => {
+  const mouseLeaveHandler = useCallback(() => {
     setShowImgDeleteBtn(false);
-  };
+  }, []);
 
-  const deleteImg = (deleteTargetImg) => () => {
-    const imgs = uploadImg.filter((img) => {
+  // TODO
+  const deleteImg = (deleteTargetImg, deleteImageIdx) => () => {
+    const imgs = imgSlide.filter((img) => {
       return img !== deleteTargetImg;
     });
 
-    setUploadImg(imgs);
+    const serverImgs = formDatas.imageFiles.filter((_, index) => {
+      return index !== deleteImageIdx;
+    });
 
-    if (currentSlideNumber - 1 === uploadImg.length) {
+    setImgSlide(imgs);
+    setFormDatas((prev) => ({ ...prev, imageFiles: serverImgs }));
+
+    if (currentSlideNumber - 1 === imgSlide.length) {
       setCurrentSlideNumber(0);
     }
-  };
-
-  const createPost = () => {
-    console.log('등록');
   };
 
   /**
    * 캐러셀
    */
-  const clickPrevImg = () => {
+  const clickPrevImg = useCallback(() => {
     setCurrentSlideNumber(currentSlideNumber - 1);
-  };
+  }, [currentSlideNumber]);
 
-  const clickNextImg = () => {
+  const clickNextImg = useCallback(() => {
     setCurrentSlideNumber(currentSlideNumber + 1);
-  };
+  }, [currentSlideNumber]);
 
   useEffect(() => {
     const { current } = imgSliderRef;
 
     if (currentSlideNumber < 0) {
-      setCurrentSlideNumber(uploadImg.length - 1);
+      setCurrentSlideNumber(imgSlide.length - 1);
       return;
     }
 
-    if (currentSlideNumber > uploadImg.length - 1) {
+    if (currentSlideNumber > imgSlide.length - 1) {
       setCurrentSlideNumber(0);
       current.style.transform = 'translateX(0px)';
       return;
     }
 
-    if (currentSlideNumber <= uploadImg.length - 1) {
+    if (currentSlideNumber <= imgSlide.length - 1) {
       current.style.opacity = '0';
 
       setTimeout(() => {
@@ -145,25 +247,84 @@ export default function Editor() {
         current.style.transition = 'opacity .4s';
       };
     }
-  }, [currentSlideNumber, uploadImg.length]);
+  }, [currentSlideNumber, imgSlide.length]);
+
+  /**
+   * 해시태그
+   */
+
+  const addHashTag = useCallback((e) => {
+    const allowedCommand = ['Comma', 'Enter', 'Space', 'NumpadEnter'];
+    if (!allowedCommand.includes(e.code)) return;
+
+    if (isEmptyValue(e.target.value.trim())) {
+      return setInputHashTag('');
+    }
+
+    let newHashTag = e.target.value.trim();
+    const regExp = /[\{\}\[\]\/?.;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g;
+    if (regExp.test(newHashTag)) {
+      newHashTag = newHashTag.replace(regExp, '');
+    }
+    if (newHashTag.includes(',')) {
+      newHashTag = newHashTag.split(',').join('');
+    }
+
+    if (isEmptyValue(newHashTag)) return;
+
+    setFormDatas((prev) => {
+      return { ...prev, hashtags: [...new Set([...prev.hashtags, newHashTag.trim()])] };
+    });
+
+    setInputHashTag('');
+  }, []);
+
+  useEffect(() => {
+    if (formDatas.hashtags.length) {
+      const removeSpace = formDatas.hashtags.map((tag) => {
+        return tag.replace(' ', '');
+      });
+
+      setFormDatas((prev) => ({ ...prev, hashtags: removeSpace }));
+    }
+  }, [formDatas.hashtags.length]);
+
+  const keyDownHandler = useCallback((e) => {
+    if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
+    e.preventDefault();
+
+    const regExp = /^[a-z|A-Z|가-힣|ㄱ-ㅎ|ㅏ-ㅣ|0-9| \t|]+$/g;
+    if (!regExp.test(e.target.value)) {
+      setInputHashTag('');
+    }
+  }, []);
+
+  const changeHashTagInput = useCallback((e) => {
+    setInputHashTag(e.target.value);
+  }, []);
+
+  // TODO : 해시태그 10개 제한하기
+  // useEffect(() => {
+  //   if (hashTags.length === 10) {
+  //   }
+  // }, [hashTags]);
 
   return (
-    <Container>
-      <Form onSubmit={submitHandler}>
-        <Header>
-          <Title>{formTitle}</Title>
-          <SubText>{subFormTitle}</SubText>
-        </Header>
-
-        <Contents>
+    <div className='container'>
+      <form className='form'>
+        <div className='contentHeader'>
+          <h2 className='editorTitle'>{formTitle}</h2>
+          <h3 className='editorSubTitle'>{subFormTitle}</h3>
+        </div>
+        <div>
           <ImageWrapper>
-            {!uploadImg.length && (
+            {!imgSlide.length && (
               <ImageUpLoaderLabel htmlFor='image-uploader'>이미지 등록</ImageUpLoaderLabel>
             )}
 
             <ul className='imgSlider' ref={imgSliderRef}>
-              {uploadImg.length > 0 &&
-                uploadImg.map((imageUrl, idx) => {
+              {imgSlide.length > 0 &&
+                imgSlide.map((imageUrl, idx) => {
                   return (
                     <li
                       onMouseOver={mouseOverHandler}
@@ -172,12 +333,12 @@ export default function Editor() {
                       className='imgList'
                     >
                       <Image src={imageUrl} alt='upload_image' />
-                      <p className='imgPage'>{`${idx + 1}/${uploadImg.length}`}</p>
+                      <p className='imgPage'>{`${idx + 1}/${imgSlide.length}`}</p>
                       {showImgDeleteBtn && (
                         <button
                           type='button'
                           className='deleteImgBtn'
-                          onClick={deleteImg(imageUrl)}
+                          onClick={deleteImg(imageUrl, idx)}
                         >
                           삭제
                         </button>
@@ -186,7 +347,7 @@ export default function Editor() {
                   );
                 })}
             </ul>
-            {uploadImg.length > 0 && (
+            {imgSlide.length > 0 && (
               <div className='btnWrapper'>
                 <button className='prevBtn' onClick={clickPrevImg} type='button'>
                   ⥢ PREV
@@ -208,9 +369,10 @@ export default function Editor() {
           <TitleAndPriceWrapper>
             <InputTitle title='제목' isRequired />
             <InputTextBox
-              onChange={() => {
-                console.log('테스트');
-              }}
+              title='제목은 2글자 이상, 20글자 이하로 작성해주세요.'
+              minLength={2}
+              maxLength={20}
+              onChange={changeProductTitle}
               required
               width='100%'
               padding='10px'
@@ -219,97 +381,105 @@ export default function Editor() {
 
             <PriceTitleContainer>
               <div>
-                <InputTitle isRequired title='가격'></InputTitle>
+                <InputTitle isRequired title='가격' />
               </div>
-              <CheckBoxWrapper>
-                <CheckBox marginRight='140px' id='proposition' title='가격 제안 허용' />
-              </CheckBoxWrapper>
+              <div>
+                <CheckBox
+                  onChange={checkedAllowPriceSuggestions}
+                  marginRight='140px'
+                  id='proposition'
+                  title='가격 제안 허용'
+                />
+              </div>
             </PriceTitleContainer>
 
             <PriceInputContainer>
               <InputTextBox
+                isReadOnly={formDatas.freeCheck === '1' && 'readonly'}
+                isDisabled={formDatas.freeCheck === '1'}
+                inputRef={productPriceRef}
+                onChange={changeProductPrice}
                 required
+                type='number'
                 width='95%'
                 padding='10px'
                 placeholder='원'
                 placeholderPosition='right'
               />
-              <CheckBox width='110px' id='free' title='무료나눔' />
+              <CheckBox onChange={checkedFreeSharing} width='110px' id='free' title='무료나눔' />
             </PriceInputContainer>
           </TitleAndPriceWrapper>
 
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <Select required>
-                <Option value=''>대분류</Option>
-                <Option value=''>테스트1</Option>
-              </Select>
-              <Select required>
-                <Option value=''>중분류</Option>
-                <Option value=''>테스트2</Option>
-              </Select>
-              <Select required>
-                <Option value=''>소분류</Option>
-                <Option value=''>테스트3</Option>
-              </Select>
+              <select className='selectBox' required>
+                <option value=''>대분류</option>
+                <option value=''>테스트1</option>
+              </select>
+              <select className='selectBox' required>
+                <option value=''>중분류</option>
+                <option value=''>테스트2</option>
+              </select>
+              <select className='selectBox' required>
+                <option value=''>소분류</option>
+                <option value=''>테스트3</option>
+              </select>
             </Categories>
           </CategoryContainer>
 
           <InputContent>
             <InputTitle isRequired title='내용' />
             <br />
-            <TextArea required placeholder='물품 상세 정보를 입력해주세요.' />
+            <textarea
+              onChange={changeProductContent}
+              className='textArea'
+              required
+              placeholder='물품 상세 정보를 입력해주세요.'
+            />
           </InputContent>
 
           <HashTageContainer>
             <InputTitle title='해시태그' />
-            <InputTextBox width='100%' placeholder='해시태그는 최대 10개까지 등록할 수 있습니다.' />
-          </HashTageContainer>
-        </Contents>
+            <div className='hashTags'>
+              {formDatas.hashtags.length > 0 &&
+                formDatas.hashtags.map((hashTag) => {
+                  return (
+                    <div key={hashTag} className='tag'>
+                      {hashTag}
+                    </div>
+                  );
+                })}
 
-        <ButtonContainer>
-          <Button type='submit' onClick={createPost} customSize='50%'>
+              <input
+                value={inputHashTag}
+                onChange={changeHashTagInput}
+                onKeyUp={addHashTag}
+                onKeyDown={keyDownHandler}
+                placeholder='#해시태그를 등록해보세요. (최대 10개)'
+                className='hashTagInput'
+              />
+            </div>
+          </HashTageContainer>
+        </div>
+
+        <div className='buttonContainer'>
+          <Button
+            formEncType='multipart/form-data'
+            type='submit'
+            onClick={createPost}
+            customSize='50%'
+          >
             등록하기
           </Button>
           <Button customSize='50%' isOutline>
             취소하기
           </Button>
-        </ButtonContainer>
-      </Form>
-    </Container>
+        </div>
+      </form>
+    </div>
   );
 }
-
-const Container = styled.div`
-  width: 800px;
-  padding: 50px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-`;
-
-const Form = styled.form`
-  overflow: hidden;
-  padding: 5px;
-`;
-
-const Header = styled.div``;
-
-const Title = styled.h2`
-  font-size: 25px;
-  font-weight: 700;
-`;
-
-const SubText = styled.div`
-  color: ${DARK_GRAY_COLOR};
-  margin-top: 10px;
-  white-space: pre-line;
-  line-height: 21px;
-`;
-
-const Contents = styled.div``;
 
 // 이미지 업로드
 const ImageWrapper = styled.div`
@@ -356,8 +526,6 @@ const PriceTitleContainer = styled.div`
   margin-top: 20px;
 `;
 
-const CheckBoxWrapper = styled.div``;
-
 const PriceInputContainer = styled.div`
   display: flex;
   align-items: center;
@@ -373,53 +541,10 @@ const Categories = styled.div`
   width: 100%;
 `;
 
-const Select = styled.select`
-  display: block;
-  margin-right: 10px;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px;
-  margin-top: 10px;
-
-  &:focus {
-    outline: 1px solid ${PRIMARY_COLOR};
-  }
-`;
-
-const Option = styled.option``;
-
 const InputContent = styled.div`
   margin-top: 20px;
 `;
 
 const HashTageContainer = styled.div`
-  margin-top: 20px;
-`;
-
-const TextArea = styled.textarea`
-  min-width: 100%;
-  max-width: 100%;
-
-  min-height: 130px;
-  max-height: 300px;
-
-  border-radius: 10px;
-  border: 2px solid ${GRAY_COLOR};
-  padding: 10px;
-  margin-top: 8px;
-
-  &:focus {
-    outline: 1px solid ${PRIMARY_COLOR};
-  }
-
-  &::placeholder {
-    color: ${GRAY_COLOR};
-  }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  width: 100%;
-  gap: 10px;
   margin-top: 20px;
 `;

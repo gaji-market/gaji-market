@@ -1,5 +1,7 @@
 package project.gajimarket.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -8,11 +10,12 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.ProductDTO;
+import project.gajimarket.model.SearchPagination;
 import project.gajimarket.service.ChatService;
 import project.gajimarket.service.ProductService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -62,18 +65,13 @@ public class ChatController {
         return resultMap;
     }
 
-    @GetMapping("/getChatRoomList")
-    public Map<String, Object> getChatRoomList(HttpServletRequest request) {
+    @PostMapping("/getChatRoomList/{userNo}")
+    public Map<String, Object> getChatRoomList(@PathVariable int userNo, @RequestBody SearchPagination searchPagination) {
         Map<String, Object> resultMap = new HashMap<>();
+
         resultMap.put("chatRoomInfos", chatService.getChatRoomList());
 
         return resultMap;
-    }
-
-    @GetMapping("/chatTest/{chatNo}")
-    public String chatTest(@PathVariable String chatNo) {
-
-        return chatNo;
     }
 
     @MessageMapping //목적지가 path와 일치하는 메시지를 수신하였을 경우 해당 메소드 호출
@@ -99,5 +97,23 @@ public class ChatController {
     //상품정보 공통 처리
     private Map<String, Object> getProduct(int productNo) {
         return productService.findProductInfo(productNo);
+    }
+
+    @PostMapping("/multiTest")
+    public int multiTest(@RequestBody ObjectNode objectNode) {
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ChatRoomDTO chatRoomDTO = objectMapper.treeToValue(objectNode.get("chatRoomInfo"), ChatRoomDTO.class);
+            SearchPagination searchPagination = objectMapper.treeToValue(objectNode.get("searchPagination"), SearchPagination.class);
+
+            log.info(chatRoomDTO.toString());
+            log.info(searchPagination.toString());
+
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+
+        return 1;
     }
 }
