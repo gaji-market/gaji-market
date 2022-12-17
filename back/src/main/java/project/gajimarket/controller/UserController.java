@@ -27,15 +27,17 @@ public class UserController {
     private final FileService fileService;
 
     // 아이디 중복확인
-    @GetMapping("/checkUserId/{userId}")
-    public Map<String, Object> checkUserId(@PathVariable String userId) throws Exception{
+    @PostMapping("/checkUserId")
+    public Map<String, Object> checkUserId(UserDTO userDto) throws Exception{
         Map<String, Object> resultMap = new HashMap<>();
         String result = "success";
         try {
-            System.out.println("userId : " + userId);
-            int checkUserId = userService.checkUserId(userId);
-            if (checkUserId > 0) {
-                result = "fail";
+            if (userDto.getUserId() != null && !"".equals(userDto.getUserId())) {
+                System.out.println("userId : " + userDto.getUserId());
+                int checkUserId = userService.checkUserId(userId);
+                if (checkUserId > 0) {
+                    result = "fail";
+                }
             }
             resultMap.put("result", result);
         } catch (Exception e) {
