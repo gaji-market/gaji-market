@@ -25,7 +25,6 @@ public class FileServiceImpl implements FileService {
     //String bucketName = "gaji-market-storage";
     //String keyFileName = "gajimarket-123-cb4059fbbfd5.json";
 
-    @Value("${file}")
     private String fileDir;
     //이미지가 저장될 경로
 
