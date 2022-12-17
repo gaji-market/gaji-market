@@ -4,7 +4,7 @@ import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { GRAY_COLOR } from 'components/common/commonColor';
 import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
@@ -12,15 +12,22 @@ import { usePostUserLoginMutation } from 'services/signUpApi';
 
 export default function Login() {
   const [login, data] = usePostUserLoginMutation();
-
+  const nav = useNavigate();
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
   });
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    login({ userId: signUpForm.id, userPwd: signUpForm.password });
+    const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
+    if (res.result === 'fail') {
+      alert('아이디 및 비밀번호가 틀렸습니다. 다시 입력해주세요');
+    } else {
+      alert('로그인 되었습니다.');
+      nav('/');
+      sessionStorage.setItem('userToken', res.token);
+    }
   };
   const changeHandler = (e) => {
     setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
