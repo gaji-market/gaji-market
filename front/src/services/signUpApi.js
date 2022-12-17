@@ -11,6 +11,15 @@ export const signUpApi = createApi({
         body: userData,
       }),
     }),
+    postUserMyPage: builder.mutation({
+      query: () => ({
+        url: 'myPage',
+        method: 'POST',
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('token'),
+        },
+      }),
+    }),
     postUserCheckId: builder.mutation({
       query: (Id) => ({
         url: 'checkUserId',
@@ -28,5 +37,9 @@ export const signUpApi = createApi({
   }),
 });
 
-export const { usePostUserSignFormMutation, usePostUserCheckIdMutation, usePostUserLoginMutation } =
-  signUpApi;
+export const {
+  usePostUserSignFormMutation,
+  usePostUserCheckIdMutation,
+  usePostUserLoginMutation,
+  usePostUserMyPageMutation,
+} = signUpApi;
