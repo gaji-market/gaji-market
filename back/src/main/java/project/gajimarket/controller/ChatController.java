@@ -50,7 +50,7 @@ public class ChatController {
 
         try {
             ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
-            resultMap.put("productInfo", getProduct(chatRoomDTO.getProdNo()));
+            resultMap.put("productInfo", getProduct(resultMap));
 
             log.info("resultMap :: " + resultMap);
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class ChatController {
     */
 
     //상품정보 공통 처리
-    private ProductDTO getProduct(int productNo) {
-        return productService.findProductInfo(productNo);
+    private Map<String, Object> getProduct(Map<String, Object> map) {
+        return productService.productDetail(map);
     }
 }
