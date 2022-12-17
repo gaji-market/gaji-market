@@ -4,6 +4,7 @@ import basicLogo from 'assets/BasicLogo.svg';
 import StarRate from 'components/common/StarRate';
 import Button from 'components/common/Button';
 import { useGetSellAllQuery } from 'services/productApi';
+import { usePostUserMyPageMutation } from 'services/signUpApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Card from 'components/common/Card';
@@ -35,18 +36,26 @@ function CardComponent({ cards, moveProductDetail }) {
 
 export default function MyPage() {
   const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
+  const [getMyPage] = usePostUserMyPageMutation();
   const navigate = useNavigate();
   const { type } = useParams();
   const [cards, setCards] = useState([]);
 
   useEffect(() => {
     if (datas) {
+      console.log(datas);
       const { sellInfos } = datas;
       sellInfos.forEach((data) => {
         setCards((prev) => [...prev, data]);
       });
     }
   }, [datas]);
+
+  useEffect(() => {
+    const res = getMyPage().unwrap();
+    console.log(res);
+  }, []);
+
   const moveProductDetail = (prodNo) => (e) => {
     navigate(`/products/${type}/detail/${prodNo}`);
   };
