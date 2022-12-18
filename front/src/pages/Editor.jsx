@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import {
   useCreateSaleProductMutation,
@@ -41,6 +41,11 @@ export default function Editor() {
   });
 
   //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
+  //TODO: 서버에서 전송, 받아오기 실패 시 예외처리하기
+  //TODO: 해시태그 10개 이상 등록 못하게 막기
+  //TODO: 카테고리 추가하기
+
+  const navigate = useNavigate();
 
   const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
 
@@ -129,23 +134,23 @@ export default function Editor() {
     e.preventDefault();
 
     if (param === SELL) {
-      console.log('상품 판매 등록');
-
       const formData = new FormData();
       formDatas.imageFiles.forEach((item) => {
         formData.append('imageFiles', item);
       });
 
       formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
-      const imgs = [];
+
       formDatas.imageFiles = formData;
       createSaleProduct(formData);
-
-      console.log(imgs);
     }
 
     // if(param === BUY){
     // }
+  };
+
+  const cancleAddingProductClickHandler = () => {
+    navigate('/');
   };
 
   /**
@@ -189,7 +194,6 @@ export default function Editor() {
     setShowImgDeleteBtn(false);
   }, []);
 
-  // TODO
   const deleteImg = (deleteTargetImg, deleteImageIdx) => () => {
     const imgs = imgSlide.filter((img) => {
       return img !== deleteTargetImg;
@@ -310,7 +314,6 @@ export default function Editor() {
   //   }
   // }, [formDatas.hashTags.length]);
 
-  // 클릭시 해시태그 삭제
   const removeHashtagClickHandler = (e) => {
     const newHashtags = formDatas.hashtags.filter((hashtag) => {
       return e.target.innerHTML !== hashtag;
@@ -482,10 +485,11 @@ export default function Editor() {
             type='submit'
             onClick={createPost}
             customSize='50%'
+            isDisabled={!isCompleteForm}
           >
             등록하기
           </Button>
-          <Button customSize='50%' isOutline>
+          <Button onClick={cancleAddingProductClickHandler} customSize='50%' isOutline>
             취소하기
           </Button>
         </div>
