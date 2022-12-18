@@ -305,9 +305,22 @@ export default function Editor() {
 
   // TODO : 해시태그 10개 제한하기
   // useEffect(() => {
-  //   if (hashTags.length === 10) {
+  //   if (formDatas.hashTags.length === 10) {
+  //     window.alert('해시태그는 10개까지만 등록할 수 있습니다.');
   //   }
-  // }, [hashTags]);
+  // }, [formDatas.hashTags.length]);
+
+  // 클릭시 해시태그 삭제
+  const removeHashtagClickHandler = (e) => {
+    const newHashtags = formDatas.hashtags.filter((hashtag) => {
+      return e.target.innerHTML !== hashtag;
+    });
+
+    setFormDatas((prev) => ({
+      ...prev,
+      hashtags: newHashtags,
+    }));
+  };
 
   return (
     <div className='container'>
@@ -445,7 +458,7 @@ export default function Editor() {
               {formDatas.hashtags.length > 0 &&
                 formDatas.hashtags.map((hashTag) => {
                   return (
-                    <div key={hashTag} className='tag'>
+                    <div onClick={removeHashtagClickHandler} key={hashTag} className='tag'>
                       {hashTag}
                     </div>
                   );
