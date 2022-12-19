@@ -27,6 +27,7 @@ public class UserController {
     private final FileService fileService;
 
     // 아이디 중복확인
+    /**
     @PostMapping("/checkUserId")
     public Map<String, Object> checkUserId(UserDTO userDto) throws Exception{
         Map<String, Object> resultMap = new HashMap<>();
@@ -45,6 +46,7 @@ public class UserController {
         }
         return resultMap;
     }
+    */
 
     // 회원가입
     @PostMapping("/signUp")
