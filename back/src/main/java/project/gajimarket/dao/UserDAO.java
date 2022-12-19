@@ -19,6 +19,9 @@ public interface UserDAO {
     // 유저찾기
     public UserDTO selectUser(Map<String, Object> param);
 
+    // 좋아요한 상품
+    public List<Map<String, Object>> selectUserInterestProd(Map<String, Object> param);
+
     // 정보수정
     public int updateUser(UserDTO userDto);
 

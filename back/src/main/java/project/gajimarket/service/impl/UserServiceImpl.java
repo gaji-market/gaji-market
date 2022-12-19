@@ -32,6 +32,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<Map<String, Object>> selectUserInterestProd(Map<String, Object> param){
+        return userDao.selectUserInterestProd(param);
+    }
+
+    @Override
     public int updateUser(UserDTO userDto) {
         return userDao.updateUser(userDto);
     }
