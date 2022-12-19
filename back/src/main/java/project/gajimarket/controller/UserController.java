@@ -27,17 +27,18 @@ public class UserController {
     private final FileService fileService;
 
     // 아이디 중복확인
-    /**
     @PostMapping("/checkUserId")
-    public Map<String, Object> checkUserId(UserDTO userDto) throws Exception{
+    public Map<String, Object> checkUserId(@RequestBody UserDTO userDto) throws Exception{
         Map<String, Object> resultMap = new HashMap<>();
-        String result = "success";
+        String result = "fail";
         try {
+            System.out.println("userId : " + userDto.getUserId());
             if (userDto.getUserId() != null && !"".equals(userDto.getUserId())) {
-                System.out.println("userId : " + userDto.getUserId());
-                int checkUserId = userService.checkUserId(userId);
-                if (checkUserId > 0) {
-                    result = "fail";
+                int checkUserId = userService.checkUserId(userDto.getUserId());
+                if (checkUserId <= 0) {
+                    result = "success";
+                } else {
+                    result = "used";
                 }
             }
             resultMap.put("result", result);
@@ -46,7 +47,6 @@ public class UserController {
         }
         return resultMap;
     }
-    */
 
     // 회원가입
     @PostMapping("/signUp")
@@ -110,6 +110,7 @@ public class UserController {
             String headerToken = JWTUtils.getHeaderToken(request);
             System.out.println("UserController myPage token : " + headerToken);
 
+            // 토큰 복호화
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtils.getTokenInfo(headerToken);
                 if (param != null) {
@@ -121,6 +122,8 @@ public class UserController {
                     }
                 }
             }
+
+
             resultMap.put("result", result);
         } catch (Exception e) {
             System.out.println("UserController myPage : " + e);
@@ -131,33 +134,51 @@ public class UserController {
     // 내정보 수정
     @PostMapping("/userUpdate")
     public Map<String, Object> userUpdate(@RequestBody UserDTO userDto, HttpServletRequest request) throws IOException {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
+        String token = "";
+        String result = "fail";
         try {
-            result.put("result", "fail");
+            // 토큰 가져옴
+            String headerToken = JWTUtils.getHeaderToken(request);
+            System.out.println("UserController userUpdate token : " + headerToken);
 
-            // 받은 UserDTO
-            System.out.println("UserDTO : " + userDto);
-            if (userDto != null) {
-                int update = userService.updateUser(userDto);
-                if (update > 0) {
-                    result.put("result", "success");
-                    param.put("userNo", userDto.getUserNo());
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtils.getTokenInfo(headerToken);
+                if (param != null) {
+                    UserDTO selectUser = userService.selectUser(param);
+                    System.out.println("UserController userUpdate userDto : " + selectUser);
+                    if (selectUser.getUserNo() > 0) {
+                        userDto.setUserNo(selectUser.getUserNo());
+                        // 받은 UserDTO
+                        System.out.println("UserDTO : " + userDto);
+                        //int update = userService.updateUser(userDto);
+                        int update = 1;
+                        if (update > 0) {
+                            param.put("userId", userDto.getUserId());
+                            param.put("userPwd", userDto.getUserPwd());
+                        }
+                    }
                 }
             }
 
-            // 수정성공시 session에 담음
-            if (!"fail".equals(result.get("result"))) {
-                request.getSession().setAttribute("userInfo", userDto);
-                result.put("userInfo", userService.selectUser(param));
+            UserDTO selectUser = userService.selectUser(param);
+            System.out.println("UserController userUpdate selectUser : " + selectUser);
+            if (selectUser != null) {
+                // 토큰 생성
+                token = JWTUtils.createAccessToken(param);
+                System.out.println("UserController userUpdate token : " + token);
+                if (token != null && !"".equals(token)) {
+                    result = "success";
+                }
             }
-            // 세션에 있는 userDTO
-            System.out.println("userUpdate session UserDto : " + (UserDTO)request.getSession().getAttribute("userInfo"));
 
+            resultMap.put("result", result);
+            resultMap.put("token", token);
         }catch (Exception e) {
             System.out.println("UserController userUpdate : " + e);
         }
-        return result;
+        return resultMap;
     }
 
     // 알림 수정
