@@ -28,17 +28,39 @@ const NEXT_X = -690;
 export default function Editor() {
   const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
-    prodName: '', // required
     prodPrice: 0, // required
+    prodName: '', // required
     imageFiles: [], // required
-    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
-    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
     largeCateNo: 1, // required
     mediumCateNo: 1, // required
     smallCateNo: 1, // required
     prodExplain: '', // 상품설명 required
+    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
+    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
     hashtags: [],
   });
+
+  useEffect(() => {
+    if (formDatas.freeCheck === '1') {
+      // 무료나눔 O
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .slice(1, 7)
+          .every((formData) => !!formData.toString())
+      );
+    } else if (formDatas.freeCheck === '0') {
+      // 무료나눔 X
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .slice(0, 7)
+          .every((formData) => formData) && formDatas.imageFiles.length
+      );
+    } else {
+      setIsCompleteForm(false);
+    }
+  }, [formDatas]);
+
+  console.log(formDatas);
 
   //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
   //TODO: 서버에서 전송, 받아오기 실패 시 예외처리하기
@@ -103,6 +125,7 @@ export default function Editor() {
       setFormDatas((prev) => ({
         ...prev,
         prodPrice: 0,
+        priceOffer: '0',
       }));
     }
   }, [formDatas.freeCheck]);
@@ -385,9 +408,9 @@ export default function Editor() {
           <TitleAndPriceWrapper>
             <InputTitle title='제목' isRequired />
             <InputTextBox
-              title='제목은 2글자 이상, 20글자 이하로 작성해주세요.'
+              title='제목은 2글자 이상, 50글자 이하로 작성해주세요.'
               minLength={2}
-              maxLength={20}
+              maxLength={50}
               onChange={changeProductTitle}
               required
               width='100%'
@@ -400,12 +423,14 @@ export default function Editor() {
                 <InputTitle isRequired title='가격' />
               </div>
               <div>
-                <CheckBox
-                  onChange={checkedAllowPriceSuggestions}
-                  marginRight='140px'
-                  id='proposition'
-                  title='가격 제안 허용'
-                />
+                {formDatas.freeCheck === '0' ? (
+                  <CheckBox
+                    onChange={checkedAllowPriceSuggestions}
+                    marginRight='140px'
+                    id='proposition'
+                    title='가격 제안 허용'
+                  />
+                ) : null}
               </div>
             </PriceTitleContainer>
 
@@ -475,6 +500,7 @@ export default function Editor() {
                 onKeyDown={keyDownHandler}
                 placeholder='#해시태그를 등록해보세요. (최대 10개)'
                 className='hashTagInput'
+                maxLength='20'
               />
             </div>
           </HashTageContainer>
