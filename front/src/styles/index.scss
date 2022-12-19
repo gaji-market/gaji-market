@@ -1,5 +1,5 @@
 @font-face {
-  font-family: 'NanumSquare';
+  font-family: 'NanumSquareB';
   src: url('../fonts/NanumSquareB.woff') format('woff'),
     url('../fonts/NanumSquareL.woff') format('woff'),
     url('../fonts/NanumSquareR.woff') format('woff');
@@ -13,14 +13,12 @@
 
 body {
   margin: 0;
-  font-family: 'NanumSquare', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-    'Helvetica Neue', sans-serif;
+  font-family: 'NanumSquare', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: 'NanumSquare', source-code-pro, Menlo, Monaco, Consolas,
-    'Courier New', monospace;
+  font-family: 'NanumSquare', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
