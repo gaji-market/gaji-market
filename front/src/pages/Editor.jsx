@@ -448,10 +448,11 @@ export default function Editor() {
             <InputTitle isRequired title='내용' />
             <br />
             <textarea
+              maxLength='500'
               onChange={changeProductContent}
               className='textArea'
               required
-              placeholder='물품 상세 정보를 입력해주세요.'
+              placeholder='물품 상세 정보를 입력해주세요. (최대 500자)'
             />
           </InputContent>
 
