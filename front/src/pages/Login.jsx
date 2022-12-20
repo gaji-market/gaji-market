@@ -4,17 +4,35 @@ import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { GRAY_COLOR } from 'components/common/commonColor';
 import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
-export default function Login() {
-  const [id, setId] = useState('');
-  const [password, setPassword] = useState('');
+import { usePostUserLoginMutation } from 'services/signUpApi';
 
-  const submitHandler = (e) => {
+export default function Login() {
+  const [login, data] = usePostUserLoginMutation();
+  const nav = useNavigate();
+  const [signUpForm, setSignUpForm] = useState({
+    id: '',
+    password: '',
+  });
+
+  const submitHandler = async (e) => {
     e.preventDefault();
+    const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
+    if (res.result === 'fail') {
+      alert('아이디 및 비밀번호가 틀렸습니다. 다시 입력해주세요');
+    } else {
+      alert('로그인 되었습니다.');
+      nav('/');
+      sessionStorage.setItem('userToken', res.token);
+    }
   };
+  const changeHandler = (e) => {
+    setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+  };
+
   return (
     <Container>
       <SignUpHead>
@@ -22,13 +40,12 @@ export default function Login() {
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line width={'500px'} marginBottom={'80px'} />
-      <Form onSubmit={(e) => submitHandler(e)}>
+      <Form onChange={(e) => changeHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
           <InputTextBox
             id={'id'}
-            setVaule={setId}
-            value={id}
+            value={signUpForm.id}
             containerBottom={'20px'}
             width={'400px'}
             placeholder={'아이디를 입력하세요'}
@@ -38,8 +55,7 @@ export default function Login() {
           <InputTitle title={'비밀번호'} />
           <InputTextBox
             id={'password'}
-            setVaule={setPassword}
-            value={password}
+            value={signUpForm.password}
             containerBottom={'20px'}
             width={'400px'}
             placeholder={'비밀번호를 입력하세요.'}
@@ -47,7 +63,9 @@ export default function Login() {
           />
         </InputBox>
         <ButtonBox>
-          <Button customSize='400px'>로그인</Button>
+          <Button customSize='400px' onClick={(e) => submitHandler(e)}>
+            로그인
+          </Button>
         </ButtonBox>
         <SubBox>
           <FindIdPw>아이디/비밀번호 찾기</FindIdPw>

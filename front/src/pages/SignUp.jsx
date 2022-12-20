@@ -7,20 +7,23 @@ import Button from 'components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
-import { GRAY_COLOR, PRIMARY_COLOR } from 'components/common/commonColor';
+import { PRIMARY_COLOR, GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import logo200 from 'assets/BasicLogo.svg';
 import man from 'assets/man.png';
 import woman from 'assets/woman.png';
-
+import { usePostUserSignFormMutation, usePostUserCheckIdMutation } from 'services/signUpApi';
 const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 const NICK_NAME_MIX_LENGTH = 4;
 const INPUT_MIN_LENGTH = 1;
 
 export default function SignUp() {
+  const [createUser, signUpData] = usePostUserSignFormMutation();
+  const [CheckUserId, idData] = usePostUserCheckIdMutation();
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
     confirmPassword: '',
+    name: '',
     nickName: '',
     address: '',
     addressDetail: '',
@@ -28,14 +31,19 @@ export default function SignUp() {
     gender: '',
   });
   const open = useDaumPostcodePopup(DaumURL);
+
   const isIdVaild = isVaild('ID', signUpForm.id);
+
   const isPasswordVaild = isVaild('PW', signUpForm.password);
+
   const isPasswordConfirmVaild =
     signUpForm.confirmPassword.length <= INPUT_MIN_LENGTH ||
     signUpForm.password === signUpForm.confirmPassword;
+
   const isNickNameVaild =
     signUpForm.nickName.length >= NICK_NAME_MIX_LENGTH ||
     signUpForm.nickName.length < INPUT_MIN_LENGTH;
+
   const isFormValid =
     isIdVaild &&
     signUpForm.id.length > INPUT_MIN_LENGTH &&
@@ -48,6 +56,7 @@ export default function SignUp() {
       signUpForm.addressDetail,
       signUpForm.birthday,
       signUpForm.gender,
+      signUpForm.name,
     ]);
 
   const handleComplete = (data) => {
@@ -55,14 +64,31 @@ export default function SignUp() {
     setSignUpForm({ ...signUpForm, address: fullAddress });
   };
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
+
+    const res = await createUser({
+      userId: signUpForm.id,
+      userPwd: signUpForm.password,
+      userName: signUpForm.name,
+      userNickName: signUpForm.nickName,
+      userGender: signUpForm.gender,
+      userBirth: '0823',
+      userPhone: '',
+      userAddress: signUpForm.address,
+      socialKind: '0',
+    }).unwrap();
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
       setSignUpForm({ ...signUpForm, [e.target.name]: e.target.value });
     else setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
   };
+  const CheckId = (e) => {
+    e.preventDefault();
+    CheckUserId({ userId: signUpForm.id });
+  };
+
   return (
     <Container>
       <SignUpHead>
@@ -70,13 +96,16 @@ export default function SignUp() {
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line />
-      <Form onChange={(e) => changeHandler(e)} onSubmit={(e) => submitHandler(e)}>
+      <Form onChange={(e) => changeHandler(e)}>
         <InputTitle
           title='아이디'
-          signUpSubTitle={'6글자 이상 이여야 합니다'}
+          signUpSubTitle={'6글자 이상이여야 합니다'}
           isVaild={isIdVaild}
           isRequired
         />
+        {isIdVaild && signUpForm.id.length > 1 && (
+          <CkeckIdButton onClick={CheckId}>아이디 중복 검사</CkeckIdButton>
+        )}
         <InputTextBox
           id={'id'}
           value={signUpForm.id}
@@ -94,7 +123,7 @@ export default function SignUp() {
         />
         <InputTextBox
           id={'password'}
-          containerBottom={'20px'}
+          containerBottom={'15px'}
           value={signUpForm.password}
           width={'500px'}
           placeholder={'비밀번호를 입력하세요.'}
@@ -114,6 +143,16 @@ export default function SignUp() {
           width={'500px'}
           placeholder={'비밀번호를 입력하세요.'}
           type={'password'}
+        />
+
+        <InputTitle title={'이름'} isRequired />
+        <InputTextBox
+          id={'name'}
+          value={signUpForm.name}
+          containerBottom={'20px'}
+          width={'500px'}
+          placeholder={'이름을 입력하세요.'}
+          type={'text'}
         />
 
         <InputTitle
@@ -140,6 +179,7 @@ export default function SignUp() {
           padding={'10px'}
           placeholder={'주소를 입력하세요.'}
           type={'text'}
+          isReadOnly={true}
           clickHandler={() => open({ onComplete: handleComplete })}
         />
 
@@ -177,9 +217,11 @@ export default function SignUp() {
         </FlexBox>
         <ButtonBox>
           {isFormValid ? (
-            <Button size='lg'>회원가입</Button>
+            <Button size='lg' type='submit' onClick={(e) => submitHandler(e)}>
+              회원가입
+            </Button>
           ) : (
-            <Button size='lg' isDisabled={!isFormValid}>
+            <Button size='lg' type='submit' isDisabled={!isFormValid}>
               회원가입
             </Button>
           )}
@@ -191,14 +233,27 @@ export default function SignUp() {
     </Container>
   );
 }
+const CkeckIdButton = styled.button`
+  background: ${PRIMARY_COLOR};
+  border: 3px solid ${PRIMARY_COLOR};
+  color: ${WHITE_COLOR};
+  cursor: pointer;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  transition: all 0.2s;
+  margin-left: 5px;
+`;
+
 const Container = styled.div`
   width: 700px;
   height: 800px;
-  margin: 60px auto;
+  margin: 30px auto;
   border-radius: 35px;
   box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
-  padding: 50px 100px;
+  padding: 20px 100px;
 `;
+
 const Title = styled.div`
   font-weight: 800;
   font-size: 16px;
@@ -287,7 +342,7 @@ const FlexItem = styled.div`
   margin-left: ${(props) => props.margin};
 `;
 const ButtonBox = styled.div`
-  margin-top: 30px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
 `;
