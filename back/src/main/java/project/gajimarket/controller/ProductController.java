@@ -7,13 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.*;
-import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -26,14 +22,6 @@ import java.util.*;
 public class ProductController {
 
     private final ProductService productService;
-
-    //테스트
-    @PostMapping(value = "/file")
-    public void file(@RequestPart List<MultipartFile> imageFiles){
-        for (MultipartFile imageFile : imageFiles) {
-            log.info("imageFiles={}", imageFile.getOriginalFilename());
-        }
-    }
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
@@ -126,7 +114,7 @@ public class ProductController {
     //메인화면에서 카테고리 클릭
     @PostMapping("/mainCategory")
     public void category(@RequestBody Map<String,Object> param) throws IOException {
-      productService.mainCategoryClick(param);
+        productService.mainCategoryClick(param);
     }
 
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)

@@ -36,6 +36,7 @@ dependencies {
 	// 암호 알고리즘
 	implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
 
+
 	//gcp storage 의존성 추가
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-storage', version: '1.2.5.RELEASE'
 

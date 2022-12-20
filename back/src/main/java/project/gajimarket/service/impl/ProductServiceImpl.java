@@ -2,7 +2,6 @@ package project.gajimarket.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.dao.*;
 import project.gajimarket.model.*;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -376,6 +374,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
     }
+
     //팔래요 전체보기
     @Override
     public Map<String,Object> findSellAll(String search, String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
@@ -385,6 +384,7 @@ public class ProductServiceImpl implements ProductService {
         return result;
     }
 
+    //살래요 전체보기
     @Override
     public Map<String,Object> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
         Map<String,Object> result = new LinkedHashMap<>();
