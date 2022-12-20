@@ -174,7 +174,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<String> findDBFile = fileDAO.productFindDBFile(prodNo);
-        fileService.fileDelete(findDBFile);//local 파일 삭제
+        fileService.fileDelete(findDBFile);//aws 파일 삭제
         fileDAO.productFileDelete(prodNo);//DB 파일 삭제
         //파일 저장
         List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
