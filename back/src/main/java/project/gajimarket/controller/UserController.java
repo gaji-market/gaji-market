@@ -105,7 +105,6 @@ public class UserController {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = null;
         String result = "fail";
-        List<Map<String, Object>> interestProdList = null;
 
         try {
             String headerToken = JWTUtils.getHeaderToken(request);
@@ -124,8 +123,10 @@ public class UserController {
                 }
             }
 
+            System.out.println(param);
             if (param != null) {
-                interestProdList = userService.selectUserInterestProd(param);
+                List<Map<String, Object>> interestProdList = userService.selectUserInterestProd(param);
+                System.out.println(interestProdList);
                 if (interestProdList != null) {
                     resultMap.put("interestProdList", interestProdList);
                 }

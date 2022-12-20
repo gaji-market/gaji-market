@@ -76,7 +76,7 @@
     </select>
 
     <!-- 좋아요 한 상품 -->
-    <select id="selectUserInterestProd" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    <select id="selectUserInterestProd" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT prodNo               -- 상품번호
              , prodName             -- 상품명
              , prodPrice            -- 가격
@@ -102,10 +102,15 @@
          WHERE delYn != 'Y'
 		   AND prodNo IN
                 (
-                    SELECT no
-                      FROM user_info
-                     WHERE id = #{userId}
-                       AND pwd = #{userPwd}
+                    SELECT prodNo
+			 		  FROM interest_info inst_info
+			 		 WHERE userNo IN
+			 		    (
+                        SELECT no
+                          FROM user_info
+                         WHERE id = 'test'
+                           AND pwd = '12345'
+                        )
                 )
     </select>
 
