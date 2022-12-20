@@ -93,33 +93,4 @@ public class FileServiceImpl implements FileService {
             }
         }
     }
-
-    /**
-     *  gcs 파일 삭제부분
-
-    @Override
-    public void fileDelete(List<String> findFileDB) throws IOException {
-
-        //키값 설정
-        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
-
-        //권한 설정
-        Storage storage = StorageOptions.newBuilder().setProjectId(projectId)
-                .setCredentials(GoogleCredentials.fromStream(keyFile))
-                .build().getService();
-
-        for (String findFile : findFileDB) {
-            Blob blob = storage.get(bucketName, findFile);
-            if (blob == null) {
-                System.out.println("The object " + findFile + " wasn't found in " + bucketName);
-                return;
-            }
-            Storage.BlobSourceOption precondition = Storage.BlobSourceOption.generationMatch(blob.getGeneration());
-            storage.delete(bucketName, findFile, precondition);
-
-            System.out.println("Object " + findFile + " was deleted from " + bucketName);
-        }
-    }
-     *
-     */
 }
