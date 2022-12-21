@@ -2,6 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="project.gajimarket.dao.ChatDAO">
 
+    <sql id="chatList">
+        SELECT c.*, ui.nickname
+          FROM ( SELECT ci.chatNo,
+                        cm.message,
+                        cm.regDate,
+                        cm.regTime,
+                        cm.checkCnt,
+                        CASE WHEN ci.userNo = #{userNo} THEN ci.tgUserNo ELSE ci.userNo END AS userNo
+                   FROM chat_info ci LEFT JOIN ( SELECT c1.chatNo,
+                                                        CASE WHEN delYn = 'N' THEN message ELSE '삭제된 메시지' END AS message,
+                                                        c2.checkCnt,
+                                                        regDate,
+                                                        regTime
+                                                   FROM chat_message c1 LEFT JOIN ( SELECT chatNo,
+                                                                                           COUNT(chatNo) AS checkCnt
+                                                                                      FROM chat_message
+                                                                                     WHERE checkYn = 'N'
+                                                                                     GROUP BY chatNo) c2 ON c1.chatNo = c2.chatNo
+                                                  WHERE (c1.chatNo, CONCAT(regDate, regTime))
+                                                        IN ( SELECT chatNo,
+                                                                    MAX(CONCAT(regDate,regTime))
+                                                               FROM chat_message
+                                                              GROUP BY chatNo
+                                                            )
+                                                ) cm ON ci.chatNo = cm.chatNo
+                  WHERE ci.userNo = #{userNo} OR ci.tgUserNo = #{userNo}
+               ) c JOIN user_info ui ON c.userNo = ui.no
+    </sql>
+
     <insert id="insertChatRoom" parameterType="ChatRoomDTO" useGeneratedKeys="true" keyProperty="chatNo">
         INSERT INTO chat_info (
             userNo,
@@ -32,28 +61,30 @@
         )
     </insert>
 
-    <select id="selectChatRoom" parameterType="int" resultType="ChatRoomDTO">
+    <select id="selectChatRoom" parameterType="java.util.Map" resultType="ChatRoomDTO">
         SELECT *
           FROM chat_info
          WHERE chatNo = #{chatNo}
     </select>
 
-    <select id="selectChatMessage" parameterType="int" resultType="java.util.List">
-        SELECT CASE WHEN delYn = 'Y' THEN '삭제된 메시지' ELSE message END AS message,
-               checkYn,
-               userNo,
-               DATE_FORMAT(regDate, '%Y년 %m월 %d일'),
-               DATE_FORMAT(regTime, '%p %h:%i')
-          FROM chat_message
-         WHERE chatNo = #{chatNo}
-         ORDER BY regDate DESC, regTime DESC
+    <select id="selectChatMessage" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT ui.nickname,
+               ui.no,
+               cm.chatNo,
+               CASE WHEN cm.delYn = 'Y' THEN '삭제된 메시지' ELSE cm.message END AS message,
+               cm.checkYn,
+               DATE_FORMAT(cm.regDate, '%Y년 %m월 %d일') AS regDate,
+               DATE_FORMAT(cm.regTime, '%p %h:%i') AS regTime
+          FROM user_info ui RIGHT JOIN ( SELECT * FROM chat_message) cm ON ui.no = cm.userNo
+         WHERE cm.chatNo = #{chatNo}
+         ORDER BY cm.regDate, cm.regTime
     </select>
 
     <!-- 채팅리스트, 확인하지 않은 내역 존재하는지 확인 (checkYn Count 확인) -->
-    <select id="selectChatRoomList" parameterType="java.util.Map" resultType="java.util.List">
+    <select id="selectChatRoomList" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT T.*
           FROM (
-                SELECT c.*, ui.nickname
+                <!--SELECT c.*, ui.nickname
                   FROM ( SELECT ci.chatNo,
                                 cm.message,
                                 cm.regDate,
@@ -72,14 +103,22 @@
                                                                 )
                                                         ) cm ON ci.chatNo = cm.chatNo
                           WHERE ci.userNo = #{userNo} OR ci.tgUserNo = #{userNo}
-                        ) c JOIN user_info ui ON c.userNo = ui.no
+                        ) c JOIN user_info ui ON c.userNo = ui.no-->
+                  <include refid="chatList"/>
                 ) T
-         ORDER BY regDate DESC, regTime DESC
-         LIMIT #{currentPage}, #{recordPage}
+         ORDER BY regDate DESC, regTime DESC, chatNo DESC
+         LIMIT #{schPage.limitPage}, #{schPage.recordCount}
+    </select>
+
+    <select id="selectChatRoomListCnt" parameterType="java.util.Map" resultType="int">
+        SELECT COUNT(*)
+          FROM (
+                <include refid="chatList"/>
+               ) T
     </select>
 
     <update id="updateChatMessageCheck" parameterType="java.util.Map">
-        UPDATE chat_info
+        UPDATE chat_message
            SET checkYn='Y'
          WHERE chatNo = #{chatNo}
            AND userNo <![CDATA[<>]]> #{userNo}

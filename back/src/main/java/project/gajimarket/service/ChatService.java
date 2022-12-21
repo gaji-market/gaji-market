@@ -11,7 +11,7 @@ public interface ChatService {
 
     Map<String, Object> addChatMessage(Map<String, Object> map);
 
-    List<ChatRoomDTO> getChatRoomList();
+    Map<String, Object> getChatRoomList(Map<String, Object> map);
 
     Map<String, Object> getChatRoom(Map<String, Object> map);
 
