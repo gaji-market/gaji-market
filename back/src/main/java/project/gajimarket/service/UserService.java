@@ -15,6 +15,10 @@ public interface UserService {
 
     public List<Map<String, Object>> selectUserInterestProd(Map<String, Object> param);
 
+    public List<Map<String, Object>> selectUserSellProd(Map<String, Object> param);
+
+    public List<Map<String, Object>> selectUserBuyProd(Map<String, Object> param);
+
     public int updateUser(UserDTO userDto);
 
     public int updateNtfct(Map<String, Object> param);

@@ -125,10 +125,25 @@ public class UserController {
 
             System.out.println(param);
             if (param != null) {
+                // 좋아요 상품
                 List<Map<String, Object>> interestProdList = userService.selectUserInterestProd(param);
-                System.out.println(interestProdList);
+                System.out.println("UserController myPage interestProdList : " + interestProdList);
                 if (interestProdList != null) {
                     resultMap.put("interestProdList", interestProdList);
+                }
+
+                // 판매
+                List<Map<String, Object>> sellProdList = userService.selectUserSellProd(param);
+                System.out.println("UserController myPage sellProdList : " + sellProdList);
+                if (sellProdList != null) {
+                    resultMap.put("sellProdList", sellProdList);
+                }
+
+                // 구매
+                List<Map<String, Object>> buyProdList = userService.selectUserBuyProd(param);
+                System.out.println("UserController myPage buyProdList : " + buyProdList);
+                if (buyProdList != null) {
+                    resultMap.put("buyProdList", buyProdList);
                 }
             }
 

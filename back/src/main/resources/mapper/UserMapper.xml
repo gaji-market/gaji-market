@@ -92,6 +92,11 @@
              , tradeKind            -- 거래구분
              , IF(tradeKind = 0, '팔래요', '살래요') AS tradeKindResult
              , address              -- 주소
+             , (
+                    SELECT COUNT(interestNo)
+                      FROM interest_info inst_info
+                     WHERE inst_info.prodNo = prod_info.prodNo
+                ) AS likeCnt        -- 좋아요 갯수
              , f.uploadFileName
              , f.dbFileName
           FROM product_info prod_info
@@ -108,10 +113,92 @@
 			 		    (
                         SELECT no
                           FROM user_info
-                         WHERE id = 'test'
-                           AND pwd = '12345'
+                         WHERE id = #{userId}
+                           AND pwd = #{userPwd}
                         )
                 )
+    </select>
+
+    <!-- 판매내역 -->
+    <select id="selectUserSellProd" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT prodNo
+             , prodName
+             , prodPrice
+             , reportCnt
+             , tradState
+             , CASE
+                   WHEN tradState = 0 THEN '판매중'
+                   WHEN tradState = 1 THEN '사는중'
+                   WHEN tradState = 2 THEN '거래중'
+                   WHEN tradState = 3 THEN '거래완료'
+            END AS tradeStateResult
+             , viewCnt
+             , tradeKind
+             , IF(tradeKind = 0, '팔래요', '살래요') AS tradeKindResult
+             , address
+             , (
+                    SELECT COUNT(interestNo)
+                    FROM interest_info inter_info
+                    WHERE inter_info.prodNo = prod_info.prodNo
+                ) AS likeCnt
+             , f.uploadFileName
+             , f.dbFileName
+        FROM product_info prod_info
+                 LEFT JOIN file f
+                           ON f.no = prod_info.prodNo
+                               AND f.gubun = 2
+                               AND f.fileOrder = 0
+        WHERE prod_info.delYn != 'Y'
+		 	   AND prod_info.tradState = 3
+		 	   AND prod_info.tradeKind = 0
+		 	   AND prod_info.userNo =
+		 	   		(
+		 	   		SELECT no
+		 	   		  FROM user_info u_info
+		 	   		 WHERE id = #{userId}
+                       AND pwd = #{userPwd}
+		 	   		)
+    </select>
+
+    <!-- 구매내역 -->
+    <select id="selectUserBuyProd" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT prodNo
+             , prodName
+             , prodPrice
+             , reportCnt
+             , tradState
+             , CASE
+                   WHEN tradState = 0 THEN '판매중'
+                   WHEN tradState = 1 THEN '사는중'
+                   WHEN tradState = 2 THEN '거래중'
+                   WHEN tradState = 3 THEN '거래완료'
+            END AS tradeStateResult
+             , viewCnt
+             , tradeKind
+             , IF(tradeKind = 0, '팔래요', '살래요') AS tradeKindResult
+             , address
+             , (
+                    SELECT COUNT(interestNo)
+                    FROM interest_info inter_info
+                    WHERE inter_info.prodNo = prod_info.prodNo
+                ) AS likeCnt
+             , f.uploadFileName
+             , f.dbFileName
+        FROM product_info prod_info
+                 LEFT JOIN file f
+                           ON f.no = prod_info.prodNo
+                               AND f.gubun = 2
+                               AND f.fileOrder = 0
+        WHERE prod_info.delYn != 'Y'
+		 	   AND prod_info.tradState = 3
+		 	   AND prod_info.tradeKind = 1
+		 	   AND prod_info.buyUserNo =
+		 	   		(
+		 	   		SELECT no
+		 	   		  FROM user_info u_info
+		 	   		 WHERE id = #{userId}
+		 	   		   AND pwd = #{userPwd}
+		 	   		)
     </select>
 
     <!-- 회원정보 수정 -->
