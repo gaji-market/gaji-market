@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import project.gajimarket.Utils;
 import project.gajimarket.dao.ChatDAO;
 import project.gajimarket.model.ChatRoomDTO;
+import project.gajimarket.model.SearchPagination;
 import project.gajimarket.service.ChatService;
 
 import java.util.HashMap;
@@ -38,21 +39,30 @@ public class ChatServiceImpl implements ChatService {
         return Utils.resultMsg(result);
     }
 
-    public List<ChatRoomDTO> getChatRoomList() {
-        return null;
-        //return chatDAO.selectChatRoomList(1);
+    public Map<String, Object> getChatRoomList(Map<String, Object> map) {
+        List<Map<String, Object>> chatRoomList = chatDAO.selectChatRoomList(map);
+
+        SearchPagination searchPagination = (SearchPagination) map.get("schPage");
+        searchPagination.setTotalRecordCount(chatDAO.selectChatRoomListCnt(map));
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("schPage", searchPagination);
+        resultMap.put("chatRoomInfos", chatRoomList);
+
+        return resultMap;
     }
 
     public Map<String, Object> getChatRoom(Map<String, Object> map) {
         Map<String, Object> resultMap = new HashMap<>();
 
-        resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(map));
-        resultMap.put("chatMessageInfos", chatDAO.selectChatMessage(map));
+        int result = chatDAO.updateChatMessageCheck(map);
 
-        if (resultMap.get("chatMessageInfos") != null) {
-            chatDAO.updateChatMessageCheck(map);
+        if (result > 0) {
+            resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(map));
+            resultMap.put("chatMessageInfos", chatDAO.selectChatMessage(map));
+        } else {
+            resultMap.put("result", Utils.resultMsg(result));
         }
-
         return resultMap;
     }
 

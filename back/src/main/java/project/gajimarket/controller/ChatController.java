@@ -10,14 +10,15 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
+import project.gajimarket.Utils;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.ProductDTO;
 import project.gajimarket.model.SearchPagination;
 import project.gajimarket.service.ChatService;
 import project.gajimarket.service.ProductService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -31,49 +32,72 @@ public class ChatController {
 
     //채팅방 생성
     @PostMapping("/addChatRoom")
-    public Map<String, Object> addChatRoom(@RequestBody ProductDTO productDTO) {
-        log.info("request ProductDTO :: "+productDTO.toString());
+    public Map<String, Object> addChatRoom(@RequestBody ProductDTO productDTO, HttpServletRequest request) {
+        try {
+            log.info("request ProductDTO :: "+productDTO.toString());
 
-        ChatRoomDTO chatRoomDTO = new ChatRoomDTO();
-        chatRoomDTO.setProdNo(productDTO.getProdNo());
-        chatRoomDTO.setTgUserNo(productDTO.getUserNo());
-        chatRoomDTO.setUserNo(1); //로그인 세션 값 가져오기
-        //chatRoomDTO.setProdNo(1);
-        //chatRoomDTO.setTgUserNo(2);
+            if (Utils.getUserInfo(request) == null) {
+                return Utils.resultMsg();
+            }
 
-        log.info("chatRoomDTO :: "+chatRoomDTO.toString());
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO();
+            chatRoomDTO.setProdNo(productDTO.getProdNo());
+            chatRoomDTO.setTgUserNo(productDTO.getUserNo());
+            chatRoomDTO.setUserNo(Utils.getUserInfo(request).getUserNo());
 
-        //insert 성공 시 getChatRoom 호출
-        return chatService.addChatRoom(chatRoomDTO);
+            log.info("chatRoomDTO :: "+chatRoomDTO);
+
+            //insert 성공 시 getChatRoom 호출
+            return chatService.addChatRoom(chatRoomDTO);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return Utils.resultMsg();
+        }
     }
 
     @GetMapping("/getChatRoom/{chatNo}")
-    public Map<String, Object> getChatRoom(@PathVariable int chatNo) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("chatNo", chatNo);
-        map.put("userNo", 2); //session
-
-        Map<String, Object> resultMap = chatService.getChatRoom(map);
-
+    public Map<String, Object> getChatRoom(@PathVariable int chatNo, HttpServletRequest request) {
         try {
+            if (Utils.getUserInfo(request) == null) {
+                return Utils.resultMsg();
+            }
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("chatNo", chatNo);
+            map.put("userNo", Utils.getUserInfo(request).getUserNo());
+
+            Map<String, Object> resultMap = chatService.getChatRoom(map);
+
             ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
             resultMap.put("productInfo", getProduct(resultMap));
 
             log.info("resultMap :: " + resultMap);
-        } catch (Exception e) {
-           log.error(e.toString());
-        }
 
-        return resultMap;
+            return resultMap;
+        } catch (Exception e) {
+            log.error(e.toString());
+            return Utils.resultMsg();
+        }
     }
 
-    @PostMapping("/getChatRoomList/{userNo}")
-    public Map<String, Object> getChatRoomList(@PathVariable int userNo, @RequestBody SearchPagination searchPagination) {
-        Map<String, Object> resultMap = new HashMap<>();
+    @PostMapping("/getChatRoomList")
+    public Map<String, Object> getChatRoomList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+        log.info("SearchPagination :: " + searchPagination.toString());
 
-        resultMap.put("chatRoomInfos", chatService.getChatRoomList());
+        try {
+            if (Utils.getUserInfo(request) == null) {
+                return Utils.resultMsg();
+            }
 
-        return resultMap;
+            Map<String, Object> map = new HashMap<>();
+            map.put("schPage", searchPagination);
+            map.put("userNo", Utils.getUserInfo(request).getUserNo());
+
+            return chatService.getChatRoomList(map);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return Utils.resultMsg();
+        }
     }
 
     @MessageMapping //목적지가 path와 일치하는 메시지를 수신하였을 경우 해당 메소드 호출
