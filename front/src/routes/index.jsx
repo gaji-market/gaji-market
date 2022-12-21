@@ -23,6 +23,7 @@ export default function index() {
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
         <Route path='/file' element={<FileTest />} />
+        <Route path='/mypage' element={<MyPage />} />
 
         <Route path='/write' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />
@@ -34,7 +35,6 @@ export default function index() {
           <Route path=':type' element={<ProductView />} />
           <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
-        <Route path='mypage' elements={<MyPage />} />
       </Route>
 
       <Route element={<LayoutWithoutBar />}>

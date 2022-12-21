@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.model.ChatRoomDTO;
@@ -55,7 +57,7 @@ public class ChatController {
 
         try {
             ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
-            resultMap.put("productInfo", getProduct(chatRoomDTO.getProdNo()));
+            resultMap.put("productInfo", getProduct(resultMap));
 
             log.info("resultMap :: " + resultMap);
         } catch (Exception e) {
@@ -95,8 +97,8 @@ public class ChatController {
     */
 
     //상품정보 공통 처리
-    private Map<String, Object> getProduct(int productNo) {
-        return productService.findProductInfo(productNo);
+    private Map<String, Object> getProduct(Map<String, Object> map) {
+        return productService.productDetail(map);
     }
 
     @PostMapping("/multiTest")

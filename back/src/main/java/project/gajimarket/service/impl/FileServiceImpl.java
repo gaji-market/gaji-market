@@ -1,16 +1,17 @@
 package project.gajimarket.service.impl;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.*;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -19,19 +20,13 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
-    //String projectId = "gajimarket-123";
-    //String bucketName = "gaji-market-storage";
-    //String keyFileName = "gajimarket-123-cb4059fbbfd5.json";
+    private final AmazonS3Client amazonS3Client;
 
-    @Value("${file}")
-    private String fileDir;
-    //이미지가 저장될 경로
-
-    public String getFullPath(String filename){
-        return fileDir + filename;
-    }
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @Override
     public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
@@ -61,27 +56,14 @@ public class FileServiceImpl implements FileService {
         //서버에 저장하는 파일명을 가져옴
         String DBFileName = createDBFileName(originFilename);
 
-        //지정한 경로로 서버에 저장할 파일명을 보냄
-        multipartFile.transferTo(new File(getFullPath(DBFileName)));
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentLength(multipartFile.getSize());
 
-        /**
-         gcs 파일 업로드
-        //키값 설정
-        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
-        Storage.BlobTargetOption precondition = Storage.BlobTargetOption.doesNotExist();
-
-        //권한 설정
-        Storage storage = StorageOptions.newBuilder().setProjectId(projectId)
-                .setCredentials(GoogleCredentials.fromStream(keyFile))
-                .build().getService();
-
-        //버킷이름 설정, storage에 저장할 이름 설정
-        BlobId blobId = BlobId.of(bucketName, DBFileName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-
-        storage.create(blobInfo, multipartFile.getBytes(),precondition);
-         *
-         */
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            amazonS3Client.putObject(new PutObjectRequest(bucket, multipartFile.getOriginalFilename(), inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        }
 
         return new UploadFile(originFilename,DBFileName);
     }
@@ -107,38 +89,8 @@ public class FileServiceImpl implements FileService {
     public void fileDelete(List<String> findFileDB) {
         for(String findFile : findFileDB){
             if (!findFile.isEmpty()) {
-                File file = new File(getFullPath(findFile));
-                file.delete();
+                amazonS3Client.deleteObject(bucket,findFile);
             }
         }
     }
-
-    /**
-     *  gcs 파일 삭제부분
-
-    @Override
-    public void fileDelete(List<String> findFileDB) throws IOException {
-
-        //키값 설정
-        InputStream keyFile = ResourceUtils.getURL("classpath:" + keyFileName).openStream();
-
-        //권한 설정
-        Storage storage = StorageOptions.newBuilder().setProjectId(projectId)
-                .setCredentials(GoogleCredentials.fromStream(keyFile))
-                .build().getService();
-
-        for (String findFile : findFileDB) {
-            Blob blob = storage.get(bucketName, findFile);
-            if (blob == null) {
-                System.out.println("The object " + findFile + " wasn't found in " + bucketName);
-                return;
-            }
-            Storage.BlobSourceOption precondition = Storage.BlobSourceOption.generationMatch(blob.getGeneration());
-            storage.delete(bucketName, findFile, precondition);
-
-            System.out.println("Object " + findFile + " was deleted from " + bucketName);
-        }
-    }
-     *
-     */
 }
