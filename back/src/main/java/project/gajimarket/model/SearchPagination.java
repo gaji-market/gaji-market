@@ -25,7 +25,9 @@ public class SearchPagination {
     //private boolean nextPage; //다음 페이지 여부
 
     private int searchType; //검색 유형
-    private String searchKeyword; //검색 키워드
+
+    private String sort; // 게시글 정렬
+    private String search; // 검색어
 
     public SearchPagination() {
         currentPage = 1;
