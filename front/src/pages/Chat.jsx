@@ -1,11 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { PRIMARY_VAR_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import { css } from 'styled-components';
 
+import io from 'socket.io-client';
+
+const TEMP_SERVER_URL = 'http://localhost:8080';
+
 export default function Chat() {
-  const [selectedChat, setSelectedChat] = useState(TEMP_LIST_ITEMS[0].username);
+  const socket = io.connect(TEMP_SERVER_URL);
+
+  const [targetId, setTargetId] = useState(TEMP_LIST_ITEMS[0].username);
+  const [msg, setMsg] = useState('');
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    socket.on('chat', (payload) => {
+      setMessages((prev) => [...prev, payload]);
+    });
+  }, []);
+
+  const changeHandler = (e) => {
+    setMsg(e.target.value);
+  };
+
+  const keydownHandler = (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      socket.emit('chat', { id: targetId, msg, time: new Date() });
+      setMsg('');
+    }
+  };
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    socket.emit('chat', { id: targetId, msg, time: new Date() });
+    setMsg('');
+  };
 
   return (
     <Wrapper>
@@ -15,8 +46,12 @@ export default function Chat() {
           {TEMP_LIST_ITEMS.map((item, i) => (
             <ChatItem
               key={item.username}
-              className={selectedChat === item.username ? 'current' : ''}
-              onClick={() => setSelectedChat(item.username)}
+              className={targetId === item.username ? 'current' : ''}
+              onClick={() => [
+                setTargetId(item.username),
+                setMessages([]),
+                setMsg(''),
+              ]}
             >
               <Box padding='8px' center='true'>
                 <ProductImg>
@@ -41,7 +76,28 @@ export default function Chat() {
       </ChatList>
       <ChatMessage>
         <Header>TITLE</Header>
-        <Body>BODY</Body>
+        <Body>
+          <ChatContent>
+            {messages.map(({ id, msg, time }, index) => (
+              <Bubble key={index}>
+                <h3>{id}</h3>
+                <div>{msg}</div>
+                <span>{time}</span>
+              </Bubble>
+            ))}
+          </ChatContent>
+        </Body>
+        <Footer>
+          <Form onSubmit={submitHandler}>
+            <textarea
+              placeholder='보내기: Ctrl + Enter'
+              onChange={changeHandler}
+              value={msg}
+              onKeyDown={keydownHandler}
+            />
+            <button>보내기</button>
+          </Form>
+        </Footer>
       </ChatMessage>
     </Wrapper>
   );
@@ -107,8 +163,17 @@ const Header = styled.h3`
 const Body = styled.div`
   padding: 16px;
   display: flex;
+  flex: 1;
   flex-direction: column;
   row-gap: 16px;
+`;
+
+const Footer = styled.div`
+  padding: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  position: relative;
+  bottom: 0;
 `;
 
 // chat
@@ -116,6 +181,8 @@ const ChatList = styled.div`
   padding: 16px;
   background-color: #eeeeee;
   height: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: 16px;
   width: 480px;
 
@@ -193,4 +260,29 @@ const ChatMessage = styled.div`
   flex: 1;
   border-radius: 16px;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ChatContent = styled.div``;
+
+const Bubble = styled.div`
+  display: flex;
+  column-gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  div {
+    flex: 1;
+  }
+`;
+
+const Form = styled.form`
+  display: flex;
+  column-gap: 24px;
+
+  textarea {
+    flex: 1;
+    height: 48px;
+  }
 `;
