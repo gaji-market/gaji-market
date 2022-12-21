@@ -46,11 +46,17 @@ public interface ProductDAO {
     //조회수 증가
     void viewCntUpdate(int prodNo);
 
+    //팔래요 전체 갯수
+    int sellCount(Map<String,Object> result);
+
+    //살래요 전체 갯수
+    int buyCount(Map<String,Object> result);
+
     //팔래요 최신순 전체보기
-    List<Map<String,Object>> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
+    List<Map<String,Object>> findSellAll(Map<String,Object> result);
 
     //살래요 최신순 전체보기
-    List<Map<String, Object>> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
+    List<Map<String, Object>> findBuyAll(Map<String,Object> result);
 
     //상품번호로 카테고리 번호 찾기
     int findProdNoByCategoryNo(int prodNo);

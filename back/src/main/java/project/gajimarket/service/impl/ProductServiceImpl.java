@@ -116,10 +116,9 @@ public class ProductServiceImpl implements ProductService {
 
     //상품 수정 전
     @Override
-    public Map<String, Object> productBeforeUpdate(Map<String,Object> param){
+    public Map<String, Object> productBeforeUpdate(int prodNo){
 
         Map<String,Object> result = new LinkedHashMap<>();
-        int prodNo = (int) param.get("prodNo");
 
         Map<String, Object> productInfo = productDAO.findProductInfo(prodNo);
         result.put("productInfo",productInfo);
@@ -194,8 +193,7 @@ public class ProductServiceImpl implements ProductService {
 
     //상품 상세 보기
     @Override
-    public Map<String,Object> productDetail(Map<String,Object> param) {
-        int prodNo = (int) param.get("prodNo");
+    public Map<String,Object> productDetail(int prodNo) {
         Map<String,Object> result = new LinkedHashMap<>();
 
         //조회수 증가
@@ -206,18 +204,20 @@ public class ProductServiceImpl implements ProductService {
         Map<String, Object> userInfo = productDAO.findUserInfo(userNo);
         result.put("userInfo",userInfo);
 
-        HttpSession session = request.getSession();
-        Object findSession = session.getAttribute("userInfo");
-        int loginUserNo = productDAO.findSessionUser(findSession);
+        //HttpSession session = request.getSession();
+        //Object findSession = session.getAttribute("userInfo");
+        //int loginUserNo = productDAO.findSessionUser(findSession);
+        //로그인한 회원이 좋아요 눌럿는지 확인하는부분 지금은 불가능
+
 
         //좋아요 정보
         Map<String,Object> interestInfo = new LinkedHashMap<>();
-        Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
-        if (interestYN==null){
-            interestInfo.put("interestYN",null);
-        }else {
-            interestInfo.put("interestYN",interestYN);
-        }
+//        Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
+//        if (interestYN==null){
+//            interestInfo.put("interestYN",null);
+//        }else {
+//            interestInfo.put("interestYN",interestYN);
+//        }
         //좋아요 갯수 가져오기
         int interestCnt = interestDAO.findInterestCnt(prodNo);
         interestInfo.put("interestCnt",interestCnt);
@@ -322,10 +322,10 @@ public class ProductServiceImpl implements ProductService {
         //만약 팔래요라면
         if (tradeState.equals("0")){
             //클릭한 태그를 보내준다
-            response.sendRedirect("/product/sellAll?search="+enTag);
+            response.sendRedirect("/product/sellAll?tag="+enTag);
         }else {
             //살래요라면
-            response.sendRedirect("/product/buyAll?search="+enTag);
+            response.sendRedirect("/product/buyAll?tag="+enTag);
         }
     }
 
@@ -377,20 +377,39 @@ public class ProductServiceImpl implements ProductService {
 
     //팔래요 전체보기
     @Override
-    public Map<String,Object> findSellAll(String search, String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
-        Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String, Object>> sellInfos = productDAO.findSellAll(search, sort, category, largeCateNo, mediumCateNo, smallCateNo);
-        result.put("sellInfos",sellInfos);
-        return result;
+    public Map<String,Object> findSellAll(Map<String,Object> result) {
+        //sort는 body로 받고, search는 태그 클릭하면 param 으로 넘어오고 검색하면 body로 넘어온다. 검색할때도 param으로 넘겨달라 할것
+        //태그 따로 검색 따로
+        // param = String tag,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo
+        // body = sort,search
+
+        List<Map<String, Object>> sellInfos = productDAO.findSellAll(result);
+
+        SearchPagination searchPagination = (SearchPagination) result.get("body");
+        searchPagination.setTotalRecordCount(productDAO.sellCount(result));
+        System.out.println("searchPagination = " + searchPagination);
+
+        Map<String,Object> result2 = new LinkedHashMap<>();
+        result2.put("schPage",searchPagination);
+        result2.put("sellInfos",sellInfos);
+
+        return result2;
     }
 
     //살래요 전체보기
     @Override
-    public Map<String,Object> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
-        Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String, Object>> buyInfos = productDAO.findBuyAll(search, sort, category, largeCateNo, mediumCateNo, smallCateNo);
-        result.put("buyInfos",buyInfos);
-        return result;
+    public Map<String,Object> findBuyAll(Map<String,Object> result) {
+        List<Map<String, Object>> buyInfos = productDAO.findBuyAll(result);
+
+        SearchPagination searchPagination = (SearchPagination) result.get("body");
+        searchPagination.setTotalRecordCount(productDAO.buyCount(result));
+        System.out.println("searchPagination = " + searchPagination);
+
+        Map<String,Object> result2 = new LinkedHashMap<>();
+        result2.put("schPage",searchPagination);
+        result2.put("sellInfos",buyInfos);
+
+        return result2;
     }
 
     /**
