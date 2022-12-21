@@ -69,7 +69,7 @@ public class ChatController {
             Map<String, Object> resultMap = chatService.getChatRoom(map);
 
             ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
-            resultMap.put("productInfo", getProduct(resultMap));
+            //resultMap.put("productInfo", getProduct(resultMap));
 
             log.info("resultMap :: " + resultMap);
 
@@ -121,9 +121,9 @@ public class ChatController {
     */
 
     //상품정보 공통 처리
-    private Map<String, Object> getProduct(Map<String, Object> map) {
-        return productService.productDetail(map);
-    }
+//     private Map<String, Object> getProduct(Map<String, Object> map) {
+//         return productService.productDetail(map);
+//     }
 
     @PostMapping("/multiTest")
     public int multiTest(@RequestBody ObjectNode objectNode) {
