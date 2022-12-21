@@ -81,6 +81,7 @@ public class UserController {
             System.out.println("UserController signIn selectUser : " + selectUser);
             if (selectUser != null) {
                 // 토큰 생성
+                param.put("userNo", selectUser.getUserNo());
                 token = JWTUtils.createAccessToken(param);
                 System.out.println("UserController signIn token : " + token);
                 if (token != null && !"".equals(token)) {
@@ -157,7 +158,7 @@ public class UserController {
 
     // 내정보 수정
     @PostMapping("/userUpdate")
-    public Map<String, Object> userUpdate(@RequestBody UserDTO userDto, HttpServletRequest request) throws IOException {
+    public Map<String, Object> userUpdate(@RequestBody UserDTO userDto, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         String token = "";
@@ -176,9 +177,8 @@ public class UserController {
                         userDto.setUserNo(selectUser.getUserNo());
                         // 받은 UserDTO
                         System.out.println("UserDTO : " + userDto);
-                        //int update = userService.updateUser(userDto);
-                        int update = 1;
-                        if (update > 0) {
+                        int update = userService.updateUser(userDto);
+                        if (update > 0)  {
                             param.put("userId", userDto.getUserId());
                             param.put("userPwd", userDto.getUserPwd());
                         }
@@ -194,6 +194,9 @@ public class UserController {
                 System.out.println("UserController userUpdate token : " + token);
                 if (token != null && !"".equals(token)) {
                     result = "success";
+
+                    Cookie cookie = new Cookie("X-AUTH-TOKEN", token);
+                    response.addCookie(cookie);
                 }
             }
 
@@ -206,32 +209,31 @@ public class UserController {
     }
 
     // 알림 수정
-    @GetMapping("/updateNtfct/{gubun}/{useYn}")
-    public Map<String, Object> updateNtfct(@PathVariable String gubun, @PathVariable String useYn, HttpServletRequest request) {
-        Map<String, Object> param = new HashMap<>();
+    @PostMapping("/updateNtfct")
+    public Map<String, Object> updateNtfct(@RequestBody UserDTO userDto, HttpServletRequest request) {
         Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+        int updateResult = 0;
         String result = "fail";
         try {
-            UserDTO user = (UserDTO) request.getSession().getAttribute("userInfo");
-            System.out.println("updateNtfct session userInfo : " + user);
+            // 토큰 가져옴
+            String headerToken = JWTUtils.getHeaderToken(request);
+            System.out.println("UserController updateNtfct token : " + headerToken);
 
-            // gubun ( 0: 채팅, 1: 댓글, 2: 좋아요 )
-            if (gubun != null && !"".equals(gubun)){
-                if (useYn != null && "".equals(useYn)){
-                    param.put("gubun", gubun);
-                    param.put("useYn", useYn);
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtils.getTokenInfo(headerToken);
+                System.out.println("updateNtfct token : " + param);
+                if (param != null) {
+                    if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
+                        userDto.setUserNo((Integer) param.get("userNo"));
+                        updateResult = userService.updateNtfct(userDto);
+                        if (updateResult > 0) {
+                            result = "success";
+                        }
+                    }
                 }
             }
-            if (user != null) {
-                param.put("userNo", user.getUserNo());
-            }
 
-            // 수정하는 Map 확인
-            System.out.println("updateNtfct param : " + param);
-            int updateNtfctResult = userService.updateNtfct(param);
-            if (updateNtfctResult > 0) {
-                result = "success";
-            }
             resultMap.put("result", result);
         } catch (Exception e) {
             System.out.println("UserController updateNtfct : " + e);

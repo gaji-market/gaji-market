@@ -211,17 +211,17 @@
     </update>
 
     <!-- 알림 수정 -->
-    <update id="updateNtfct" parameterType="java.util.HashMap">
+    <update id="updateNtfct" parameterType="project.gajimarket.model.UserDTO">
         UPDATE user_info
            <set>
-                <if test="gubun == 0 or gubun == '0'">
-                    chatNtfct = #{useYn}
+               <if test='chatNtfct != null and chatNtfct != ""'>
+                    chatNtfct = #{chatNtfct}
                 </if>
-                <if test="gubun == 1 or gubun == '1'">
-                    cmntsNtfct = #{useYn}
+               <if test='cmntsNtfct != null and cmntsNtfct != ""'>
+                    cmntsNtfct = #{cmntsNtfct}
                 </if>
-               <if test="gubun == 2 or gubun == '2'">
-                   interstNtfct = #{useYn}
+               <if test='interstNtfct != null and interstNtfct != ""'>
+                   interstNtfct = #{interstNtfct}
                </if>
            </set>
          WHERE no = #{userNo}

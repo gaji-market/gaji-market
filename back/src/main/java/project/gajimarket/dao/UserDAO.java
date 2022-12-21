@@ -32,7 +32,7 @@ public interface UserDAO {
     public int updateUser(UserDTO userDto);
 
     // 알림 수정
-    public int updateNtfct (Map<String, Object> param);
+    public int updateNtfct (UserDTO userDto);
 
     // 회원탈퇴
     public int updateOutUser (int userNo);
