@@ -123,4 +123,11 @@
          WHERE chatNo = #{chatNo}
            AND userNo <![CDATA[<>]]> #{userNo}
     </update>
+
+    <!-- 채팅방 참여 인원 조회 (API 확인용) -->
+    <select id="selectUserNoTest" parameterType="int" resultType="java.util.Map">
+        SELECT userNo, tgUserNo
+          FROM chat_info
+         WHERE chatNo = #{chatNo}
+    </select>
 </mapper>

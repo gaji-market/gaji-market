@@ -2,12 +2,13 @@ package project.gajimarket.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.Utils;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RequiredArgsConstructor
 @Slf4j
 @RestController
@@ -31,19 +33,23 @@ public class ChatController {
     private final ProductService productService; //상품정보를 가져오기 위한 서비스
 
     //채팅방 생성
-    @PostMapping("/addChatRoom")
-    public Map<String, Object> addChatRoom(@RequestBody ProductDTO productDTO, HttpServletRequest request) {
+    @Operation(summary = "채팅방 생성", description = "채팅방 생성 API")
+    @PostMapping("/addChatRoom/{userNo}")
+    public Map<String, Object> addChatRoom(
+            @ApiParam(value = "유저번호", defaultValue = "1") @PathVariable int userNo,
+            @RequestBody ProductDTO productDTO, HttpServletRequest request) {
         try {
             log.info("request ProductDTO :: "+productDTO.toString());
 
-            if (Utils.getUserInfo(request) == null) {
+            /*if (Utils.getUserInfo(request) == null) {
                 return Utils.resultMsg();
-            }
+            }*/
 
             ChatRoomDTO chatRoomDTO = new ChatRoomDTO();
             chatRoomDTO.setProdNo(productDTO.getProdNo());
             chatRoomDTO.setTgUserNo(productDTO.getUserNo());
-            chatRoomDTO.setUserNo(Utils.getUserInfo(request).getUserNo());
+            //chatRoomDTO.setUserNo(Utils.getUserInfo(request).getUserNo());
+            chatRoomDTO.setUserNo(userNo);
 
             log.info("chatRoomDTO :: "+chatRoomDTO);
 
@@ -55,20 +61,25 @@ public class ChatController {
         }
     }
 
-    @GetMapping("/getChatRoom/{chatNo}")
-    public Map<String, Object> getChatRoom(@PathVariable int chatNo, HttpServletRequest request) {
+    @Operation(summary = "채팅방 입장", description = "채팅방 입장 API (채팅방 정보 / 상품 정보), userNo에는 해당 채팅방을 참여하고 있는 유저번호가 들어가야하기 때문에 ''을 통해 참여 유저 확인 후 입력")
+    @GetMapping("/getChatRoom/{chatNo}/{userNo}")
+    public Map<String, Object> getChatRoom(
+            @ApiParam(value = "채팅번호", defaultValue = "1") @PathVariable int chatNo,
+            @ApiParam(value = "유저번호", defaultValue = "1") @PathVariable int userNo,
+            HttpServletRequest request) {
         try {
-            if (Utils.getUserInfo(request) == null) {
+            /*if (Utils.getUserInfo(request) == null) {
                 return Utils.resultMsg();
-            }
+            }*/
 
             Map<String, Object> map = new HashMap<>();
             map.put("chatNo", chatNo);
-            map.put("userNo", Utils.getUserInfo(request).getUserNo());
+            //map.put("userNo", Utils.getUserInfo(request).getUserNo());
+            map.put("userNo", userNo);
 
             Map<String, Object> resultMap = chatService.getChatRoom(map);
 
-            ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
+            //ChatRoomDTO chatRoomDTO = (ChatRoomDTO) resultMap.get("chatRoomInfo");
             resultMap.put("productInfo", getProduct(resultMap));
 
             log.info("resultMap :: " + resultMap);
@@ -80,18 +91,22 @@ public class ChatController {
         }
     }
 
-    @PostMapping("/getChatRoomList")
-    public Map<String, Object> getChatRoomList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+    @Operation(summary = "참여 채팅방 리스트", description = "참여 채팅방 리스트(상대방 닉네임, 마지막 대화, 읽지 않은 메시지 갯수)")
+    @PostMapping("/getChatRoomList/{userNo}")
+    public Map<String, Object> getChatRoomList(
+            @ApiParam(value = "유저번호", defaultValue = "1") @PathVariable int userNo,
+            @RequestBody SearchPagination searchPagination, HttpServletRequest request) {
         log.info("SearchPagination :: " + searchPagination.toString());
 
         try {
-            if (Utils.getUserInfo(request) == null) {
+            /*if (Utils.getUserInfo(request) == null) {
                 return Utils.resultMsg();
-            }
+            }*/
 
             Map<String, Object> map = new HashMap<>();
             map.put("schPage", searchPagination);
-            map.put("userNo", Utils.getUserInfo(request).getUserNo());
+            //map.put("userNo", Utils.getUserInfo(request).getUserNo());
+            map.put("userNo", userNo);
 
             return chatService.getChatRoomList(map);
         } catch (Exception e) {
@@ -125,6 +140,7 @@ public class ChatController {
         return productService.productDetail(map);
     }
 
+    @Operation(summary = "개인 테스트 용도")
     @PostMapping("/multiTest")
     public int multiTest(@RequestBody ObjectNode objectNode) {
 
@@ -141,5 +157,12 @@ public class ChatController {
         }
 
         return 1;
+    }
+
+    @Operation(summary = "getChatRoom 참여 유저 확인용 API")
+    @ApiResponse(description = "userNo = 유저번호, tgUserNo = 타겟유저번호(상품 판매자)")
+    @GetMapping("/getUserNo/{chatNo}")
+    public Map<String, Object> getUserNo_Test(@ApiParam(value = "채팅번호", defaultValue = "1")  @PathVariable int chatNo) {
+        return chatService.getUserNoTest(chatNo);
     }
 }

@@ -23,4 +23,6 @@ public interface ChatDAO {
     int updateChatMessageCheck(Map<String, Object> map);
 
     int deleteChatRoom(Map<String, Object> map);
+
+    Map<String, Object> selectUserNoTest(int chatNo);
 }

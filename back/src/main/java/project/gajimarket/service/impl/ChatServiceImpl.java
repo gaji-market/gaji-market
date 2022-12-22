@@ -76,6 +76,11 @@ public class ChatServiceImpl implements ChatService {
         return resultMap;
     }
 
+    @Override
+    public Map<String, Object> getUserNoTest(int chatNo) {
+        return chatDAO.selectUserNoTest(chatNo);
+    }
+
 
 //    public List<Map<String, Object>> getChatMessage(Map<String, Object> map) {
 //        return chatDAO.selectChatMessage(map);

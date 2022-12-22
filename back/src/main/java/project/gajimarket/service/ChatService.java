@@ -17,6 +17,8 @@ public interface ChatService {
 
     Map<String, Object> removeChatRoom(Map<String, Object> map);
 
+    Map<String, Object> getUserNoTest(int chatNo);
+
    // List<Map<String, Object>> getChatMessage(Map<String, Object> map);
 
    // <T> void sendMessage(WebSocketSession session, T message);
