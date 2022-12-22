@@ -87,9 +87,11 @@
     <!-- 팔래요 전체갯수 -->
     <select id="sellCount" resultType="int" parameterType="map">
         select count(*) from(
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interestCnt',f.dbFileName
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
+        case when cnt is null then 0 else cnt end as 'interestCnt',
+        f.dbFileName
         from product_info p
-        left join interest_info i
+        left join (select prodNo,count(prodNo) cnt from interest_info group by prodNo) i
         on p.prodNo = i.prodNo
         left join file f
         on p.prodNo = f.no
@@ -137,9 +139,11 @@
     <!-- 살래요 전체갯수 -->
     <select id="buyCount" resultType="int" parameterType="map">
         select count(*) from(
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interest',f.dbFileName
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
+                case when cnt is null then 0 else cnt end as 'interestCnt',
+               f.dbFileName
         from product_info p
-        left join interest_info i
+        left join (select prodNo,count(prodNo) cnt from interest_info group by prodNo) i
         on p.prodNo = i.prodNo
         left join file f
         on p.prodNo = f.no
@@ -186,9 +190,11 @@
 
     <!-- 팔래요 최신순 전체보기 -->
     <select id="findSellAll" resultType="map" parameterType="map">
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interestCnt',f.dbFileName
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
+               case when cnt is null then 0 else cnt end as 'interestCnt'
+               ,f.dbFileName
         from product_info p
-                 left join interest_info i
+                 left join (select prodNo,count(prodNo) cnt from interest_info group by prodNo) i
                            on p.prodNo = i.prodNo
                  left join file f
                            on p.prodNo = f.no
@@ -253,10 +259,12 @@
 
     <!-- 살래요 최신순 전체보기 -->
     <select id="findBuyAll" resultType="map" parameterType="map">
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,count(i.prodNo) as 'interest',f.dbFileName
+        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
+                case when cnt is null then 0 else cnt end as 'interestCnt',
+               f.dbFileName
         from product_info p
-                 left join interest_info i
-                           on p.prodNo = i.prodNo
+                left join (select prodNo,count(prodNo) cnt from interest_info group by prodNo) i
+                on p.prodNo = i.prodNo
                  left join file f
                            on p.prodNo = f.no
                  left join hash_tag h
