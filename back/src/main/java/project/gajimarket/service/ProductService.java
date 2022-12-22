@@ -21,7 +21,7 @@ public interface ProductService {
     void productBuySave(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
 
     //상품 수정전
-    Map<String, Object> productBeforeUpdate(Map<String,Object> param);
+    Map<String, Object> productBeforeUpdate(int prodNo);
 
     //상품 수정
     void productUpdate(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
@@ -30,7 +30,7 @@ public interface ProductService {
     void productDelete(Map<String,Object> param);
 
     //상품 상세 보기
-    Map<String,Object> productDetail(Map<String,Object> param);
+    Map<String,Object> productDetail(int prodNo);
 
     //좋아요 버튼 클릭
     Map<String, Object> interestInsert(Map<String,Object> param);
@@ -51,10 +51,10 @@ public interface ProductService {
     void mainCategoryClick(Map<String,Object> param) throws IOException;
 
     //팔래요 최신순 전체보기
-    Map<String,Object> findSellAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
+    Map<String,Object> findSellAll(Map<String,Object> result);
 
     //살래요 최신순 전체보기
-    Map<String,Object> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo);
+    Map<String,Object> findBuyAll(Map<String,Object> result);
 
     /**
      * 아래는 보류

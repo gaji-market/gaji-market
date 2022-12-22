@@ -36,9 +36,10 @@ public class SearchPagination {
 
     @Schema(description = "검색 조건")
     private int searchType; //검색 유형
-
+    @Schema(description = "정렬")
+    private String sort; // 게시글 정렬
     @Schema(description = "검색 키워드")
-    private String searchKeyword; //검색 키워드
+    private String search; // 검색어
 
     public SearchPagination() {
         currentPage = 1;
