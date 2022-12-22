@@ -31,29 +31,37 @@ export default function Editor() {
     prodPrice: 0, // required
     prodName: '', // required
     imageFiles: [], // required
-    largeCateNo: 0, // required : 1로 보내기
-    mediumCateNo: 0, // required : 1
-    smallCateNo: 0, // required : 1
+    largeCateNo: 1, // required : 1로 보내기
+    mediumCateNo: 1, // required : 1
+    smallCateNo: 1, // required : 1
     prodExplain: '', // 상품설명 required
     freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
     priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
     hashtags: [],
   });
+  //TODO: 폼 전송 테스트를 위해 카테고리는 임의로 1값을 주었음.
 
   useEffect(() => {
-    if (formDatas.freeCheck === '1') {
+    if (param === SELL && formDatas.freeCheck === '1') {
       // 무료나눔 O
       setIsCompleteForm(
         Object.values(formDatas)
           .slice(1, 7)
           .every((formData) => !!formData.toString())
       );
-    } else if (formDatas.freeCheck === '0') {
+    } else if (param === SELL && formDatas.freeCheck === '0') {
       // 무료나눔 X
       setIsCompleteForm(
         Object.values(formDatas)
           .slice(0, 7)
           .every((formData) => formData) && formDatas.imageFiles.length
+      );
+    } else if (param === BUY) {
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .slice(0, 7)
+          .filter((formData) => !Array.isArray(formData))
+          .every((formData) => !!formData)
       );
     } else {
       setIsCompleteForm(false);
@@ -62,13 +70,12 @@ export default function Editor() {
 
   //TODO: 서버에서 전송, 받아오기 실패 시 예외처리하기
   //TODO: 해시태그 10개 이상 등록 못하게 막기
-  //TODO: 카테고리 추가하기
 
   const navigate = useNavigate();
 
-  const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
-
-  console.log(productCategories);
+  // const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
+  // console.log(productCategories);
+  //TODO: 카테고리 추가하기
 
   const [createSaleProduct] = useCreateSaleProductMutation();
   const [createPurchaseProduct] = useCreatePurchaseProductMutation();
@@ -155,20 +162,15 @@ export default function Editor() {
   const createPost = (e) => {
     e.preventDefault();
 
-    if (param === SELL) {
-      const formData = new FormData();
-      formDatas.imageFiles.forEach((item) => {
-        formData.append('imageFiles', item);
-      });
+    const formData = new FormData();
+    formDatas.imageFiles.forEach((item) => {
+      formData.append('imageFiles', item);
+    });
 
-      formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
+    formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
 
-      formDatas.imageFiles = formData;
-      createSaleProduct(formData);
-    }
-
-    // if(param === BUY){
-    // }
+    formDatas.imageFiles = formData;
+    createSaleProduct(formData);
   };
 
   const cancleAddingProductClickHandler = () => {
