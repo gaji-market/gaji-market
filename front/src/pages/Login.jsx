@@ -9,6 +9,7 @@ import { GRAY_COLOR } from 'components/common/commonColor';
 import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
 import { usePostUserLoginMutation } from 'services/signUpApi';
+import { useEffect } from 'react';
 
 export default function Login() {
   const [login, data] = usePostUserLoginMutation();
@@ -33,6 +34,13 @@ export default function Login() {
     setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
   };
 
+  useEffect(() => {
+    const isToken = sessionStorage.getItem('userToken');
+    if (isToken !== null) {
+      alert('이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.');
+      nav('/');
+    }
+  }, []);
   return (
     <Container>
       <SignUpHead>
