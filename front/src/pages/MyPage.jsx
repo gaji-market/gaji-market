@@ -36,24 +36,25 @@ function CardComponent({ cards, moveProductDetail }) {
 
 export default function MyPage() {
   const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
-  const [getMyPage] = usePostUserMyPageMutation();
+  const [getMyPage, data] = usePostUserMyPageMutation();
   const navigate = useNavigate();
   const { type } = useParams();
   const [cards, setCards] = useState([]);
-
+  const [userInfo, setUserInfo] = useState();
   useEffect(() => {
     if (datas) {
-      console.log(datas);
       const { sellInfos } = datas;
       sellInfos.forEach((data) => {
         setCards((prev) => [...prev, data]);
       });
     }
   }, [datas]);
-
+  async function getUserData() {
+    const res = await getMyPage().unwrap();
+    setUserInfo(res.userInfo);
+  }
   useEffect(() => {
-    const res = getMyPage().unwrap();
-    console.log(res);
+    getUserData();
   }, []);
 
   const moveProductDetail = (prodNo) => (e) => {
@@ -61,58 +62,67 @@ export default function MyPage() {
   };
 
   return (
-    <Container>
-      <TopSection>
-        <UserInfoBox>
-          <LeftSection src={basicLogo}></LeftSection>
-          <RightSection>
-            <TextBox marginBottom={'15px'}>닉네임: 오늘만 산다</TextBox>
-            <TextBox>주소: 서울숲 공중화장실</TextBox>
-            <TextBox>
-              <StarRate vote_average={0} width={'20'}>
-                매너지수:
-              </StarRate>
-            </TextBox>
-          </RightSection>
-        </UserInfoBox>
-        <ButtonWrapper>
-          <Button customSize='250px'>내 정보 설정</Button>
-          <Button isOutline={true} customSize='250px'>
-            알람 설정
-          </Button>
-        </ButtonWrapper>
-      </TopSection>
-      <ProductHead>
-        <ProductHeadTitle>좋아요 한 게시글</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(52)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
-      <ProductHead>
-        <ProductHeadTitle>구매내역</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(25)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
-      <ProductHead>
-        <ProductHeadTitle>판매내역</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(60)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
-    </Container>
+    userInfo && (
+      <Container>
+        <TopSection>
+          <UserInfoBox>
+            <LeftSection src={basicLogo}></LeftSection>
+            <RightSection>
+              <TextBox marginBottom={'15px'}>닉네임: {userInfo.userNickName}</TextBox>
+              <TextBox>주소: {userInfo.userAddress}</TextBox>
+              <TextBox>
+                <StarRate vote_average={3} width={'20'}>
+                  매너지수:
+                </StarRate>
+              </TextBox>
+            </RightSection>
+          </UserInfoBox>
+          <ButtonWrapper>
+            <Button
+              customSize='250px'
+              onClick={() => {
+                navigate('edit', { state: userInfo.userPwd });
+              }}
+            >
+              내 정보 설정
+            </Button>
+            <Button isOutline={true} customSize='250px'>
+              알람 설정
+            </Button>
+          </ButtonWrapper>
+        </TopSection>
+        <ProductHead>
+          <ProductHeadTitle>좋아요 한 게시글</ProductHeadTitle>
+          <ProductHeadSubtext>더보기(52)</ProductHeadSubtext>
+          <PlusButton customSize='35px' />
+        </ProductHead>
+        <ProductSection>
+          <ProductCard>
+            <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
+          </ProductCard>
+        </ProductSection>
+        <ProductHead>
+          <ProductHeadTitle>구매내역</ProductHeadTitle>
+          <ProductHeadSubtext>더보기(25)</ProductHeadSubtext>
+          <PlusButton customSize='35px' />
+        </ProductHead>
+        <ProductSection>
+          <ProductCard>
+            <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
+          </ProductCard>
+        </ProductSection>
+        <ProductHead>
+          <ProductHeadTitle>판매내역</ProductHeadTitle>
+          <ProductHeadSubtext>더보기(60)</ProductHeadSubtext>
+          <PlusButton customSize='35px' />
+        </ProductHead>
+        <ProductSection>
+          <ProductCard>
+            <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
+          </ProductCard>
+        </ProductSection>
+      </Container>
+    )
   );
 }
 
