@@ -31,9 +31,9 @@ export default function Editor() {
     prodPrice: 0, // required
     prodName: '', // required
     imageFiles: [], // required
-    largeCateNo: 1, // required
-    mediumCateNo: 1, // required
-    smallCateNo: 1, // required
+    largeCateNo: 0, // required : 1로 보내기
+    mediumCateNo: 0, // required : 1
+    smallCateNo: 0, // required : 1
     prodExplain: '', // 상품설명 required
     freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
     priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
@@ -60,9 +60,6 @@ export default function Editor() {
     }
   }, [formDatas]);
 
-  console.log(formDatas);
-
-  //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
   //TODO: 서버에서 전송, 받아오기 실패 시 예외처리하기
   //TODO: 해시태그 10개 이상 등록 못하게 막기
   //TODO: 카테고리 추가하기
@@ -70,6 +67,8 @@ export default function Editor() {
   const navigate = useNavigate();
 
   const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
+
+  console.log(productCategories);
 
   const [createSaleProduct] = useCreateSaleProductMutation();
   const [createPurchaseProduct] = useCreatePurchaseProductMutation();
@@ -423,14 +422,14 @@ export default function Editor() {
                 <InputTitle isRequired title='가격' />
               </div>
               <div>
-                {formDatas.freeCheck === '0' ? (
+                {formDatas.freeCheck === '0' && param === SELL && (
                   <CheckBox
                     onChange={checkedAllowPriceSuggestions}
                     marginRight='140px'
                     id='proposition'
                     title='가격 제안 허용'
                   />
-                ) : null}
+                )}
               </div>
             </PriceTitleContainer>
 
@@ -442,12 +441,14 @@ export default function Editor() {
                 onChange={changeProductPrice}
                 required
                 type='number'
-                width='95%'
+                width={param === SELL ? '95%' : '100%'}
                 padding='10px'
                 placeholder='원'
                 placeholderPosition='right'
               />
-              <CheckBox onChange={checkedFreeSharing} width='110px' id='free' title='무료나눔' />
+              {param === SELL && (
+                <CheckBox onChange={checkedFreeSharing} width='110px' id='free' title='무료나눔' />
+              )}
             </PriceInputContainer>
           </TitleAndPriceWrapper>
 
