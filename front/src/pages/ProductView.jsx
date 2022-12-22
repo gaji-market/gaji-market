@@ -28,7 +28,7 @@ export default function ProductView() {
 
   const [cardRef, inView] = useInView();
 
-  const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
+  const { data: products, isLoading, isSuccess, isError } = useGetSellAllQuery();
 
   useEffect(() => {
     if (type === BUY) {
@@ -40,13 +40,13 @@ export default function ProductView() {
   }, [type]);
 
   useEffect(() => {
-    if (datas) {
-      const { sellInfos } = datas;
-      sellInfos.forEach((data) => {
-        setCards((prev) => [...prev, data]);
+    if (products) {
+      const { sellInfos } = products;
+      sellInfos.forEach((product) => {
+        setCards((prev) => [...prev, product]);
       });
     }
-  }, [datas]);
+  }, [products]);
 
   const getCards = useCallback(() => {
     // 서버에서 카드 데이터 받아오면 수정하기
