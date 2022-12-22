@@ -388,7 +388,6 @@ public class ProductServiceImpl implements ProductService {
 
         SearchPagination searchPagination = (SearchPagination) result.get("body");
         searchPagination.setTotalRecordCount(productDAO.sellCount(result));
-        System.out.println("searchPagination = " + searchPagination);
 
         Map<String,Object> result2 = new LinkedHashMap<>();
         result2.put("schPage",searchPagination);
