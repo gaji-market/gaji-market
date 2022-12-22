@@ -11,6 +11,7 @@ import {
   Editor,
   Error,
   MyPage,
+  MyEditPage,
   Test,
   FileTest,
 } from 'pages';
@@ -24,6 +25,7 @@ export default function index() {
         <Route path='/test/slice' element={<SliceTest />} />
         <Route path='/file' element={<FileTest />} />
         <Route path='/mypage' element={<MyPage />} />
+        <Route path='/mypage/edit' element={<MyEditPage />} />
 
         <Route path='/write' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />

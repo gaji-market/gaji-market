@@ -7,6 +7,6 @@ export { default as ProductDetailView } from './ProductDetailView';
 export { default as Editor } from './Editor';
 export { default as Error } from './Error';
 export { default as MyPage } from './MyPage';
-
+export { default as MyEditPage } from './MyEditPage';
 export { default as Test } from './Test';
 export { default as FileTest } from './FileTest';
