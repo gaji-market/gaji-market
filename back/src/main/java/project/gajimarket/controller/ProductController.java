@@ -23,6 +23,12 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @PostMapping(value = "/test",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    public void test(@RequestParam Map<String,Object> param,@RequestBody Map<String,Object> param2){
+        System.out.println("param = " + param);
+        System.out.println("param2 = " + param2);
+    }
+
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
     public Map<String,Object> categoryInfo(){
@@ -31,21 +37,19 @@ public class ProductController {
 
     //팔래요 상품 등록
     @PostMapping(value = "/sellSave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public void sellSave(@RequestPart Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String,Object> sellSave(@RequestPart Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
 
         for (MultipartFile imageFile : imageFiles) {
             log.info("imageFiles={}", imageFile.getOriginalFilename());
         }
         log.info("param={}",param);
 
-        //팔래요 상품 등록
-        productService.productSellSave(param,imageFiles);
-
+        return productService.productSellSave(param,imageFiles);
     }
 
     //살래요 상품 등록
     @PostMapping(value = "/buySave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public void buySave(@RequestBody Map<String,Object> param,@RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String, Object> buySave(@RequestBody Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
 
         for (MultipartFile imageFile : imageFiles) {
             log.info("imageFiles={}", imageFile.getOriginalFilename());
@@ -53,32 +57,32 @@ public class ProductController {
         log.info("param={}",param);
 
         //살래요 상품 등록
-        productService.productBuySave(param, imageFiles);
+        return productService.productBuySave(param, imageFiles);
 
     }
 
     //수정버튼클릭시 이미 입력된 내용 보여주기
-    @GetMapping("/beforeUpdate")
-    public Map<String, Object> productBeforeUpdate(@RequestBody Map<String,Object> param){
-        return productService.productBeforeUpdate(param);
+    @GetMapping("/beforeUpdate/{prodNo}")
+    public Map<String, Object> productBeforeUpdate(@PathVariable int prodNo){
+        return productService.productBeforeUpdate(prodNo);
     }
 
     //수정
     @PostMapping(value = "/update",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public void productUpdate(@RequestBody Map<String,Object> param,@RequestPart List<MultipartFile> imageFiles) throws IOException {
-        productService.productUpdate(param,imageFiles);
+    public Map<String, Object> productUpdate(@RequestBody Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+        return productService.productUpdate(param,imageFiles);
     }
 
     //팔래요, 살래요 삭제
     @PostMapping("/delete")
-    public void productDelete (@RequestBody Map<String,Object> param){
-        productService.productDelete(param);
+    public Map<String,Object> productDelete (@RequestBody Map<String,Object> param){
+        return productService.productDelete(param);
     }
 
     //상품 상세 보기
-    @GetMapping("/detail")
-    public Map<String, Object> productDetail(@RequestBody Map<String,Object> param){
-        return productService.productDetail(param);
+    @GetMapping("/{prodNo}")
+    public Map<String, Object> productDetail(@PathVariable int prodNo){
+        return productService.productDetail(prodNo);
     }
 
     //좋아요 버튼 눌렀을때
@@ -89,8 +93,8 @@ public class ProductController {
 
     //신고 버튼 눌렀을때
     @PostMapping("/report")
-    public void productReport(@RequestBody Map<String,Object> param){
-        productService.reportCountUp(param);
+    public Map<String, Object> productReport(@RequestBody Map<String,Object> param){
+        return productService.reportCountUp(param);
     }
 
     //경매 기능
@@ -118,21 +122,27 @@ public class ProductController {
     }
 
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
-    @GetMapping("/sellAll")
-    public Map<String,Object> sellAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
-                                      @RequestParam(required = false) Integer category,@RequestParam(required = false) Integer largeCateNo,
-                                      @RequestParam(required = false) Integer mediumCateNo,@RequestParam(required = false) Integer smallCateNo){
+    @GetMapping(value = "/sellAll")
+    public Map<String,Object> sellAll(@RequestParam(required = false) Map<String,Object> param,
+                                      @ModelAttribute SearchPagination searchPagination){
 
-        //sort는 body로 받고, search는 태그 클릭하면 param 으로 넘어오고 검색하면 body로 넘어온다.
-        return productService.findSellAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
+        Map<String,Object> result = new LinkedHashMap<>();
+        result.put("param",param);
+        result.put("body",searchPagination);
+        System.out.println("result = " + result);
+        return productService.findSellAll(result);
+
     }
 
     //살래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
-    @GetMapping("/buyAll")
-    public Map<String,Object> buyAll(@RequestParam(required = false) String search,@RequestParam(required = false) String sort,
-                                     @RequestParam(required = false) Integer category,@RequestParam(required = false) Integer largeCateNo,
-                                     @RequestParam(required = false) Integer mediumCateNo,@RequestParam(required = false) Integer smallCateNo){
-        return productService.findBuyAll(search,sort,category,largeCateNo,mediumCateNo,smallCateNo);
+    @GetMapping(value = "/buyAll")
+    public Map<String,Object> buyAll(@RequestParam(required = false) Map<String,Object> param,
+                                     @ModelAttribute SearchPagination searchPagination){
+        Map<String,Object> result = new LinkedHashMap<>();
+        result.put("param",param);
+        result.put("body",searchPagination);
+        System.out.println("result = " + result);
+        return productService.findBuyAll(result);
     }
 
     /**

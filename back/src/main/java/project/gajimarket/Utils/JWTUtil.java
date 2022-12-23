@@ -1,16 +1,15 @@
-package project.gajimarket;
+package project.gajimarket.Utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import project.gajimarket.model.UserDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Map;
 
-public class JWTUtils {
+public class JWTUtil {
 
     // 시크릿 키
     private static final String jwtSecretKey = "gajiMarket";

@@ -36,23 +36,23 @@
 
     </select>
 
-    <select id="selectNotificationList" parameterType="java.util.Map" resultType="java.util.List">
+    <select id="selectNotificationList" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT T.*
           FROM (
             <include refid="notifiList"/>
                 ) T
          ORDER BY T.regDate
-         LIMIT #{currentPage}, #{recordPage}
+        LIMIT #{schPage.limitPage}, #{schPage.recordCount}
     </select>
 
-    <select id="selectNotificationCnt" parameterType="java.util.Map" resultType="int">
+    <select id="selectNotificationListCnt" parameterType="java.util.Map" resultType="int">
         SELECT COUNT(*)
           FROM (
             <include refid="notifiList"/>
                 ) T
     </select>
 
-    <select id="selectNotificationCheckCnt" parameterType="java.util.Map" resultType="java.util.Map">
+    <select id="selectNotificationCheckCnt" parameterType="int" resultType="java.util.Map">
         SELECT COUNT(CASE WHEN gubun = 1 THEN 0 END) AS chatCheckCount,
                COUNT(CASE WHEN gubun = 2 THEN 0 END) AS intstCheckCount
           FROM notification_info

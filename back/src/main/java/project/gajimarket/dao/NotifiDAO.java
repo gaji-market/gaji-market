@@ -15,7 +15,7 @@ public interface NotifiDAO {
 
     int updateNotificationList(Map<String, Object> map);
 
-    int selectNotificationCnt(Map<String, Object> map);
+    int selectNotificationListCnt(Map<String, Object> map);
 
-    Map<String, Object> selectNotificationCheckCnt(Map<String, Object> map);
+    Map<String, Object> selectNotificationCheckCnt(int userNo);
 }

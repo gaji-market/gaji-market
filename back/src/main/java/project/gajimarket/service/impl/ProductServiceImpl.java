@@ -1,6 +1,7 @@
 package project.gajimarket.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.dao.*;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductDAO productDAO;
@@ -43,83 +45,101 @@ public class ProductServiceImpl implements ProductService {
 
     //팔래요 저장
     @Override
-    public void productSellSave(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException {
+    public Map<String, Object> productSellSave(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
 
-        //상품 저장
-        ProductDTO productDTO = new ProductDTO();
-        int largeCateNo = (int) param.get("largeCateNo");
-        int mediumCateNo = (int) param.get("mediumCateNo");
-        int smallCateNo = (int) param.get("smallCateNo");
-        int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
-        productDTO.setCategoryNo(categoryNo);
-        //int userNo = findSessionUser(request);
-        int userNo =1;
-        productDTO.setUserNo(userNo);//테스트 유저번호
-        String address = productDAO.findUserAddress(userNo);
-        productDTO.setAddress(address);
+        Map<String,Object> result = new LinkedHashMap<>();
 
-        productDTO.setProdName((String) param.get("prodName"));
-        productDTO.setProdPrice((Integer) param.get("prodPrice"));
-        productDTO.setProdExplain((String) param.get("prodExplain"));
-        productDTO.setFreeCheck((String) param.get("freeCheck"));
-        productDTO.setPriceOffer((String) param.get("priceOffer"));
-        productDAO.productSellSave(productDTO);
-        //해시태그 저장
-        List<String> tagNames = (List<String>) param.get("hashtags");
-        for (String tagName : tagNames){
-            hashTagDAO.productHashTagSave(productDTO.getProdNo(),tagName);
+        try {
+            //상품 저장
+            ProductDTO productDTO = new ProductDTO();
+            int largeCateNo = (int) param.get("largeCateNo");
+            int mediumCateNo = (int) param.get("mediumCateNo");
+            int smallCateNo = (int) param.get("smallCateNo");
+            int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
+            productDTO.setCategoryNo(categoryNo);
+            //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
+            int userNo = 1;
+            productDTO.setUserNo(userNo);//테스트 유저번호
+            String address = productDAO.findUserAddress(userNo);
+            productDTO.setAddress(address);
+
+            productDTO.setProdName((String) param.get("prodName"));
+            productDTO.setProdPrice(Integer.parseInt(String.valueOf(param.get("prodPrice"))));
+            productDTO.setProdExplain((String) param.get("prodExplain"));
+            productDTO.setFreeCheck((String) param.get("freeCheck"));
+            productDTO.setPriceOffer((String) param.get("priceOffer"));
+            productDAO.productSellSave(productDTO);
+            //해시태그 저장
+            List<String> tagNames = (List<String>) param.get("hashtags");
+            for (String tagName : tagNames) {
+                hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
+            }
+            //파일 저장
+            List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+            for (int i = 0; i < storeImageFiles.size(); i++) {
+                String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+                String dbFileName = storeImageFiles.get(i).getDbFileName();
+                fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+            }
+
+            result.put("result","Success");
+        }catch (Exception e){
+            log.error(e.toString());
+            result.put("result","Fail");
         }
-        //파일 저장
-        List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
-        for (int i=0; i<storeImageFiles.size(); i++) {
-            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-            String dbFileName = storeImageFiles.get(i).getDbFileName();
-            fileDAO.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo(), Integer.toString(i));
-        }
+        return result;
     }
 
     //살래요 저장
     @Override
-    public void productBuySave(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException {
-        ProductDTO productDTO = new ProductDTO();
+    public Map<String, Object> productBuySave(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
 
-        int largeCateNo = (int) param.get("largeCateNo");
-        int mediumCateNo = (int) param.get("mediumCateNo");
-        int smallCateNo = (int) param.get("smallCateNo");
-        int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
-        productDTO.setCategoryNo(categoryNo);
-        //int userNo = findSessionUser(request);
-        int userNo =1;
-        productDTO.setUserNo(userNo);//테스트 유저번호
-        String address = productDAO.findUserAddress(userNo);
-        productDTO.setAddress(address);
+        Map<String,Object> result = new LinkedHashMap<>();
+        try {
+            ProductDTO productDTO = new ProductDTO();
 
-        productDTO.setProdName((String) param.get("prodName"));
-        productDTO.setProdPrice((Integer) param.get("prodPrice"));
-        productDTO.setProdExplain((String) param.get("prodExplain"));
-        productDTO.setFreeCheck((String) param.get("freeCheck"));
-        productDTO.setPriceOffer((String) param.get("priceOffer"));
-        productDAO.productBuySave(productDTO);
-        //해시태그 저장
-        List<String> tagNames = (List<String>) param.get("hashtags");
-        for (String tagName : tagNames){
-            hashTagDAO.productHashTagSave(productDTO.getProdNo(),tagName);
+            int largeCateNo = (int) param.get("largeCateNo");
+            int mediumCateNo = (int) param.get("mediumCateNo");
+            int smallCateNo = (int) param.get("smallCateNo");
+            int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
+            productDTO.setCategoryNo(categoryNo);
+            //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
+            int userNo = 1;
+            productDTO.setUserNo(userNo);//테스트 유저번호
+            String address = productDAO.findUserAddress(userNo);
+            productDTO.setAddress(address);
+
+            productDTO.setProdName((String) param.get("prodName"));
+            productDTO.setProdPrice((Integer) param.get("prodPrice"));
+            productDTO.setProdExplain((String) param.get("prodExplain"));
+            productDTO.setFreeCheck((String) param.get("freeCheck"));
+            productDTO.setPriceOffer((String) param.get("priceOffer"));
+            productDAO.productBuySave(productDTO);
+            //해시태그 저장
+            List<String> tagNames = (List<String>) param.get("hashtags");
+            for (String tagName : tagNames) {
+                hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
+            }
+            //파일 저장
+            List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+            for (int i = 0; i < storeImageFiles.size(); i++) {
+                String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+                String dbFileName = storeImageFiles.get(i).getDbFileName();
+                fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+            }
+            result.put("result","Success");
+        }catch (Exception e){
+            log.error(e.toString());
+            result.put("result","Fail");
         }
-        //파일 저장
-        List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
-        for (int i=0; i<storeImageFiles.size(); i++) {
-            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-            String dbFileName = storeImageFiles.get(i).getDbFileName();
-            fileDAO.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo(), Integer.toString(i));
-        }
+        return result;
     }
 
     //상품 수정 전
     @Override
-    public Map<String, Object> productBeforeUpdate(Map<String,Object> param){
+    public Map<String, Object> productBeforeUpdate(int prodNo){
 
         Map<String,Object> result = new LinkedHashMap<>();
-        int prodNo = (int) param.get("prodNo");
 
         Map<String, Object> productInfo = productDAO.findProductInfo(prodNo);
         result.put("productInfo",productInfo);
@@ -142,60 +162,75 @@ public class ProductServiceImpl implements ProductService {
 
     //상품 수정
     @Override
-    public void productUpdate(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException {
-        ProductDTO productDTO = new ProductDTO();
-        int largeCateNo = (int) param.get("largeCateNo");
-        int mediumCateNo = (int) param.get("mediumCateNo");
-        int smallCateNo = (int) param.get("smallCateNo");
-        int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
-        productDTO.setCategoryNo(categoryNo);
-        //int userNo = findSessionUser(request);
-        int userNo =1;
-        productDTO.setUserNo(userNo);//테스트 유저번호
-        String address = productDAO.findUserAddress(userNo);
-        productDTO.setAddress(address);
+    public Map<String, Object> productUpdate(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
+        Map<String,Object> result = new LinkedHashMap<>();
+        try {
+            ProductDTO productDTO = new ProductDTO();
+            int largeCateNo = (int) param.get("largeCateNo");
+            int mediumCateNo = (int) param.get("mediumCateNo");
+            int smallCateNo = (int) param.get("smallCateNo");
+            int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
+            productDTO.setCategoryNo(categoryNo);
+            //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
+            int userNo = 1;
+            productDTO.setUserNo(userNo);//테스트 유저번호
+            String address = productDAO.findUserAddress(userNo);
+            productDTO.setAddress(address);
 
-        int prodNo = (int) param.get("prodNo");
+            int prodNo = (int) param.get("prodNo");
 
-        productDTO.setProdName((String) param.get("prodName"));
-        productDTO.setProdPrice((Integer) param.get("prodPrice"));
-        productDTO.setProdExplain((String) param.get("prodExplain"));
-        productDTO.setFreeCheck((String) param.get("freeCheck"));
-        productDTO.setPriceOffer((String) param.get("priceOffer"));
-        productDTO.setTradState((String) param.get("tradState"));
-        productDAO.productUpdate(prodNo,productDTO);
+            productDTO.setProdName((String) param.get("prodName"));
+            productDTO.setProdPrice((Integer) param.get("prodPrice"));
+            productDTO.setProdExplain((String) param.get("prodExplain"));
+            productDTO.setFreeCheck((String) param.get("freeCheck"));
+            productDTO.setPriceOffer((String) param.get("priceOffer"));
+            productDTO.setTradState((String) param.get("tradState"));
+            productDAO.productUpdate(prodNo, productDTO);
 
-        //해시태그 삭제
-        hashTagDAO.productHashTagDelete(prodNo);
-        //해시태그 다시 저장
-        List<String> tagNames = (List<String>) param.get("hashtags");
-        for (String tagName : tagNames){
-            hashTagDAO.productHashTagSave(productDTO.getProdNo(),tagName);
+            //해시태그 삭제
+            hashTagDAO.productHashTagDelete(prodNo);
+            //해시태그 다시 저장
+            List<String> tagNames = (List<String>) param.get("hashtags");
+            for (String tagName : tagNames) {
+                hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
+            }
+
+            List<String> findDBFile = fileDAO.productFindDBFile(prodNo);
+            fileService.fileDelete(findDBFile);//aws 파일 삭제
+            fileDAO.productFileDelete(prodNo);//DB 파일 삭제
+            //파일 저장
+            List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+            for (int i = 0; i < storeImageFiles.size(); i++) {
+                String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+                String dbFileName = storeImageFiles.get(i).getDbFileName();
+                fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+            }
+            result.put("result","Success");
+        }catch (Exception e){
+            log.error(e.toString());
+            result.put("result","Fail");
         }
-
-        List<String> findDBFile = fileDAO.productFindDBFile(prodNo);
-        fileService.fileDelete(findDBFile);//aws 파일 삭제
-        fileDAO.productFileDelete(prodNo);//DB 파일 삭제
-        //파일 저장
-        List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
-        for (int i=0; i<storeImageFiles.size(); i++) {
-            String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-            String dbFileName = storeImageFiles.get(i).getDbFileName();
-            fileDAO.productFileSave(uploadFileName,dbFileName,productDTO.getProdNo(), Integer.toString(i));
-        }
+        return result;
     }
 
     //상품 삭제
     @Override
-    public void productDelete(Map<String,Object> param) {
-        int prodNo = (int) param.get("prodNo");
-        productDAO.productDelete(prodNo);
+    public Map<String, Object> productDelete(Map<String,Object> param) {
+        Map<String,Object> result = new LinkedHashMap<>();
+        try {
+            int prodNo = (int) param.get("prodNo");
+            productDAO.productDelete(prodNo);
+            result.put("result","Success");
+        }catch (Exception e){
+            log.error(e.toString());
+            result.put("result","Fail");
+        }
+        return result;
     }
 
     //상품 상세 보기
     @Override
-    public Map<String,Object> productDetail(Map<String,Object> param) {
-        int prodNo = (int) param.get("prodNo");
+    public Map<String,Object> productDetail(int prodNo) {
         Map<String,Object> result = new LinkedHashMap<>();
 
         //조회수 증가
@@ -206,18 +241,20 @@ public class ProductServiceImpl implements ProductService {
         Map<String, Object> userInfo = productDAO.findUserInfo(userNo);
         result.put("userInfo",userInfo);
 
-        HttpSession session = request.getSession();
-        Object findSession = session.getAttribute("userInfo");
-        int loginUserNo = productDAO.findSessionUser(findSession);
+        //HttpSession session = request.getSession();
+        //Object findSession = session.getAttribute("userInfo");
+        //int loginUserNo = productDAO.findSessionUser(findSession);
+        //로그인한 회원이 좋아요 눌럿는지 확인하는부분 지금은 불가능
+
 
         //좋아요 정보
         Map<String,Object> interestInfo = new LinkedHashMap<>();
-        Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
-        if (interestYN==null){
-            interestInfo.put("interestYN",null);
-        }else {
-            interestInfo.put("interestYN",interestYN);
-        }
+//        Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
+//        if (interestYN==null){
+//            interestInfo.put("interestYN",null);
+//        }else {
+//            interestInfo.put("interestYN",interestYN);
+//        }
         //좋아요 갯수 가져오기
         int interestCnt = interestDAO.findInterestCnt(prodNo);
         interestInfo.put("interestCnt",interestCnt);
@@ -286,9 +323,17 @@ public class ProductServiceImpl implements ProductService {
 
     //신고 버튼
     @Override
-    public void reportCountUp(Map<String,Object> param) {
-        int prodNo = (int) param.get("prodNo");
-        productDAO.reportCountUp(prodNo);
+    public Map<String, Object> reportCountUp(Map<String,Object> param) {
+        Map<String,Object> result = new LinkedHashMap<>();
+        try {
+            int prodNo = (int) param.get("prodNo");
+            productDAO.reportCountUp(prodNo);
+            result.put("result","Success");
+        }catch (Exception e){
+            log.error(e.toString());
+            result.put("result","Fail");
+        }
+       return result;
     }
 
     // 경매 기능
@@ -322,10 +367,10 @@ public class ProductServiceImpl implements ProductService {
         //만약 팔래요라면
         if (tradeState.equals("0")){
             //클릭한 태그를 보내준다
-            response.sendRedirect("/product/sellAll?search="+enTag);
+            response.sendRedirect("/product/sellAll?tag="+enTag);
         }else {
             //살래요라면
-            response.sendRedirect("/product/buyAll?search="+enTag);
+            response.sendRedirect("/product/buyAll?tag="+enTag);
         }
     }
 
@@ -377,20 +422,51 @@ public class ProductServiceImpl implements ProductService {
 
     //팔래요 전체보기
     @Override
-    public Map<String,Object> findSellAll(String search, String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
-        Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String, Object>> sellInfos = productDAO.findSellAll(search, sort, category, largeCateNo, mediumCateNo, smallCateNo);
-        result.put("sellInfos",sellInfos);
-        return result;
+    public Map<String,Object> findSellAll(Map<String,Object> result) {
+        //sort는 body로 받고, search는 태그 클릭하면 param 으로 넘어오고 검색하면 body로 넘어온다. 검색할때도 param으로 넘겨달라 할것
+        //태그 따로 검색 따로
+        // param = String tag,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo
+        // body = sort,search
+
+        //세션으로 로그인한사람찾기
+        int loginUserNo = 0;
+        //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
+        result.put("loginUserNo",loginUserNo);
+        System.out.println("result = " + result);
+
+        List<Map<String, Object>> sellInfos = productDAO.findSellAll(result);
+
+        SearchPagination searchPagination = (SearchPagination) result.get("body");
+        searchPagination.setTotalRecordCount(productDAO.sellCount(result));
+
+        Map<String,Object> result2 = new LinkedHashMap<>();
+        result2.put("schPage",searchPagination);
+        result2.put("sellInfos",sellInfos);
+
+        return result2;
     }
 
     //살래요 전체보기
     @Override
-    public Map<String,Object> findBuyAll(String search,String sort,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo) {
-        Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String, Object>> buyInfos = productDAO.findBuyAll(search, sort, category, largeCateNo, mediumCateNo, smallCateNo);
-        result.put("buyInfos",buyInfos);
-        return result;
+    public Map<String,Object> findBuyAll(Map<String,Object> result) {
+
+        //세션으로 로그인한사람찾기
+        int loginUserNo = 0;
+        //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
+        result.put("loginUserNo",loginUserNo);
+        System.out.println("result = " + result);
+
+        List<Map<String, Object>> buyInfos = productDAO.findBuyAll(result);
+
+        SearchPagination searchPagination = (SearchPagination) result.get("body");
+        searchPagination.setTotalRecordCount(productDAO.buyCount(result));
+        System.out.println("searchPagination = " + searchPagination);
+
+        Map<String,Object> result2 = new LinkedHashMap<>();
+        result2.put("schPage",searchPagination);
+        result2.put("buyInfos",buyInfos);
+
+        return result2;
     }
 
     /**

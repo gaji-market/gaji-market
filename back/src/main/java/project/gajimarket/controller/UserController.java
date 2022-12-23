@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import project.gajimarket.JWTUtils;
+import project.gajimarket.Utils.JWTUtil;
 import project.gajimarket.model.*;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.UserService;
@@ -108,12 +108,12 @@ public class UserController {
         String result = "fail";
 
         try {
-            String headerToken = JWTUtils.getHeaderToken(request);
+            String headerToken = JWTUtil.getHeaderToken(request);
             System.out.println("UserController myPage token : " + headerToken);
 
             // 토큰 복호화
             if (headerToken != null && !"".equals(headerToken)) {
-                param = JWTUtils.getTokenInfo(headerToken);
+                param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
                     UserDTO selectUser = userService.selectUser(param);
                     System.out.println("UserController myPage userDto : " + selectUser);
@@ -165,11 +165,11 @@ public class UserController {
         String result = "fail";
         try {
             // 토큰 가져옴
-            String headerToken = JWTUtils.getHeaderToken(request);
+            String headerToken = JWTUtil.getHeaderToken(request);
             System.out.println("UserController userUpdate token : " + headerToken);
 
             if (headerToken != null && !"".equals(headerToken)) {
-                param = JWTUtils.getTokenInfo(headerToken);
+                param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
                     UserDTO selectUser = userService.selectUser(param);
                     System.out.println("UserController userUpdate userDto : " + selectUser);
@@ -190,7 +190,7 @@ public class UserController {
             System.out.println("UserController userUpdate selectUser : " + selectUser);
             if (selectUser != null) {
                 // 토큰 생성
-                token = JWTUtils.createAccessToken(param);
+                token = JWTUtil.createAccessToken(param);
                 System.out.println("UserController userUpdate token : " + token);
                 if (token != null && !"".equals(token)) {
                     result = "success";
@@ -233,7 +233,6 @@ public class UserController {
                     }
                 }
             }
-
             resultMap.put("result", result);
         } catch (Exception e) {
             System.out.println("UserController updateNtfct : " + e);
