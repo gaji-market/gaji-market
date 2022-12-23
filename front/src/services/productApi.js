@@ -11,7 +11,7 @@ export const productApi = createApi({
     getBuyAll: builder.query({
       query: () => '/buyAll',
     }),
-    getCategory: builder.query({
+    getCategories: builder.query({
       query: () => '/categoryInfo',
     }),
     createSaleProduct: builder.mutation({
@@ -34,9 +34,7 @@ export const productApi = createApi({
 export const {
   useGetSellAllQuery,
   useGetBuyAllQuery,
-  useGetCategoryQuery,
+  useGetCategoriesQuery,
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
-
-  useTestFileMutation,
 } = productApi;
