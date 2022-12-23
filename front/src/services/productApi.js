@@ -22,6 +22,9 @@ export const productApi = createApi({
     getCategories: builder.query({
       query: () => '/categoryInfo',
     }),
+    getProduct: builder.query({
+      query: (id) => `/${id}`,
+    }),
     createSaleProduct: builder.mutation({
       query: (product) => ({
         url: '/sellSave',
@@ -43,6 +46,7 @@ export const {
   useGetSellAllQuery,
   useGetBuyAllQuery,
   useGetCategoriesQuery,
+  useGetProductQuery,
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
 } = productApi;
