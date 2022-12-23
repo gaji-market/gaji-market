@@ -3,6 +3,7 @@ package project.gajimarket.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import project.gajimarket.Utils;
 import project.gajimarket.dao.*;
 import project.gajimarket.model.*;
 import project.gajimarket.model.file.UploadFile;
@@ -52,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
         int smallCateNo = (int) param.get("smallCateNo");
         int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
         productDTO.setCategoryNo(categoryNo);
-        //int userNo = findSessionUser(request);
+        //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
         int userNo =1;
         productDTO.setUserNo(userNo);//테스트 유저번호
         String address = productDAO.findUserAddress(userNo);
@@ -88,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
         int smallCateNo = (int) param.get("smallCateNo");
         int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
         productDTO.setCategoryNo(categoryNo);
-        //int userNo = findSessionUser(request);
+        //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
         int userNo =1;
         productDTO.setUserNo(userNo);//테스트 유저번호
         String address = productDAO.findUserAddress(userNo);
@@ -148,7 +149,7 @@ public class ProductServiceImpl implements ProductService {
         int smallCateNo = (int) param.get("smallCateNo");
         int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
         productDTO.setCategoryNo(categoryNo);
-        //int userNo = findSessionUser(request);
+        //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
         int userNo =1;
         productDTO.setUserNo(userNo);//테스트 유저번호
         String address = productDAO.findUserAddress(userNo);
@@ -387,7 +388,6 @@ public class ProductServiceImpl implements ProductService {
 
         SearchPagination searchPagination = (SearchPagination) result.get("body");
         searchPagination.setTotalRecordCount(productDAO.sellCount(result));
-        System.out.println("searchPagination = " + searchPagination);
 
         Map<String,Object> result2 = new LinkedHashMap<>();
         result2.put("schPage",searchPagination);
@@ -407,7 +407,7 @@ public class ProductServiceImpl implements ProductService {
 
         Map<String,Object> result2 = new LinkedHashMap<>();
         result2.put("schPage",searchPagination);
-        result2.put("sellInfos",buyInfos);
+        result2.put("buyInfos",buyInfos);
 
         return result2;
     }

@@ -125,24 +125,26 @@ public class ProductController {
     }
 
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
-    @PostMapping(value = "/sellAll",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    @GetMapping(value = "/sellAll")
     public Map<String,Object> sellAll(@RequestParam(required = false) Map<String,Object> param,
-                                      @RequestBody(required = false) SearchPagination searchPagination){
+                                      @ModelAttribute SearchPagination searchPagination){
 
         Map<String,Object> result = new LinkedHashMap<>();
         result.put("param",param);
         result.put("body",searchPagination);
+        System.out.println("result = " + result);
         return productService.findSellAll(result);
 
     }
 
     //살래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
-    @PostMapping(value = "/buyAll",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    @GetMapping(value = "/buyAll")
     public Map<String,Object> buyAll(@RequestParam(required = false) Map<String,Object> param,
-                                     @RequestBody(required = false) SearchPagination searchPagination){
+                                     @ModelAttribute SearchPagination searchPagination){
         Map<String,Object> result = new LinkedHashMap<>();
         result.put("param",param);
         result.put("body",searchPagination);
+        System.out.println("result = " + result);
         return productService.findBuyAll(result);
     }
 
