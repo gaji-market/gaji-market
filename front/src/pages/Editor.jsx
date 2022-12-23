@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import {
@@ -20,7 +20,6 @@ import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
 import isEmptyValue from 'utils/isEmptyValue';
-import { useCallback } from 'react';
 
 const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;

@@ -1,5 +1,7 @@
 import styled from 'styled-components';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import { useParams } from 'react-router-dom';
 
 import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR } from 'components/common/commonColor';
 import Button from 'components/common/Button';
@@ -7,9 +9,8 @@ import Button from 'components/common/Button';
 import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { RiTimerLine } from 'react-icons/ri';
-import { useParams } from 'react-router-dom';
+
 import { useGetProductQuery } from 'services/productApi';
-import { useState } from 'react';
 
 const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
 
