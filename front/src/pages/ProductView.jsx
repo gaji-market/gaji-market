@@ -28,7 +28,14 @@ export default function ProductView() {
 
   const [cardRef, inView] = useInView();
 
-  const { data: products, isLoading, isSuccess, isError } = useGetSellAllQuery();
+  const [pageQueryParams, setpageQueryParams] = useState({
+    pageCount: 1,
+    recordCount: 1,
+    sort: 'default',
+  });
+  const { data: products, isLoading, isSuccess, isError } = useGetSellAllQuery(pageQueryParams);
+
+  console.log(products);
 
   useEffect(() => {
     if (type === BUY) {
