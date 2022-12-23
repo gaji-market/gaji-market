@@ -82,7 +82,7 @@ public class UserController {
             if (selectUser != null) {
                 // 토큰 생성
                 param.put("userNo", selectUser.getUserNo());
-                token = JWTUtils.createAccessToken(param);
+                token = JWTUtil.createAccessToken(param);
                 System.out.println("UserController signIn token : " + token);
                 if (token != null && !"".equals(token)) {
                     result = "success";
@@ -217,11 +217,11 @@ public class UserController {
         String result = "fail";
         try {
             // 토큰 가져옴
-            String headerToken = JWTUtils.getHeaderToken(request);
+            String headerToken = JWTUtil.getHeaderToken(request);
             System.out.println("UserController updateNtfct token : " + headerToken);
 
             if (headerToken != null && !"".equals(headerToken)) {
-                param = JWTUtils.getTokenInfo(headerToken);
+                param = JWTUtil.getTokenInfo(headerToken);
                 System.out.println("updateNtfct token : " + param);
                 if (param != null) {
                     if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
