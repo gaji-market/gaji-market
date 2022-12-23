@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
@@ -11,12 +11,15 @@ import { PRIMARY_COLOR, GRAY_COLOR, WHITE_COLOR } from 'components/common/common
 import logo200 from 'assets/BasicLogo.svg';
 import man from 'assets/man.png';
 import woman from 'assets/woman.png';
+import { useNavigate } from 'react-router-dom';
 import { usePostUserSignFormMutation, usePostUserCheckIdMutation } from 'services/signUpApi';
 const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 const NICK_NAME_MIX_LENGTH = 4;
 const INPUT_MIN_LENGTH = 1;
 
 export default function SignUp() {
+  const nav = useNavigate();
+
   const [createUser, signUpData] = usePostUserSignFormMutation();
   const [CheckUserId, idData] = usePostUserCheckIdMutation();
   const [signUpForm, setSignUpForm] = useState({
@@ -30,6 +33,7 @@ export default function SignUp() {
     birthday: '',
     gender: '',
   });
+
   const open = useDaumPostcodePopup(DaumURL);
 
   const isIdVaild = isVaild('ID', signUpForm.id);
@@ -59,6 +63,13 @@ export default function SignUp() {
       signUpForm.name,
     ]);
 
+  useEffect(() => {
+    const isToken = sessionStorage.getItem('userToken');
+    if (isToken !== null) {
+      alert('이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.');
+      nav('/');
+    }
+  }, []);
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
     setSignUpForm({ ...signUpForm, address: fullAddress });
