@@ -6,7 +6,15 @@ export const productApi = createApi({
 
   endpoints: (builder) => ({
     getSellAll: builder.query({
-      query: () => '/sellAll',
+      query: (params) => {
+        const { pageCount, recordCount, sort } = params;
+
+        return {
+          url: '/sellAll',
+          method: 'GET',
+          params: { pageCount, recordCount, sort },
+        };
+      },
     }),
     getBuyAll: builder.query({
       query: () => '/buyAll',
