@@ -193,10 +193,10 @@
         select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
                case when cnt is null then 0 else cnt end as 'interestCnt',
                <if test="loginUserNo != null">
-               case when yn is null then 0 else 1 end as "interestYN",
+               case when yn is null then 0 else 1 end as 'interestYN',
                </if>
                <if test="loginUserNo == null">
-               case when yn is null then 0 else 0 end as "interestYN",
+               case when yn is null then 0 else 0 end as 'interestYN',
                </if>
                f.dbFileName
         from product_info p
@@ -270,10 +270,10 @@
         select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
                 case when cnt is null then 0 else cnt end as 'interestCnt',
         <if test="loginUserNo != null">
-            case when yn is null then 0 else 1 end as "interestYN",
+            case when yn is null then 0 else 1 end as 'interestYN',
         </if>
         <if test="loginUserNo == null">
-            case when yn is null then 0 else 0 end as "interestYN",
+            case when yn is null then 0 else 0 end as 'interestYN',
         </if>
                f.dbFileName
         from product_info p
