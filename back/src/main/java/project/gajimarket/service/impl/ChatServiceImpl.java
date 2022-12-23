@@ -3,7 +3,7 @@ package project.gajimarket.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import project.gajimarket.Utils;
+import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.dao.ChatDAO;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.SearchPagination;
@@ -25,7 +25,7 @@ public class ChatServiceImpl implements ChatService {
         int result = chatDAO.insertChatRoom(chatRoomDTO);
 
         Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("result", Utils.resultMsg(result));
+        resultMap.put("result", CommonUtil.resultMsg(result));
         resultMap.put("chatInfo", chatRoomDTO);
 
         return resultMap;
@@ -36,7 +36,7 @@ public class ChatServiceImpl implements ChatService {
 
         int result = chatDAO.insertChatMessage(map);
 
-        return Utils.resultMsg(result);
+        return CommonUtil.resultMsg(result);
     }
 
     public Map<String, Object> getChatRoomList(Map<String, Object> map) {
@@ -61,7 +61,7 @@ public class ChatServiceImpl implements ChatService {
             resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(map));
             resultMap.put("chatMessageInfos", chatDAO.selectChatMessage(map));
         } else {
-            resultMap.put("result", Utils.resultMsg(result));
+            resultMap.put("result", CommonUtil.resultMsg(result));
         }
         return resultMap;
     }
@@ -71,7 +71,7 @@ public class ChatServiceImpl implements ChatService {
         int result = chatDAO.deleteChatRoom(map);
 
         Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("result", Utils.resultMsg(result));
+        resultMap.put("result", CommonUtil.resultMsg(result));
 
         return resultMap;
     }

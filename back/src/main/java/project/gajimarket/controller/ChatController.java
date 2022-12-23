@@ -11,7 +11,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
-import project.gajimarket.Utils;
+import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.model.ChatRoomDTO;
 import project.gajimarket.model.ProductDTO;
 import project.gajimarket.model.SearchPagination;
@@ -41,14 +41,14 @@ public class ChatController {
         try {
             log.info("request ProductDTO :: "+productDTO.toString());
 
-            /*if (Utils.getUserInfo(request) == null) {
-                return Utils.resultMsg();
+            /*if (CommonUtil.getUserInfo(request) == null) {
+                return CommonUtil.resultMsg();
             }*/
 
             ChatRoomDTO chatRoomDTO = new ChatRoomDTO();
             chatRoomDTO.setProdNo(productDTO.getProdNo());
             chatRoomDTO.setTgUserNo(productDTO.getUserNo());
-            //chatRoomDTO.setUserNo(Utils.getUserInfo(request).getUserNo());
+            //chatRoomDTO.setUserNo(CommonUtil.getUserInfo(request).getUserNo());
             chatRoomDTO.setUserNo(userNo);
 
             log.info("chatRoomDTO :: "+chatRoomDTO);
@@ -57,7 +57,7 @@ public class ChatController {
             return chatService.addChatRoom(chatRoomDTO);
         } catch (Exception e) {
             log.error(e.toString());
-            return Utils.resultMsg();
+            return CommonUtil.resultMsg();
         }
     }
 
@@ -68,13 +68,13 @@ public class ChatController {
             @ApiParam(value = "유저번호", defaultValue = "1") @PathVariable int userNo,
             HttpServletRequest request) {
         try {
-            /*if (Utils.getUserInfo(request) == null) {
-                return Utils.resultMsg();
+            /*if (CommonUtil.getUserInfo(request) == null) {
+                return CommonUtil.resultMsg();
             }*/
 
             Map<String, Object> map = new HashMap<>();
             map.put("chatNo", chatNo);
-            //map.put("userNo", Utils.getUserInfo(request).getUserNo());
+            //map.put("userNo", CommonUtil.getUserInfo(request).getUserNo());
             map.put("userNo", userNo);
 
             Map<String, Object> resultMap = chatService.getChatRoom(map);
@@ -87,7 +87,7 @@ public class ChatController {
             return resultMap;
         } catch (Exception e) {
             log.error(e.toString());
-            return Utils.resultMsg();
+            return CommonUtil.resultMsg();
         }
     }
 
@@ -99,19 +99,19 @@ public class ChatController {
         log.info("SearchPagination :: " + searchPagination.toString());
 
         try {
-            /*if (Utils.getUserInfo(request) == null) {
-                return Utils.resultMsg();
+            /*if (CommonUtil.getUserInfo(request) == null) {
+                return CommonUtil.resultMsg();
             }*/
 
             Map<String, Object> map = new HashMap<>();
             map.put("schPage", searchPagination);
-            //map.put("userNo", Utils.getUserInfo(request).getUserNo());
+            //map.put("userNo", CommonUtil.getUserInfo(request).getUserNo());
             map.put("userNo", userNo);
 
             return chatService.getChatRoomList(map);
         } catch (Exception e) {
             log.error(e.toString());
-            return Utils.resultMsg();
+            return CommonUtil.resultMsg();
         }
     }
 

@@ -1,4 +1,4 @@
-package project.gajimarket;
+package project.gajimarket.Utils;
 
 import project.gajimarket.model.UserDTO;
 
@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Utils {
+public class CommonUtil {
 
     public static Map<String, Object> resultMsg() {
         return resultMsg(0);

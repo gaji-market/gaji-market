@@ -8,11 +8,11 @@ public interface NotifiService {
 
     Map<String, Object> getNotification();
 
-    List<Map<String, Object>> getNotificationList(Map<String, Object> map);
+    Map<String, Object> getNotificationList(Map<String, Object> map);
 
     Map<String, Object> updateNotification(Map<String, Object> map);
 
     int getNotificationCnt(Map<String, Object> map);
 
-    Map<String, Object> getNotificationCheckCnt(Map<String, Object> map);
+    Map<String, Object> getNotificationCheckCnt(int userNo);
 }

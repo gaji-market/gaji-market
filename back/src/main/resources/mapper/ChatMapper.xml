@@ -84,26 +84,6 @@
     <select id="selectChatRoomList" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT T.*
           FROM (
-                <!--SELECT c.*, ui.nickname
-                  FROM ( SELECT ci.chatNo,
-                                cm.message,
-                                cm.regDate,
-                                cm.regTime,
-                                CASE WHEN ci.userNo = #{userNo} THEN ci.tgUserNo ELSE ci.userNo END AS userNo
-                           FROM chat_info ci LEFT JOIN ( SELECT chatNo,
-                                                                CASE WHEN delYn='N' THEN message ELSE '삭제된 메시지' END AS message,
-                                                                regDate,
-                                                                regTime
-                                                           FROM chat_message
-                                                          WHERE (chatNo, CONCAT(regDate, regTime))
-                                                                IN ( SELECT chatNo,
-                                                                            MAX(CONCAT(regDate,regTime))
-                                                                       FROM chat_message
-                                                                      GROUP BY chatNo
-                                                                )
-                                                        ) cm ON ci.chatNo = cm.chatNo
-                          WHERE ci.userNo = #{userNo} OR ci.tgUserNo = #{userNo}
-                        ) c JOIN user_info ui ON c.userNo = ui.no-->
                   <include refid="chatList"/>
                 ) T
          ORDER BY regDate DESC, regTime DESC, chatNo DESC
