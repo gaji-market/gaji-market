@@ -191,11 +191,19 @@
     <!-- 팔래요 최신순 전체보기 -->
     <select id="findSellAll" resultType="map" parameterType="map">
         select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
-               case when cnt is null then 0 else cnt end as 'interestCnt'
-               ,f.dbFileName
+               case when cnt is null then 0 else cnt end as 'interestCnt',
+               <if test="loginUserNo != null">
+               case when yn is null then 0 else 1 end as 'interestYN',
+               </if>
+               <if test="loginUserNo == null">
+               case when yn is null then 0 else 0 end as 'interestYN',
+               </if>
+               f.dbFileName
         from product_info p
                  left join (select prodNo,count(prodNo) cnt from interest_info group by prodNo) i
                            on p.prodNo = i.prodNo
+                 left join (select interestNo yn,prodNo from interest_info where prodNo=prodNo and userNo=#{loginUserNo}) i2
+                 on p.prodNo = i2.prodNo
                  left join file f
                            on p.prodNo = f.no
                  left join hash_tag h
@@ -231,7 +239,7 @@
             </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
         </where>
-        group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
+        group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName,yn
         <if test="body != null">
             <if test="body.sort != null">
                 <if test="body.sort.equals('priceHigh')">
@@ -261,10 +269,18 @@
     <select id="findBuyAll" resultType="map" parameterType="map">
         select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
                 case when cnt is null then 0 else cnt end as 'interestCnt',
+        <if test="loginUserNo != null">
+            case when yn is null then 0 else 1 end as 'interestYN',
+        </if>
+        <if test="loginUserNo == null">
+            case when yn is null then 0 else 0 end as 'interestYN',
+        </if>
                f.dbFileName
         from product_info p
                 left join (select prodNo,count(prodNo) cnt from interest_info group by prodNo) i
                 on p.prodNo = i.prodNo
+        left join (select interestNo yn,prodNo from interest_info where prodNo=prodNo and userNo=#{loginUserNo}) i2
+        on p.prodNo = i2.prodNo
                  left join file f
                            on p.prodNo = f.no
                  left join hash_tag h
@@ -298,7 +314,7 @@
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
         </where>
-        group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName
+        group by p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,f.dbFileName,yn
         <if test="body != null">
             <if test="body.sort != null">
                 <if test="body.sort.equals('priceHigh')">

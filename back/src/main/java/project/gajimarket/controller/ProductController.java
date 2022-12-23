@@ -29,7 +29,6 @@ public class ProductController {
         System.out.println("param2 = " + param2);
     }
 
-
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
     public Map<String,Object> categoryInfo(){
@@ -38,21 +37,19 @@ public class ProductController {
 
     //팔래요 상품 등록
     @PostMapping(value = "/sellSave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public void sellSave(@RequestPart Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String,Object> sellSave(@RequestPart Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
 
         for (MultipartFile imageFile : imageFiles) {
             log.info("imageFiles={}", imageFile.getOriginalFilename());
         }
         log.info("param={}",param);
 
-        //팔래요 상품 등록
-        productService.productSellSave(param,imageFiles);
-
+        return productService.productSellSave(param,imageFiles);
     }
 
     //살래요 상품 등록
     @PostMapping(value = "/buySave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public void buySave(@RequestBody Map<String,Object> param,@RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String, Object> buySave(@RequestBody Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
 
         for (MultipartFile imageFile : imageFiles) {
             log.info("imageFiles={}", imageFile.getOriginalFilename());
@@ -60,7 +57,7 @@ public class ProductController {
         log.info("param={}",param);
 
         //살래요 상품 등록
-        productService.productBuySave(param, imageFiles);
+        return productService.productBuySave(param, imageFiles);
 
     }
 
@@ -72,14 +69,14 @@ public class ProductController {
 
     //수정
     @PostMapping(value = "/update",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public void productUpdate(@RequestBody Map<String,Object> param,@RequestPart List<MultipartFile> imageFiles) throws IOException {
-        productService.productUpdate(param,imageFiles);
+    public Map<String, Object> productUpdate(@RequestBody Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+        return productService.productUpdate(param,imageFiles);
     }
 
     //팔래요, 살래요 삭제
     @PostMapping("/delete")
-    public void productDelete (@RequestBody Map<String,Object> param){
-        productService.productDelete(param);
+    public Map<String,Object> productDelete (@RequestBody Map<String,Object> param){
+        return productService.productDelete(param);
     }
 
     //상품 상세 보기
@@ -96,8 +93,8 @@ public class ProductController {
 
     //신고 버튼 눌렀을때
     @PostMapping("/report")
-    public void productReport(@RequestBody Map<String,Object> param){
-        productService.reportCountUp(param);
+    public Map<String, Object> productReport(@RequestBody Map<String,Object> param){
+        return productService.reportCountUp(param);
     }
 
     //경매 기능

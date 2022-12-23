@@ -15,19 +15,19 @@ public interface ProductService {
     Map<String,Object> categoryInfo();
 
     //팔래요 상품 등록
-    void productSellSave(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
+    Map<String, Object> productSellSave(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
 
     //살래요 상품 등록
-    void productBuySave(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
+    Map<String, Object> productBuySave(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
 
     //상품 수정전
     Map<String, Object> productBeforeUpdate(int prodNo);
 
     //상품 수정
-    void productUpdate(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
+    Map<String, Object> productUpdate(Map<String,Object> param,List<MultipartFile> imageFiles) throws IOException;
 
     //팔래요, 살래요 상품 삭제
-    void productDelete(Map<String,Object> param);
+    Map<String,Object> productDelete(Map<String,Object> param);
 
     //상품 상세 보기
     Map<String,Object> productDetail(int prodNo);
@@ -36,7 +36,7 @@ public interface ProductService {
     Map<String, Object> interestInsert(Map<String,Object> param);
 
     //신고횟수 증가
-    void reportCountUp(Map<String,Object> param);
+    Map<String, Object> reportCountUp(Map<String,Object> param);
 
     //가격 경매 update
     void priceOfferUpdate(Map<String,Object> param);
