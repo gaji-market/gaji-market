@@ -429,6 +429,12 @@ public class ProductServiceImpl implements ProductService {
         // param = String tag,Integer category,Integer largeCateNo,Integer mediumCateNo,Integer smallCateNo
         // body = sort,search
 
+        //세션으로 로그인한사람찾기
+        int loginUserNo = 0;
+        //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
+        result.put("loginUserNo",loginUserNo);
+        System.out.println("result = " + result);
+
         List<Map<String, Object>> sellInfos = productDAO.findSellAll(result);
 
         SearchPagination searchPagination = (SearchPagination) result.get("body");
@@ -444,6 +450,13 @@ public class ProductServiceImpl implements ProductService {
     //살래요 전체보기
     @Override
     public Map<String,Object> findBuyAll(Map<String,Object> result) {
+
+        //세션으로 로그인한사람찾기
+        int loginUserNo = 0;
+        //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
+        result.put("loginUserNo",loginUserNo);
+        System.out.println("result = " + result);
+
         List<Map<String, Object>> buyInfos = productDAO.findBuyAll(result);
 
         SearchPagination searchPagination = (SearchPagination) result.get("body");
