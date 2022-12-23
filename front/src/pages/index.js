@@ -9,4 +9,3 @@ export { default as Error } from './Error';
 export { default as MyPage } from './MyPage';
 
 export { default as Test } from './Test';
-export { default as FileTest } from './FileTest';
