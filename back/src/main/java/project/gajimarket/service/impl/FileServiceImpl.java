@@ -61,7 +61,7 @@ public class FileServiceImpl implements FileService {
         objectMetadata.setContentLength(multipartFile.getSize());
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, multipartFile.getOriginalFilename(), inputStream, objectMetadata)
+            amazonS3Client.putObject(new PutObjectRequest(bucket, DBFileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         }
 
