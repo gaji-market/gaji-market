@@ -63,7 +63,7 @@ export default function ProductView() {
   }, [pageQueryParams.currentPage]);
 
   useEffect(() => {
-    if (products) {
+    if (products && isSuccess) {
       const { sellInfos } = products;
 
       sellInfos.forEach((product) => {
@@ -72,12 +72,14 @@ export default function ProductView() {
     }
   }, [products]);
 
+  console.log(products);
+
   useEffect(() => {
     if (isLoading) {
-      setShowSkeletonCard(true);
+      return setShowSkeletonCard(true);
     }
 
-    if (inView && !isLoading && lastPage.current > pageQueryParams.currentPage) {
+    if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
       getCards();
     }
   }, [inView, isLoading]);
@@ -180,7 +182,7 @@ const CardContainer = styled.div`
 
   .cardRef {
     width: 250px;
-    height: 100px;
+    height: 150px;
     position: absolute;
     bottom: 0;
     right: 0;
