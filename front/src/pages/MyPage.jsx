@@ -37,7 +37,7 @@ function CardComponent({ cards, moveProductDetail }) {
 export default function MyPage() {
   const { data: datas } = useGetSellAllQuery();
   const [getMyPage] = usePostUserMyPageMutation();
-  const navigate = useNavigate();
+  const nav = useNavigate();
   const { type } = useParams();
   const [cards, setCards] = useState([]);
   const [userInfo, setUserInfo] = useState();
@@ -56,11 +56,15 @@ export default function MyPage() {
     } catch (e) {}
   }
   useEffect(() => {
-    getUserData();
+    const isToken = sessionStorage.getItem('userToken');
+    if (isToken === null) {
+      alert('로그인이 되어 있지 않습니다. 로그인 페이지로 이동합니다.');
+      nav('/login');
+    } else getUserData();
   }, []);
 
   const moveProductDetail = (prodNo) => (e) => {
-    navigate(`/products/${type}/detail/${prodNo}`);
+    nav(`/products/${type}/detail/${prodNo}`);
   };
 
   return (
@@ -83,7 +87,7 @@ export default function MyPage() {
             <Button
               customSize='250px'
               onClick={() => {
-                navigate('edit', { state: userInfo.userPwd });
+                nav('edit', { state: userInfo.userPwd });
               }}
             >
               내 정보 설정
