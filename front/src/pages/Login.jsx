@@ -12,7 +12,7 @@ import { usePostUserLoginMutation } from 'services/signUpApi';
 import { useEffect } from 'react';
 
 export default function Login() {
-  const [login, data] = usePostUserLoginMutation();
+  const [login] = usePostUserLoginMutation();
   const nav = useNavigate();
   const [signUpForm, setSignUpForm] = useState({
     id: '',
@@ -35,7 +35,7 @@ export default function Login() {
     }
   };
   const changeHandler = (e) => {
-    setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+    setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
   useEffect(() => {

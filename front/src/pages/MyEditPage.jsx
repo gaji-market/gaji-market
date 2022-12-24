@@ -1,6 +1,5 @@
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
-import React from 'react';
 import { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
@@ -12,7 +11,7 @@ import { usePostUserEditMutation } from 'services/signUpApi';
 export default function MyEditPage() {
   const inputRef = useRef(null);
   const nav = useNavigate();
-  const [edit, data] = usePostUserEditMutation();
+  const [edit] = usePostUserEditMutation();
   const { state } = useLocation();
   const [currentPassword, setCurrentPassword] = useState('');
   const [signUpForm, setSignUpForm] = useState({
@@ -29,6 +28,7 @@ export default function MyEditPage() {
         userNickName: signUpForm.nickname,
         userAddress: signUpForm.address,
       }).unwrap();
+
       if (res.result === 'fail') {
         alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
       } else {
@@ -41,7 +41,7 @@ export default function MyEditPage() {
   };
   const changeHandler = (e) => {
     if (e.target.id === 'currentpassword') setCurrentPassword(e.target.value);
-    else setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+    else setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
   const passwordHandler = (e) => {
     e.preventDefault();

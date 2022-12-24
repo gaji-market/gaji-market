@@ -89,17 +89,22 @@ export default function SignUp() {
         userAddress: signUpForm.address,
         socialKind: '0',
       }).unwrap();
+      if (res.result === 'success') {
+        alert('회원가입이 완료되었습니다.');
+        nav('/');
+      }
     } catch (e) {
       console.log(e);
     }
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
-      setSignUpForm({ ...signUpForm, [e.target.name]: e.target.value });
-    else setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+      setSignUpForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    else setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
   const CheckId = async (e) => {
     e.preventDefault();
+
     try {
       const res = await checkUserId({ userId: signUpForm.id }).unwrap();
       if (res.result === 'used') alert('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.');
