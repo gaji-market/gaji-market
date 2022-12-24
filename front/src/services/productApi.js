@@ -3,11 +3,15 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const productApi = createApi({
   reducerPath: 'productApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://3.39.156.141:8080/product' }),
+  tagTypes: ['SellAll'],
+  keepUnusedDataFor: 30,
 
   endpoints: (builder) => ({
     getSellAll: builder.query({
       query: ({ recordCount, currentPage, sort }) =>
         `/sellAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}`,
+      providesTags: ['SellAll'],
+      keepUnusedDataFor: 1,
     }),
     getBuyAll: builder.query({
       query: () => '/buyAll',
