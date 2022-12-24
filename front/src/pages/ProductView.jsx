@@ -182,7 +182,7 @@ const CardContainer = styled.div`
 
   .cardRef {
     width: 250px;
-    height: 150px;
+    height: 250px;
     position: absolute;
     bottom: 0;
     right: 0;

@@ -11,7 +11,7 @@ export const productApi = createApi({
       query: ({ recordCount, currentPage, sort }) =>
         `/sellAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}`,
       providesTags: ['SellAll'],
-      keepUnusedDataFor: 1,
+      keepUnusedDataFor: 0,
     }),
     getBuyAll: builder.query({
       query: () => '/buyAll',
