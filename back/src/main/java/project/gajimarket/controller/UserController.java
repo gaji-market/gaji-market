@@ -160,7 +160,7 @@ public class UserController {
 
     // 내정보 수정
     @PostMapping(value = "/userUpdate", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public Map<String, Object> userUpdate(@RequestBody UserDTO userDto, @RequestPart MultipartFile multipartFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Map<String, Object> userUpdate(@RequestPart UserDTO userDto, @RequestPart MultipartFile multipartFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         String token = "";
