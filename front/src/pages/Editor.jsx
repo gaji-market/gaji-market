@@ -159,17 +159,24 @@ export default function Editor() {
   }, []);
 
   const createPost = (e) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
 
-    const formData = new FormData();
-    formDatas.imageFiles.forEach((item) => {
-      formData.append('imageFiles', item);
-    });
+      const formData = new FormData();
+      formDatas.imageFiles.forEach((item) => {
+        formData.append('imageFiles', item);
+      });
 
-    formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
+      formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
 
-    formDatas.imageFiles = formData;
-    createSaleProduct(formData);
+      formDatas.imageFiles = formData;
+      createSaleProduct(formData);
+
+      alert('게시글 등록 완료');
+      navigate(`/products/${param}`);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const cancleAddingProductClickHandler = () => {
@@ -442,6 +449,8 @@ export default function Editor() {
                 onChange={changeProductPrice}
                 required
                 type='number'
+                min='0'
+                max='99999999999'
                 width={param === SELL ? '95%' : '100%'}
                 padding='10px'
                 placeholder='원'
