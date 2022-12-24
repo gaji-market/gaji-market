@@ -11,13 +11,14 @@ import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { RiTimerLine } from 'react-icons/ri';
 
 import { useGetProductQuery } from 'services/productApi';
+import { Error } from './index';
 
 const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
 
 export default function ProductDetailView() {
-  const { type, id: prodNo } = useParams();
+  const { type: param, id: prodNo } = useParams();
   const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
-  console.log(product);
+
   const [productDate, setProductDate] = useState('');
 
   useEffect(() => {
@@ -26,11 +27,13 @@ export default function ProductDetailView() {
     }
   }, [product]);
 
+  if (isError) {
+    return <Error />;
+  }
+
   return (
     <>
-      {!isSuccess ? (
-        '페이지 불러오기 실패'
-      ) : (
+      {isSuccess && (
         <Container>
           <Categories>{'카테고리 > 카테고리2 > 카테고리3'}</Categories>
 
@@ -94,7 +97,7 @@ export default function ProductDetailView() {
               <HashTags>
                 {product.hashTagInfos.length > 0 &&
                   product.hashTagInfos.map((hashtag, idx) => {
-                    return <HashTag key={`${hashtag}${idx}`}>#{hashtag}</HashTag>;
+                    return <HashTag key={`${hashtag.tagName}${idx}`}>#{hashtag.tagName}</HashTag>;
                   })}
               </HashTags>
             </ProductSummary>
