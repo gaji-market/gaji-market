@@ -175,6 +175,8 @@ public class UserController {
                 if (param != null) {
                     if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
                         userDto.setUserNo((Integer)param.get("userNo"));
+                        System.out.println("UserController userUpdate userDto : " + userDto);
+                        System.out.println("userController userUpdate multipartFile : " + multipartFile);
                         int update = userService.updateUser(userDto, multipartFile);
                         if (update > 0) {
                             System.out.println("UserController userUpdate Success");

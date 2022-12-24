@@ -25,7 +25,7 @@
     </delete>
 
     <!-- 사용자 이미지 저장 -->
-    <insert id="userFileSave">
+    <insert id="userFileSave" parameterType="java.util.Map">
         INSERT INTO FILE
              ( no
              , gubun
@@ -41,7 +41,7 @@
     </insert>
 
     <!-- 사용자 이미지 조회 -->
-    <select id="selectUserImg">
+    <select id="selectUserImg" parameterType="java.util.Map">
         SELECT dbFileName
           FROM file
          WHERE no = #{userNo}
