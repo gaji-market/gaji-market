@@ -53,7 +53,9 @@ export default function MyPage() {
     try {
       const res = await getMyPage().unwrap();
       setUserInfo(res.userInfo);
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   }
   useEffect(() => {
     const isToken = sessionStorage.getItem('userToken');

@@ -30,7 +30,9 @@ export default function Login() {
         nav('/');
         sessionStorage.setItem('userToken', res.token);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   };
   const changeHandler = (e) => {
     setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });

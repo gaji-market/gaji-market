@@ -89,7 +89,9 @@ export default function SignUp() {
         userAddress: signUpForm.address,
         socialKind: '0',
       }).unwrap();
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
@@ -102,7 +104,9 @@ export default function SignUp() {
       const res = await CheckUserId({ userId: signUpForm.id }).unwrap();
       if (res.result === 'used') alert('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.');
       else alert('사용가능한 아이디 입니다.');
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (

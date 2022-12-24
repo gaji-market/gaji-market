@@ -35,7 +35,9 @@ export default function MyEditPage() {
         alert('회원정보가 변경되었습니다.');
         nav('/mypage');
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   };
   const changeHandler = (e) => {
     if (e.target.id === 'currentpassword') setCurrentPassword(e.target.value);
