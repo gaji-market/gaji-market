@@ -59,7 +59,7 @@ const Bg = styled.div`
   top: 0;
   width: 100vw;
   height: 100vh;
-  background: #4949491f;
+  background: #00000050;
   overflow: hidden;
   position: fixed;
   z-index: 999;
