@@ -4,37 +4,44 @@ import { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { GRAY_COLOR } from 'components/common/commonColor';
-
+import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
+import basicLogo from 'assets/BasicLogo.svg';
 import { usePostUserEditMutation } from 'services/signUpApi';
 
 export default function MyEditPage() {
   const inputRef = useRef(null);
-  const nav = useNavigate();
   const [edit] = usePostUserEditMutation();
   const { state } = useLocation();
+  const [preview, setPreview] = useState(basicLogo);
   const [currentPassword, setCurrentPassword] = useState('');
   const [signUpForm, setSignUpForm] = useState({
-    password: '',
-    nickname: '',
-    address: '',
+    profileIMG: basicLogo,
+    userPwd: '',
+    userNickName: '',
+    userAddress: '',
+    userNo: state.userNo,
   });
   const [isCorrectPW, setIsCorrectPW] = useState(false);
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await edit({
-        userPwd: signUpForm.password,
-        userNickName: signUpForm.nickname,
-        userAddress: signUpForm.address,
-      }).unwrap();
+      const formData = new FormData();
+      formData.append('multipartFile', signUpForm.profileIMG);
+      formData.append(
+        'userDto',
+        new Blob([JSON.stringify(signUpForm)], { type: 'application/json' })
+      );
+      console.log(formData.userDto);
+      const res = await edit(formData).unwrap();
+      console.log(res);
 
-      if (res.result === 'fail') {
-        alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
-      } else {
-        alert('회원정보가 변경되었습니다.');
-        nav('/mypage');
-      }
+      // if (res.result === 'fail') {
+      //   alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
+      // } else {
+      //   alert('회원정보가 변경되었습니다.');
+      //   sessionStorage.setItem('userToken', res.token);
+      //   nav('/mypage');
+      // }
     } catch (e) {
       console.log(e);
     }
@@ -45,7 +52,8 @@ export default function MyEditPage() {
   };
   const passwordHandler = (e) => {
     e.preventDefault();
-    if (currentPassword === state) {
+    console.log(state);
+    if (currentPassword === state.userPwd) {
       alert('정보수정페이지로 이동합니다.');
       setIsCorrectPW(true);
     } else {
@@ -55,6 +63,12 @@ export default function MyEditPage() {
       inputRef.current.focus();
     }
   };
+  function changeIMG(e) {
+    console.log(e.target.files);
+    const url = URL.createObjectURL(e.target.files[0]);
+    setPreview(url);
+    setSignUpForm((prev) => ({ ...prev, profileIMG: e.target.files[0] }));
+  }
   return (
     <Container>
       {isCorrectPW ? (
@@ -64,27 +78,38 @@ export default function MyEditPage() {
             <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
           </SignUpHead>
           <Line width={'500px'} marginBottom={'50px'} />
-          <Head>
-            <div>아이디:vjvl95</div>
-            <div>이름:홍짱</div>
-            <div>생년월일:1995-08-23</div>
-          </Head>
+
           <Form onChange={(e) => changeHandler(e)}>
+            <ProfileBox>
+              <ImageBox src={preview} alt='' />
+              <ImageUpLoaderLabel htmlFor='image-uploader'>프로필 사진 변경</ImageUpLoaderLabel>
+              <ImageUpLoaderInput
+                id='image-uploader'
+                name='image-uploader'
+                type='file'
+                onChange={(e) => changeIMG(e)}
+              />
+            </ProfileBox>
+
+            <Head>
+              <div>아이디:vjvl95</div>
+              <div>이름:홍짱</div>
+              <div>생년월일:1995-08-23</div>
+            </Head>
             <InputBox>
               <InputTitle title={'새 비밀번호'} isRequired />
               <InputTextBox
-                id={'password'}
-                value={signUpForm.password}
+                id={'userPwd'}
+                value={signUpForm.userPwd}
                 containerBottom={'20px'}
                 width={'400px'}
                 placeholder={'새 비밀번호를 입력하세요'}
                 type={'password'}
               />
-
               <InputTitle title={'닉네임'} isRequired />
               <InputTextBox
-                id={'nickname'}
-                value={signUpForm.nickname}
+                id={'userNickName'}
+                value={signUpForm.userNickName}
                 containerBottom={'20px'}
                 width={'400px'}
                 placeholder={'닉네임를 입력하세요.'}
@@ -92,8 +117,8 @@ export default function MyEditPage() {
               />
               <InputTitle title={'주소'} isRequired />
               <InputTextBox
-                id={'address'}
-                value={signUpForm.address}
+                id={'userAddress'}
+                value={signUpForm.userAddress}
                 containerBottom={'20px'}
                 width={'400px'}
                 placeholder={'주소를 입력하세요.'}
@@ -137,6 +162,29 @@ export default function MyEditPage() {
     </Container>
   );
 }
+const ProfileBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+const ImageBox = styled.img`
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 50%;
+`;
+const ImageUpLoaderLabel = styled.label`
+  width: 50%;
+  display: block;
+  background: ${GRAY_COLOR};
+  color: ${WHITE_COLOR};
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 15px;
+`;
 const Head = styled.div`
   font-weight: 800;
   display: flex;
@@ -153,6 +201,13 @@ const Container = styled.div`
 `;
 const InputBox = styled.div`
   margin-left: 45px;
+`;
+
+const ImageUpLoaderInput = styled.input.attrs({
+  multiple: true,
+  accept: 'image/*',
+})`
+  display: none;
 `;
 
 const Line = styled.hr`

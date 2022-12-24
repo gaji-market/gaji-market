@@ -52,6 +52,7 @@ export default function MyPage() {
   async function getUserData() {
     try {
       const res = await getMyPage().unwrap();
+      console.log(res);
       setUserInfo(res.userInfo);
     } catch (e) {
       console.log(e);
@@ -89,7 +90,7 @@ export default function MyPage() {
             <Button
               customSize='250px'
               onClick={() => {
-                nav('edit', { state: userInfo.userPwd });
+                nav('edit', { state: userInfo });
               }}
             >
               내 정보 설정
