@@ -6,15 +6,8 @@ export const productApi = createApi({
 
   endpoints: (builder) => ({
     getSellAll: builder.query({
-      query: (params) => {
-        const { recordCount, currentPage, sort } = params;
-
-        return {
-          url: '/sellAll',
-          method: 'GET',
-          params: { recordCount, currentPage, sort },
-        };
-      },
+      query: ({ recordCount, currentPage, sort }) =>
+        `/sellAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}`,
     }),
     getBuyAll: builder.query({
       query: () => '/buyAll',
