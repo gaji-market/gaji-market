@@ -7,12 +7,12 @@ export const productApi = createApi({
   endpoints: (builder) => ({
     getSellAll: builder.query({
       query: (params) => {
-        const { pageCount, recordCount, sort } = params;
+        const { recordCount, currentPage, sort } = params;
 
         return {
           url: '/sellAll',
           method: 'GET',
-          params: { pageCount, recordCount, sort },
+          params: { recordCount, currentPage, sort },
         };
       },
     }),
