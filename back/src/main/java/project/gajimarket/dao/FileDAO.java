@@ -19,4 +19,6 @@ public interface FileDAO {
 
     //DB file 테이블 정보 삭제
     void productFileDelete(int prodNo);
+
+    int userFileSave (Map<String, Object> param);
 }

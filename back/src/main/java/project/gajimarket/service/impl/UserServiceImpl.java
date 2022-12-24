@@ -2,12 +2,18 @@ package project.gajimarket.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import project.gajimarket.dao.FileDAO;
 import project.gajimarket.dao.ProductDAO;
 import project.gajimarket.dao.UserDAO;
 import project.gajimarket.model.*;
+import project.gajimarket.model.file.UploadFile;
+import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 import project.gajimarket.service.UserService;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +22,10 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
 
     private final UserDAO userDao;
+
+    private final FileService fileService;
+
+    private final FileDAO fileDAO;
 
     @Override
     public int checkUserId(String id) {
@@ -47,8 +57,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateUser(UserDTO userDto) {
-        return userDao.updateUser(userDto);
+    public int updateUser(UserDTO userDto, MultipartFile imgFile) {
+        Map<String, Object> paramMap = new HashMap<>();
+        int result = -1;
+        try {
+            paramMap.put("userNo", userDto.getUserNo());
+            if (imgFile != null) {
+                UploadFile uploadFile = fileService.storeFile(imgFile);
+                paramMap.put("uploadFileName", uploadFile.getUploadFileName());
+                paramMap.put("dbFileName", uploadFile.getDbFileName());
+                
+                System.out.println("UserServiceImpl uploadFile : " + uploadFile);
+                fileDAO.userFileSave(paramMap);
+            }
+            result = userDao.updateUser(userDto);
+        } catch (IOException e) {
+            System.out.println("UserServiceImpl updateUser : " + e);
+        }
+        return result;
     }
 
     @Override

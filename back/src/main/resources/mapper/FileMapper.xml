@@ -23,4 +23,28 @@
     <delete id="productFileDelete" parameterType="int">
         delete from file where no=#{param1} and gubun='2';
     </delete>
+
+    <!-- 사용자 이미지 저장 -->
+    <insert id="userFileSave">
+        INSERT INTO FILE
+             ( no
+             , gubun
+             , uploadFileName
+             , dbFileName
+             )
+        VALUES
+             ( #{userNo}
+             , '1'
+             , #{uploadFileName}
+             , #{dbFileName}
+             )
+    </insert>
+
+    <!-- 사용자 이미지 조회 -->
+    <select id="selectUserImg">
+        SELECT dbFileName
+          FROM file
+         WHERE no = #{userNo}
+           AND gubun = '1'
+    </select>
 </mapper>

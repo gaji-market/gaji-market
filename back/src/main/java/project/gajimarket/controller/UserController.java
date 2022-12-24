@@ -2,8 +2,10 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.Utils.JWTUtil;
 import project.gajimarket.model.*;
 import project.gajimarket.service.FileService;
@@ -157,8 +159,8 @@ public class UserController {
     }
 
     // 내정보 수정
-    @PostMapping("/userUpdate")
-    public Map<String, Object> userUpdate(@RequestBody UserDTO userDto, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @PostMapping(value = "/userUpdate", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
+    public Map<String, Object> userUpdate(@RequestBody UserDTO userDto, @RequestPart MultipartFile multipartFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         String token = "";
@@ -171,16 +173,11 @@ public class UserController {
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
-                    UserDTO selectUser = userService.selectUser(param);
-                    System.out.println("UserController userUpdate userDto : " + selectUser);
-                    if (selectUser.getUserNo() > 0) {
-                        userDto.setUserNo(selectUser.getUserNo());
-                        // 받은 UserDTO
-                        System.out.println("UserDTO : " + userDto);
-                        int update = userService.updateUser(userDto);
-                        if (update > 0)  {
-                            param.put("userId", userDto.getUserId());
-                            param.put("userPwd", userDto.getUserPwd());
+                    if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
+                        userDto.setUserNo((Integer)param.get("userNo"));
+                        int update = userService.updateUser(userDto, multipartFile);
+                        if (update > 0) {
+                            System.out.println("UserController userUpdate Success");
                         }
                     }
                 }
