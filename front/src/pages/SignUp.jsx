@@ -21,7 +21,7 @@ export default function SignUp() {
   const nav = useNavigate();
 
   const [createUser] = usePostUserSignFormMutation();
-  const [CheckUserId] = usePostUserCheckIdMutation();
+  const [checkUserId] = usePostUserCheckIdMutation();
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
@@ -101,7 +101,7 @@ export default function SignUp() {
   const CheckId = async (e) => {
     e.preventDefault();
     try {
-      const res = await CheckUserId({ userId: signUpForm.id }).unwrap();
+      const res = await checkUserId({ userId: signUpForm.id }).unwrap();
       if (res.result === 'used') alert('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.');
       else alert('사용가능한 아이디 입니다.');
     } catch (e) {
