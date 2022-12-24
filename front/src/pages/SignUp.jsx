@@ -20,8 +20,8 @@ const INPUT_MIN_LENGTH = 1;
 export default function SignUp() {
   const nav = useNavigate();
 
-  const [createUser, signUpData] = usePostUserSignFormMutation();
-  const [CheckUserId, idData] = usePostUserCheckIdMutation();
+  const [createUser] = usePostUserSignFormMutation();
+  const [CheckUserId] = usePostUserCheckIdMutation();
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
@@ -77,27 +77,32 @@ export default function SignUp() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
-    const res = await createUser({
-      userId: signUpForm.id,
-      userPwd: signUpForm.password,
-      userName: signUpForm.name,
-      userNickName: signUpForm.nickName,
-      userGender: signUpForm.gender,
-      userBirth: '0823',
-      userPhone: '',
-      userAddress: signUpForm.address,
-      socialKind: '0',
-    }).unwrap();
+    try {
+      const res = await createUser({
+        userId: signUpForm.id,
+        userPwd: signUpForm.password,
+        userName: signUpForm.name,
+        userNickName: signUpForm.nickName,
+        userGender: signUpForm.gender,
+        userBirth: '0823',
+        userPhone: '',
+        userAddress: signUpForm.address,
+        socialKind: '0',
+      }).unwrap();
+    } catch (e) {}
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
       setSignUpForm({ ...signUpForm, [e.target.name]: e.target.value });
     else setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
   };
-  const CheckId = (e) => {
+  const CheckId = async (e) => {
     e.preventDefault();
-    CheckUserId({ userId: signUpForm.id });
+    try {
+      const res = await CheckUserId({ userId: signUpForm.id }).unwrap();
+      if (res.result === 'used') alert('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.');
+      else alert('사용가능한 아이디 입니다.');
+    } catch (e) {}
   };
 
   return (

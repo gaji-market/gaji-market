@@ -4,13 +4,14 @@ import React from 'react';
 import { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { GRAY_COLOR } from 'components/common/commonColor';
 
 import { usePostUserEditMutation } from 'services/signUpApi';
 
 export default function MyEditPage() {
   const inputRef = useRef(null);
+  const nav = useNavigate();
   const [edit, data] = usePostUserEditMutation();
   const { state } = useLocation();
   const [currentPassword, setCurrentPassword] = useState('');
@@ -22,18 +23,19 @@ export default function MyEditPage() {
   const [isCorrectPW, setIsCorrectPW] = useState(false);
   const submitHandler = async (e) => {
     e.preventDefault();
-    const res = await edit({
-      userPwd: signUpForm.password,
-      userNickName: signUpForm.nickname,
-      userAddress: signUpForm.address,
-    }).unwrap();
-    console.log(res);
-    // if (res.result === 'fail') {
-    //   alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
-    // } else {
-    //   alert('회원정보가 변경되었습니다.');
-    //   nav('/mypage');
-    // }
+    try {
+      const res = await edit({
+        userPwd: signUpForm.password,
+        userNickName: signUpForm.nickname,
+        userAddress: signUpForm.address,
+      }).unwrap();
+      if (res.result === 'fail') {
+        alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
+      } else {
+        alert('회원정보가 변경되었습니다.');
+        nav('/mypage');
+      }
+    } catch (e) {}
   };
   const changeHandler = (e) => {
     if (e.target.id === 'currentpassword') setCurrentPassword(e.target.value);

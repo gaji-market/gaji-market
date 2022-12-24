@@ -21,14 +21,16 @@ export default function Login() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
-    if (res.result === 'fail') {
-      alert('아이디 및 비밀번호가 틀렸습니다. 다시 입력해주세요');
-    } else {
-      alert('로그인 되었습니다.');
-      nav('/');
-      sessionStorage.setItem('userToken', res.token);
-    }
+    try {
+      const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
+      if (res.result === 'fail') {
+        alert('아이디 및 비밀번호가 틀렸습니다. 다시 입력해주세요');
+      } else {
+        alert('로그인 되었습니다.');
+        nav('/');
+        sessionStorage.setItem('userToken', res.token);
+      }
+    } catch (e) {}
   };
   const changeHandler = (e) => {
     setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });

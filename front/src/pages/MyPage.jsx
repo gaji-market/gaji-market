@@ -35,8 +35,8 @@ function CardComponent({ cards, moveProductDetail }) {
 }
 
 export default function MyPage() {
-  const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
-  const [getMyPage, data] = usePostUserMyPageMutation();
+  const { data: datas } = useGetSellAllQuery();
+  const [getMyPage] = usePostUserMyPageMutation();
   const navigate = useNavigate();
   const { type } = useParams();
   const [cards, setCards] = useState([]);
@@ -50,8 +50,10 @@ export default function MyPage() {
     }
   }, [datas]);
   async function getUserData() {
-    const res = await getMyPage().unwrap();
-    setUserInfo(res.userInfo);
+    try {
+      const res = await getMyPage().unwrap();
+      setUserInfo(res.userInfo);
+    } catch (e) {}
   }
   useEffect(() => {
     getUserData();
