@@ -72,7 +72,7 @@ export default function SignUp() {
   }, []);
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
-    setSignUpForm({ ...signUpForm, address: fullAddress });
+    setSignUpForm((prev) => ({ ...prev, address: fullAddress }));
   };
 
   const submitHandler = async (e) => {
