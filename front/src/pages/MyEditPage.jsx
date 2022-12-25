@@ -3,10 +3,14 @@ import InputTitle from 'components/common/InputTitle';
 import { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import basicLogo from 'assets/BasicLogo.svg';
+import { useDaumPostcodePopup } from 'react-daum-postcode';
+import getAddress from 'utils/getAddress';
 import { usePostUserEditMutation } from 'services/signUpApi';
+import { useEffect } from 'react';
+const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
 export default function MyEditPage() {
   const inputRef = useRef(null);
@@ -14,26 +18,26 @@ export default function MyEditPage() {
   const { state } = useLocation();
   const [preview, setPreview] = useState(basicLogo);
   const [currentPassword, setCurrentPassword] = useState('');
-  const [signUpForm, setSignUpForm] = useState({
+  const [updateForm, setUpdateForm] = useState({
     profileIMG: basicLogo,
     userPwd: '',
-    userNickName: '',
-    userAddress: '',
+    userNickName: state.userNickName,
+    userAddress: state.userAddress,
     userNo: state.userNo,
   });
+  const open = useDaumPostcodePopup(DaumURL);
+
   const [isCorrectPW, setIsCorrectPW] = useState(false);
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('multipartFile', signUpForm.profileIMG);
+      formData.append('multipartFile', updateForm.profileIMG);
       formData.append(
         'userDto',
-        new Blob([JSON.stringify(signUpForm)], { type: 'application/json' })
+        new Blob([JSON.stringify(updateForm)], { type: 'application/json' })
       );
-      console.log(formData.userDto);
       const res = await edit(formData).unwrap();
-      console.log(res);
 
       // if (res.result === 'fail') {
       //   alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
@@ -47,8 +51,10 @@ export default function MyEditPage() {
     }
   };
   const changeHandler = (e) => {
+    console.log(1111);
+
     if (e.target.id === 'currentpassword') setCurrentPassword(e.target.value);
-    else setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+    else setUpdateForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
   const passwordHandler = (e) => {
     e.preventDefault();
@@ -64,18 +70,25 @@ export default function MyEditPage() {
     }
   };
   function changeIMG(e) {
-    console.log(e.target.files);
     const url = URL.createObjectURL(e.target.files[0]);
     setPreview(url);
-    setSignUpForm((prev) => ({ ...prev, profileIMG: e.target.files[0] }));
+    setUpdateForm((prev) => ({ ...prev, profileIMG: e.target.files[0] }));
   }
+
+  const handleComplete = (data) => {
+    const fullAddress = getAddress(data);
+    setUpdateForm((prev) => ({ ...prev, userAddress: fullAddress }));
+    inputRef.current.value = fullAddress;
+  };
+  useEffect(() => {
+    console.log(updateForm);
+  }, [updateForm]);
   return (
     <Container>
       {isCorrectPW ? (
         <>
           <SignUpHead>
             <Title>회원정보 변경</Title>
-            <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
           </SignUpHead>
           <Line width={'500px'} marginBottom={'50px'} />
 
@@ -100,7 +113,7 @@ export default function MyEditPage() {
               <InputTitle title={'새 비밀번호'} isRequired />
               <InputTextBox
                 id={'userPwd'}
-                value={signUpForm.userPwd}
+                value={updateForm.userPwd}
                 containerBottom={'20px'}
                 width={'400px'}
                 placeholder={'새 비밀번호를 입력하세요'}
@@ -109,20 +122,22 @@ export default function MyEditPage() {
               <InputTitle title={'닉네임'} isRequired />
               <InputTextBox
                 id={'userNickName'}
-                value={signUpForm.userNickName}
+                value={updateForm.userNickName}
                 containerBottom={'20px'}
                 width={'400px'}
-                placeholder={'닉네임를 입력하세요.'}
                 type={'text'}
               />
               <InputTitle title={'주소'} isRequired />
               <InputTextBox
+                inputRef={inputRef}
                 id={'userAddress'}
-                value={signUpForm.userAddress}
-                containerBottom={'20px'}
+                value={updateForm.userAddress}
                 width={'400px'}
-                placeholder={'주소를 입력하세요.'}
+                containerBottom={'20px'}
+                padding={'10px'}
                 type={'text'}
+                isReadOnly={true}
+                clickHandler={() => open({ onComplete: handleComplete })}
               />
             </InputBox>
             <ButtonBox>
@@ -203,10 +218,7 @@ const InputBox = styled.div`
   margin-left: 45px;
 `;
 
-const ImageUpLoaderInput = styled.input.attrs({
-  multiple: true,
-  accept: 'image/*',
-})`
+const ImageUpLoaderInput = styled.input.attrs({})`
   display: none;
 `;
 
@@ -221,14 +233,6 @@ const Title = styled.div`
   font-size: 16px;
   margin-right: 10px;
   margin-left: ${(props) => props.margin};
-`;
-
-const SubTitle = styled.p`
-  margin-left: 30px;
-  padding-top: 7px;
-  font-size: 10px;
-  vertical-align: bottom;
-  color: #9a9a9a;
 `;
 
 const SignUpHead = styled.div`
