@@ -51,7 +51,7 @@ export default function Login() {
         <Title>로그인</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
-      <Line width={'500px'} marginBottom={'80px'} />
+      <Line width={'500px'} marginBottom={'55px'} />
       <Form onChange={(e) => changeHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
@@ -87,9 +87,9 @@ export default function Login() {
           </NavLink>
         </SubBox>
         <LineBox>
-          <Line width={'200px'} marginBottom={'30px'} />
+          <Line width={'200px'} marginBottom={'20px'} />
           <LineOR>OR</LineOR>
-          <Line width={'200px'} marginBottom={'30px'} />
+          <Line width={'200px'} marginBottom={'20px'} />
         </LineBox>
         <SocialLogin>
           <Img src={KakaoImg}></Img>
@@ -126,13 +126,14 @@ const FindIdPw = styled.div`
 `;
 const SubBox = styled.div`
   width: 300px;
-  margin: 25px auto;
+  margin: 20px auto;
   display: flex;
   justify-content: space-evenly;
 `;
 const LineBox = styled.div`
   display: flex;
   padding: 40px 50px;
+  padding-top: 30px;
   color: #cccccc;
 `;
 const LineOR = styled.span`
