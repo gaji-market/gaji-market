@@ -102,7 +102,7 @@ export default function SignUp() {
       setSignUpForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     else setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
-  const CheckId = async (e) => {
+  const checkId = async (e) => {
     e.preventDefault();
 
     try {
@@ -129,7 +129,9 @@ export default function SignUp() {
           isRequired
         />
         {isIdVaild && signUpForm.id.length > 1 && (
-          <CkeckIdButton onClick={CheckId}>아이디 중복 검사</CkeckIdButton>
+          <>
+            <CkeckIdButton onClick={(e) => checkId(e)}>아이디 중복 검사</CkeckIdButton>
+          </>
         )}
         <InputTextBox
           id={'id'}
@@ -259,6 +261,8 @@ export default function SignUp() {
   );
 }
 const CkeckIdButton = styled.button`
+  position: absolute;
+  top: 95px;
   background: ${PRIMARY_COLOR};
   border: 3px solid ${PRIMARY_COLOR};
   color: ${WHITE_COLOR};
