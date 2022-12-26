@@ -11,6 +11,16 @@
   font-family: 'NanumSquare';
 }
 
+input[type='password'] {
+  font-family: 'NanumSquareB';
+}
+
+::placeholder {
+  font-family: 'NanumSquareB', sans-serif;
+  color: #666;
+  opacity: 1;
+}
+
 body {
   margin: 0;
   font-family: 'NanumSquare', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
