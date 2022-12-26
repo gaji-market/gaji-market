@@ -158,7 +158,7 @@ export default function Editor() {
     }));
   }, []);
 
-  const createPost = (e) => {
+  const createPost = async (e) => {
     try {
       e.preventDefault();
 
@@ -170,12 +170,19 @@ export default function Editor() {
       formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
 
       formDatas.imageFiles = formData;
-      createSaleProduct(formData);
 
-      alert('게시글 등록 완료');
-      navigate(`/products/${param}`);
+      const response = await createSaleProduct(formData);
+      if (response.result === 'Success') {
+        alert('게시글 등록 완료');
+        navigate(`/products/${param}`);
+      } else {
+        throw new Error('게시글 등록 실패');
+      }
     } catch (err) {
+      alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
       console.error(err);
+
+      navigate(`/products/${param}`);
     }
   };
 
