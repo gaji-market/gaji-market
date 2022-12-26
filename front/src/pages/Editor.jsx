@@ -4,7 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
-  useGetCategoryQuery,
 } from 'services/productApi';
 
 import styled from 'styled-components';
@@ -77,7 +76,6 @@ export default function Editor() {
   //TODO: 카테고리 추가하기
 
   const [createSaleProduct] = useCreateSaleProductMutation();
-  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
   const [imgSlide, setImgSlide] = useState([]);
 
@@ -171,7 +169,7 @@ export default function Editor() {
 
       formDatas.imageFiles = formData;
 
-      const response = await createSaleProduct(formData);
+      const { data: response } = await createSaleProduct(formData);
       if (response.result === 'Success') {
         alert('게시글 등록 완료');
         navigate(`/products/${param}`);
