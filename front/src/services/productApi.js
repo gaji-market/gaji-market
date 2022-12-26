@@ -28,6 +28,7 @@ export const productApi = createApi({
         method: 'POST',
         body: product,
       }),
+      invalidatesTags: ['SellAll'],
     }),
     createPurchaseProduct: builder.mutation({
       query: (product) => ({
