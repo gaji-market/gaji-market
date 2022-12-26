@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import { useGetSellAllQuery } from 'services/productApi';
+
 import styled from 'styled-components';
 
 import Card from 'components/common/Card';
@@ -9,6 +10,7 @@ import PlusButton from 'components/common/PlusButton';
 import SkeletonCard from 'components/common/SkeletonCard';
 import Loading from 'components/common/Loading';
 import Modal from 'components/common/Modal';
+
 import { Error } from './index';
 
 import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
@@ -69,6 +71,8 @@ export default function ProductView() {
       sellInfos.forEach((product) => {
         setCards((prev) => [...prev, product]);
       });
+
+      setCards((prev) => [...new Set(prev)]);
     }
   }, [products]);
 
