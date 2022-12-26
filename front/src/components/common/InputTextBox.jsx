@@ -21,11 +21,13 @@ export default function InputTextBox({
   required,
   onChange,
   placeholder,
+  autoComplete = 'off',
   placeholderPosition = 'left',
 }) {
   return (
     <Container width={width} containerBottom={containerBottom}>
       <Input
+        autoComplete={autoComplete}
         ref={inputRef}
         title={title}
         minLength={minLength}
