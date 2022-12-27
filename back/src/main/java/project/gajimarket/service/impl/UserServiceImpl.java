@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
                 UploadFile uploadFile = fileService.storeFile(imgFile);
                 paramMap.put("uploadFileName", uploadFile.getUploadFileName());
                 paramMap.put("dbFileName", uploadFile.getDbFileName());
+                paramMap.put("userNo", userDto.getUserNo());
 
                 System.out.println("UserServiceImpl uploadFile : " + uploadFile);
                 int fileSaveResult = fileDAO.userFileSave(paramMap);
