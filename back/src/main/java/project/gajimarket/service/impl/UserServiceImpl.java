@@ -13,6 +13,7 @@ import project.gajimarket.service.ProductService;
 import project.gajimarket.service.UserService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,18 +60,32 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updateUser(UserDTO userDto, MultipartFile imgFile) {
         Map<String, Object> paramMap = new HashMap<>();
+        List<String> dbFileNames = new ArrayList<>();
         int result = -1;
         try {
-            paramMap.put("userNo", userDto.getUserNo());
+            // 사용자 이미지 조회
+            Map<String, Object> selectUserImg = fileDAO.selectUserImg(userDto);
+
             if (imgFile != null) {
+                // 이전 이미지 삭제
+                if (selectUserImg != null) {
+                    dbFileNames.add((String)selectUserImg.get("dbFileName"));
+                    fileService.fileDelete(dbFileNames);
+                    fileDAO.deleteUserImg(userDto);
+                }
+
+                // 이미지 저장
                 UploadFile uploadFile = fileService.storeFile(imgFile);
                 paramMap.put("uploadFileName", uploadFile.getUploadFileName());
                 paramMap.put("dbFileName", uploadFile.getDbFileName());
-                
+
                 System.out.println("UserServiceImpl uploadFile : " + uploadFile);
-                fileDAO.userFileSave(paramMap);
+                int fileSaveResult = fileDAO.userFileSave(paramMap);
+                if (fileSaveResult > 0) {
+                    result = userDao.updateUser(userDto);
+                }
             }
-            result = userDao.updateUser(userDto);
+
         } catch (IOException e) {
             System.out.println("UserServiceImpl updateUser : " + e);
         }

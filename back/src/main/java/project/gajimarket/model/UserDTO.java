@@ -27,4 +27,6 @@ public class UserDTO {
     private char cmntsNtfct; // 댓글알림유무 (Y, N)
     private char interstNtfct; // 좋아요알림유무 (Y, N)
     private char outYn; // 탈퇴유무 (Y, N)
+    private String dbFileName; // db파일명
+    private String uploadFileName; // 업로드파일명
 }

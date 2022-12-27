@@ -160,7 +160,7 @@ public class UserController {
 
     // 내정보 수정
     @PostMapping(value = "/userUpdate", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public Map<String, Object> userUpdate(@RequestPart UserDTO userDto, @RequestPart MultipartFile multipartFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Map<String, Object> userUpdate(@RequestPart(value = "dto") UserDTO userDto, @RequestPart(value = "multipartFile") MultipartFile multipartFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         String token = "";
@@ -168,37 +168,28 @@ public class UserController {
         try {
             // 토큰 가져옴
             String headerToken = JWTUtil.getHeaderToken(request);
-            System.out.println("UserController userUpdate token : " + headerToken);
+            System.out.println("UserController userUpdate request token : " + headerToken);
 
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
-                if (param != null) {
-                    if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
-                        userDto.setUserNo((Integer)param.get("userNo"));
-                        System.out.println("UserController userUpdate userDto : " + userDto);
-                        System.out.println("userController userUpdate multipartFile : " + multipartFile);
-                        int update = userService.updateUser(userDto, multipartFile);
-                        if (update > 0) {
-                            System.out.println("UserController userUpdate Success");
+                if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
+                    userDto.setUserNo((Integer)param.get("userNo"));
+                    System.out.println("UserController userUpdate userDto : " + userDto);
+
+                    int update = userService.updateUser(userDto, multipartFile);
+                    if(update > 0) {
+                        // 토큰 생성
+                        token = JWTUtil.createAccessToken(param);
+                        System.out.println("UserController userUpdate token : " + token);
+                        if (token != null && !"".equals(token)) {
+                            result = "success";
+
+                            Cookie cookie = new Cookie("X-AUTH-TOKEN", token);
+                            response.addCookie(cookie);
                         }
                     }
                 }
             }
-
-            UserDTO selectUser = userService.selectUser(param);
-            System.out.println("UserController userUpdate selectUser : " + selectUser);
-            if (selectUser != null) {
-                // 토큰 생성
-                token = JWTUtil.createAccessToken(param);
-                System.out.println("UserController userUpdate token : " + token);
-                if (token != null && !"".equals(token)) {
-                    result = "success";
-
-                    Cookie cookie = new Cookie("X-AUTH-TOKEN", token);
-                    response.addCookie(cookie);
-                }
-            }
-
             resultMap.put("result", result);
             resultMap.put("token", token);
         }catch (Exception e) {

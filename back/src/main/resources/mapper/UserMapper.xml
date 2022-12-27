@@ -54,7 +54,7 @@
 
     <!-- 회원조회 -->
     <select id="selectUser" parameterType="java.util.HashMap" resultType="project.gajimarket.model.UserDTO">
-        SELECT no AS userNo
+        SELECT user_info.no AS userNo
             , id AS userId
             , pwd AS userPwd
             , name AS userName
@@ -64,14 +64,22 @@
             , phone AS userPhone
             , address AS userAddress
             , reportCnt
-            , profileImg AS profileImgNum
             , starScore
             , socialKind
             , chatNtfct
             , cmntsNtfct
             , interstNtfct
             , outYn
+            , IFNULL(f.dbFileName, '') AS dbFileName
+            , IFNULL(f.uploadFileName, '') AS uploadFileName
         FROM user_info
+   LEFT JOIN
+           (
+             SELECT *
+               FROM file
+              WHERE gubun = 1
+           ) f
+          ON f.no = user_info.no
         <include refid="userCondition"/>
     </select>
 
