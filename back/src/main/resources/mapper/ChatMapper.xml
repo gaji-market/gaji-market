@@ -5,13 +5,13 @@
     <sql id="chatList">
         SELECT c.*, ui.nickname
           FROM ( SELECT ci.chatNo,
-                        cm.message,
+                        cm.lastMessage,
                         cm.regDate,
                         cm.regTime,
-                        cm.checkCnt,
+                        IFNULL(cm.checkCnt, 0) AS checkCnt,
                         CASE WHEN ci.userNo = #{userNo} THEN ci.tgUserNo ELSE ci.userNo END AS userNo
                    FROM chat_info ci LEFT JOIN ( SELECT c1.chatNo,
-                                                        CASE WHEN delYn = 'N' THEN message ELSE '삭제된 메시지' END AS message,
+                                                        CASE WHEN delYn = 'N' THEN message ELSE '삭제된 메시지' END AS lastMessage,
                                                         c2.checkCnt,
                                                         regDate,
                                                         regTime

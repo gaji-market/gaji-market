@@ -22,11 +22,14 @@ public class ChatServiceImpl implements ChatService {
     //private Map<String, ChatRoom> chatRooms;
 
     public Map<String, Object> addChatRoom(ChatRoomDTO chatRoomDTO) {
-        int result = chatDAO.insertChatRoom(chatRoomDTO);
+        int result = 0;
+        if (chatRoomDTO.getUserNo() > 0 && chatRoomDTO.getProdNo() > 0 && chatRoomDTO.getTgUserNo() > 0) {
+            result = chatDAO.insertChatRoom(chatRoomDTO);
+        }
 
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("result", CommonUtil.resultMsg(result));
-        resultMap.put("chatInfo", chatRoomDTO);
+        resultMap.put("chatRoomInfo", chatRoomDTO);
 
         return resultMap;
     }
@@ -55,14 +58,14 @@ public class ChatServiceImpl implements ChatService {
     public Map<String, Object> getChatRoom(Map<String, Object> map) {
         Map<String, Object> resultMap = new HashMap<>();
 
-        int result = chatDAO.updateChatMessageCheck(map);
+        resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(map));
+        List<Map<String, Object>> chatMsgList = chatDAO.selectChatMessage(map);
+        resultMap.put("chatMessageInfos", chatMsgList);
 
-        if (result > 0) {
-            resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(map));
-            resultMap.put("chatMessageInfos", chatDAO.selectChatMessage(map));
-        } else {
-            resultMap.put("result", CommonUtil.resultMsg(result));
+        if (chatMsgList != null && !chatMsgList.isEmpty()) {
+            chatDAO.updateChatMessageCheck(map);
         }
+
         return resultMap;
     }
 
