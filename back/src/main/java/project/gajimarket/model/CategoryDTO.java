@@ -4,11 +4,8 @@ import lombok.Data;
 
 @Data
 public class CategoryDTO {
-    private int categoryNo; //카테고리 번호
-    private int largeCateNo; // 대분류 번호
-    private String largeCateName; // 대분류 이름
-    private int mediumCateNo; // 중분류 번호
-    private String mediumCateName; // 중분류 이름
-    private int smallCateNo; // 소분류 번호
-    private String smallCateName; // 소분류 이름
+    private int tier; //대중소 분류 1-대 2-중 3-소
+    private String cateName; // 카테고리 이름
+    private String cateCode; // 카테고리 코드
+    private String cateParent; // 부모값
 }

@@ -3,20 +3,16 @@
 <mapper namespace="project.gajimarket.dao.CategoryDAO">
 
     <!-- 카테고리 전체 정보 보기 -->
-    <select id="categoryInfo" resultType="map">
-        select * from category_info;
-    </select>
-
-    <!-- 카테고리 번호 찾기 -->
-    <select id="findCategoryNo" resultType="int">
-        select categoryNo from category_info where LargeCateNo=#{param1} and MediumCateNo=#{param2} and SmallCateNo=#{param3};
+    <select id="categoryInfo" resultType="java.util.LinkedHashMap">
+        select tier, cateName, cateCode,
+        case when cateParent is null then 'null' else cateParent end as 'cateParent'
+        from category;
     </select>
 
     <!-- 카테고리 정보 찾기 -->
-    <select id="findCategoryInfo" parameterType="int" resultType="map">
+    <select id="findCategoryInfo" parameterType="String" resultType="java.util.LinkedHashMap">
         select *
-        from category_info
-        where categoryNo=#{categoryNo};
+        from category
+        where cateCode=#{cateCode};
     </select>
-
 </mapper>
