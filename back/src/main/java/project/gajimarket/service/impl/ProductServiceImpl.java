@@ -52,11 +52,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             //상품 저장
             ProductDTO productDTO = new ProductDTO();
-            int largeCateNo = (int) param.get("largeCateNo");
-            int mediumCateNo = (int) param.get("mediumCateNo");
-            int smallCateNo = (int) param.get("smallCateNo");
-            int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
-            productDTO.setCategoryNo(categoryNo);
+            productDTO.setCateCode((String) param.get("cateCode"));
             //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
             int userNo = 1;
             productDTO.setUserNo(userNo);//테스트 유저번호
@@ -97,12 +93,7 @@ public class ProductServiceImpl implements ProductService {
         Map<String,Object> result = new LinkedHashMap<>();
         try {
             ProductDTO productDTO = new ProductDTO();
-
-            int largeCateNo = (int) param.get("largeCateNo");
-            int mediumCateNo = (int) param.get("mediumCateNo");
-            int smallCateNo = (int) param.get("smallCateNo");
-            int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
-            productDTO.setCategoryNo(categoryNo);
+            productDTO.setCateCode((String) param.get("cateCode"));
             //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
             int userNo = 1;
             productDTO.setUserNo(userNo);//테스트 유저번호
@@ -149,8 +140,8 @@ public class ProductServiceImpl implements ProductService {
         result.put("fileInfos",fileInfo);
 
         //카테고리
-        int categoryNo = productDAO.findProdNoByCategoryNo(prodNo);
-        Map<String,Object> categoryInfo = categoryDAO.findCategoryInfo(categoryNo);
+        String cateCode = productDAO.findProdNoByCategoryNo(prodNo);
+        Map<String,Object> categoryInfo = categoryDAO.findCategoryInfo(cateCode);
         result.put("categoryInfo",categoryInfo);
 
         //해시태그
@@ -166,11 +157,7 @@ public class ProductServiceImpl implements ProductService {
         Map<String,Object> result = new LinkedHashMap<>();
         try {
             ProductDTO productDTO = new ProductDTO();
-            int largeCateNo = (int) param.get("largeCateNo");
-            int mediumCateNo = (int) param.get("mediumCateNo");
-            int smallCateNo = (int) param.get("smallCateNo");
-            int categoryNo = categoryDAO.findCategoryNo(largeCateNo, mediumCateNo, smallCateNo);
-            productDTO.setCategoryNo(categoryNo);
+            productDTO.setCateCode((String) param.get("cateCode"));
             //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
             int userNo = 1;
             productDTO.setUserNo(userNo);//테스트 유저번호
@@ -269,8 +256,8 @@ public class ProductServiceImpl implements ProductService {
         result.put("fileInfos",fileInfo);
 
         //카테고리 정보
-        int categoryNo = productDAO.findProdNoByCategoryNo(prodNo);
-        Map<String, Object> categoryInfo = categoryDAO.findCategoryInfo(categoryNo);
+        String cateCode = productDAO.findProdNoByCategoryNo(prodNo);
+        Map<String,Object> categoryInfo = categoryDAO.findCategoryInfo(cateCode);
         result.put("categoryInfo",categoryInfo);
 
         //해시태그 정보
@@ -379,16 +366,16 @@ public class ProductServiceImpl implements ProductService {
     public void categoryClick(Map<String,Object> param) throws IOException {
         int prodNo = (int) param.get("prodNo");
 
-        int categoryNo = productDAO.findProdNoByCategoryNo(prodNo);
+        String cateCode = productDAO.findProdNoByCategoryNo(prodNo);
         String tradeState = productDAO.findTradeState(prodNo);
 
         //만약 팔래요라면
         if (tradeState.equals("0")){
             //클릭한 태그를 보내준다
-            response.sendRedirect("/product/sellAll?category="+categoryNo);
+            response.sendRedirect("/product/sellAll?category="+cateCode);
         }else {
             //살래요라면
-            response.sendRedirect("/product/buyAll?category="+categoryNo);
+            response.sendRedirect("/product/buyAll?category="+cateCode);
         }
     }
 

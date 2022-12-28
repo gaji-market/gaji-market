@@ -4,19 +4,19 @@
 
     <!-- 팔래요 상품 등록 -->
     <insert id="productSellSave" parameterType="project.gajimarket.model.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
-        insert into product_info (prodNo,userNo,categoryNo,prodName,prodPrice,
+        insert into product_info (prodNo,userNo,cateCode,prodName,prodPrice,
         priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
         reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
-        values (#{prodNo},#{userNo},#{categoryNo},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
+        values (#{prodNo},#{userNo},#{cateCode},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
         #{prodExplain},now(),null,default,default,'0',0,'0',null,null,#{address});
     </insert>
 
     <!-- 살래요 상품 등록 -->
     <insert id="productBuySave" parameterType="project.gajimarket.model.ProductDTO" useGeneratedKeys="true" keyProperty="prodNo">
-        insert into product_info (prodNo,userNo,categoryNo,prodName,prodPrice,
+        insert into product_info (prodNo,userNo,cateCode,prodName,prodPrice,
         priceOffer,freeCheck,prodExplain,regDt,modDt,delYn,
         reportCnt,tradState,viewCnt,tradeKind,buyUserNo,offerPriceNo,address)
-        values (#{prodNo},#{userNo},#{categoryNo},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
+        values (#{prodNo},#{userNo},#{cateCode},#{prodName},#{prodPrice},#{priceOffer},#{freeCheck},
         #{prodExplain},now(),null,default,default,'1',0,'1',null,null,#{address});
     </insert>
 
@@ -27,7 +27,7 @@
 
     <!-- 상품 수정 -->
     <update id="productUpdate">
-        update product_info set categoryNo=#{dto.categoryNo},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address} where prodNo=#{param1};
+        update product_info set cateCode=#{dto.cateCode},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address} where prodNo=#{param1};
     </update>
 
     <!-- 상품 정보 찾기 -->
@@ -75,8 +75,8 @@
     </select>
     
     <!-- 상품번호로 카테고리번호 찾기 -->
-    <select id="findProdNoByCategoryNo" parameterType="int" resultType="int">
-        select categoryNo from product_info where prodNo=#{prodNo};
+    <select id="findProdNoByCategoryNo" parameterType="int" resultType="String">
+        select cateCode from product_info where prodNo=#{prodNo};
     </select>
 
     <!-- 판매완료 후 update -->
@@ -97,8 +97,8 @@
         on p.prodNo = f.no
         left join hash_tag h
         on p.prodNo = h.prodNo
-        left join category_info c
-        on p.categoryNo = c.categoryNo
+        left join category c
+        on p.cateCode = c.cateCode
         <where>
             <if test="param.tag != null">
                 and (p.prodName like concat('%',#{param.tag},'%') or p.address like concat('%',#{param.tag},'%') or h.tagName like concat('%',#{param.tag},'%'))
@@ -110,25 +110,9 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="param.category != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
-                f.gubun='2'
-                and p.categoryNo=#{param.category}
-            </if>
-            <if test="param.largeCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
-                f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
-                f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null and param.smallCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
-                f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo} and c.SmallCateNo=#{param.smallCateNo}
+            <if test="param.cateCode != null">
+                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
+                and c.cateCode=#{param.cateCode}
             </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
             f.gubun='2'
@@ -149,8 +133,8 @@
         on p.prodNo = f.no
         left join hash_tag h
         on p.prodNo = h.prodNo
-        left join category_info c
-        on p.categoryNo = c.categoryNo
+        left join category c
+        on p.cateCode = c.cateCode
         <where>
             <if test="param.tag != null">
                 and (p.prodName like concat('%',#{param.tag},'%') or p.address like concat('%',#{param.tag},'%') or h.tagName like concat('%',#{param.tag},'%'))
@@ -162,25 +146,9 @@
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="param.category != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
-                f.gubun='2'
-                and categoryNo=#{param.category}
-            </if>
-            <if test="param.largeCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
-                f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
-                f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null and param.smallCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
-                f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo} and c.SmallCateNo=#{param.smallCateNo}
+            <if test="param.cateCode != null">
+                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
+                and c.cateCode=#{param.cateCode}
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
             f.gubun='2'
@@ -208,8 +176,8 @@
                            on p.prodNo = f.no
                  left join hash_tag h
                            on p.prodNo = h.prodNo
-                 left join category_info c
-                           on p.categoryNo = c.categoryNo
+                 left join category c
+                           on p.cateCode = c.cateCode
         <where>
             <if test="param.tag != null">
                 and (p.prodName like concat('%',#{param.tag},'%') or p.address like concat('%',#{param.tag},'%') or h.tagName like concat('%',#{param.tag},'%'))
@@ -221,21 +189,9 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
             </if>
             </if>
-            <if test="param.category != null">
+            <if test="param.cateCode != null">
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                                  and p.categoryNo=#{param.category}
-            </if>
-            <if test="param.largeCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                                  and c.LargeCateNo=#{param.largeCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                                  and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null and param.smallCateNo != null">
-                and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                                  and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo} and c.SmallCateNo=#{param.smallCateNo}
+                                  and c.cateCode=#{param.cateCode}
             </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
         </where>
@@ -285,8 +241,8 @@
                            on p.prodNo = f.no
                  left join hash_tag h
                            on p.prodNo = h.prodNo
-                 left join category_info c
-                 on p.categoryNo = c.categoryNo
+                 left join category c
+                 on p.cateCode = c.cateCode
         <where>
             <if test="param.tag != null">
                 and (p.prodName like concat('%',#{param.tag},'%') or p.address like concat('%',#{param.tag},'%') or h.tagName like concat('%',#{param.tag},'%'))
@@ -296,21 +252,9 @@
                 and (p.prodName like concat('%',#{body.search},'%') or p.address like concat('%',#{body.search},'%') or h.tagName like concat('%',#{body.search},'%'))
                                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
             </if>
-            <if test="param.category != null">
+            <if test="param.cateCode != null">
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                        and categoryNo=#{param.category}
-            </if>
-            <if test="param.largeCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo}
-            </if>
-            <if test="param.largeCateNo != null and param.mediumCateNo != null and param.smallCateNo != null">
-                and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and c.LargeCateNo=#{param.largeCateNo} and c.MediumCateNo=#{param.mediumCateNo} and c.SmallCateNo=#{param.smallCateNo}
+                and c.cateCode=#{param.cateCode}
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
         </where>

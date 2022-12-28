@@ -59,7 +59,7 @@ public interface ProductDAO {
     List<Map<String, Object>> findBuyAll(Map<String,Object> result);
 
     //상품번호로 카테고리 번호 찾기
-    int findProdNoByCategoryNo(int prodNo);
+    String findProdNoByCategoryNo(int prodNo);
 
     //거래구분 찾기
     String findTradeState(int prodNo);
