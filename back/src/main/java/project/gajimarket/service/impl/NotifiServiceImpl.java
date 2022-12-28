@@ -21,12 +21,9 @@ public class NotifiServiceImpl implements NotifiService {
 
     @Override
     public Map<String, Object> addNotification(Map<String, Object> map) {
-        Map<String, Object> resultMap = new HashMap<>();
-
         int result = notifiDAO.insertNotification(map);
-        resultMap.put("result", CommonUtil.resultMsg(result));
 
-        return resultMap;
+        return CommonUtil.resultMsg(result);
     }
 
     @Override
@@ -43,7 +40,7 @@ public class NotifiServiceImpl implements NotifiService {
 
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("schPage", searchPagination);
-        resultMap.put("NotificationInfos", notifiList);
+        resultMap.put("notificationInfos", notifiList);
 
         return resultMap;
     }

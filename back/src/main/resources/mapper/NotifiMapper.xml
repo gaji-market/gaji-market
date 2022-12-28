@@ -53,8 +53,8 @@
     </select>
 
     <select id="selectNotificationCheckCnt" parameterType="int" resultType="java.util.Map">
-        SELECT COUNT(CASE WHEN gubun = 1 THEN 0 END) AS chatCheckCount,
-               COUNT(CASE WHEN gubun = 2 THEN 0 END) AS intstCheckCount
+        SELECT COUNT(CASE WHEN gubun = 1 THEN 0 END) AS chatCheckCnt,
+               COUNT(CASE WHEN gubun = 2 THEN 0 END) AS intstCheckCnt
           FROM notification_info
          WHERE userNo = #{userNo}
            AND checkYn = 'N'

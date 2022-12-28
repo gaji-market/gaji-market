@@ -26,6 +26,13 @@ public class CommonUtil {
         return map;
     }
 
+    public static Map<String, Object> resultMsg(String msg) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("msg", "[Fail Exception Message] " + msg);
+
+        return map;
+    }
+
     public static String isEmptyStr(Object obj) {
         if (obj != null && !"".equals(obj)) {
             return (String)obj;
