@@ -11,6 +11,8 @@ import { PRIMARY_COLOR, GRAY_COLOR, WHITE_COLOR } from 'components/common/common
 import logo200 from 'assets/BasicLogo.svg';
 import man from 'assets/man.png';
 import woman from 'assets/woman.png';
+import Toast from 'components/common/Toast';
+
 import { useNavigate } from 'react-router-dom';
 import { usePostUserSignFormMutation, usePostUserCheckIdMutation } from 'services/signUpApi';
 const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
@@ -32,6 +34,11 @@ export default function SignUp() {
     addressDetail: '',
     birthday: '',
     gender: '',
+  });
+  const [toast, setToast] = useState({
+    toastMessage: '',
+    isToastAppear: false,
+    isToastSuccess: false,
   });
 
   const open = useDaumPostcodePopup(DaumURL);
@@ -70,11 +77,20 @@ export default function SignUp() {
       nav('/');
     }
   }, []);
+
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
     setSignUpForm((prev) => ({ ...prev, address: fullAddress }));
   };
 
+  const toastHandler = (message, isSuccess) => {
+    setToast((prev) => ({
+      ...prev,
+      toastMessage: message,
+      isToastAppear: true,
+      isToastSuccess: isSuccess,
+    }));
+  };
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -107,8 +123,10 @@ export default function SignUp() {
 
     try {
       const res = await checkUserId({ userId: signUpForm.id }).unwrap();
-      if (res.result === 'used') alert('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.');
-      else alert('사용가능한 아이디 입니다.');
+      if (res.result === 'used')
+        toastHandler('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.', false);
+      else if (res.result === 'success') toastHandler('사용가능한 아이디 입니다.', true);
+      else toastHandler('잠시 후 다시 시도해주세요.', false);
     } catch (e) {
       console.log(e);
     }
@@ -116,6 +134,8 @@ export default function SignUp() {
 
   return (
     <Container>
+      {toast.isToastAppear && <Toast toast={toast} setToast={setToast} />}
+
       <SignUpHead>
         <Title>회원가입</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
@@ -124,7 +144,7 @@ export default function SignUp() {
       <Form onChange={(e) => changeHandler(e)}>
         <InputTitle
           title='아이디'
-          signUpSubTitle={'6글자 이상이여야 합니다'}
+          signUpSubTitle={'6글자 이상 12글자 이하 이여야 합니다'}
           isVaild={isIdVaild}
           isRequired
         />

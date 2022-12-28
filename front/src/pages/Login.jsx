@@ -10,30 +10,50 @@ import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
 import { usePostUserLoginMutation } from 'services/signUpApi';
 import { useEffect } from 'react';
+import Toast from 'components/common/Toast';
 
 export default function Login() {
   const [login] = usePostUserLoginMutation();
   const nav = useNavigate();
+
+  const [toast, setToast] = useState({
+    toastMessage: '',
+    isToastAppear: false,
+    isToastSuccess: false,
+  });
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
   });
+  const toastHandler = (message, isSuccess) => {
+    setToast((prev) => ({
+      ...prev,
+      toastMessage: message,
+      isToastAppear: true,
+      isToastSuccess: isSuccess,
+    }));
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    try {
-      const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
-      if (res.result === 'fail') {
-        alert('아이디 및 비밀번호가 틀렸습니다. 다시 입력해주세요');
-      } else {
-        alert('로그인 되었습니다.');
-        nav('/');
-        sessionStorage.setItem('userToken', res.token);
+    if (signUpForm.id !== '' && signUpForm.password !== '') {
+      try {
+        const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
+        if (res.result === 'fail') {
+          toastHandler('아이디 및 비밀번호를 확인해주세요.', false);
+        } else if (res.result === 'success') {
+          toastHandler('로그인 되었습니다.', true);
+          setTimeout(() => nav('/'), 2000);
+          sessionStorage.setItem('userToken', res.token);
+        }
+      } catch (e) {
+        console.log(e);
       }
-    } catch (e) {
-      console.log(e);
+    } else {
+      toastHandler('아이디 및 비밀번호를 입력해주세요.', false);
     }
   };
+
   const changeHandler = (e) => {
     setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
@@ -47,6 +67,8 @@ export default function Login() {
   }, []);
   return (
     <Container>
+      {toast.isToastAppear && <Toast toast={toast} setToast={setToast} />}
+
       <SignUpHead>
         <Title>로그인</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
