@@ -70,13 +70,17 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Map<String, Object> removeChatRoom(Map<String, Object> map) {
-        int result = chatDAO.deleteChatRoom(map);
+    public Map<String, Object> removeChatRoom(int chatNo) {
+        int result = chatDAO.deleteChatRoom(chatNo);
 
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("result", CommonUtil.resultMsg(result));
+        return CommonUtil.resultMsg(result);
+    }
 
-        return resultMap;
+    @Override
+    public Map<String, Object> removeChatMessage(int messageNo) {
+        int result = chatDAO.deleteChatMessage(messageNo);
+
+        return CommonUtil.resultMsg(result);
     }
 
     @Override

@@ -27,7 +27,7 @@
                                                               GROUP BY chatNo
                                                             )
                                                 ) cm ON ci.chatNo = cm.chatNo
-                  WHERE ci.userNo = #{userNo} OR ci.tgUserNo = #{userNo}
+                  WHERE (ci.userNo = #{userNo} OR ci.tgUserNo = #{userNo}) AND ci.delYn = 'N'
                ) c JOIN user_info ui ON c.userNo = ui.no
     </sql>
 
@@ -102,6 +102,20 @@
            SET checkYn='Y'
          WHERE chatNo = #{chatNo}
            AND userNo <![CDATA[<>]]> #{userNo}
+    </update>
+
+    <!-- 삭제 여부 N -> Y -->
+    <update id="deleteChatRoom" parameterType="int">
+        UPDATE chat_info
+           SET delYn = 'Y'
+         WHERE chatNo = #{chatNo}
+    </update>
+
+    <!-- 삭제 여부 N -> Y -->
+    <update id="deleteChatMessage" parameterType="int">
+        UPDATE chat_message
+           SET delYn = 'Y'
+         WHERE messageNo = #{messageNo}
     </update>
 
     <!-- 채팅방 참여 인원 조회 (API 확인용) -->
