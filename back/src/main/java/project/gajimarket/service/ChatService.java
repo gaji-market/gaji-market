@@ -15,7 +15,9 @@ public interface ChatService {
 
     Map<String, Object> getChatRoom(Map<String, Object> map);
 
-    Map<String, Object> removeChatRoom(Map<String, Object> map);
+    Map<String, Object> removeChatRoom(int chatNo);
+
+    Map<String, Object> removeChatMessage(int message);
 
     Map<String, Object> getUserNoTest(int chatNo);
 

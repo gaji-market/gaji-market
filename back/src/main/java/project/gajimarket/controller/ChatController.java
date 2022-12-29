@@ -57,7 +57,18 @@ public class ChatController {
             return chatService.addChatRoom(chatRoomDTO);
         } catch (Exception e) {
             log.error(e.toString());
-            return CommonUtil.resultMsg();
+            return CommonUtil.resultMsg(e.toString());
+        }
+    }
+
+    @Operation(summary = "채팅 메시지 저장", description = "채팅 메시지 저장 API")
+    @PostMapping("/addChatMessage/{userNo}")
+    public Map<String, Object> addChatMessage(@RequestBody Map<String, Object> map) {
+        try {
+            return chatService.addChatMessage(map);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return CommonUtil.resultMsg(e.toString());
         }
     }
 
@@ -87,7 +98,7 @@ public class ChatController {
             return resultMap;
         } catch (Exception e) {
             log.error(e.toString());
-            return CommonUtil.resultMsg();
+            return CommonUtil.resultMsg(e.toString());
         }
     }
 
@@ -111,7 +122,31 @@ public class ChatController {
             return chatService.getChatRoomList(map);
         } catch (Exception e) {
             log.error(e.toString());
-            return CommonUtil.resultMsg();
+            return CommonUtil.resultMsg(e.toString());
+        }
+    }
+
+    @GetMapping("/removeChatRoom/{chatNo}")
+    public Map<String, Object> removeChatRoom(
+            @ApiParam(value = "채팅번호", defaultValue = "1") @PathVariable int chatNo) {
+
+        try {
+            return chatService.removeChatRoom(chatNo);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return CommonUtil.resultMsg(e.toString());
+        }
+    }
+
+    @GetMapping("/removeChatMessage/{messageNo}")
+    public Map<String, Object> removeChatMessage(
+            @ApiParam(value = "채팅메시지 번호", defaultValue = "1") @PathVariable int messageNo) {
+
+        try {
+            return chatService.removeChatMessage(messageNo);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return CommonUtil.resultMsg(e.toString());
         }
     }
 
