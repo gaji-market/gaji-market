@@ -11,7 +11,7 @@
             </if>
 
             <if test='userNo != null and userNo != ""'>
-                AND no = #{userNo}
+                AND user_info.no = #{userNo}
             </if>
         </where>
     </sql>
