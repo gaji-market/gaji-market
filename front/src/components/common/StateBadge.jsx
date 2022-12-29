@@ -20,7 +20,7 @@ const Container = styled.div`
 const Text = styled.div`
   background: #9747ff;
   color: #fff;
-  padding: 5px;
-  padding-top: 3px;
-  border-radius: 10px;
+  padding: 5px 8px;
+  border-radius: 99px;
+  font-size: 13px;
 `;

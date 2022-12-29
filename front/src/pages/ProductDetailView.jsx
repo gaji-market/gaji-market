@@ -1,96 +1,129 @@
 import styled from 'styled-components';
+import { useEffect, useState } from 'react';
 
-import { PRIMARY_COLOR, SUB_COLOR } from 'components/common/commonColor';
+import { useParams } from 'react-router-dom';
+
+import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR } from 'components/common/commonColor';
 import Button from 'components/common/Button';
 
-import {
-  AiOutlineAlert,
-  AiOutlineEye,
-  AiOutlineHeart,
-  AiFillHeart,
-} from 'react-icons/ai';
+import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { RiTimerLine } from 'react-icons/ri';
 
-// 백엔드한테 데이터 받으면 바꾸기
-const PREFIX = '#';
-const HASH_TAGS = ['여러가지', '나뭇가지', '손모가지', '모가지', '가지'];
+import { useGetProductQuery } from 'services/productApi';
+import { Error } from './index';
 
-const TEMP_COLOR = '#aaa';
+const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
 
-export default function ProductDetailView({ reportCount = 0 }) {
+export default function ProductDetailView() {
+  const { type: param, id: prodNo } = useParams();
+  const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+
+  const [productDate, setProductDate] = useState('');
+
+  useEffect(() => {
+    if (product) {
+      setProductDate(new Date(product.productInfo.regDt));
+    }
+  }, [product]);
+
+  if (isError) {
+    return <Error />;
+  }
+
   return (
-    <Container>
-      <Categories>{'카테고리 > 카테고리2 > 카테고리3'}</Categories>
-      <ProductTop>
-        <ProductImg />
-        <ProductSummary>
-          <Watcher>
-            <WatcherIcon />
-            <WatcherCount>1,000</WatcherCount>
-          </Watcher>
-          <ProductState>판매중</ProductState>
-          <Title>상품명</Title>
-          <Price>99,000원</Price>
-          <StatusWrapper>
-            <Status>
-              <Report>
-                <ReportIcon />
-                <span>신고 {reportCount}회</span>
-                <VerticalBar>|</VerticalBar>
-                <span>신고하기</span>
-              </Report>
-              <Location>
-                <LocationIcon />
-                <span>경기도 부천시 중동</span>
-              </Location>
-              <DateCreated>
-                <DateIcon />
-                <span>2022.11.25 AM 12:49</span>
-              </DateCreated>
-            </Status>
-            <LikesWrapper>
-              <HeartIcon />
-              <LikesCount>444</LikesCount>
-            </LikesWrapper>
-          </StatusWrapper>
+    <>
+      {isSuccess && (
+        <Container>
+          <Categories>{'카테고리 > 카테고리2 > 카테고리3'}</Categories>
 
-          <ButtonWrapper>
-            <Button customSize='50%'>채팅하기</Button>
-            <Button isOutline isDarkColor customSize='50%'>
-              가격 제안하기
-            </Button>
-          </ButtonWrapper>
-          <HashTags>
-            {HASH_TAGS.map((tag, idx) => {
-              return (
-                <HashTag key={`임시 key ${idx}`}>
-                  {PREFIX}
-                  {tag}
-                </HashTag>
-              );
-            })}
-          </HashTags>
-        </ProductSummary>
-      </ProductTop>
-      <ProductMid>
-        <UserInfo>
-          <UserInfoTitle>판매자 정보</UserInfoTitle>
-          <ProfileWrapper>
-            <ProfileImg />
-            <div>
-              <UserNickName>유토</UserNickName>
-              <UserArea>경기도 부천시</UserArea>
+          <ProductTop>
+            <div className='imgContainer'>
+              <ul>
+                {product.fileInfos.length > 0 &&
+                  product.fileInfos.map((image) => {
+                    return (
+                      <li key={image.fileOrder}>
+                        <img
+                          className='productImage'
+                          src={`${IMG_PREFIX_URL}${image.dbFileName}`}
+                          alt='product_img'
+                        />
+                      </li>
+                    );
+                  })}
+              </ul>
+              <button>◀</button>
+              <button>▶</button>
             </div>
-          </ProfileWrapper>
-          <Button isDarkColor>정보보기</Button>
-        </UserInfo>
-      </ProductMid>
-      <ProductBottom>
-        <ProductInfoTitle>상품정보</ProductInfoTitle>
-        <p>🍆팔아요</p>
-      </ProductBottom>
-    </Container>
+
+            <ProductSummary>
+              <Watcher>
+                <WatcherIcon />
+                <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
+              </Watcher>
+              <ProductState>판매중</ProductState>
+              <Title>{product.productInfo.prodName}</Title>
+              <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
+              <StatusWrapper>
+                <Status>
+                  <Report>
+                    <ReportIcon />
+                    <span>신고 {product.productInfo.reportCnt}회</span>
+                    <VerticalBar>|</VerticalBar>
+                    <span>신고하기</span>
+                  </Report>
+                  <Location>
+                    <LocationIcon />
+                    <span>{product.productInfo.address}</span>
+                  </Location>
+                  <DateCreated>
+                    <DateIcon />
+                    <span>{productDate.toLocaleString()}</span>
+                  </DateCreated>
+                </Status>
+                <LikesWrapper>
+                  <HeartIcon />
+                  <LikesCount>{product.interestInfo.interestCnt}</LikesCount>
+                </LikesWrapper>
+              </StatusWrapper>
+
+              <ButtonWrapper>
+                <Button customSize='50%'>채팅하기</Button>
+                <Button isOutline isDarkColor customSize='50%'>
+                  가격 제안하기
+                </Button>
+              </ButtonWrapper>
+              <HashTags>
+                {product.hashTagInfos.length > 0 &&
+                  product.hashTagInfos.map((hashtag, idx) => {
+                    return <HashTag key={`${hashtag.tagName}${idx}`}>#{hashtag.tagName}</HashTag>;
+                  })}
+              </HashTags>
+            </ProductSummary>
+          </ProductTop>
+
+          <ProductMid>
+            <UserInfo>
+              <UserInfoTitle>판매자 정보</UserInfoTitle>
+              <ProfileWrapper>
+                <ProfileImg />
+                <div>
+                  <UserNickName>{product.userInfo.nickname}</UserNickName>
+                  <UserArea>{product.userInfo.address}</UserArea>
+                </div>
+              </ProfileWrapper>
+              <Button isDarkColor>정보보기</Button>
+            </UserInfo>
+          </ProductMid>
+
+          <ProductBottom>
+            <ProductInfoTitle>상품정보</ProductInfoTitle>
+            <p>{product.productInfo.prodExplain}</p>
+          </ProductBottom>
+        </Container>
+      )}
+    </>
   );
 }
 
@@ -100,7 +133,7 @@ const Container = styled.div`
   padding-left: 50px;
   padding-right: 50px;
   position: relative;
-  color: ${TEMP_COLOR};
+  color: ${GRAY_COLOR};
 `;
 
 const Categories = styled.div`
@@ -115,6 +148,27 @@ const ProductTop = styled.div`
   border-bottom: 1px solid #ddd;
   align-items: center;
   justify-content: space-around;
+
+  .imgContainer {
+    width: 400px;
+    height: 400px;
+    overflow: hidden;
+  }
+
+  .imgContainer ul {
+    display: flex;
+    height: 100%;
+  }
+
+  .productImages li {
+    width: 400px;
+    height: 400px;
+  }
+
+  .productImage {
+    width: 400px;
+    display: block;
+  }
 `;
 
 const ProductSummary = styled.div`
@@ -140,13 +194,6 @@ const WatcherIcon = styled(AiOutlineEye)`
 `;
 
 const WatcherCount = styled.div``;
-
-const ProductImg = styled.div`
-  width: 40%;
-  height: 400px;
-  background: #ddd;
-  border-radius: 10px;
-`;
 
 const ProductState = styled.p`
   font-size: 18px;

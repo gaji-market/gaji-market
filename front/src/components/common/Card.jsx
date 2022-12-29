@@ -14,15 +14,7 @@ const PRODUCT_STATE = {
 const TEMP_IMG_URL =
   'https://png.pngtree.com/element_our/20190528/ourlarge/pngtree-cartoon-eggplant-image_1128846.jpg';
 
-export default function Card({
-  productImage,
-  title,
-  price,
-  area,
-  likes,
-  state,
-  onClick,
-}) {
+export default function Card({ productImage, title, price, area, likes, state, onClick }) {
   const [fillHeart, setFillHeart] = useState(false);
 
   const onClickHeart = () => {
@@ -34,21 +26,23 @@ export default function Card({
   return (
     <CardContainer onClick={onClick}>
       <CardHead>
-        {productImage ? (
-          <CardImage alt={title} src={productImage} />
-        ) : (
-          <>
-            <CardImage
-              alt='이미지 미등록 상품'
-              style={{
-                // 임시 스타일
-                opacity: '10%',
-              }}
-              src={TEMP_IMG_URL}
-            />
-            <NoImage />
-          </>
-        )}
+        <div className='imgContainer'>
+          {productImage ? (
+            <img alt={title} src={productImage} />
+          ) : (
+            <>
+              <img
+                alt='이미지 미등록 상품'
+                style={{
+                  // 임시 스타일
+                  opacity: '10%',
+                }}
+                src={TEMP_IMG_URL}
+              />
+              <NoImage />
+            </>
+          )}
+        </div>
         <StateBadge productState={PRODUCT_STATE[Number(state)]} />
       </CardHead>
       <CardBody>
@@ -75,6 +69,7 @@ export default function Card({
 const CardContainer = styled.div`
   width: 240px;
   height: 320px;
+  border: 1px solid #faf3ff;
   border-radius: 10px;
   background: #f4eeff;
   overflow: hidden;
@@ -90,12 +85,23 @@ const CardContainer = styled.div`
 
 const CardHead = styled.div`
   position: relative;
-`;
 
-const CardImage = styled.img`
-  width: 100%;
-  height: 220px;
-  background: #e9dcff;
+  .imgContainer {
+    overflow: hidden;
+    width: 240px;
+    height: 220px;
+    background: #e9dcff;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: space-around;
+  }
+
+  .imgContainer img {
+    display: block;
+    width: auto;
+    height: 100%;
+    margin: 0 auto;
+  }
 `;
 
 const CardTitle = styled.h2`

@@ -8,6 +8,8 @@ export default function InputTextBox({
   title,
   type,
   value,
+  min,
+  max,
   isReadOnly,
   isDisabled,
   minLength,
@@ -19,11 +21,13 @@ export default function InputTextBox({
   required,
   onChange,
   placeholder,
+  autoComplete = 'off',
   placeholderPosition = 'left',
 }) {
   return (
     <Container width={width} containerBottom={containerBottom}>
       <Input
+        autoComplete={autoComplete}
         ref={inputRef}
         title={title}
         minLength={minLength}
@@ -32,6 +36,8 @@ export default function InputTextBox({
         required={required}
         readOnly={isReadOnly}
         disabled={isDisabled}
+        min={min}
+        max={max}
         id={id}
         width={width}
         type={type}

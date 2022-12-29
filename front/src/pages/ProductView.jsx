@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import { useGetSellAllQuery } from 'services/productApi';
+
 import styled from 'styled-components';
 
 import Card from 'components/common/Card';
@@ -9,10 +10,13 @@ import PlusButton from 'components/common/PlusButton';
 import SkeletonCard from 'components/common/SkeletonCard';
 import Loading from 'components/common/Loading';
 import Modal from 'components/common/Modal';
+
 import { Error } from './index';
 
 import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
 import { SELL, BUY } from 'constants/params';
+
+const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
 
 export default function ProductView() {
   const { type } = useParams();
@@ -21,14 +25,9 @@ export default function ProductView() {
 
   const [currentPage, setCurrentPage] = useState('');
   const [cards, setCards] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1);
   const [showSkeletonCard, setShowSkeletonCard] = useState(false);
 
   const modalRef = useRef(null);
-
-  const [cardRef, inView] = useInView();
-
-  const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
 
   useEffect(() => {
     if (type === BUY) {
@@ -39,32 +38,53 @@ export default function ProductView() {
     }
   }, [type]);
 
-  useEffect(() => {
-    if (datas) {
-      const { sellInfos } = datas;
-      sellInfos.forEach((data) => {
-        setCards((prev) => [...prev, data]);
-      });
-    }
-  }, [datas]);
+  const [cardRef, inView] = useInView();
+  const [pageQueryParams, setPageQueryParams] = useState({
+    recordCount: 8, // 게시글 몇 개 보여줄지
+    currentPage: 1,
+    sort: 'default',
+  });
+
+  const { data: products, isLoading, isSuccess, isError } = useGetSellAllQuery(pageQueryParams);
+
+  let lastPage = useRef(0);
+  if (products) {
+    lastPage.current = products.schPage.totalPageCount;
+    // TODO : 백엔드한테 마지막 페이지가 totalPageCount가 맞는지 물어보기
+  }
 
   const getCards = useCallback(() => {
-    // 서버에서 카드 데이터 받아오면 수정하기
+    setPageQueryParams((prev) => ({
+      ...prev,
+      currentPage: prev.currentPage + 1,
+    }));
+
     setTimeout(() => {
       setShowSkeletonCard(false);
     }, 500);
-  }, [pageNumber]);
+  }, [pageQueryParams.currentPage]);
 
   useEffect(() => {
-    return () => {
+    if (products && isSuccess) {
+      const { sellInfos } = products;
+
+      sellInfos.forEach((product) => {
+        setCards((prev) => [...prev, product]);
+      });
+
+      setCards((prev) => [...new Set(prev)]);
+    }
+  }, [products]);
+
+  console.log(products);
+
+  useEffect(() => {
+    if (isLoading) {
+      return setShowSkeletonCard(true);
+    }
+
+    if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
       getCards();
-      setShowSkeletonCard(true);
-    };
-  }, [getCards]);
-
-  useEffect(() => {
-    if (inView && !isLoading) {
-      setPageNumber((prevPageNumber) => prevPageNumber + 1);
     }
   }, [inView, isLoading]);
 
@@ -105,7 +125,7 @@ export default function ProductView() {
               return (
                 <Card
                   key={prodNo}
-                  // productImage={dbFileName}
+                  productImage={dbFileName ? `${IMG_PREFIX_URL}${dbFileName}` : null}
                   title={prodName}
                   price={prodPrice.toLocaleString()}
                   area={address}
@@ -121,7 +141,7 @@ export default function ProductView() {
               .map((_, idx) => {
                 return <SkeletonCard key={`SkeletonCard ${idx}`} />;
               })}
-          <div ref={cardRef}></div>
+          <div className='cardRef' ref={cardRef}></div>
         </CardContainer>
         <AddButtonContainer>
           <PlusButton onClick={() => modalRef.current?.showModal()} />
@@ -162,6 +182,15 @@ const CardContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   margin: 0 auto;
+  position: relative;
+
+  .cardRef {
+    width: 250px;
+    height: 250px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
 `;
 
 const AddButtonContainer = styled.div`

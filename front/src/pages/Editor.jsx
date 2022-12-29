@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import {
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
-  useGetCategoryQuery,
 } from 'services/productApi';
 
 import styled from 'styled-components';
@@ -20,7 +19,6 @@ import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
 import isEmptyValue from 'utils/isEmptyValue';
-import { useCallback } from 'react';
 
 const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
@@ -28,24 +26,56 @@ const NEXT_X = -690;
 export default function Editor() {
   const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
-    prodName: '', // required
     prodPrice: 0, // required
+    prodName: '', // required
     imageFiles: [], // required
-    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
-    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
-    largeCateNo: 1, // required
-    mediumCateNo: 1, // required
-    smallCateNo: 1, // required
+    largeCateNo: 1, // required : 1로 보내기
+    mediumCateNo: 1, // required : 1
+    smallCateNo: 1, // required : 1
     prodExplain: '', // 상품설명 required
+    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
+    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
     hashtags: [],
   });
+  //TODO: 폼 전송 테스트를 위해 카테고리는 임의로 1값을 주었음.
 
-  //TODO: required 를 모두 채웠을 때만 등록하기 버튼 활성화 시키기
+  useEffect(() => {
+    if (param === SELL && formDatas.freeCheck === '1') {
+      // 무료나눔 O
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .slice(1, 7)
+          .every((formData) => !!formData.toString())
+      );
+    } else if (param === SELL && formDatas.freeCheck === '0') {
+      // 무료나눔 X
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .slice(0, 7)
+          .every((formData) => formData) && formDatas.imageFiles.length
+      );
+    } else if (param === BUY) {
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .slice(0, 7)
+          .filter((formData) => !Array.isArray(formData))
+          .every((formData) => !!formData)
+      );
+    } else {
+      setIsCompleteForm(false);
+    }
+  }, [formDatas]);
 
-  const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
+  //TODO: 서버에서 전송, 받아오기 실패 시 예외처리하기
+  //TODO: 해시태그 10개 이상 등록 못하게 막기
+
+  const navigate = useNavigate();
+
+  // const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
+  // console.log(productCategories);
+  //TODO: 카테고리 추가하기
 
   const [createSaleProduct] = useCreateSaleProductMutation();
-  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
   const [imgSlide, setImgSlide] = useState([]);
 
@@ -98,6 +128,7 @@ export default function Editor() {
       setFormDatas((prev) => ({
         ...prev,
         prodPrice: 0,
+        priceOffer: '0',
       }));
     }
   }, [formDatas.freeCheck]);
@@ -125,11 +156,9 @@ export default function Editor() {
     }));
   }, []);
 
-  const createPost = (e) => {
-    e.preventDefault();
-
-    if (param === SELL) {
-      console.log('상품 판매 등록');
+  const createPost = async (e) => {
+    try {
+      e.preventDefault();
 
       const formData = new FormData();
       formDatas.imageFiles.forEach((item) => {
@@ -137,15 +166,26 @@ export default function Editor() {
       });
 
       formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
-      const imgs = [];
+
       formDatas.imageFiles = formData;
-      createSaleProduct(formData);
 
-      console.log(imgs);
+      const { data: response } = await createSaleProduct(formData);
+      if (response.result === 'Success') {
+        alert('게시글 등록 완료');
+        navigate(`/products/${param}`);
+      } else {
+        throw new Error('게시글 등록 실패');
+      }
+    } catch (err) {
+      alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
+      console.error(err);
+
+      navigate(`/products/${param}`);
     }
+  };
 
-    // if(param === BUY){
-    // }
+  const cancleAddingProductClickHandler = () => {
+    navigate('/');
   };
 
   /**
@@ -189,7 +229,6 @@ export default function Editor() {
     setShowImgDeleteBtn(false);
   }, []);
 
-  // TODO
   const deleteImg = (deleteTargetImg, deleteImageIdx) => () => {
     const imgs = imgSlide.filter((img) => {
       return img !== deleteTargetImg;
@@ -305,9 +344,21 @@ export default function Editor() {
 
   // TODO : 해시태그 10개 제한하기
   // useEffect(() => {
-  //   if (hashTags.length === 10) {
+  //   if (formDatas.hashTags.length === 10) {
+  //     window.alert('해시태그는 10개까지만 등록할 수 있습니다.');
   //   }
-  // }, [hashTags]);
+  // }, [formDatas.hashTags.length]);
+
+  const removeHashtagClickHandler = (e) => {
+    const newHashtags = formDatas.hashtags.filter((hashtag) => {
+      return e.target.innerHTML !== hashtag;
+    });
+
+    setFormDatas((prev) => ({
+      ...prev,
+      hashtags: newHashtags,
+    }));
+  };
 
   return (
     <div className='container'>
@@ -369,9 +420,9 @@ export default function Editor() {
           <TitleAndPriceWrapper>
             <InputTitle title='제목' isRequired />
             <InputTextBox
-              title='제목은 2글자 이상, 20글자 이하로 작성해주세요.'
+              title='제목은 2글자 이상, 50글자 이하로 작성해주세요.'
               minLength={2}
-              maxLength={20}
+              maxLength={50}
               onChange={changeProductTitle}
               required
               width='100%'
@@ -384,12 +435,14 @@ export default function Editor() {
                 <InputTitle isRequired title='가격' />
               </div>
               <div>
-                <CheckBox
-                  onChange={checkedAllowPriceSuggestions}
-                  marginRight='140px'
-                  id='proposition'
-                  title='가격 제안 허용'
-                />
+                {formDatas.freeCheck === '0' && param === SELL && (
+                  <CheckBox
+                    onChange={checkedAllowPriceSuggestions}
+                    marginRight='140px'
+                    id='proposition'
+                    title='가격 제안 허용'
+                  />
+                )}
               </div>
             </PriceTitleContainer>
 
@@ -401,12 +454,16 @@ export default function Editor() {
                 onChange={changeProductPrice}
                 required
                 type='number'
-                width='95%'
+                min='0'
+                max='99999999999'
+                width={param === SELL ? '95%' : '100%'}
                 padding='10px'
                 placeholder='원'
                 placeholderPosition='right'
               />
-              <CheckBox onChange={checkedFreeSharing} width='110px' id='free' title='무료나눔' />
+              {param === SELL && (
+                <CheckBox onChange={checkedFreeSharing} width='110px' id='free' title='무료나눔' />
+              )}
             </PriceInputContainer>
           </TitleAndPriceWrapper>
 
@@ -432,10 +489,11 @@ export default function Editor() {
             <InputTitle isRequired title='내용' />
             <br />
             <textarea
+              maxLength='500'
               onChange={changeProductContent}
               className='textArea'
               required
-              placeholder='물품 상세 정보를 입력해주세요.'
+              placeholder='물품 상세 정보를 입력해주세요. (최대 500자)'
             />
           </InputContent>
 
@@ -445,7 +503,7 @@ export default function Editor() {
               {formDatas.hashtags.length > 0 &&
                 formDatas.hashtags.map((hashTag) => {
                   return (
-                    <div key={hashTag} className='tag'>
+                    <div onClick={removeHashtagClickHandler} key={hashTag} className='tag'>
                       {hashTag}
                     </div>
                   );
@@ -458,6 +516,7 @@ export default function Editor() {
                 onKeyDown={keyDownHandler}
                 placeholder='#해시태그를 등록해보세요. (최대 10개)'
                 className='hashTagInput'
+                maxLength='20'
               />
             </div>
           </HashTageContainer>
@@ -469,10 +528,11 @@ export default function Editor() {
             type='submit'
             onClick={createPost}
             customSize='50%'
+            isDisabled={!isCompleteForm}
           >
             등록하기
           </Button>
-          <Button customSize='50%' isOutline>
+          <Button onClick={cancleAddingProductClickHandler} customSize='50%' isOutline>
             취소하기
           </Button>
         </div>
