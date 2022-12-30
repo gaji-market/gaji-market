@@ -90,14 +90,16 @@ export default function ProductView() {
       }, 500);
     }
 
+    // 더 이상 받아올 데이터가 없는 경우 getCards 호출하지 않기
+
     if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
       getCards();
     }
   }, [inView, isLoading]);
 
   const moveProductDetail = (prodNo) => (e) => {
-    const className = e.target.className;
-    if (className.includes('empty-heart') || className.includes('fill-heart')) return;
+    const tagName = e.target.tagName;
+    if (tagName === 'svg' || tagName === 'path') return;
 
     navigate(`/products/${type}/detail/${prodNo}`);
   };
