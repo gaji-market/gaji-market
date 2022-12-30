@@ -1,62 +1,120 @@
+/* eslint-disable indent */
 import { useEffect } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { BsCheckCircle, BsXLg } from 'react-icons/bs';
+import { BsCheckCircle } from 'react-icons/bs';
+import { RiForbid2Line } from 'react-icons/ri';
 
-export default function Toast({ toast, setToast, durationTime = 3000 }) {
+import { PRIMARY_COLOR } from './commonColor';
+
+export default function Toast({ toast, setToast, durationTime = 5000 }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setToast((prev) => ({ ...prev, isToastAppear: false }));
     }, durationTime);
-
+    console.log(toast);
     return () => {
       clearTimeout(timer);
     };
   });
+
   return (
-    <ToastBox isToastSuccess={toast.isToastSuccess}>
+    <ToastBox
+      isToastSuccess={toast.isToastSuccess}
+      isMainThema={toast.isMainThema}
+      toastPosition={toast.position}
+    >
       {toast.isToastSuccess ? (
-        <BsCheckCircle className='Check' size='35' color='#51ff00' />
+        <BsCheckCircle className='Check' size='35' />
       ) : (
-        <BsXLg className='Check' size='35' color='#fa95a4' />
+        <RiForbid2Line className='Check' size='35' />
       )}
+      {toast.toastTitle}
       {toast.toastMessage}
     </ToastBox>
   );
 }
+
 const toastFadeIn = keyframes`
-    from{
-        opacity:0;
-    }
-    to{
-        opacity:1;
-    }
+from{
+  opacity:0;
+  transform:translate(100px,0px)
+
+}
+ to{
+      opacity:1;
+  transform:translate(0px,0px)
+  }
 `;
 
+const toastFadeOut = keyframes`
+from{
+  opacity:1;
+  transform:translate(0px,0px)
+
+}
+ to{
+      opacity:0;
+      transform:translate(500px,0px)
+  }
+`;
 const ToastBox = styled.div`
   position: absolute;
-  top: 1px;
-  left: 50%;
-  padding: 30px 30px;
-  background-color: #ffb6c1;
-  border-radius: 20px;
-  width: 400px;
-  transform: translate(-50%, 0%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  overflow: hidden;
 
+  right: 3%;
+
+  background-color: #fcccd3;
+  border-radius: 10px;
+  width: 400px;
+  display: flex;
+  align-items: center;
   word-wrap: break-word;
-  box-shadow: 0px -5px 3px 1px #fa95a4 inset;
-  animation: ${toastFadeIn} 1s 0s linear forwards;
+  color: red;
+
+  animation: ${toastFadeIn} 1s 0s linear forwards, ${toastFadeOut} 2s 3s linear forwards;
 
   .Check {
     margin-right: 15px;
   }
 
+  &::before {
+    content: '';
+    width: 15px;
+    height: 80px;
+    background: #ff7e92;
+    margin-right: 50px;
+  }
+  ${({ toastPosition }) => css`
+    top: ${toastPosition === 'top' ? '5%' : toastPosition === 'center' ? '40%' : '85%'};
+  `}
+  ${({ isMainThema }) =>
+    isMainThema &&
+    css`
+      color: white;
+      &::before {
+        background: #ff1c3e;
+      }
+      background: #fc5c74;
+    `}
+
   ${({ isToastSuccess }) =>
     isToastSuccess &&
     css`
-      background: #a6fcd2;
-      box-shadow: 0px -5px 3px 1px #a3f1ca inset;
+      color: ${PRIMARY_COLOR};
+      &::before {
+        background: #7307ff;
+      }
+      background: #ececece2;
+    `}
+
+  ${({ isToastSuccess, isMainThema }) =>
+    isToastSuccess &&
+    isMainThema &&
+    css`
+      color: white;
+      &::before {
+        background: #7307ff;
+      }
+      background: ${PRIMARY_COLOR};
     `}
 `;
