@@ -39,7 +39,7 @@ export default function ProductDetailView() {
 
           <ProductTop>
             <div className='imgContainer'>
-              <ul>
+              <ul className='imgList'>
                 {product.fileInfos.length > 0 &&
                   product.fileInfos.map((image) => {
                     return (
@@ -158,6 +158,10 @@ const ProductTop = styled.div`
   .imgContainer ul {
     display: flex;
     height: 100%;
+  }
+
+  .imgList {
+    align-items: center;
   }
 
   .productImages li {
