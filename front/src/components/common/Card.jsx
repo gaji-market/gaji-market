@@ -53,9 +53,9 @@ export default function Card({ productImage, title, price, area, likes, state, o
             <AreaText>{area}</AreaText>
             <LikesWrapper>
               {fillHeart ? (
-                <FillHeartIcon className='fill-heart' onClick={onClickHeart} />
+                <FillHeartIcon className='fillHeart' onClick={onClickHeart} />
               ) : (
-                <HeartIcon className='empty-heart' onClick={onClickHeart} />
+                <HeartIcon className='emptyHeart' onClick={onClickHeart} />
               )}
               <LikesCount>{likes}</LikesCount>
             </LikesWrapper>
