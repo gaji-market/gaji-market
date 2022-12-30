@@ -17,24 +17,23 @@ export default function Login() {
   const nav = useNavigate();
 
   const [toast, setToast] = useState({
-    toastTitle: '',
     toastMessage: '',
     isToastAppear: false,
     isToastSuccess: false,
-    isMainThema: true,
+    isMainTheme: true,
     poistion: 'top',
   });
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
   });
-  const toastHandler = (message, isSuccess, isMainThema = true, position = 'top') => {
+  const toastHandler = (message, isSuccess, isMainTheme = true, position = 'top') => {
     setToast((prev) => ({
       ...prev,
       toastMessage: message,
       isToastAppear: true,
       isToastSuccess: isSuccess,
-      isMainThema: isMainThema,
+      isMainTheme: isMainTheme,
       position: position,
     }));
   };
@@ -45,11 +44,11 @@ export default function Login() {
       try {
         const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
         if (res.result === 'fail') {
-          toastHandler('아이디 및 비밀번호를 확인해주세요.', false, true, 'center');
+          toastHandler('아이디 및 비밀번호를 확인해주세요.', false, true, 'bottom');
         } else if (res.result === 'success') {
           toastHandler('로그인 되었습니다.', true);
-          //setTimeout(() => nav('/'), 2000);
-          //sessionStorage.setItem('userToken', res.token);
+          setTimeout(() => nav('/'), 1500);
+          sessionStorage.setItem('userToken', res.token);
         }
       } catch (e) {
         console.log(e);
@@ -118,10 +117,10 @@ export default function Login() {
           <LineOR>OR</LineOR>
           <Line width={'200px'} marginBottom={'20px'} />
         </LineBox>
-        <SocialLogin>
+        <SocialLogin onClick={(e) => e.preventDefault()}>
           <Img src={KakaoImg}></Img>
         </SocialLogin>
-        <SocialLogin>
+        <SocialLogin onClick={(e) => e.preventDefault()}>
           <Img src={NaverImg}></Img>
         </SocialLogin>
       </Form>
@@ -135,6 +134,7 @@ const Container = styled.div`
   border-radius: 35px;
   box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
   padding: 50px 100px;
+  overflow-x: hidden;
 `;
 const InputBox = styled.div`
   margin-left: 45px;

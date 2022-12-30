@@ -15,12 +15,12 @@ export default function Toast({ toast, setToast, durationTime = 5000 }) {
     return () => {
       clearTimeout(timer);
     };
-  });
+  }, []);
 
   return (
     <ToastBox
       isToastSuccess={toast.isToastSuccess}
-      isMainThema={toast.isMainThema}
+      isMainTheme={toast.isMainTheme}
       toastPosition={toast.position}
     >
       {toast.isToastSuccess ? (
@@ -40,8 +40,9 @@ from{
   transform:translate(100px,0px)
 
 }
- to{
-      opacity:1;
+
+to{
+  opacity:1;
   transform:translate(0px,0px)
   }
 `;
@@ -52,7 +53,8 @@ from{
   transform:translate(0px,0px)
 
 }
- to{
+
+to{
       opacity:0;
       transform:translate(500px,0px)
   }
@@ -84,11 +86,13 @@ const ToastBox = styled.div`
     background: #ff7e92;
     margin-right: 50px;
   }
+
   ${({ toastPosition }) => css`
     top: ${toastPosition === 'top' ? '5%' : toastPosition === 'center' ? '40%' : '85%'};
   `}
-  ${({ isMainThema }) =>
-    isMainThema &&
+
+  ${({ isMainTheme }) =>
+    isMainTheme &&
     css`
       color: white;
       &::before {
@@ -107,9 +111,9 @@ const ToastBox = styled.div`
       background: #ececece2;
     `}
 
-  ${({ isToastSuccess, isMainThema }) =>
+  ${({ isToastSuccess, isMainTheme }) =>
     isToastSuccess &&
-    isMainThema &&
+    isMainTheme &&
     css`
       color: white;
       &::before {
