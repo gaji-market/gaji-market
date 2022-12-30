@@ -71,7 +71,7 @@ export default function ProductDetailView() {
                     <ReportIcon />
                     <span>신고 {product.productInfo.reportCnt}회</span>
                     <VerticalBar>|</VerticalBar>
-                    <span>신고하기</span>
+                    <span className='reportBtn'>신고하기</span>
                   </Report>
                   <Location>
                     <LocationIcon />
@@ -203,8 +203,10 @@ const ProductState = styled.p`
 
 const Title = styled.h2`
   font-size: 35px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
+  margin-top: 5px;
+  margin-bottom: 5px;
 `;
 
 const Price = styled.p`
@@ -253,6 +255,10 @@ const Report = styled.div`
   align-items: center;
   margin-top: 10px;
   margin-bottom: 5px;
+
+  .reportBtn {
+    cursor: pointer;
+  }
 `;
 
 const VerticalBar = styled.span`
@@ -262,6 +268,7 @@ const VerticalBar = styled.span`
 
 const ReportIcon = styled(AiOutlineAlert)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const Location = styled.div`
@@ -272,6 +279,7 @@ const Location = styled.div`
 
 const LocationIcon = styled(HiOutlineLocationMarker)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const DateCreated = styled.div`
@@ -281,6 +289,7 @@ const DateCreated = styled.div`
 
 const DateIcon = styled(RiTimerLine)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const HashTags = styled.div`
@@ -313,7 +322,7 @@ const UserInfo = styled.div`
 
 const UserInfoTitle = styled.h4`
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
   margin-bottom: 20px;
 `;
@@ -350,7 +359,7 @@ const ProductBottom = styled.div`
 
 const ProductInfoTitle = styled.h4`
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
   margin-bottom: 20px;
 `;
