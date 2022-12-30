@@ -65,8 +65,9 @@ export default function ProductView() {
     if (products && isSuccess) {
       const { sellInfos } = products;
 
-      if (products?.schPage.totalRecordCount < 4) {
-        setSkeletonCardCount(LOADING_CARD_COUNT - products.schPage.totalRecordCount);
+      const cardCount = products.schPage.totalRecordCount % LOADING_CARD_COUNT;
+      if (cardCount) {
+        setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
       }
 
       sellInfos.forEach((product) => {
