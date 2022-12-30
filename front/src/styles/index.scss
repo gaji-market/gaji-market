@@ -1,5 +1,5 @@
 @font-face {
-  font-family: 'NanumSquare';
+  font-family: 'NanumSquareB';
   src: url('../fonts/NanumSquareB.woff') format('woff'),
     url('../fonts/NanumSquareL.woff') format('woff'),
     url('../fonts/NanumSquareR.woff') format('woff');
@@ -9,6 +9,16 @@
 
 * {
   font-family: 'NanumSquare';
+}
+
+input[type='password'] {
+  font-family: 'NanumSquareB';
+}
+
+::placeholder {
+  font-family: 'NanumSquareB', sans-serif;
+  color: #666;
+  opacity: 1;
 }
 
 body {

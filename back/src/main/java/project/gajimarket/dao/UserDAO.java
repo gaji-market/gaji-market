@@ -19,11 +19,20 @@ public interface UserDAO {
     // 유저찾기
     public UserDTO selectUser(Map<String, Object> param);
 
+    // 좋아요한 상품
+    public List<Map<String, Object>> selectUserInterestProd(Map<String, Object> param);
+
+    // 판매내역
+    public List<Map<String, Object>> selectUserSellProd(Map<String, Object> param);
+
+    // 구매내역
+    public List<Map<String, Object>> selectUserBuyProd(Map<String, Object> param);
+
     // 정보수정
     public int updateUser(UserDTO userDto);
 
     // 알림 수정
-    public int updateNtfct (Map<String, Object> param);
+    public int updateNtfct (UserDTO userDto);
 
     // 회원탈퇴
     public int updateOutUser (int userNo);

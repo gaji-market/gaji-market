@@ -13,7 +13,6 @@ import {
   MyPage,
   MyEditPage,
   Test,
-  FileTest,
 } from 'pages';
 
 export default function index() {
@@ -23,7 +22,6 @@ export default function index() {
         <Route index element={<Home />} />
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
-        <Route path='/file' element={<FileTest />} />
         <Route path='/mypage' element={<MyPage />} />
         <Route path='/mypage/edit' element={<MyEditPage />} />
 

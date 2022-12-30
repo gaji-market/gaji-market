@@ -5,6 +5,7 @@ import project.gajimarket.model.file.UploadFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface FileService {
 

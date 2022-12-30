@@ -2,17 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="project.gajimarket.dao.NotifiDAO">
 
+    <sql id="notifiList">
+        SELECT ni.*, ui.nickname
+          FROM notification_info ni LEFT JOIN user_info ui ON ni.senderUserNo = ui.no
+         WHERE ni.userNo = #{userNo}
+           AND ni.gubun = #{gubun}
+    </sql>
+
     <insert id="insertNotification" parameterType="java.util.Map">
-        INSERT INTO notification_info
-        (
+        INSERT INTO notification_info (
             userNo,
             gubun,
             senderUserNo,
             message,
             regDate
         )
-        VALUES
-        (
+        VALUES (
             #{userNo},
             #{gubun},
             #{senderUserNo},
@@ -21,36 +26,35 @@
         )
     </insert>
 
+    <update id="updateNotification" parameterType="java.util.Map">
+        UPDATE notification_info
+        SET checkYn='Y'
+        WHERE notifiNo = #{notifiNo}
+    </update>
+
     <select id="selectNotification" parameterType="java.util.Map" resultType="java.util.Map">
 
     </select>
 
-    <select id="selectNotificationList" parameterType="java.util.Map" resultType="java.util.List">
-        SELECT *
-          FROM notification_info
-         WHERE userNo = #{userNo}
-           AND gubun = #{gubun}
-
+    <select id="selectNotificationList" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT T.*
+          FROM (
+            <include refid="notifiList"/>
+                ) T
+         ORDER BY T.regDate
+        LIMIT #{schPage.limitPage}, #{schPage.recordCount}
     </select>
 
-    <update id="updateNotification" parameterType="java.util.Map">
-        UPDATE notification_info
-           SET checkYn='Y'
-         WHERE notifiNo = #{notifiNo}
-    </update>
-
-    <select id="selectNotificationCnt" parameterType="java.util.Map" resultType="int">
+    <select id="selectNotificationListCnt" parameterType="java.util.Map" resultType="int">
         SELECT COUNT(*)
-          FROM ( SELECT *
-                   FROM notification_info
-                  WHERE userNo = #{userNo}
-                    AND gubun = #{gubun}
-                )
+          FROM (
+            <include refid="notifiList"/>
+                ) T
     </select>
 
-    <select id="selectNotificationCheckCnt" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT COUNT(CASE WHEN gubun = 1 THEN 0 END) AS chatCheckCount,
-               COUNT(CASE WHEN gubun = 2 THEN 0 END) AS intstCheckCount
+    <select id="selectNotificationCheckCnt" parameterType="int" resultType="java.util.Map">
+        SELECT COUNT(CASE WHEN gubun = 1 THEN 0 END) AS chatCheckCnt,
+               COUNT(CASE WHEN gubun = 2 THEN 0 END) AS intstCheckCnt
           FROM notification_info
          WHERE userNo = #{userNo}
            AND checkYn = 'N'

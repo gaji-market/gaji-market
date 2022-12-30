@@ -14,7 +14,9 @@
 
     <!-- 좋아요 찾기 -->
     <select id="findInterest" resultType="int">
-        select interestNo as 'interestYN' from interest_info where prodNo=#{prodNo} and userNo=#{loginUserNo};
+        select
+           case when interestNo is null then 0 else 1 end as 'interestYN'
+        from interest_info where prodNo=#{prodNo} and userNo=#{loginUserNo};
     </select>
 
     <!-- 좋아요 갯수 가져오기 -->

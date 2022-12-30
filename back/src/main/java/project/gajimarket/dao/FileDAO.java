@@ -1,6 +1,7 @@
 package project.gajimarket.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import project.gajimarket.model.UserDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -19,4 +20,13 @@ public interface FileDAO {
 
     //DB file 테이블 정보 삭제
     void productFileDelete(int prodNo);
+
+    // 사용자 이미지 저장
+    int userFileSave(Map<String, Object> param);
+
+    // 사용자 이미지 조회
+    Map<String, Object> selectUserImg(UserDTO userDto);
+
+    // 사용자 이미지 삭제
+    int deleteUserImg(UserDTO userDto);
 }

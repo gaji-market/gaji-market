@@ -33,10 +33,10 @@ const Bg = styled.div`
     !customSize &&
     `
     margin : 0 auto;
-    position: sticky;
-    z-index: 10;
-    position : absolute;
-    right : 0;
+    z-index: 1000;
+    position: fixed;
+    bottom: 50px;
+    right : 50px;
   `}
 
   &:hover {
@@ -47,6 +47,5 @@ const Bg = styled.div`
 const Plus = styled(CgMathPlus)`
   color: white;
   text-align: center;
-  font-size: ${({ customsize }) =>
-    customsize ? `${parseInt(customsize) - 15}px` : '50px'};
+  font-size: ${({ customsize }) => (customsize ? `${parseInt(customsize) - 15}px` : '50px')};
 `;

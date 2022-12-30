@@ -23,4 +23,34 @@
     <delete id="productFileDelete" parameterType="int">
         delete from file where no=#{param1} and gubun='2';
     </delete>
+
+    <!-- 사용자 이미지 저장 -->
+    <insert id="userFileSave" parameterType="java.util.Map">
+        INSERT INTO file
+             ( no
+             , gubun
+             , uploadFileName
+             , dbFileName
+             )
+        VALUES
+             ( #{userNo}
+             , '1'
+             , #{uploadFileName}
+             , #{dbFileName}
+             )
+    </insert>
+
+    <!-- 사용자 이미지 조회 -->
+    <select id="selectUserImg" parameterType="project.gajimarket.model.UserDTO" resultType="java.util.Map">
+        SELECT uploadFileName
+             , dbFileName
+          FROM file
+         WHERE no = #{userNo}
+           AND gubun = '1'
+    </select>
+
+    <!-- 사용자 이미지 삭제 -->
+    <delete id="deleteUserImg" parameterType="project.gajimarket.model.UserDTO">
+        DELETE FROM file WHERE no = #{userNo} AND gubun = '1'
+    </delete>
 </mapper>

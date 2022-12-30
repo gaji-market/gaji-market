@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class ProductDTO {
     private int prodNo; //상품번호
     private int userNo; //유저번호
-    private int categoryNo; //카테고리번호
+    private String cateCode; //카테고리 코드
     private String prodName; //상품이름
     private int prodPrice; //상품 가격
     private String priceOffer; // 가격제안유무 ('0'-가격제안X,'1'-가격제안O)
