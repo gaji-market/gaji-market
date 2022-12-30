@@ -121,5 +121,6 @@ src/main/resources/data/jasypt-encryptor-password.txt
 # ignore properties file
 application-aws.properties
 application-db.properties
+application-config.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij

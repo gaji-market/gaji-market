@@ -4,20 +4,28 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Map;
 
+@Component
 public class JWTUtil {
 
     // 시크릿 키
-    private static final String jwtSecretKey = "gajiMarket";
+    private static String jwtSecretKey;
     private static final String id = "id";
     private static final String pwd ="pwd";
 
     // 시간
     private Long tokenValidTime = 1000L * 60 * 60;
+
+    @Value("${secret.jwt.secretKey}")
+    private void setJwtSecretKey(String key) {
+        jwtSecretKey = key;
+    }
     
     // 토큰 생성
     public static String createAccessToken(Map<String, Object> paramMap) {
