@@ -26,6 +26,7 @@ export default function ProductView() {
   const [currentPage, setCurrentPage] = useState('');
   const [cards, setCards] = useState([]);
   const [showSkeletonCard, setShowSkeletonCard] = useState(false);
+  const [skeletonCardCount, setSkeletonCardCount] = useState(LOADING_CARD_COUNT);
 
   const modalRef = useRef(null);
 
@@ -58,15 +59,15 @@ export default function ProductView() {
       ...prev,
       currentPage: prev.currentPage + 1,
     }));
-
-    setTimeout(() => {
-      setShowSkeletonCard(false);
-    }, 500);
   }, [pageQueryParams.currentPage]);
 
   useEffect(() => {
     if (products && isSuccess) {
       const { sellInfos } = products;
+
+      if (products?.schPage.totalRecordCount < 4) {
+        setSkeletonCardCount(LOADING_CARD_COUNT - products.schPage.totalRecordCount);
+      }
 
       sellInfos.forEach((product) => {
         setCards((prev) => [...prev, product]);
@@ -81,6 +82,12 @@ export default function ProductView() {
   useEffect(() => {
     if (isLoading) {
       return setShowSkeletonCard(true);
+    }
+
+    if (!isLoading) {
+      setTimeout(() => {
+        return setShowSkeletonCard(false);
+      }, 500);
     }
 
     if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
@@ -136,7 +143,7 @@ export default function ProductView() {
               );
             })}
           {showSkeletonCard &&
-            Array(LOADING_CARD_COUNT)
+            Array(skeletonCardCount)
               .fill()
               .map((_, idx) => {
                 return <SkeletonCard key={`SkeletonCard ${idx}`} />;
