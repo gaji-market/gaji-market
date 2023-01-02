@@ -10,33 +10,17 @@ import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
 import { usePostUserLoginMutation } from 'services/signUpApi';
 import { useEffect } from 'react';
-import Toast from 'components/common/Toast';
+import useToast from 'hooks/toast';
 
 export default function Login() {
   const [login] = usePostUserLoginMutation();
   const nav = useNavigate();
+  const { addToast } = useToast();
 
-  const [toast, setToast] = useState({
-    toastMessage: '',
-    isToastAppear: false,
-    isToastSuccess: false,
-    isMainTheme: true,
-    poistion: 'top',
-  });
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
   });
-  const toastHandler = (message, isSuccess, isMainTheme = true, position = 'top') => {
-    setToast((prev) => ({
-      ...prev,
-      toastMessage: message,
-      isToastAppear: true,
-      isToastSuccess: isSuccess,
-      isMainTheme: isMainTheme,
-      position: position,
-    }));
-  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -44,17 +28,29 @@ export default function Login() {
       try {
         const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
         if (res.result === 'fail') {
-          toastHandler('아이디 및 비밀번호를 확인해주세요.', false, true, 'bottom');
+          addToast({
+            isToastSuccess: false,
+            isMainTheme: true,
+            toastMessage: '아이디 및 비밀번호를 확인해주세요.',
+          });
         } else if (res.result === 'success') {
-          toastHandler('로그인 되었습니다.', true);
+          addToast({
+            isToastSuccess: true,
+            isMainTheme: true,
+            toastMessage: '로그인 되었습니다.',
+          });
           setTimeout(() => nav('/'), 1500);
-          sessionStorage.setItem('userToken', res.token);
+          //sessionStorage.setItem('userToken', res.token);
         }
       } catch (e) {
         console.log(e);
       }
     } else {
-      toastHandler('아이디 및 비밀번호를 입력해주세요.', false);
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastMessage: '아이디 및 비밀번호를 입력해주세요.',
+      });
     }
   };
 
@@ -71,7 +67,7 @@ export default function Login() {
   }, []);
   return (
     <Container>
-      {toast.isToastAppear && <Toast toast={toast} setToast={setToast} />}
+      {/* {toast.isToastAppear && <Toast key={toast.toastMessage} toast={toast} setToast={setToast} />} */}
 
       <SignUpHead>
         <Title>로그인</Title>
