@@ -5,32 +5,36 @@ import { BsCheckCircle } from 'react-icons/bs';
 import { RiForbid2Line } from 'react-icons/ri';
 
 import { PRIMARY_COLOR } from './commonColor';
+import useToast from 'hooks/toast';
+import { useSelector } from 'react-redux';
 
-export default function Toast({ toast, setToast, durationTime = 5000 }) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setToast((prev) => ({ ...prev, isToastAppear: false }));
-    }, durationTime);
-    console.log(toast);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+export default function Toast() {
+  const toasts = useSelector((state) => state.toast.toasts);
+
+  const { deleteToast } = useToast();
 
   return (
-    <ToastBox
-      isToastSuccess={toast.isToastSuccess}
-      isMainTheme={toast.isMainTheme}
-      toastPosition={toast.position}
-    >
-      {toast.isToastSuccess ? (
-        <BsCheckCircle className='Check' size='35' />
-      ) : (
-        <RiForbid2Line className='Check' size='35' />
-      )}
-      {toast.toastTitle}
-      {toast.toastMessage}
-    </ToastBox>
+    <ToastContainer>
+      {toasts.map((toast) => {
+        return (
+          <ToastBox
+            key={toast.id}
+            isToastSuccess={toast.isToastSuccess}
+            isMainTheme={toast.isMainTheme}
+            toastPosition={toast.position}
+            onClick={() => deleteToast(toast.id)}
+          >
+            {toast.isToastSuccess ? (
+              <BsCheckCircle className='Check' size='35' />
+            ) : (
+              <RiForbid2Line className='Check' size='35' />
+            )}
+            {toast.toastTitle}
+            {toast.toastMessage}
+          </ToastBox>
+        );
+      })}
+    </ToastContainer>
   );
 }
 
@@ -51,7 +55,6 @@ const toastFadeOut = keyframes`
 from{
   opacity:1;
   transform:translate(0px,0px)
-
 }
 
 to{
@@ -59,12 +62,13 @@ to{
       transform:translate(500px,0px)
   }
 `;
-const ToastBox = styled.div`
+const ToastContainer = styled.div`
   position: absolute;
-  overflow: hidden;
-
   right: 3%;
-
+  top: 7%;
+`;
+const ToastBox = styled.div`
+  margin-bottom: 15px;
   background-color: #fcccd3;
   border-radius: 10px;
   width: 400px;
@@ -72,7 +76,6 @@ const ToastBox = styled.div`
   align-items: center;
   word-wrap: break-word;
   color: red;
-
   animation: ${toastFadeIn} 1s 0s linear forwards, ${toastFadeOut} 2s 3s linear forwards;
 
   .Check {
