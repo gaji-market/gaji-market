@@ -10,7 +10,6 @@ import { useSelector } from 'react-redux';
 
 export default function Toast() {
   const toasts = useSelector((state) => state.toast.toasts);
-
   const { deleteToast } = useToast();
 
   return (
@@ -76,8 +75,8 @@ const ToastBox = styled.div`
   align-items: center;
   word-wrap: break-word;
   color: red;
-  animation: ${toastFadeIn} 1s 0s linear forwards, ${toastFadeOut} 2s 3s linear forwards;
-
+  animation: ${toastFadeIn} 0.3s 0s linear forwards, ${toastFadeOut} 0.5s 3s linear forwards;
+  font-weight: 800;
   .Check {
     margin-right: 15px;
   }
