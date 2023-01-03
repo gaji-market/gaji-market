@@ -54,7 +54,7 @@ export const chatApi = createApi({
     getChatRoom: query({
       providesTags: ['ChatRoom'],
       // FIXME: userNo 삭제
-      query: (chatNo, userNo) => `getChatRoom/${chatNo}/${userNo}`,
+      query: ({ chatNo, userNo }) => `getChatRoom/${chatNo}/${userNo}`,
       // response
       // {
       //   chatRoonInfo: {
