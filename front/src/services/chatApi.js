@@ -113,6 +113,7 @@ export const chatApi = createApi({
     }),
     // notion에 내용 없음
     addChatMessage: mutation({
+      providesTags: ['Message'],
       query: (userNo) => ({
         url: `addChatMessage/${userNo}`,
         method: 'POST',
@@ -120,6 +121,7 @@ export const chatApi = createApi({
       }),
     }),
     removeChatMessage: query({
+      invalidatesTags: ['Message'],
       query: (messageNo) => `removeChatMessage/${messageNo}`,
       // response
       // {
