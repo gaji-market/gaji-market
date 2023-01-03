@@ -19,12 +19,12 @@ export const chatApi = createApi({
     getChatRoomList: mutation({
       providesTags: ['ChatRoom'],
       // FIXME: userNo 삭제
-      query: (userNo) => ({
+      query: ({ userNo, currentPage, recordCount }) => ({
         url: `getChatRoomList/${userNo}`,
         method: 'POST',
         body: {
-          currentPage: 1,
-          recordCount: 10,
+          currentPage: currentPage,
+          recordCount: recordCount,
         },
       }),
       // response
