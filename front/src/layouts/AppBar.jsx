@@ -1,21 +1,34 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 import ToggleSwitch from 'components/common/ToggleSwitch';
+import Button from 'components/common/Button';
 
 import { ReactComponent as GradationLogo } from 'assets/GradationLogo.svg';
 
-import { PRIMARY_COLOR } from 'components/common/commonColor';
+import {
+  PRIMARY_COLOR,
+  GRAY_COLOR,
+  PRIMARY_VAR_COLOR,
+  DARK_GRAY_COLOR,
+} from 'components/common/commonColor';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
-import { FiMoreHorizontal } from 'react-icons/fi';
 
 export default function AppBar() {
-  // TODO: ADD LOGIC
-  const isLoggedIn = true;
-
   const navigate = useNavigate();
+  const { search } = useLocation();
+
+  // TODO: ADD LOGIC
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const initToggles = { alarm: false, userId: false };
+  const [toggles, setToggles] = useState(initToggles);
+
+  const blurHandler = () => {
+    setToggles(initToggles);
+  };
 
   return (
     <StyledWrapper>
@@ -23,39 +36,87 @@ export default function AppBar() {
         <MenuBtn onClick={menubarHandler}>
           <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
         </MenuBtn>
-        <GradationLogo height='60px' />
+        <GradationLogo
+          height='60px'
+          onClick={() => navigate('/')}
+          style={{ cursor: 'pointer' }}
+        />
       </ItemGroup>
       <ItemGroup>
         <Search type='search' />
         <ToggleSwitch
-          on={{ name: '살래요', handler: () => navigate('products/sal') }}
-          off={{ name: '팔래요', handler: () => navigate('products/pal') }}
+          on={{
+            name: '살래요',
+            handler: () => navigate(`products/sal${search}`),
+          }}
+          off={{
+            name: '팔래요',
+            handler: () => navigate(`products/pal${search}`),
+          }}
         />
         {isLoggedIn ? (
           <>
-            <FaBell size={24} color={PRIMARY_COLOR} />
-            <FaUserCircle size={24} color={PRIMARY_COLOR} />
-            <span>UserID</span>
+            {Object.values(toggles).includes(true) && (
+              <BlurContainer onClick={blurHandler} />
+            )}
+            <Alarm aria-expanded={toggles.alarm}>
+              <Toggle
+                onClick={() =>
+                  setToggles((prev) => ({ ...prev, alarm: !prev.alarm }))
+                }
+              >
+                <FaBell size={24} color={PRIMARY_COLOR} />
+              </Toggle>
+              {toggles.alarm && (
+                <AlarmContainer id='app-alarm-container'>
+                  <h1>TEST</h1>
+                </AlarmContainer>
+              )}
+            </Alarm>
+            <UserItem>
+              <Toggle
+                onClick={() =>
+                  setToggles((prev) => ({ ...prev, userId: !prev.userId }))
+                }
+              >
+                <FaUserCircle size={24} color={GRAY_COLOR} />
+                <span>UserID</span>
+              </Toggle>
+              {toggles.userId && (
+                <UserIdDropdown>
+                  <DropdownItem
+                    onClick={() => [
+                      navigate('/mypage'),
+                      setToggles(initToggles),
+                    ]}
+                  >
+                    마이페이지
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={() => [
+                      console.log('logout'),
+                      setToggles(initToggles),
+                    ]}
+                  >
+                    로그아웃
+                  </DropdownItem>
+                </UserIdDropdown>
+              )}
+            </UserItem>
           </>
         ) : (
           <>
-            <span>로그인</span>
-            <span>회원가입</span>
+            <Button size='sm' isOutline onClick={() => navigate('/login')}>
+              로그인
+            </Button>
+            <Button size='sm' onClick={() => navigate('/signup')}>
+              회원가입
+            </Button>
           </>
         )}
-        <TempNavigation>
-          <summary>
-            <FiMoreHorizontal size={24} color={PRIMARY_COLOR} />
-          </summary>
-          <div>
-            <NavLink to='/'>HOME</NavLink>
-            <NavLink to='/test'>TEST</NavLink>
-            <NavLink to='/test/slice'>STORE</NavLink>
-            <NavLink to='/login'>Login</NavLink>
-            <NavLink to='/signup'>SignUp</NavLink>
-            <NavLink to='/mypage'>MyPage</NavLink>
-          </div>
-        </TempNavigation>
+        <TestToggle onClick={() => setIsLoggedIn((prev) => !prev)}>
+          test
+        </TestToggle>
       </ItemGroup>
     </StyledWrapper>
   );
@@ -107,22 +168,76 @@ const Search = styled.input`
   border: 1px solid ${PRIMARY_COLOR};
 `;
 
-const TempNavigation = styled.details`
-  z-index: 1000;
-  position: relative;
-  summary {
-    list-style: none;
-  }
+const Toggle = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
 
-  > div {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    row-gap: 8px;
-    padding: 16px;
-    right: 0;
-    border: 1px solid ${PRIMARY_COLOR};
-    border-radius: 8px;
-    background-color: white;
+  &:hover {
+    cursor: pointer;
   }
+`;
+
+const Alarm = styled.div`
+  position: relative;
+`;
+
+const AlarmContainer = styled.div`
+  z-index: 100000;
+  position: absolute;
+  width: 480px;
+  height: 720px;
+  top: 40px;
+  right: -16px;
+  border-radius: 4px;
+  border: 1px solid ${PRIMARY_VAR_COLOR};
+  background-color: white;
+  box-shadow: 2px 2px 4px ${GRAY_COLOR};
+  padding: 16px;
+`;
+
+const BlurContainer = styled.div`
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+`;
+
+const UserItem = styled.div`
+  span {
+    color: ${DARK_GRAY_COLOR};
+  }
+`;
+
+const UserIdDropdown = styled.div`
+  z-index: 100000;
+  position: fixed;
+  width: 160px;
+  top: 56px;
+  right: 4px;
+  border: 1px solid ${PRIMARY_VAR_COLOR};
+  background-color: white;
+  box-shadow: 2px 2px 4px ${GRAY_COLOR};
+  border-radius: 8px;
+`;
+
+const DropdownItem = styled.li`
+  list-style-type: none;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${PRIMARY_VAR_COLOR};
+  }
+`;
+
+const TestToggle = styled.div`
+  color: white;
 `;
