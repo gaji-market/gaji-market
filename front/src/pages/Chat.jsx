@@ -1,24 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 
-import { PRIMARY_VAR_COLOR, WHITE_COLOR } from 'components/common/commonColor';
-import { css } from 'styled-components';
-
+import styled, { css } from 'styled-components';
 import io from 'socket.io-client';
+
+import {
+  useGetChatRoomListMutation,
+  useAddChatMessageMutation,
+  useAddChatRoomMutation,
+  useLazyGetChatRoomQuery,
+  useLazyGetUserNoQuery,
+  useLazyRemoveChatMessageQuery,
+  useLazyRemoveChatRoomQuery,
+} from 'services/chatApi';
+
+import {
+  DARK_GRAY_COLOR,
+  GRAY_COLOR,
+  PRIMARY_COLOR,
+  PRIMARY_VAR_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
 
 const TEMP_SERVER_URL = 'http://localhost:8080';
 
 export default function Chat() {
-  const socket = io.connect(TEMP_SERVER_URL);
+  const [getChatRoomList] = useGetChatRoomListMutation();
+  const [getChatRoom] = useLazyGetChatRoomQuery();
+  // const socket = io.connect(TEMP_SERVER_URL);
 
-  const [targetId, setTargetId] = useState(TEMP_LIST_ITEMS[0].username);
+  const [target, setTarget] = useState(null);
   const [msg, setMsg] = useState('');
   const [messages, setMessages] = useState([]);
 
+  const [chatRoomInfos, setChatRoomInfos] = useState([]);
+
+  // useEffect(() => {
+  //   socket.on('chat', (payload) => {
+  //     setMessages((prev) => [...prev, payload]);
+  //   });
+  // }, []);
+
+  const getChatRoomListHandler = async () => {
+    try {
+      const { chatRoomInfos, schPage } = await getChatRoomList({
+        // TODO: get userNo from sessionSlice
+        userNo: 1,
+        currentPage: 1,
+        recordCount: 10,
+      }).unwrap();
+      setChatRoomInfos(chatRoomInfos);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getChatRoomHandler = async (item) => {
+    try {
+      const infos = await getChatRoom({
+        chatNo: item.chatNo,
+        userNo: item.userNo,
+      }).unwrap();
+      console.log('infos: ', infos);
+      setMessages(infos.chatMessageInfos || []);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setTarget({ id: `${item.userNo}_${item.chatNo}`, ...item });
+      setMsg('');
+    }
+  };
+
   useEffect(() => {
-    socket.on('chat', (payload) => {
-      setMessages((prev) => [...prev, payload]);
-    });
+    getChatRoomListHandler();
   }, []);
 
   const changeHandler = (e) => {
@@ -27,14 +80,14 @@ export default function Chat() {
 
   const keydownHandler = (e) => {
     if (e.key === 'Enter' && e.ctrlKey) {
-      socket.emit('chat', { id: targetId, msg, time: new Date() });
+      // socket.emit('chat', { id: targetId, msg, time: new Date() });
       setMsg('');
     }
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    socket.emit('chat', { id: targetId, msg, time: new Date() });
+    // socket.emit('chat', { id: targetId, msg, time: new Date() });
     setMsg('');
   };
 
@@ -43,15 +96,13 @@ export default function Chat() {
       <ChatList>
         <Header>Chat</Header>
         <Body>
-          {TEMP_LIST_ITEMS.map((item, i) => (
+          {chatRoomInfos.map((item, i) => (
             <ChatItem
-              key={item.username}
-              className={targetId === item.username ? 'current' : ''}
-              onClick={() => [
-                setTargetId(item.username),
-                setMessages([]),
-                setMsg(''),
-              ]}
+              key={item.chatNo}
+              className={
+                target?.id === `${item.userNo}_${item.chatNo}` ? 'current' : ''
+              }
+              onClick={() => getChatRoomHandler(item)}
             >
               <Box padding='8px' center='true'>
                 <ProductImg>
@@ -63,88 +114,58 @@ export default function Chat() {
                   <Avatar>
                     {item.avatar && <img src={item.avatar} alt='avatar.jpg' />}
                   </Avatar>
-                  <Username>{item.username}</Username>
+                  <Username>{item.nickname}</Username>
                 </UserInfo>
-                <LastMsg>{item.lastMsg}</LastMsg>
+                <LastMsg>{item.lastMessage}</LastMsg>
               </Box>
               <Box padding='8px' center='true'>
-                <UpdatedTime>{item.updatedAt}</UpdatedTime>
+                <UpdatedTime>
+                  <span>{item.regDate}</span>
+                  <span>{item.regTime}</span>
+                </UpdatedTime>
               </Box>
             </ChatItem>
           ))}
         </Body>
       </ChatList>
       <ChatMessage>
-        <Header>TITLE</Header>
-        <Body>
-          <ChatContent>
-            {messages.map(({ id, msg, time }, index) => (
-              <Bubble key={index}>
-                <h3>{id}</h3>
-                <div>{msg}</div>
-                <span>{time}</span>
-              </Bubble>
-            ))}
-          </ChatContent>
-        </Body>
-        <Footer>
-          <Form onSubmit={submitHandler}>
-            <textarea
-              placeholder='보내기: Ctrl + Enter'
-              onChange={changeHandler}
-              value={msg}
-              onKeyDown={keydownHandler}
-            />
-            <button>보내기</button>
-          </Form>
-        </Footer>
+        {target ? (
+          <>
+            <Header>{target.nickname}</Header>
+            <Body>
+              <ChatContent>
+                {messages.map((info, idx) => (
+                  <React.Fragment key={`${info.no}_${idx}`}>
+                    <h3>{info.nickname}</h3>
+                    <Bubble>
+                      <div>{info.message}</div>
+                      <span>{info.regDate}</span>
+                      <span>{info.regTime}</span>
+                      <span>{info.checkYn === 'Y' ? '읽음' : '읽지 않음'}</span>
+                    </Bubble>
+                  </React.Fragment>
+                ))}
+              </ChatContent>
+            </Body>
+            <Footer>
+              <Form onSubmit={submitHandler}>
+                <textarea
+                  placeholder='보내기: Ctrl + Enter'
+                  onChange={changeHandler}
+                  value={msg}
+                  onKeyDown={keydownHandler}
+                />
+                <button>보내기</button>
+              </Form>
+            </Footer>
+          </>
+        ) : (
+          <h1>채팅을 시작하세요</h1>
+        )}
       </ChatMessage>
     </Wrapper>
   );
 }
-
-const TEMP_LIST_ITEMS = [
-  {
-    product: null,
-    avatar: null,
-    username: 'user1',
-    unread: 0,
-    lastMsg: 'hello, there',
-    updatedAt: '6:29 PM',
-  },
-  {
-    product: null,
-    avatar: null,
-    username: 'user2',
-    unread: 0,
-    lastMsg: 'hello, there',
-    updatedAt: '6:29 PM',
-  },
-  {
-    product: null,
-    avatar: null,
-    username: 'user3',
-    unread: 0,
-    lastMsg: 'hello, there',
-    updatedAt: '6:29 PM',
-  },
-  {
-    product: null,
-    avatar: null,
-    username: 'user4',
-    unread: 0,
-    lastMsg: 'hello, there',
-    updatedAt: '6:29 PM',
-  },
-  {
-    product: null,
-    avatar: null,
-    username: 'user5',
-    unread: 0,
-    lastMsg: 'hello, there',
-    updatedAt: '6:29 PM',
-  },
-];
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -179,15 +200,17 @@ const Footer = styled.div`
 // chat
 const ChatList = styled.div`
   padding: 16px;
-  background-color: #eeeeee;
+  background-color: ${PRIMARY_VAR_COLOR};
   height: 100%;
   display: flex;
   flex-direction: column;
   border-radius: 16px;
   width: 480px;
+  box-shadow: 1px 1px 2px ${GRAY_COLOR};
 
   .current {
-    background-color: ${PRIMARY_VAR_COLOR};
+    border: 2px solid ${PRIMARY_COLOR};
+    box-shadow: 2px 2px 2px ${GRAY_COLOR};
   }
 `;
 
@@ -196,6 +219,12 @@ const ChatItem = styled.div`
   justify-content: space-around;
   background: ${WHITE_COLOR};
   border-radius: 8px;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+    box-shadow: 2px 2px 2px ${GRAY_COLOR};
+  }
 `;
 
 const Box = styled.div`
@@ -217,7 +246,7 @@ const Box = styled.div`
 
 //product
 const ProductImg = styled.div`
-  border: 1px solid gray;
+  border: 1px solid ${GRAY_COLOR};
   width: 48px;
   height: 48px;
 `;
@@ -237,7 +266,7 @@ const Avatar = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 24px;
-  background-color: lightgray;
+  background-color: ${GRAY_COLOR};
 `;
 
 const Username = styled.div`
@@ -246,31 +275,54 @@ const Username = styled.div`
 
 // message
 const LastMsg = styled.div`
+  color: ${DARK_GRAY_COLOR};
   margin-top: 8px;
+  margin-left: 32px;
   height: 50%;
 `;
 
 const UpdatedTime = styled.div`
-  color: gray;
+  color: ${GRAY_COLOR};
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: 4px;
 `;
 
 // right - chat message
 const ChatMessage = styled.div`
-  background-color: #eeeeee;
+  background-color: #f6f6f6;
   flex: 1;
   border-radius: 16px;
   padding: 16px;
   display: flex;
   flex-direction: column;
+  box-shadow: 1px 1px 2px ${GRAY_COLOR};
+  justify-content: center;
+
+  h1 {
+    text-align: center;
+  }
 `;
 
-const ChatContent = styled.div``;
+const ChatContent = styled.div`
+  h3 {
+    margin-bottom: 16px;
+  }
+`;
 
 const Bubble = styled.div`
   display: flex;
   column-gap: 24px;
   justify-content: space-between;
   margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 4px;
+  background-color: ${PRIMARY_VAR_COLOR};
+
+  h3 {
+  }
 
   div {
     flex: 1;
