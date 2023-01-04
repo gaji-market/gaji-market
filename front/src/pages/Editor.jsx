@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
+  useGetCategoriesQuery,
 } from 'services/productApi';
 
 import styled from 'styled-components';
@@ -19,6 +20,7 @@ import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
 import isEmptyValue from 'utils/isEmptyValue';
+import deduplicationState from 'utils/deduplicationState';
 
 const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
@@ -29,15 +31,14 @@ export default function Editor() {
     prodPrice: 0, // required
     prodName: '', // required
     imageFiles: [], // required
-    largeCateNo: 1, // required : 1로 보내기
-    mediumCateNo: 1, // required : 1
-    smallCateNo: 1, // required : 1
+    largeCateNo: 0, // required : 대분류(1) 카테고리 코드로 보내기
+    mediumCateNo: 0, // required : 중분류(2)
+    smallCateNo: 0, // required : 소분류(3)
     prodExplain: '', // 상품설명 required
     freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
     priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
     hashtags: [],
   });
-  //TODO: 폼 전송 테스트를 위해 카테고리는 임의로 1값을 주었음.
 
   useEffect(() => {
     if (param === SELL && formDatas.freeCheck === '1') {
@@ -71,9 +72,30 @@ export default function Editor() {
 
   const navigate = useNavigate();
 
-  // const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
-  // console.log(productCategories);
-  //TODO: 카테고리 추가하기
+  const {
+    data: productCategories,
+    isLoading,
+    isSuccess,
+    isError: ErrorByCategory,
+  } = useGetCategoriesQuery();
+  const [largeCategory, setLargeCategory] = useState([]);
+  const [midiumCategory, setMidiumCategory] = useState([]);
+  const [smallCetegory, setSmallCategory] = useState([]);
+
+  const selectCategory = {
+    1: setLargeCategory,
+    2: setMidiumCategory,
+    3: setSmallCategory,
+  };
+
+  useEffect(() => {
+    if (isSuccess && productCategories) {
+      productCategories.categoryInfos.forEach((cate) => {
+        const tierIndex = cate.tier;
+        selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
+      });
+    }
+  }, [productCategories]);
 
   const [createSaleProduct] = useCreateSaleProductMutation();
 
@@ -142,7 +164,7 @@ export default function Editor() {
   }, [formDatas.freeCheck]);
 
   const changeProductPrice = useCallback(({ target }) => {
-    // TODO : 문자가 섞여있는 경우 강제 삭제시키기
+    // TODO : 음수 값 입력 못하게 막기
     setFormDatas((prev) => ({
       ...prev,
       prodPrice: target.value,
@@ -360,6 +382,46 @@ export default function Editor() {
     }));
   };
 
+  /**
+   * 카테고리 선택
+   */
+  const [currentCategories, setCurrentCategories] = useState({
+    lg: '',
+    md: [],
+    sm: [],
+  });
+
+  useEffect(() => {
+    if (currentCategories?.lg) {
+      setCurrentCategories((prev) => {
+        const newMdCate = midiumCategory.filter((mdCate) => {
+          return mdCate.cateParent === currentCategories.lg;
+        });
+        return { ...prev, md: newMdCate };
+      });
+    }
+  }, [currentCategories?.lg]);
+
+  const changeSelectBoxHandler = ({ target }) => {
+    if (target.value !== 0 && !(target.value % 10_000)) {
+      return setCurrentCategories((prev) => ({ ...prev, lg: target.value }));
+    }
+
+    if (target.value !== 1 && !(target.value % 100)) {
+      return setCurrentCategories((prev) => {
+        const newSmCate = smallCetegory.filter((smCate) => {
+          return smCate.cateParent === target.value;
+        });
+
+        return { ...prev, sm: newSmCate };
+      });
+    }
+  };
+
+  if (ErrorByCategory) {
+    return <div>카테고리 불러오기 오류! 잠시 후 재시도 해주세요</div>;
+  }
+
   return (
     <div className='container'>
       <form className='form'>
@@ -470,17 +532,45 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <select className='selectBox' required>
-                <option value=''>대분류</option>
-                <option value=''>테스트1</option>
+              <select onChange={changeSelectBoxHandler} className='selectBox' required>
+                <option value={0}>대분류</option>
+                {largeCategory?.map((largeCate) => {
+                  return (
+                    <option key={largeCate.cateCode} value={largeCate.cateCode}>
+                      {largeCate.cateName}
+                    </option>
+                  );
+                })}
               </select>
-              <select className='selectBox' required>
-                <option value=''>중분류</option>
-                <option value=''>테스트2</option>
+              <select
+                // disabled={true}
+                onChange={changeSelectBoxHandler}
+                className='selectBox'
+                required
+              >
+                <option value={1}>중분류</option>
+                {currentCategories.md?.map((mdCate) => {
+                  return (
+                    <option key={mdCate.cateCode} value={mdCate.cateCode}>
+                      {mdCate.cateName}
+                    </option>
+                  );
+                })}
               </select>
-              <select className='selectBox' required>
-                <option value=''>소분류</option>
-                <option value=''>테스트3</option>
+              <select
+                // disabled={true}
+                onChange={changeSelectBoxHandler}
+                className='selectBox'
+                required
+              >
+                <option value={2}>소분류</option>
+                {currentCategories.sm?.map((smCate) => {
+                  return (
+                    <option key={smCate.cateCode} value={smCate.cateCode}>
+                      {smCate.cateName}
+                    </option>
+                  );
+                })}
               </select>
             </Categories>
           </CategoryContainer>
