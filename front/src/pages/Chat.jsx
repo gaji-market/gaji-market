@@ -60,7 +60,6 @@ export default function Chat() {
         chatNo: item.chatNo,
         userNo: item.userNo,
       }).unwrap();
-      console.log('infos: ', infos);
       setMessages(infos.chatMessageInfos || []);
     } catch (err) {
       console.log(err);
