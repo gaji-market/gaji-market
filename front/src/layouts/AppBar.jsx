@@ -1,9 +1,20 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
+import {
+  useGetChatRoomListMutation,
+  useAddChatMessageMutation,
+  useAddChatRoomMutation,
+  useLazyGetChatRoomQuery,
+  useLazyGetUserNoQuery,
+  useLazyRemoveChatMessageQuery,
+  useLazyRemoveChatRoomQuery,
+} from 'services/chatApi';
+
 import ToggleSwitch from 'components/common/ToggleSwitch';
 import Button from 'components/common/Button';
+import Modal from 'components/common/Modal';
 
 import { ReactComponent as GradationLogo } from 'assets/GradationLogo.svg';
 
@@ -20,105 +31,142 @@ import { FaBell, FaUserCircle } from 'react-icons/fa';
 export default function AppBar() {
   const navigate = useNavigate();
   const { search } = useLocation();
+  const [getChatRoomList] = useGetChatRoomListMutation();
+
+  const modalRef = useRef(null);
 
   // TODO: ADD LOGIC
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const initToggles = { alarm: false, userId: false };
   const [toggles, setToggles] = useState(initToggles);
+  const [chatRoomInfos, setChatRoomInfos] = useState([]);
 
   const blurHandler = () => {
     setToggles(initToggles);
   };
 
+  const getChatRoomListHandler = async () => {
+    try {
+      const { chatRoomInfos, schPage } = await getChatRoomList({
+        // TODO: get userNo from sessionSlice
+        userNo: 1,
+        currentPage: 1,
+        recordCount: 10,
+      }).unwrap();
+      setChatRoomInfos(chatRoomInfos);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
-    <StyledWrapper>
-      <ItemGroup>
-        <MenuBtn onClick={menubarHandler}>
-          <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
-        </MenuBtn>
-        <GradationLogo
-          height='60px'
-          onClick={() => navigate('/')}
-          style={{ cursor: 'pointer' }}
-        />
-      </ItemGroup>
-      <ItemGroup>
-        <Search type='search' />
-        <ToggleSwitch
-          on={{
-            name: '살래요',
-            handler: () => navigate(`products/sal${search}`),
-          }}
-          off={{
-            name: '팔래요',
-            handler: () => navigate(`products/pal${search}`),
-          }}
-        />
-        {isLoggedIn ? (
-          <>
-            {Object.values(toggles).includes(true) && (
-              <BlurContainer onClick={blurHandler} />
-            )}
-            <Alarm aria-expanded={toggles.alarm}>
-              <Toggle
-                onClick={() =>
-                  setToggles((prev) => ({ ...prev, alarm: !prev.alarm }))
-                }
-              >
-                <FaBell size={24} color={PRIMARY_COLOR} />
-              </Toggle>
-              {toggles.alarm && (
-                <AlarmContainer id='app-alarm-container'>
-                  <h1>TEST</h1>
-                </AlarmContainer>
+    <>
+      {/* TODO: function 적용 */}
+      <Modal
+        ref={modalRef}
+        text='로그아웃 하시겠습니까?'
+        leftBtnText='네'
+        rightBtnText='아니요'
+      />
+
+      <StyledWrapper>
+        <ItemGroup>
+          <MenuBtn onClick={menubarHandler}>
+            <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />
+          </MenuBtn>
+          <GradationLogo
+            height='60px'
+            onClick={() => navigate('/')}
+            style={{ cursor: 'pointer' }}
+          />
+        </ItemGroup>
+        <ItemGroup>
+          <Search type='search' />
+          <ToggleSwitch
+            on={{
+              name: '살래요',
+              handler: () => navigate(`products/sal${search}`),
+            }}
+            off={{
+              name: '팔래요',
+              handler: () => navigate(`products/pal${search}`),
+            }}
+          />
+          {isLoggedIn ? (
+            <>
+              {Object.values(toggles).includes(true) && (
+                <BlurContainer onClick={blurHandler} />
               )}
-            </Alarm>
-            <UserItem>
-              <Toggle
-                onClick={() =>
-                  setToggles((prev) => ({ ...prev, userId: !prev.userId }))
-                }
-              >
-                <FaUserCircle size={24} color={GRAY_COLOR} />
-                <span>UserID</span>
-              </Toggle>
-              {toggles.userId && (
-                <UserIdDropdown>
-                  <DropdownItem
-                    onClick={() => [
-                      navigate('/mypage'),
-                      setToggles(initToggles),
-                    ]}
-                  >
-                    마이페이지
-                  </DropdownItem>
-                  <DropdownItem
-                    onClick={() => [
-                      console.log('logout'),
-                      setToggles(initToggles),
-                    ]}
-                  >
-                    로그아웃
-                  </DropdownItem>
-                </UserIdDropdown>
-              )}
-            </UserItem>
-          </>
-        ) : (
-          <>
-            <Button size='sm' isOutline onClick={() => navigate('/login')}>
-              로그인
-            </Button>
-            <Button size='sm' onClick={() => navigate('/signup')}>
-              회원가입
-            </Button>
-          </>
-        )}
-        <TestToggle onClick={() => setIsLoggedIn((prev) => !prev)}>
-          test
-        </TestToggle>
-      </ItemGroup>
-    </StyledWrapper>
+              <Alarm aria-expanded={toggles.alarm}>
+                <Toggle
+                  onClick={() => [
+                    getChatRoomListHandler(),
+                    setToggles((prev) => ({ ...prev, alarm: !prev.alarm })),
+                  ]}
+                >
+                  <FaBell size={24} color={PRIMARY_COLOR} />
+                </Toggle>
+                {toggles.alarm && (
+                  <AlarmContainer id='app-alarm-container'>
+                    <NavLink to='/chat'>CHAT PAGE</NavLink>
+                    {chatRoomInfos.map((item, idx) => (
+                      <ChatItem key={idx}>
+                        <span>{item.nickname}</span>
+                        <span>{item.lastMessage}</span>
+                        <span>{item.regDate}</span>
+                        <span>{item.regTime}</span>
+                      </ChatItem>
+                    ))}
+                  </AlarmContainer>
+                )}
+              </Alarm>
+              <UserItem>
+                <Toggle
+                  onClick={() =>
+                    setToggles((prev) => ({ ...prev, userId: !prev.userId }))
+                  }
+                >
+                  <FaUserCircle size={24} color={GRAY_COLOR} />
+                  <span>UserID</span>
+                </Toggle>
+                {toggles.userId && (
+                  <UserIdDropdown>
+                    <DropdownItem
+                      onClick={() => [
+                        navigate('/mypage'),
+                        setToggles(initToggles),
+                      ]}
+                    >
+                      마이페이지
+                    </DropdownItem>
+                    <DropdownItem
+                      onClick={() => [
+                        modalRef.current?.showModal(),
+                        setToggles(initToggles),
+                      ]}
+                    >
+                      로그아웃
+                    </DropdownItem>
+                  </UserIdDropdown>
+                )}
+              </UserItem>
+            </>
+          ) : (
+            <>
+              <Button size='sm' isOutline onClick={() => navigate('/login')}>
+                로그인
+              </Button>
+              <Button size='sm' onClick={() => navigate('/signup')}>
+                회원가입
+              </Button>
+            </>
+          )}
+          <TestToggle onClick={() => setIsLoggedIn((prev) => !prev)}>
+            test
+          </TestToggle>
+        </ItemGroup>
+      </StyledWrapper>
+    </>
   );
 }
 
@@ -194,6 +242,20 @@ const AlarmContainer = styled.div`
   background-color: white;
   box-shadow: 2px 2px 4px ${GRAY_COLOR};
   padding: 16px;
+
+  a {
+    display: block;
+    height: 48px; // temp
+  }
+`;
+
+const ChatItem = styled.div`
+  display: flex;
+  height: 36px;
+
+  span {
+    flex: 1;
+  }
 `;
 
 const BlurContainer = styled.div`
