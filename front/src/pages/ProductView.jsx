@@ -51,7 +51,6 @@ export default function ProductView() {
   let lastPage = useRef(0);
   if (products) {
     lastPage.current = products.schPage.totalPageCount;
-    // TODO : 백엔드한테 마지막 페이지가 totalPageCount가 맞는지 물어보기
   }
 
   const getCards = useCallback(() => {
@@ -78,8 +77,6 @@ export default function ProductView() {
     }
   }, [products]);
 
-  console.log(products);
-
   useEffect(() => {
     if (isLoading) {
       return setShowSkeletonCard(true);
@@ -90,8 +87,6 @@ export default function ProductView() {
         return setShowSkeletonCard(false);
       }, 500);
     }
-
-    // 더 이상 받아올 데이터가 없는 경우 getCards 호출하지 않기
 
     if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
       getCards();
