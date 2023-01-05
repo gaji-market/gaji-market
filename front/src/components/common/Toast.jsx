@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 
 export default function Toast() {
   const toasts = useSelector((state) => state.toast.toasts);
+
   const { deleteToast } = useToast();
 
   return (
@@ -70,6 +71,7 @@ const ToastBox = styled.div`
   margin-bottom: 15px;
   background-color: #fcccd3;
   border-radius: 10px;
+  overflow: hidden;
   width: 400px;
   display: flex;
   align-items: center;
