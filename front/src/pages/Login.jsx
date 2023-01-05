@@ -42,8 +42,8 @@ export default function Login() {
           setTimeout(() => nav('/'), 1500);
           //sessionStorage.setItem('userToken', res.token);
         }
-      } catch (e) {
-        console.log(e);
+      } catch (error) {
+        console.log(error);
       }
     } else {
       addToast({
