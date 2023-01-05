@@ -12,7 +12,12 @@ const toastSlice = createSlice({
       if (state.toasts.length > 8) {
         state.toasts = state.toasts.splice(0, 8);
       }
-      state.toasts.unshift(action.payload);
+      if (action.payload.isToastSuccess) {
+        state.toasts.unshift(action.payload);
+        state.toasts = state.toasts.splice(0, 1);
+      } else {
+        state.toasts.unshift(action.payload);
+      }
     },
 
     removeToast: (state, action) => {
