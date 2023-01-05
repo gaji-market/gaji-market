@@ -31,12 +31,13 @@ export default function Editor() {
     prodPrice: 0, // required
     prodName: '', // required
     imageFiles: [], // required
-    largeCateNo: 0, // required : 대분류(1) 카테고리 코드로 보내기
-    mediumCateNo: 0, // required : 중분류(2)
-    smallCateNo: 0, // required : 소분류(3)
-    prodExplain: '', // 상품설명 required
-    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
-    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
+    //TODO: 카테고리 코드로 보내주기 (건형님께 여쭤보기 데이터 뭐받으시는지)
+    largeCateNo: 10000, // required
+    mediumCateNo: 10100, // required
+    smallCateNo: 10101, // required
+    prodExplain: '', // required : 상품 설명
+    freeCheck: '0', // required string : 무료나눔(0: X, 1: O)
+    priceOffer: '0', // required string : 가격제안유무(0: 제안X, 1: 제안O)
     hashtags: [],
   });
 
@@ -72,12 +73,7 @@ export default function Editor() {
 
   const navigate = useNavigate();
 
-  const {
-    data: productCategories,
-    isLoading,
-    isSuccess,
-    isError: ErrorByCategory,
-  } = useGetCategoriesQuery();
+  const { data: productCategories, isSuccess, isError: ErrorByCategory } = useGetCategoriesQuery();
   const [largeCategory, setLargeCategory] = useState([]);
   const [midiumCategory, setMidiumCategory] = useState([]);
   const [smallCetegory, setSmallCategory] = useState([]);
@@ -350,6 +346,21 @@ export default function Editor() {
     }
   }, [formDatas.hashtags.length]);
 
+  useEffect(() => {
+    console.log(formDatas.hashtags.length);
+
+    if (formDatas.hashtags.length > 10) {
+      setFormDatas((prev) => ({
+        ...prev,
+        hashtags: prev.hashtags.slice(0, 10),
+      }));
+
+      return window.alert('해시태그는 10개 이상 등록할 수 없습니다.');
+    }
+  }, [formDatas.hashtags.length]);
+
+  console.log(formDatas.hashtags);
+
   const keyDownHandler = useCallback((e) => {
     if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
     e.preventDefault();
@@ -363,13 +374,6 @@ export default function Editor() {
   const changeHashTagInput = useCallback((e) => {
     setInputHashTag(e.target.value);
   }, []);
-
-  // TODO : 해시태그 10개 제한하기
-  // useEffect(() => {
-  //   if (formDatas.hashTags.length === 10) {
-  //     window.alert('해시태그는 10개까지만 등록할 수 있습니다.');
-  //   }
-  // }, [formDatas.hashTags.length]);
 
   const removeHashtagClickHandler = (e) => {
     const newHashtags = formDatas.hashtags.filter((hashtag) => {
