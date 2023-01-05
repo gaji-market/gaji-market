@@ -9,8 +9,8 @@ const toastSlice = createSlice({
   initialState,
   reducers: {
     addToast: (state, action) => {
-      if (state.toasts.length > 8) {
-        state.toasts = state.toasts.splice(0, 8);
+      if (state.toasts.length >= 4) {
+        state.toasts = state.toasts.splice(0, 4);
       }
       if (action.payload.isToastSuccess) {
         state.toasts.unshift(action.payload);
