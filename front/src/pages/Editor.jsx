@@ -25,6 +25,13 @@ import deduplicationState from 'utils/deduplicationState';
 const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
 
+const MAX_HASHTAGS = 10;
+
+const CHECK = Object.freeze({
+  o: '1',
+  x: '0',
+});
+
 export default function Editor() {
   const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
@@ -46,12 +53,12 @@ export default function Editor() {
   );
 
   useEffect(() => {
-    if (param === SELL && formDatas.freeCheck === '1') {
+    if (param === SELL && formDatas.freeCheck === CHECK.o) {
       // 무료나눔 O
       const callback = (formData) => !!formData.toString();
       return setIsCompleteForm(checkCompleteForm(1, 6, callback));
     }
-    if (param === SELL && formDatas.freeCheck === '0') {
+    if (param === SELL && formDatas.freeCheck === CHECK.x) {
       // 무료나눔 X
       const callback = (formData) => formData && formDatas.imageFiles.length;
       return setIsCompleteForm(checkCompleteForm(0, 7, callback));
@@ -68,9 +75,6 @@ export default function Editor() {
       setIsCompleteForm(false);
     }
   }, [formDatas]);
-
-  //TODO: 서버에서 전송, 받아오기 실패 시 예외처리하기
-  //TODO: 해시태그 10개 이상 등록 못하게 막기
 
   const navigate = useNavigate();
 
@@ -131,14 +135,14 @@ export default function Editor() {
   const checkedAllowPriceSuggestions = useCallback(({ target }) => {
     setFormDatas((prev) => ({
       ...prev,
-      priceOffer: target.checked ? '1' : '0',
+      priceOffer: target.checked ? CHECK.o : CHECK.x,
     }));
   }, []);
 
   const checkedFreeSharing = useCallback(({ target }) => {
     setFormDatas((prev) => ({
       ...prev,
-      freeCheck: target.checked ? '1' : '0',
+      freeCheck: target.checked ? CHECK.o : CHECK.x,
     }));
   }, []);
 
@@ -190,13 +194,13 @@ export default function Editor() {
 
       const { data: response } = await createSaleProduct(formData);
       if (response.result === 'Success') {
-        alert('게시글 등록 완료');
+        window.alert('게시글 등록 완료');
         navigate(`/products/${param}`);
       } else {
         throw new Error('게시글 등록 실패');
       }
     } catch (err) {
-      alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
+      window.alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
       console.error(err);
 
       navigate(`/products/${param}`);
@@ -350,10 +354,10 @@ export default function Editor() {
   useEffect(() => {
     console.log(formDatas.hashtags.length);
 
-    if (formDatas.hashtags.length > 10) {
+    if (formDatas.hashtags.length > MAX_HASHTAGS) {
       setFormDatas((prev) => ({
         ...prev,
-        hashtags: prev.hashtags.slice(0, 10),
+        hashtags: prev.hashtags.slice(0, MAX_HASHTAGS),
       }));
 
       return window.alert('해시태그는 10개 이상 등록할 수 없습니다.');
