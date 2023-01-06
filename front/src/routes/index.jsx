@@ -12,7 +12,6 @@ import {
   Error,
   MyPage,
   Test,
-  FileTest,
   Chat,
 } from 'pages';
 
