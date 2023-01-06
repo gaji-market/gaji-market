@@ -40,7 +40,7 @@ export default function Login() {
             toastMessage: '로그인 되었습니다.',
           });
           setTimeout(() => nav('/'), 1500);
-          //sessionStorage.setItem('userToken', res.token);
+          sessionStorage.setItem('userToken', res.token);
         }
       } catch (error) {
         console.log(error);
