@@ -45,58 +45,21 @@ export default function Editor() {
     hashtags: [],
   });
 
-  const checkCompleteForm = useCallback(
-    (start, end, callback) => {
-      return Object.values(formDatas).slice(start, end).every(callback);
-    },
-    [formDatas]
-  );
-
-  useEffect(() => {
-    if (param === SELL && formDatas.freeCheck === CHECK.o) {
-      // 무료나눔 O
-      const callback = (formData) => !!formData.toString();
-      return setIsCompleteForm(checkCompleteForm(1, 6, callback));
-    }
-    if (param === SELL && formDatas.freeCheck === CHECK.x) {
-      // 무료나눔 X
-      const callback = (formData) => formData && formDatas.imageFiles.length;
-      return setIsCompleteForm(checkCompleteForm(0, 7, callback));
-    }
-
-    if (param === BUY) {
-      setIsCompleteForm(
-        Object.values(formDatas)
-          .slice(0, 7)
-          .filter((formData) => !Array.isArray(formData))
-          .every((formData) => !!formData)
-      );
-    } else {
-      setIsCompleteForm(false);
-    }
-  }, [formDatas]);
-
   const navigate = useNavigate();
 
   const { data: productCategories, isSuccess, isError: ErrorByCategory } = useGetCategoriesQuery();
   const [largeCategory, setLargeCategory] = useState([]);
   const [midiumCategory, setMidiumCategory] = useState([]);
   const [smallCetegory, setSmallCategory] = useState([]);
-
   const selectCategory = {
     1: setLargeCategory,
     2: setMidiumCategory,
     3: setSmallCategory,
   };
 
-  useEffect(() => {
-    if (isSuccess && productCategories) {
-      productCategories.categoryInfos.forEach((cate) => {
-        const tierIndex = cate.tier;
-        selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
-      });
-    }
-  }, [productCategories]);
+  const [userSelectedCategoryCode, setUserSelectedCategoryCode] = useState('0');
+  const [isSelectedCategories, setIsSelectedCategories] = useState(false);
+  // 서버로 보낼 유저가 선택한 카테고리 코드
 
   const [createSaleProduct] = useCreateSaleProductMutation();
 
@@ -113,6 +76,46 @@ export default function Editor() {
   const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
 
   const { type: param } = useParams();
+
+  const checkCompleteForm = useCallback(
+    (start, end, callback) => {
+      return Object.values(formDatas).slice(start, end).every(callback);
+    },
+    [formDatas]
+  );
+
+  useEffect(() => {
+    if (param === SELL && formDatas.freeCheck === CHECK.o && isSelectedCategories) {
+      // 무료나눔 O
+      const callback = (formData) => !!formData.toString();
+      return setIsCompleteForm(checkCompleteForm(1, 6, callback));
+    }
+    if (param === SELL && formDatas.freeCheck === CHECK.x && isSelectedCategories) {
+      // 무료나눔 X
+      const callback = (formData) => formData && formDatas.imageFiles.length;
+      return setIsCompleteForm(checkCompleteForm(0, 7, callback));
+    }
+
+    if (param === BUY && isSelectedCategories) {
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .slice(0, 7)
+          .filter((formData) => !Array.isArray(formData))
+          .every((formData) => !!formData)
+      );
+    } else {
+      setIsCompleteForm(false);
+    }
+  }, [formDatas, isSelectedCategories]);
+
+  useEffect(() => {
+    if (isSuccess && productCategories) {
+      productCategories.categoryInfos.forEach((cate) => {
+        const tierIndex = cate.tier;
+        selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
+      });
+    }
+  }, [productCategories]);
 
   useEffect(() => {
     if (param === SELL) {
@@ -165,10 +168,9 @@ export default function Editor() {
   }, [formDatas.freeCheck]);
 
   const changeProductPrice = useCallback(({ target }) => {
-    // TODO : 음수 값 입력 못하게 막기
     setFormDatas((prev) => ({
       ...prev,
-      prodPrice: target.value,
+      prodPrice: Math.abs(target.value),
     }));
   }, []);
 
@@ -179,6 +181,9 @@ export default function Editor() {
     }));
   }, []);
 
+  /**
+   * 글 발행
+   */
   const createPost = async (e) => {
     try {
       e.preventDefault();
@@ -424,9 +429,9 @@ export default function Editor() {
   }, [currentCategories?.lg]);
 
   const categoryDefaultValue = {
-    lg: 0,
-    md: 1,
-    sm: 2,
+    lg: '0',
+    md: '1',
+    sm: '2',
   };
 
   const categoryDefaultCode = {
@@ -435,10 +440,57 @@ export default function Editor() {
     sm: 10,
   };
 
-  const changeSelectBoxHandler = ({ target, currentTarget }) => {
-    console.log(currentTarget.value);
-    if (target.value !== categoryDefaultValue.lg && !(target.value % categoryDefaultCode.lg)) {
+  useEffect(() => {
+    //TODO: 리팩토링
+    if (Object.values(categoryDefaultValue).includes(userSelectedCategoryCode)) {
+      return setIsSelectedCategories(false);
+    }
+
+    if (currentCategories.md.length && userSelectedCategoryCode <= currentCategories.lg) {
+      console.log('ㅠㅠ');
+      return setIsSelectedCategories(false);
+    } else if (
+      !currentCategories.sm.length &&
+      !(userSelectedCategoryCode % categoryDefaultCode.md) &&
+      userSelectedCategoryCode > categoryDefaultCode.lg
+    ) {
+      setIsSelectedCategories(true);
+    } else if (currentCategories.sm.length && userSelectedCategoryCode % categoryDefaultCode.sm) {
+      setIsSelectedCategories(true);
+    } else setIsSelectedCategories(false);
+
+    setFormDatas((prev) => ({
+      ...prev,
+      cateCode: userSelectedCategoryCode,
+    }));
+  }, [currentCategories, userSelectedCategoryCode]);
+
+  const changeSelectBoxHandler = ({ target }) => {
+    //TODO: 리팩토링
+    if (!(target.value % categoryDefaultCode.lg)) {
+      setUserSelectedCategoryCode(target.value);
+    } else if (!(target.value % categoryDefaultCode.md)) {
+      if (currentCategories.sm.length) {
+        setUserSelectedCategoryCode(Math.max(userSelectedCategoryCode, target.value));
+      } else {
+        setUserSelectedCategoryCode(target.value);
+      }
+    } else if (target.value % categoryDefaultCode.sm) {
+      setUserSelectedCategoryCode(target.value);
+    }
+
+    if (!(target.value % categoryDefaultCode.lg)) {
       return setCurrentCategories((prev) => ({ ...prev, lg: target.value }));
+    }
+
+    if (target.value === categoryDefaultValue.md) {
+      return setCurrentCategories((prev) => {
+        const newSmCate = smallCetegory.filter((smCate) => {
+          return smCate.cateParent === target.value;
+        });
+
+        return { ...prev, sm: newSmCate };
+      });
     }
 
     if (target.value !== categoryDefaultValue.md && !(target.value % categoryDefaultCode.md)) {
@@ -531,7 +583,7 @@ export default function Editor() {
                 <InputTitle isRequired title='가격' />
               </div>
               <div>
-                {formDatas.freeCheck === '0' && param === SELL && (
+                {formDatas.freeCheck === CHECK.x && param === SELL && (
                   <CheckBox
                     onChange={checkedAllowPriceSuggestions}
                     marginRight='140px'
@@ -544,8 +596,8 @@ export default function Editor() {
 
             <PriceInputContainer>
               <InputTextBox
-                isReadOnly={formDatas.freeCheck === '1' && 'readonly'}
-                isDisabled={formDatas.freeCheck === '1'}
+                isReadOnly={formDatas.freeCheck === CHECK.o && 'readonly'}
+                isDisabled={formDatas.freeCheck === CHECK.o}
                 inputRef={productPriceRef}
                 onChange={changeProductPrice}
                 required
