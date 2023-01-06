@@ -384,11 +384,24 @@ export default function Editor() {
   /**
    * 카테고리 선택
    */
+
+  const [isDisabledMdCate, setIsDisabledMdCate] = useState(true);
+  const [isDisabledSmCate, setIsDisabledSmCate] = useState(true);
   const [currentCategories, setCurrentCategories] = useState({
     lg: '',
     md: [],
     sm: [],
   });
+
+  useEffect(() => {
+    if (!currentCategories.md.length) {
+      setIsDisabledMdCate(true);
+    } else setIsDisabledMdCate(false);
+
+    if (!currentCategories.sm.length) {
+      setIsDisabledSmCate(true);
+    } else setIsDisabledSmCate(false);
+  }, [currentCategories?.md.length, currentCategories?.sm.length]);
 
   useEffect(() => {
     if (currentCategories?.lg) {
@@ -555,8 +568,9 @@ export default function Editor() {
                   );
                 })}
               </select>
+
               <select
-                // disabled={true}
+                disabled={isDisabledMdCate}
                 onChange={changeSelectBoxHandler}
                 className='selectBox md'
                 required
@@ -570,8 +584,9 @@ export default function Editor() {
                   );
                 })}
               </select>
+
               <select
-                // disabled={true}
+                disabled={isDisabledSmCate}
                 onChange={changeSelectBoxHandler}
                 className='selectBox sm'
                 required
