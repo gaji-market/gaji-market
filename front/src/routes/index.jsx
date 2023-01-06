@@ -36,7 +36,7 @@ export default function Router() {
         setSplashToggle(false);
       }, 2000);
     }
-  }, [location]);
+  }, []);
 
   if (splashToggle) {
     return (
