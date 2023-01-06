@@ -69,7 +69,7 @@ export default function AppBar() {
         rightBtnText='아니요'
       />
 
-      <StyledWrapper>
+      <StyledWrapper className='fade-in'>
         <ItemGroup>
           <MenuBtn onClick={menubarHandler}>
             <GiHamburgerMenu size={24} color={PRIMARY_COLOR} />

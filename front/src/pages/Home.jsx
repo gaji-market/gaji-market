@@ -9,7 +9,7 @@ import Card from 'components/common/Card';
 
 import { GRAY_COLOR } from 'components/common/commonColor';
 
-const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
+import mainImg from 'assets/gaji-market_home.png';
 
 export default function Home() {
   const { type } = useParams();
@@ -42,17 +42,15 @@ export default function Home() {
 
     navigate(`/products/${type}/detail/${prodNo}`);
   };
+
   return (
     <>
-      <Container>
+      <Container className='fade-in'>
         <Intro>
-          <img
-            src='https://us.123rf.com/450wm/tanyaknyazeva/tanyaknyazeva1611/tanyaknyazeva161100003/68779291-%EC%95%BC%EC%B1%84-%EA%B0%80%EC%A7%80-%EB%B2%A1%ED%84%B0-%EC%9D%BC%EB%9F%AC%EC%8A%A4%ED%8A%B8-eps-1.jpg'
-            alt='eggplant.jpg'
-          />
+          <img src={mainImg} alt='gaji-market_home.png' />
           <Header>
-            <Title>당신 근처의 가지마켓</Title>
-            <SubText>중고 거래로 가깝고 따뜻한 당신의 근처를 만들어요.</SubText>
+            <Title>우리들의 가지마켓</Title>
+            <SubText>중고거래, 어디로 가지~? 여기로 가지!</SubText>
           </Header>
         </Intro>
         <Divider />
@@ -78,7 +76,9 @@ export default function Home() {
                 <Card
                   key={prodNo}
                   productImage={
-                    dbFileName ? `${IMG_PREFIX_URL}${dbFileName}` : null
+                    dbFileName
+                      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
+                      : null
                   }
                   title={prodName}
                   price={prodPrice.toLocaleString()}
