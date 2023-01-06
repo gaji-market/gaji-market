@@ -1,6 +1,9 @@
-import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Navigate, Route, Routes, Outlet, useLocation } from 'react-router-dom';
+
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
+
 import {
   Home,
   Login,
@@ -13,9 +16,36 @@ import {
   MyPage,
   MyEditPage,
   Test,
+  Chat,
 } from 'pages';
 
-export default function index() {
+import Splash from 'components/common/Splash';
+
+export default function Router() {
+  const splashRef = useRef(null);
+  const location = useLocation();
+  const [splashToggle, setSplashToggle] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setSplashToggle(true);
+      if (splashRef.current) {
+        splashRef.current.className = 'fade-out';
+      }
+      setTimeout(() => {
+        setSplashToggle(false);
+      }, 2000);
+    }
+  }, [location]);
+
+  if (splashToggle) {
+    return (
+      <Routes>
+        <Route path='/' element={<Splash refObj={splashRef} />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
       <Route path='/' element={<Layout />}>
@@ -35,6 +65,7 @@ export default function index() {
           <Route path=':type' element={<ProductView />} />
           <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
+        <Route path='/chat' element={<Chat />} />
       </Route>
 
       <Route element={<LayoutWithoutBar />}>

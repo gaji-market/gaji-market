@@ -23,13 +23,41 @@ input[type='password'] {
 
 body {
   margin: 0;
-  font-family: 'NanumSquare', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'NanumSquare', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
 code {
-  font-family: 'NanumSquare', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: 'NanumSquare', source-code-pro, Menlo, Monaco, Consolas,
+    'Courier New', monospace;
+}
+
+// fading
+.fade-in {
+  animation: fade-in 2s;
+}
+
+.fade-out {
+  animation: fade-out 5s;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
