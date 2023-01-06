@@ -1,9 +1,8 @@
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
-
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR } from 'components/common/commonColor';
+import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import Button from 'components/common/Button';
 
 import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
@@ -14,12 +13,24 @@ import { useGetProductQuery } from 'services/productApi';
 import { Error } from './index';
 
 const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
+const NEXT_X = 400;
 
 export default function ProductDetailView() {
+  const slideRef = useRef();
+
   const { type: param, id: prodNo } = useParams();
   const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
 
   const [productDate, setProductDate] = useState('');
+  const [slideX, setSlideX] = useState(0);
+
+  const clickPrevImg = () => {
+    setSlideX(slideX - 1);
+  };
+
+  const clickNextImg = () => {
+    setSlideX(slideX + 1);
+  };
 
   useEffect(() => {
     if (product) {
@@ -27,6 +38,28 @@ export default function ProductDetailView() {
     }
   }, [product]);
 
+  useEffect(() => {
+    const { current } = slideRef;
+    if (!current) return;
+
+    if (slideX < 0) {
+      setSlideX(product?.fileInfos.length - 1);
+      current.style.transform = `translateX(${NEXT_X * slideX}px)`;
+      return;
+    }
+
+    if (slideX > product?.fileInfos.length - 1) {
+      setSlideX(0);
+      current.style.transform = 'translateX(0px)';
+      return;
+    }
+
+    if (slideX >= 0) {
+      current.style.transform = `translateX(-${NEXT_X * slideX}px)`;
+    }
+  }, [slideX, product?.fileInfos]);
+
+  console.log(slideX);
   if (isError) {
     return <Error />;
   }
@@ -35,15 +68,15 @@ export default function ProductDetailView() {
     <>
       {isSuccess && (
         <Container>
-          <Categories>{'카테고리 > 카테고리2 > 카테고리3'}</Categories>
+          <Categories>{product.categoryInfo.cateName}</Categories>
 
           <ProductTop>
             <div className='imgContainer'>
-              <ul className='imgList'>
+              <ul ref={slideRef} className='imgList'>
                 {product.fileInfos.length > 0 &&
                   product.fileInfos.map((image) => {
                     return (
-                      <li key={image.fileOrder}>
+                      <li key={`${image.fileOrder} ${image.dbFileName}`}>
                         <img
                           className='productImage'
                           src={`${IMG_PREFIX_URL}${image.dbFileName}`}
@@ -53,8 +86,12 @@ export default function ProductDetailView() {
                     );
                   })}
               </ul>
-              <button>◀</button>
-              <button>▶</button>
+              {product.fileInfos.length > 1 && (
+                <div className='slideBtns'>
+                  <span className='arrow arrowLeft' role='button' onClick={clickPrevImg}></span>
+                  <span className='arrow arrowRight' onClick={clickNextImg} role='button'></span>
+                </div>
+              )}
             </div>
 
             <ProductSummary>
@@ -153,6 +190,7 @@ const ProductTop = styled.div`
     width: 400px;
     height: 400px;
     overflow: hidden;
+    position: relative;
   }
 
   .imgContainer ul {
@@ -162,6 +200,7 @@ const ProductTop = styled.div`
 
   .imgList {
     align-items: center;
+    transition: all 0.4s;
   }
 
   .productImages li {
@@ -172,6 +211,54 @@ const ProductTop = styled.div`
   .productImage {
     width: 400px;
     display: block;
+  }
+
+  .slideBtns {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 46%;
+    z-index: 10;
+
+    .arrow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      content: '';
+      width: 25px;
+      height: 25px;
+      border-top: 5px solid ${WHITE_COLOR};
+      border-right: 5px solid ${WHITE_COLOR};
+      border-radius: 0px;
+      border-top-right-radius: 10px;
+      cursor: pointer;
+    }
+
+    .arrowLeft {
+      transform: rotate(225deg);
+      left: 15px;
+      background: linear-gradient(
+        to bottom,
+        #00000050,
+        transparent,
+        transparent,
+        transparent,
+        transparent
+      );
+    }
+
+    .arrowRight {
+      transform: rotate(45deg);
+      left: 355px;
+      background: linear-gradient(
+        to left,
+        #00000050,
+        transparent,
+        transparent,
+        transparent,
+        transparent
+      );
+    }
   }
 `;
 
