@@ -23,7 +23,7 @@ import Splash from 'components/common/Splash';
 export default function Router() {
   const splashRef = useRef(null);
   const location = useLocation();
-  const [splashToggle, setSplashToggle] = useState(true);
+  const [splashToggle, setSplashToggle] = useState(false);
 
   useEffect(() => {
     if (location.pathname === '/') {
