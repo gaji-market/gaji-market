@@ -10,10 +10,12 @@ import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
 import { usePostUserEditMutation } from 'services/signUpApi';
 import { useEffect } from 'react';
+import useToast from 'hooks/toast';
 const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
 export default function MyEditPage() {
   const inputRef = useRef(null);
+  const { addToast } = useToast();
   const [edit] = usePostUserEditMutation();
   const { state } = useLocation();
   const [preview, setPreview] = useState(basicLogo);
@@ -38,7 +40,7 @@ export default function MyEditPage() {
         new Blob([JSON.stringify(updateForm)], { type: 'application/json' })
       );
       const res = await edit(formData).unwrap();
-
+      console.log(res);
       // if (res.result === 'fail') {
       //   alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
       // } else {
@@ -46,8 +48,8 @@ export default function MyEditPage() {
       //   sessionStorage.setItem('userToken', res.token);
       //   nav('/mypage');
       // }
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.log(error);
     }
   };
   const changeHandler = (e) => {
@@ -58,12 +60,19 @@ export default function MyEditPage() {
   };
   const passwordHandler = (e) => {
     e.preventDefault();
-    console.log(state);
     if (currentPassword === state.userPwd) {
-      alert('정보수정페이지로 이동합니다.');
+      addToast({
+        isToastSuccess: true,
+        isMainTheme: true,
+        toastMessage: '정보수정 페이지로 이동합니다.',
+      });
       setIsCorrectPW(true);
     } else {
-      alert('현재 비밀번호와 다릅니다. 다시 입력해주시기 바랍니다.');
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastMessage: '현재 비밀번호랑 다릅니다. 다시 입력해주시기 바랍니다.',
+      });
       setCurrentPassword('');
       inputRef.current.value = '';
       inputRef.current.focus();
