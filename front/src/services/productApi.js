@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const productApi = createApi({
   reducerPath: 'productApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://3.39.156.141:8080/product/' }),
-  tagTypes: ['SellAll'],
+  tagTypes: ['SellAll', 'BuyAll'],
   keepUnusedDataFor: 30,
 
   endpoints: (builder) => ({
@@ -15,6 +15,7 @@ export const productApi = createApi({
     }),
     getBuyAll: builder.query({
       query: () => 'buyAll',
+      providesTags: ['BuyAll'],
     }),
     getCategories: builder.query({
       query: () => 'categoryInfo',
@@ -43,6 +44,8 @@ export const productApi = createApi({
 export const {
   useGetSellAllQuery,
   useGetBuyAllQuery,
+  useLazyGetSellAllQuery,
+  useLazyGetBuyAllQuery,
   useGetCategoriesQuery,
   useGetProductQuery,
   useCreateSaleProductMutation,
