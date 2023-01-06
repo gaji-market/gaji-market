@@ -35,29 +35,39 @@ function CardComponent({ cards, moveProductDetail }) {
 }
 
 export default function MyPage() {
-  const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
+  const { data: datas } = useGetSellAllQuery();
   const [getMyPage] = usePostUserMyPageMutation();
-  const navigate = useNavigate();
+  const nav = useNavigate();
   const { type } = useParams();
   const [cards, setCards] = useState([]);
-
+  const [userInfo, setUserInfo] = useState();
   useEffect(() => {
     if (datas) {
-      console.log(datas);
       const { sellInfos } = datas;
       sellInfos.forEach((data) => {
         setCards((prev) => [...prev, data]);
       });
     }
   }, [datas]);
-
+  async function getUserData() {
+    try {
+      const res = await getMyPage().unwrap();
+      console.log(res);
+      setUserInfo(res.userInfo);
+    } catch (e) {
+      console.log(e);
+    }
+  }
   useEffect(() => {
-    const res = getMyPage().unwrap();
-    console.log(res);
+    const isToken = sessionStorage.getItem('userToken');
+    if (isToken === null) {
+      alert('로그인이 되어 있지 않습니다. 로그인 페이지로 이동합니다.');
+      nav('/login');
+    } else getUserData();
   }, []);
 
   const moveProductDetail = (prodNo) => (e) => {
-    navigate(`/products/${type}/detail/${prodNo}`);
+    nav(`/products/${type}/detail/${prodNo}`);
   };
 
   return (
@@ -66,17 +76,24 @@ export default function MyPage() {
         <UserInfoBox>
           <LeftSection src={basicLogo}></LeftSection>
           <RightSection>
-            <TextBox marginBottom={'15px'}>닉네임: 오늘만 산다</TextBox>
-            <TextBox>주소: 서울숲 공중화장실</TextBox>
+            <TextBox marginBottom={'15px'}>닉네임: {userInfo?.userNickName}</TextBox>
+            <TextBox>주소: {userInfo?.userAddress}</TextBox>
             <TextBox>
-              <StarRate vote_average={0} width={'20'}>
+              <StarRate vote_average={3} width={'20'}>
                 매너지수:
               </StarRate>
             </TextBox>
           </RightSection>
         </UserInfoBox>
         <ButtonWrapper>
-          <Button customSize='250px'>내 정보 설정</Button>
+          <Button
+            customSize='250px'
+            onClick={() => {
+              nav('edit', { state: userInfo });
+            }}
+          >
+            내 정보 설정
+          </Button>
           <Button isOutline={true} customSize='250px'>
             알람 설정
           </Button>

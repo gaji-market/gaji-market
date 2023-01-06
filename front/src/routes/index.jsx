@@ -14,6 +14,7 @@ import {
   Editor,
   Error,
   MyPage,
+  MyEditPage,
   Test,
   Chat,
 } from 'pages';
@@ -52,6 +53,7 @@ export default function Router() {
         <Route path='/test' element={<Test />} />
         <Route path='/test/slice' element={<SliceTest />} />
         <Route path='/mypage' element={<MyPage />} />
+        <Route path='/mypage/edit' element={<MyEditPage />} />
 
         <Route path='/write' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 import getAddress from 'utils/getAddress';
@@ -11,14 +11,19 @@ import { PRIMARY_COLOR, GRAY_COLOR, WHITE_COLOR } from 'components/common/common
 import logo200 from 'assets/BasicLogo.svg';
 import man from 'assets/man.png';
 import woman from 'assets/woman.png';
+import Toast from 'components/common/Toast';
+
+import { useNavigate } from 'react-router-dom';
 import { usePostUserSignFormMutation, usePostUserCheckIdMutation } from 'services/signUpApi';
 const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 const NICK_NAME_MIX_LENGTH = 4;
 const INPUT_MIN_LENGTH = 1;
 
 export default function SignUp() {
-  const [createUser, signUpData] = usePostUserSignFormMutation();
-  const [CheckUserId, idData] = usePostUserCheckIdMutation();
+  const nav = useNavigate();
+
+  const [createUser] = usePostUserSignFormMutation();
+  const [checkUserId] = usePostUserCheckIdMutation();
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
@@ -30,6 +35,12 @@ export default function SignUp() {
     birthday: '',
     gender: '',
   });
+  const [toast, setToast] = useState({
+    toastMessage: '',
+    isToastAppear: false,
+    isToastSuccess: false,
+  });
+
   const open = useDaumPostcodePopup(DaumURL);
 
   const isIdVaild = isVaild('ID', signUpForm.id);
@@ -59,38 +70,72 @@ export default function SignUp() {
       signUpForm.name,
     ]);
 
+  useEffect(() => {
+    const isToken = sessionStorage.getItem('userToken');
+    if (isToken !== null) {
+      alert('이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.');
+      nav('/');
+    }
+  }, []);
+
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
-    setSignUpForm({ ...signUpForm, address: fullAddress });
+    setSignUpForm((prev) => ({ ...prev, address: fullAddress }));
   };
 
+  const toastHandler = (message, isSuccess) => {
+    setToast((prev) => ({
+      ...prev,
+      toastMessage: message,
+      isToastAppear: true,
+      isToastSuccess: isSuccess,
+    }));
+  };
   const submitHandler = async (e) => {
     e.preventDefault();
-
-    const res = await createUser({
-      userId: signUpForm.id,
-      userPwd: signUpForm.password,
-      userName: signUpForm.name,
-      userNickName: signUpForm.nickName,
-      userGender: signUpForm.gender,
-      userBirth: '0823',
-      userPhone: '',
-      userAddress: signUpForm.address,
-      socialKind: '0',
-    }).unwrap();
+    try {
+      const res = await createUser({
+        userId: signUpForm.id,
+        userPwd: signUpForm.password,
+        userName: signUpForm.name,
+        userNickName: signUpForm.nickName,
+        userGender: signUpForm.gender,
+        userBirth: '0823',
+        userPhone: '',
+        userAddress: signUpForm.address,
+        socialKind: '0',
+      }).unwrap();
+      if (res.result === 'success') {
+        alert('회원가입이 완료되었습니다.');
+        nav('/');
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
   const changeHandler = (e) => {
     if (e.target.type === 'radio')
-      setSignUpForm({ ...signUpForm, [e.target.name]: e.target.value });
-    else setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+      setSignUpForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    else setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
-  const CheckId = (e) => {
+  const checkId = async (e) => {
     e.preventDefault();
-    CheckUserId({ userId: signUpForm.id });
+
+    try {
+      const res = await checkUserId({ userId: signUpForm.id }).unwrap();
+      if (res.result === 'used')
+        toastHandler('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.', false);
+      else if (res.result === 'success') toastHandler('사용가능한 아이디 입니다.', true);
+      else toastHandler('잠시 후 다시 시도해주세요.', false);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
     <Container>
+      {toast.isToastAppear && <Toast toast={toast} setToast={setToast} />}
+
       <SignUpHead>
         <Title>회원가입</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
@@ -99,12 +144,14 @@ export default function SignUp() {
       <Form onChange={(e) => changeHandler(e)}>
         <InputTitle
           title='아이디'
-          signUpSubTitle={'6글자 이상이여야 합니다'}
+          signUpSubTitle={'6글자 이상 12글자 이하 이여야 합니다'}
           isVaild={isIdVaild}
           isRequired
         />
         {isIdVaild && signUpForm.id.length > 1 && (
-          <CkeckIdButton onClick={CheckId}>아이디 중복 검사</CkeckIdButton>
+          <>
+            <CkeckIdButton onClick={(e) => checkId(e)}>아이디 중복 검사</CkeckIdButton>
+          </>
         )}
         <InputTextBox
           id={'id'}
@@ -234,6 +281,8 @@ export default function SignUp() {
   );
 }
 const CkeckIdButton = styled.button`
+  position: absolute;
+  top: 95px;
   background: ${PRIMARY_COLOR};
   border: 3px solid ${PRIMARY_COLOR};
   color: ${WHITE_COLOR};

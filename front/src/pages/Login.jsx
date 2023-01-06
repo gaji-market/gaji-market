@@ -9,10 +9,14 @@ import { GRAY_COLOR } from 'components/common/commonColor';
 import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
 import { usePostUserLoginMutation } from 'services/signUpApi';
+import { useEffect } from 'react';
+import useToast from 'hooks/toast';
 
 export default function Login() {
-  const [login, data] = usePostUserLoginMutation();
+  const [login] = usePostUserLoginMutation();
   const nav = useNavigate();
+  const { addToast } = useToast();
+
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
@@ -20,26 +24,56 @@ export default function Login() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
-    if (res.result === 'fail') {
-      alert('아이디 및 비밀번호가 틀렸습니다. 다시 입력해주세요');
+    if (signUpForm.id !== '' && signUpForm.password !== '') {
+      try {
+        const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
+        if (res.result === 'fail') {
+          addToast({
+            isToastSuccess: false,
+            isMainTheme: true,
+            toastMessage: '아이디 및 비밀번호를 확인해주세요.',
+          });
+        } else if (res.result === 'success') {
+          addToast({
+            isToastSuccess: true,
+            isMainTheme: true,
+            toastMessage: '로그인 되었습니다.',
+          });
+          setTimeout(() => nav('/'), 1500);
+          //sessionStorage.setItem('userToken', res.token);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     } else {
-      alert('로그인 되었습니다.');
-      nav('/');
-      sessionStorage.setItem('userToken', res.token);
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastMessage: '아이디 및 비밀번호를 입력해주세요.',
+      });
     }
   };
+
   const changeHandler = (e) => {
-    setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+    setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
+  useEffect(() => {
+    const isToken = sessionStorage.getItem('userToken');
+    if (isToken !== null) {
+      alert('이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.');
+      nav('/');
+    }
+  }, []);
   return (
     <Container>
+      {/* {toast.isToastAppear && <Toast key={toast.toastMessage} toast={toast} setToast={setToast} />} */}
+
       <SignUpHead>
         <Title>로그인</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
       </SignUpHead>
-      <Line width={'500px'} marginBottom={'80px'} />
+      <Line width={'500px'} marginBottom={'55px'} />
       <Form onChange={(e) => changeHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
@@ -75,14 +109,14 @@ export default function Login() {
           </NavLink>
         </SubBox>
         <LineBox>
-          <Line width={'200px'} marginBottom={'30px'} />
+          <Line width={'200px'} marginBottom={'20px'} />
           <LineOR>OR</LineOR>
-          <Line width={'200px'} marginBottom={'30px'} />
+          <Line width={'200px'} marginBottom={'20px'} />
         </LineBox>
-        <SocialLogin>
+        <SocialLogin onClick={(e) => e.preventDefault()}>
           <Img src={KakaoImg}></Img>
         </SocialLogin>
-        <SocialLogin>
+        <SocialLogin onClick={(e) => e.preventDefault()}>
           <Img src={NaverImg}></Img>
         </SocialLogin>
       </Form>
@@ -96,6 +130,7 @@ const Container = styled.div`
   border-radius: 35px;
   box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
   padding: 50px 100px;
+  overflow-x: hidden;
 `;
 const InputBox = styled.div`
   margin-left: 45px;
@@ -114,13 +149,14 @@ const FindIdPw = styled.div`
 `;
 const SubBox = styled.div`
   width: 300px;
-  margin: 25px auto;
+  margin: 20px auto;
   display: flex;
   justify-content: space-evenly;
 `;
 const LineBox = styled.div`
   display: flex;
   padding: 40px 50px;
+  padding-top: 30px;
   color: #cccccc;
 `;
 const LineOR = styled.span`

@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const signUpApi = createApi({
   reducerPath: 'signUpApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://114.201.230.148:8090/user/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'http://3.39.156.141:8080/user/' }),
   endpoints: (builder) => ({
     postUserSignForm: builder.mutation({
       query: (userData) => ({
@@ -16,7 +16,7 @@ export const signUpApi = createApi({
         url: 'myPage',
         method: 'POST',
         headers: {
-          'X-AUTH-TOKEN': sessionStorage.getItem('token'),
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
         },
       }),
     }),
@@ -34,6 +34,16 @@ export const signUpApi = createApi({
         body: login,
       }),
     }),
+    postUserEdit: builder.mutation({
+      query: (edit) => ({
+        url: 'userUpdate',
+        method: 'POST',
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
+        },
+        body: edit,
+      }),
+    }),
   }),
 });
 
@@ -42,4 +52,5 @@ export const {
   usePostUserCheckIdMutation,
   usePostUserLoginMutation,
   usePostUserMyPageMutation,
+  usePostUserEditMutation,
 } = signUpApi;
