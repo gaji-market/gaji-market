@@ -38,22 +38,26 @@ export default function Editor() {
     hashtags: [],
   });
 
+  const checkCompleteForm = useCallback(
+    (start, end, callback) => {
+      return Object.values(formDatas).slice(start, end).every(callback);
+    },
+    [formDatas]
+  );
+
   useEffect(() => {
     if (param === SELL && formDatas.freeCheck === '1') {
       // 무료나눔 O
-      setIsCompleteForm(
-        Object.values(formDatas)
-          .slice(1, 7)
-          .every((formData) => !!formData.toString())
-      );
-    } else if (param === SELL && formDatas.freeCheck === '0') {
+      const callback = (formData) => !!formData.toString();
+      return setIsCompleteForm(checkCompleteForm(1, 6, callback));
+    }
+    if (param === SELL && formDatas.freeCheck === '0') {
       // 무료나눔 X
-      setIsCompleteForm(
-        Object.values(formDatas)
-          .slice(0, 7)
-          .every((formData) => formData) && formDatas.imageFiles.length
-      );
-    } else if (param === BUY) {
+      const callback = (formData) => formData && formDatas.imageFiles.length;
+      return setIsCompleteForm(checkCompleteForm(0, 7, callback));
+    }
+
+    if (param === BUY) {
       setIsCompleteForm(
         Object.values(formDatas)
           .slice(0, 7)
