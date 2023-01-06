@@ -11,7 +11,7 @@ import { PRIMARY_COLOR, GRAY_COLOR, WHITE_COLOR } from 'components/common/common
 import logo200 from 'assets/BasicLogo.svg';
 import man from 'assets/man.png';
 import woman from 'assets/woman.png';
-import Toast from 'components/common/Toast';
+import useToast from 'hooks/toast';
 
 import { useNavigate } from 'react-router-dom';
 import { usePostUserSignFormMutation, usePostUserCheckIdMutation } from 'services/signUpApi';
@@ -21,6 +21,7 @@ const INPUT_MIN_LENGTH = 1;
 
 export default function SignUp() {
   const nav = useNavigate();
+  const { addToast } = useToast();
 
   const [createUser] = usePostUserSignFormMutation();
   const [checkUserId] = usePostUserCheckIdMutation();
@@ -34,11 +35,6 @@ export default function SignUp() {
     addressDetail: '',
     birthday: '',
     gender: '',
-  });
-  const [toast, setToast] = useState({
-    toastMessage: '',
-    isToastAppear: false,
-    isToastSuccess: false,
   });
 
   const open = useDaumPostcodePopup(DaumURL);
@@ -73,7 +69,11 @@ export default function SignUp() {
   useEffect(() => {
     const isToken = sessionStorage.getItem('userToken');
     if (isToken !== null) {
-      alert('이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.');
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastMessage: '이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.',
+      });
       nav('/');
     }
   }, []);
@@ -83,14 +83,6 @@ export default function SignUp() {
     setSignUpForm((prev) => ({ ...prev, address: fullAddress }));
   };
 
-  const toastHandler = (message, isSuccess) => {
-    setToast((prev) => ({
-      ...prev,
-      toastMessage: message,
-      isToastAppear: true,
-      isToastSuccess: isSuccess,
-    }));
-  };
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -105,12 +97,17 @@ export default function SignUp() {
         userAddress: signUpForm.address,
         socialKind: '0',
       }).unwrap();
+
       if (res.result === 'success') {
-        alert('회원가입이 완료되었습니다.');
-        nav('/');
+        addToast({
+          isToastSuccess: true,
+          isMainTheme: true,
+          toastMessage: '회원가입 완료되었습니다.',
+        });
+        nav('/login');
       }
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.log(error);
     }
   };
   const changeHandler = (e) => {
@@ -124,18 +121,30 @@ export default function SignUp() {
     try {
       const res = await checkUserId({ userId: signUpForm.id }).unwrap();
       if (res.result === 'used')
-        toastHandler('이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.', false);
-      else if (res.result === 'success') toastHandler('사용가능한 아이디 입니다.', true);
-      else toastHandler('잠시 후 다시 시도해주세요.', false);
-    } catch (e) {
-      console.log(e);
+        addToast({
+          isToastSuccess: false,
+          isMainTheme: true,
+          toastMessage: '이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.',
+        });
+      else if (res.result === 'success')
+        addToast({
+          isToastSuccess: true,
+          isMainTheme: true,
+          toastMessage: '사용가능한 아이디 입니다.',
+        });
+      else
+        addToast({
+          isToastSuccess: false,
+          isMainTheme: true,
+          toastMessage: '잠시 후 다시 시도해주세요.',
+        });
+    } catch (error) {
+      console.log(error);
     }
   };
 
   return (
     <Container>
-      {toast.isToastAppear && <Toast toast={toast} setToast={setToast} />}
-
       <SignUpHead>
         <Title>회원가입</Title>
         <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
