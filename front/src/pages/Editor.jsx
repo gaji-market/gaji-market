@@ -31,10 +31,7 @@ export default function Editor() {
     prodPrice: 0, // required
     prodName: '', // required
     imageFiles: [], // required
-    //TODO: 카테고리 코드로 보내주기 (건형님께 여쭤보기 데이터 뭐받으시는지)
-    largeCateNo: 10000, // required
-    mediumCateNo: 10100, // required
-    smallCateNo: 10101, // required
+    cateCode: '0', // required string
     prodExplain: '', // required : 상품 설명
     freeCheck: '0', // required string : 무료나눔(0: X, 1: O)
     priceOffer: '0', // required string : 가격제안유무(0: 제안X, 1: 제안O)
@@ -359,8 +356,6 @@ export default function Editor() {
     }
   }, [formDatas.hashtags.length]);
 
-  console.log(formDatas.hashtags);
-
   const keyDownHandler = useCallback((e) => {
     if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
     e.preventDefault();
@@ -401,17 +396,31 @@ export default function Editor() {
         const newMdCate = midiumCategory.filter((mdCate) => {
           return mdCate.cateParent === currentCategories.lg;
         });
-        return { ...prev, md: newMdCate };
+
+        return { ...prev, md: newMdCate, sm: [] };
       });
     }
   }, [currentCategories?.lg]);
 
-  const changeSelectBoxHandler = ({ target }) => {
-    if (target.value !== 0 && !(target.value % 10_000)) {
+  const categoryDefaultValue = {
+    lg: 0,
+    md: 1,
+    sm: 2,
+  };
+
+  const categoryDefaultCode = {
+    lg: 10_000,
+    md: 100,
+    sm: 10,
+  };
+
+  const changeSelectBoxHandler = ({ target, currentTarget }) => {
+    console.log(currentTarget.value);
+    if (target.value !== categoryDefaultValue.lg && !(target.value % categoryDefaultCode.lg)) {
       return setCurrentCategories((prev) => ({ ...prev, lg: target.value }));
     }
 
-    if (target.value !== 1 && !(target.value % 100)) {
+    if (target.value !== categoryDefaultValue.md && !(target.value % categoryDefaultCode.md)) {
       return setCurrentCategories((prev) => {
         const newSmCate = smallCetegory.filter((smCate) => {
           return smCate.cateParent === target.value;
@@ -536,7 +545,7 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <select onChange={changeSelectBoxHandler} className='selectBox' required>
+              <select onChange={changeSelectBoxHandler} className='selectBox lg' required>
                 <option value={0}>대분류</option>
                 {largeCategory?.map((largeCate) => {
                   return (
@@ -549,7 +558,7 @@ export default function Editor() {
               <select
                 // disabled={true}
                 onChange={changeSelectBoxHandler}
-                className='selectBox'
+                className='selectBox md'
                 required
               >
                 <option value={1}>중분류</option>
@@ -564,7 +573,7 @@ export default function Editor() {
               <select
                 // disabled={true}
                 onChange={changeSelectBoxHandler}
-                className='selectBox'
+                className='selectBox sm'
                 required
               >
                 <option value={2}>소분류</option>
