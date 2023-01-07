@@ -36,6 +36,30 @@ export const alarmApi = createApi({
           recordCount: 10, //한 페이지 당 가져올 글의 개수
         },
       }),
+      // response
+      // {
+      //   schPage: {
+      //     "totalRecordCount": Number;
+      //     "totalPageCount": Number;
+      //     "currentPage": NumbNumber;
+      //     "recordCount": Number;
+      //     "pageCount": Number;
+      //     "limitPage": Number;
+      //     "searchType": Number;
+      //     "sort": String;
+      //     "search": String;
+      //   };
+      //   notificationInfos: {
+      //     checkYn: 'Y' | 'N';
+      //     notifiNo: Number;
+      //     userNo: Number;
+      //     nickname: String;
+      //     regDate: String;
+      //     message: String;
+      //     gubun: 1 | 2; // 알림구분 (1 - 채팅, 2- 좋아요)
+      //     senderUserNo: Number;
+      //   }[];
+      // }
     }),
     getCheckCnt: query({
       // FIXME: userNo 삭제
