@@ -4,6 +4,7 @@ import toastSlice from './toastSlice';
 import { signUpApi } from 'services/signUpApi';
 import { productApi } from 'services/productApi';
 import { chatApi } from 'services/chatApi';
+import { alarmApi } from 'services/alarmApi';
 
 export const store = configureStore({
   reducer: {
@@ -12,11 +13,13 @@ export const store = configureStore({
     [signUpApi.reducerPath]: signUpApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
+    [alarmApi.reducerPath]: alarmApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
       signUpApi.middleware,
       productApi.middleware,
       chatApi.middleware,
+      alarmApi.middleware,
     ]),
 });
