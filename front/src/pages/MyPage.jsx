@@ -15,8 +15,15 @@ function CardComponent({ cards, moveProductDetail }) {
     <>
       {cards.length > 0 &&
         cards.slice(0, 4).map((product) => {
-          const { address, dbFileName, interestCnt, prodName, prodNo, prodPrice, tradState } =
-            product;
+          const {
+            address,
+            dbFileName,
+            interestCnt,
+            prodName,
+            prodNo,
+            prodPrice,
+            tradState,
+          } = product;
           return (
             <Card
               key={prodNo}
@@ -59,11 +66,7 @@ export default function MyPage() {
     }
   }
   useEffect(() => {
-    const isToken = sessionStorage.getItem('userToken');
-    if (isToken === null) {
-      alert('로그인이 되어 있지 않습니다. 로그인 페이지로 이동합니다.');
-      nav('/login');
-    } else getUserData();
+    getUserData();
   }, []);
 
   const moveProductDetail = (prodNo) => (e) => {
@@ -76,7 +79,9 @@ export default function MyPage() {
         <UserInfoBox>
           <LeftSection src={basicLogo}></LeftSection>
           <RightSection>
-            <TextBox marginBottom={'15px'}>닉네임: {userInfo?.userNickName}</TextBox>
+            <TextBox marginBottom={'15px'}>
+              닉네임: {userInfo?.userNickName}
+            </TextBox>
             <TextBox>주소: {userInfo?.userAddress}</TextBox>
             <TextBox>
               <StarRate vote_average={3} width={'20'}>

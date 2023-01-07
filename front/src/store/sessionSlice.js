@@ -1,15 +1,12 @@
-
 import { createSlice } from '@reduxjs/toolkit';
-
-
+import jwtDecode from 'jwt-decode';
 import { encrypt, decrypt } from 'utils/crypto';
 
 const initialState = {
-  username: null,
-  authority: null,
+  userNo: null,
+  userId: null,
   token: null,
   isLoggedIn: false,
-  timeout: null,
 };
 
 export const sessionSlice = createSlice({
@@ -17,50 +14,57 @@ export const sessionSlice = createSlice({
   initialState: initialState,
   reducers: {
     setupSession: (state) => {
-      const savedInfo = localStorage.getItem('info');
-      if (savedInfo) {
+      const encryptedToken = sessionStorage.getItem('info') || '';
+      if (encryptedToken) {
         // get session info
-        const [username, authority, token, timeout] = decrypt(
+        const jwtToken = decrypt(
           process.env.REACT_APP_SESSION_KEY || '',
-          localStorage.getItem('info') || '',
-        ).split('_->');
+          encryptedToken,
+        );
+        const decodedJwtToken = jwtDecode(jwtToken);
         // setup session state
         Object.assign(state, {
-          username,
-          authority,
-          token,
+          userNo: decodedJwtToken.userInfo.userNo,
+          userId: decodedJwtToken.userInfo.userId,
+          token: encryptedToken,
           isLoggedIn: true,
-          timeout,
         });
       } else {
-        Object.assign(state, {...state, isLoggedIn: false});
+        Object.assign(state, { ...state, isLoggedIn: false });
       }
     },
     startSession: (state, action) => {
-      const { username, authority, token } = action.payload;
-      const timeout = new Date().getTime() + Number(process.env.REACT_APP_SESSION_LIMIT);
-      // save session 
-      const encryptedInfo = encrypt(
-        process.env.REACT_APP_SESSION_KEY || '',
-        `${username}_->${authority}_->${token}_->${timeout}`,
-      );
-      localStorage.setItem('info', encryptedInfo);
-      // setup session state
-      Object.assign(state, {
-        username,
-        authority,
-        token,
-        isLoggedIn: true,
-        timeout,
-      });
+      try {
+        const jwtToken = action.payload;
+        const decodedJwtToken = jwtDecode(jwtToken);
+        // save session after encription
+        const encryptedToken = encrypt(
+          process.env.REACT_APP_SESSION_KEY || '',
+          jwtToken,
+        );
+        sessionStorage.setItem('info', encryptedToken);
+        // setup session state
+        return Object.assign(state, {
+          userNo: decodedJwtToken.userInfo.userNo,
+          userId: decodedJwtToken.userInfo.userId,
+          token: encryptedToken,
+          isLoggedIn: true,
+        });
+      } catch (e) {
+        console.log('catch');
+        return state;
+      }
     },
     endSession: (state) => {
-      localStorage.removeItem('info');
-      Object.assign(state, { ...initialState, isLoggedIn: false });
+      sessionStorage.removeItem('info');
+      return Object.assign(state, { ...initialState });
     },
   },
 });
 
 export const { setupSession, startSession, endSession } = sessionSlice.actions;
+
+export const selectSession = (state) => state.session;
+export const selectIsLoggedIn = (state) => state.session.isLoggedIn;
 
 export default sessionSlice.reducer;

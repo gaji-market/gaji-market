@@ -7,15 +7,23 @@ import Button from 'components/common/Button';
 import { isVaild } from 'utils/checkVaildForm';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
-import { PRIMARY_COLOR, GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
+import {
+  PRIMARY_COLOR,
+  GRAY_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
 import logo200 from 'assets/BasicLogo.svg';
 import man from 'assets/man.png';
 import woman from 'assets/woman.png';
 import useToast from 'hooks/toast';
 
 import { useNavigate } from 'react-router-dom';
-import { usePostUserSignFormMutation, usePostUserCheckIdMutation } from 'services/signUpApi';
-const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+import {
+  usePostUserSignFormMutation,
+  usePostUserCheckIdMutation,
+} from 'services/signUpApi';
+const DaumURL =
+  'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 const NICK_NAME_MIX_LENGTH = 4;
 const INPUT_MIN_LENGTH = 1;
 
@@ -66,18 +74,6 @@ export default function SignUp() {
       signUpForm.name,
     ]);
 
-  useEffect(() => {
-    const isToken = sessionStorage.getItem('userToken');
-    if (isToken !== null) {
-      addToast({
-        isToastSuccess: false,
-        isMainTheme: true,
-        toastMessage: '이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.',
-      });
-      nav('/');
-    }
-  }, []);
-
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
     setSignUpForm((prev) => ({ ...prev, address: fullAddress }));
@@ -124,7 +120,8 @@ export default function SignUp() {
         addToast({
           isToastSuccess: false,
           isMainTheme: true,
-          toastMessage: '이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.',
+          toastMessage:
+            '이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.',
         });
       else if (res.result === 'success')
         addToast({
@@ -159,7 +156,9 @@ export default function SignUp() {
         />
         {isIdVaild && signUpForm.id.length > 1 && (
           <>
-            <CkeckIdButton onClick={(e) => checkId(e)}>아이디 중복 검사</CkeckIdButton>
+            <CkeckIdButton onClick={(e) => checkId(e)}>
+              아이디 중복 검사
+            </CkeckIdButton>
           </>
         )}
         <InputTextBox
@@ -265,9 +264,19 @@ export default function SignUp() {
 
           <FlexItem margin={'50px'}>
             <Title margin={'10px'}>성별</Title>
-            <HiddenRadioButton id='man' type='radio' name='gender' value={'0'} />
+            <HiddenRadioButton
+              id='man'
+              type='radio'
+              name='gender'
+              value={'0'}
+            />
             <RadioButton htmlFor='man' type={'man'}></RadioButton>
-            <HiddenRadioButton id='woman' type='radio' name='gender' value={'1'} />
+            <HiddenRadioButton
+              id='woman'
+              type='radio'
+              name='gender'
+              value={'1'}
+            />
             <RadioButton htmlFor='woman' type={'woman'}></RadioButton>
           </FlexItem>
         </FlexBox>
@@ -283,7 +292,10 @@ export default function SignUp() {
           )}
         </ButtonBox>
       </Form>
-      <CopyRight href='https://www.flaticon.com/kr/free-icons/' title='성별 아이콘'>
+      <CopyRight
+        href='https://www.flaticon.com/kr/free-icons/'
+        title='성별 아이콘'
+      >
         성별 아이콘 제작자: Vitaly Gorbachev - Flaticon
       </CopyRight>
     </Container>
@@ -372,7 +384,9 @@ const RadioButton = styled.label`
   border-radius: 20px;
 
   background: ${(props) =>
-    props.type === 'man' ? `url(${man}) no-repeat` : `url(${woman}) no-repeat center`};
+    props.type === 'man'
+      ? `url(${man}) no-repeat`
+      : `url(${woman}) no-repeat center`};
   cursor: pointer;
 `;
 const HiddenRadioButton = styled.input`
