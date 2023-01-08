@@ -511,9 +511,9 @@ export default function Editor() {
   return (
     <div className='container'>
       <form className='form'>
-        <div className='contentHeader'>
-          <h2 className='editorTitle'>{formTitle}</h2>
-          <h3 className='editorSubTitle'>{subFormTitle}</h3>
+        <div className='content-header'>
+          <h2 className='editor-title'>{formTitle}</h2>
+          <h3 className='editor-sub-title'>{subFormTitle}</h3>
         </div>
         <div>
           <ImageWrapper>
@@ -521,7 +521,7 @@ export default function Editor() {
               <ImageUpLoaderLabel htmlFor='image-uploader'>이미지 등록</ImageUpLoaderLabel>
             )}
 
-            <ul className='imgSlider' ref={imgSliderRef}>
+            <ul className='img-slider' ref={imgSliderRef}>
               {imgSlide.length > 0 &&
                 imgSlide.map((imageUrl, idx) => {
                   return (
@@ -529,14 +529,14 @@ export default function Editor() {
                       onMouseOver={mouseOverHandler}
                       onMouseLeave={mouseLeaveHandler}
                       key={imageUrl}
-                      className='imgList'
+                      className='img-list'
                     >
                       <Image src={imageUrl} alt='upload_image' />
-                      <p className='imgPage'>{`${idx + 1}/${imgSlide.length}`}</p>
+                      <p className='img-page'>{`${idx + 1}/${imgSlide.length}`}</p>
                       {showImgDeleteBtn && (
                         <button
                           type='button'
-                          className='deleteImgBtn'
+                          className='delete-img-btn'
                           onClick={deleteImg(imageUrl, idx)}
                         >
                           삭제
@@ -547,11 +547,11 @@ export default function Editor() {
                 })}
             </ul>
             {imgSlide.length > 0 && (
-              <div className='btnWrapper'>
-                <button className='prevBtn' onClick={clickPrevImg} type='button'>
+              <div className='btn-wrapper'>
+                <button className='prev-btn' onClick={clickPrevImg} type='button'>
                   ⥢ PREV
                 </button>
-                <button className='nextBtn' onClick={clickNextImg} type='button'>
+                <button className='next-btn' onClick={clickNextImg} type='button'>
                   NEXT ⥤
                 </button>
               </div>
@@ -618,7 +618,7 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <select onChange={changeSelectBoxHandler} className='selectBox lg' required>
+              <select onChange={changeSelectBoxHandler} className='select-box lg' required>
                 <option value={0}>대분류</option>
                 {largeCategory?.map((largeCate) => {
                   return (
@@ -632,7 +632,7 @@ export default function Editor() {
               <select
                 disabled={isDisabledMdCate}
                 onChange={changeSelectBoxHandler}
-                className='selectBox md'
+                className='select-box md'
                 required
               >
                 <option value={1}>중분류</option>
@@ -648,7 +648,7 @@ export default function Editor() {
               <select
                 disabled={isDisabledSmCate}
                 onChange={changeSelectBoxHandler}
-                className='selectBox sm'
+                className='select-box sm'
                 required
               >
                 <option value={2}>소분류</option>
@@ -669,7 +669,7 @@ export default function Editor() {
             <textarea
               maxLength='500'
               onChange={changeProductContent}
-              className='textArea'
+              className='textarea'
               required
               placeholder='물품 상세 정보를 입력해주세요. (최대 500자)'
             />
@@ -677,7 +677,7 @@ export default function Editor() {
 
           <HashTageContainer>
             <InputTitle title='해시태그' />
-            <div className='hashTags'>
+            <div className='hashtags'>
               {formDatas.hashtags.length > 0 &&
                 formDatas.hashtags.map((hashTag) => {
                   return (
@@ -693,14 +693,14 @@ export default function Editor() {
                 onKeyUp={addHashTag}
                 onKeyDown={keyDownHandler}
                 placeholder='#해시태그를 등록해보세요. (최대 10개)'
-                className='hashTagInput'
+                className='hashtag-input'
                 maxLength='20'
               />
             </div>
           </HashTageContainer>
         </div>
 
-        <div className='buttonContainer'>
+        <div className='button-container'>
           <Button
             formEncType='multipart/form-data'
             type='submit'

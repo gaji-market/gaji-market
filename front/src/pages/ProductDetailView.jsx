@@ -71,14 +71,14 @@ export default function ProductDetailView() {
           <Categories>{product.categoryInfo.cateName}</Categories>
 
           <ProductTop>
-            <div className='imgContainer'>
+            <div className='img-container'>
               <ul ref={slideRef} className='imgList'>
                 {product.fileInfos.length > 0 &&
                   product.fileInfos.map((image) => {
                     return (
                       <li key={`${image.fileOrder} ${image.dbFileName}`}>
                         <img
-                          className='productImage'
+                          className='product-image'
                           src={`${IMG_PREFIX_URL}${image.dbFileName}`}
                           alt='product_img'
                         />
@@ -87,9 +87,9 @@ export default function ProductDetailView() {
                   })}
               </ul>
               {product.fileInfos.length > 1 && (
-                <div className='slideBtns'>
-                  <span className='arrow arrowLeft' role='button' onClick={clickPrevImg}></span>
-                  <span className='arrow arrowRight' onClick={clickNextImg} role='button'></span>
+                <div className='slide-btns'>
+                  <span className='arrow arrow-left' role='button' onClick={clickPrevImg}></span>
+                  <span className='arrow arrow-right' onClick={clickNextImg} role='button'></span>
                 </div>
               )}
             </div>
@@ -108,7 +108,7 @@ export default function ProductDetailView() {
                     <ReportIcon />
                     <span>신고 {product.productInfo.reportCnt}회</span>
                     <VerticalBar>|</VerticalBar>
-                    <span className='reportBtn'>신고하기</span>
+                    <span className='report-btn'>신고하기</span>
                   </Report>
                   <Location>
                     <LocationIcon />
@@ -186,34 +186,34 @@ const ProductTop = styled.div`
   align-items: center;
   justify-content: space-around;
 
-  .imgContainer {
+  .img-container {
     width: 400px;
     height: 400px;
     overflow: hidden;
     position: relative;
   }
 
-  .imgContainer ul {
+  .img-container ul {
     display: flex;
     height: 100%;
   }
 
-  .imgList {
+  .img-list {
     align-items: center;
     transition: all 0.4s;
   }
 
-  .productImages li {
+  .product-images li {
     width: 400px;
     height: 400px;
   }
 
-  .productImage {
+  .product-image {
     width: 400px;
     display: block;
   }
 
-  .slideBtns {
+  .slide-btns {
     position: absolute;
     width: 50px;
     height: 50px;
@@ -234,7 +234,7 @@ const ProductTop = styled.div`
       cursor: pointer;
     }
 
-    .arrowLeft {
+    .arrow-left {
       transform: rotate(225deg);
       left: 15px;
       background: linear-gradient(
@@ -247,7 +247,7 @@ const ProductTop = styled.div`
       );
     }
 
-    .arrowRight {
+    .arrow-right {
       transform: rotate(45deg);
       left: 355px;
       background: linear-gradient(
@@ -347,7 +347,7 @@ const Report = styled.div`
   margin-top: 10px;
   margin-bottom: 5px;
 
-  .reportBtn {
+  .report-btn {
     cursor: pointer;
   }
 `;
