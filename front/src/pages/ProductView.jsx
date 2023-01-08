@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
-import { useGetSellAllQuery } from 'services/productApi';
+import { useGetBuyAllQuery, useGetSellAllQuery } from 'services/productApi';
 
 import styled from 'styled-components';
 
@@ -30,6 +30,21 @@ export default function ProductView() {
 
   const modalRef = useRef(null);
 
+  const [cardRef, inView] = useInView();
+  const [pageQueryParams, setPageQueryParams] = useState({
+    recordCount: 8, // 게시글 몇 개 보여줄지
+    currentPage: 1,
+    sort: 'default',
+  });
+
+  const sellAllOption = { skip: type !== SELL };
+  const getSellAll = useGetSellAllQuery(pageQueryParams, sellAllOption);
+
+  const buyAllOption = { skip: type !== BUY };
+  const getBuyAll = useGetBuyAllQuery(pageQueryParams, buyAllOption);
+
+  const [products, setProducts] = useState(null);
+
   useEffect(() => {
     if (type === BUY) {
       setCurrentPage(BUY);
@@ -39,32 +54,32 @@ export default function ProductView() {
     }
   }, [type]);
 
-  const [cardRef, inView] = useInView();
-  const [pageQueryParams, setPageQueryParams] = useState({
-    recordCount: 8, // 게시글 몇 개 보여줄지
-    currentPage: 1,
-    sort: 'default',
-  });
-
-  const { data: products, isLoading, isSuccess, isError } = useGetSellAllQuery(pageQueryParams);
-
   let lastPage = useRef(0);
-  if (products) {
-    lastPage.current = products.schPage.totalPageCount;
-  }
-
-  const getCards = useCallback(() => {
-    setPageQueryParams((prev) => ({
-      ...prev,
-      currentPage: prev.currentPage + 1,
-    }));
-  }, [pageQueryParams.currentPage]);
 
   useEffect(() => {
-    if (products && isSuccess) {
-      const { sellInfos } = products;
+    if (getSellAll.data && getSellAll.isSuccess) {
+      setProducts(getSellAll.data.sellInfos);
+    }
+  }, [getSellAll.isSuccess]);
 
-      const cardCount = products.schPage.totalRecordCount % LOADING_CARD_COUNT;
+  if (products) {
+    lastPage.current = getSellAll.data.schPage.totalPageCount;
+  }
+
+  const getCards = () => {
+    if (products) {
+      setPageQueryParams((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage + 1,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (products && getSellAll.isSuccess) {
+      const { sellInfos } = getSellAll.data;
+
+      const cardCount = products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
       if (cardCount) {
         setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
       }
@@ -75,23 +90,23 @@ export default function ProductView() {
 
       setCards((prev) => [...new Set(prev)]);
     }
-  }, [products]);
+  }, [products, getSellAll.isSuccess, getSellAll.data]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (getSellAll.isFetching) {
       return setShowSkeletonCard(true);
     }
 
-    if (!isLoading) {
+    if (!getSellAll.isFetching) {
       setTimeout(() => {
         return setShowSkeletonCard(false);
       }, 500);
     }
 
-    if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
+    if (inView && lastPage.current > pageQueryParams.currentPage && !getSellAll.isFetching) {
       getCards();
     }
-  }, [inView, isLoading]);
+  }, [inView, getCards, pageQueryParams]);
 
   const moveProductDetail = (prodNo) => (e) => {
     const tagName = e.target.tagName;
@@ -100,11 +115,11 @@ export default function ProductView() {
     navigate(`/products/${type}/detail/${prodNo}`);
   };
 
-  if (isError) {
+  if (getSellAll.isError) {
     return <Error />;
   }
 
-  if (isLoading) {
+  if (getSellAll.isLoading) {
     return <Loading />;
   }
 
@@ -146,7 +161,7 @@ export default function ProductView() {
               .map((_, idx) => {
                 return <SkeletonCard key={`SkeletonCard ${idx}`} />;
               })}
-          <div className='cardRef' ref={cardRef}></div>
+          <div className='card-ref' ref={cardRef}></div>
         </CardContainer>
         <AddButtonContainer>
           <PlusButton onClick={() => modalRef.current?.showModal()} />
@@ -189,7 +204,7 @@ const CardContainer = styled.div`
   margin: 0 auto;
   position: relative;
 
-  .cardRef {
+  .card-ref {
     width: 250px;
     height: 250px;
     position: absolute;
