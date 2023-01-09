@@ -11,8 +11,13 @@
 
     <!-- 카테고리 정보 찾기 -->
     <select id="findCategoryInfo" parameterType="String" resultType="java.util.LinkedHashMap">
-        select *
+        select tier, cateName, cateCode,
+               case when cateParent is null then 'null' else cateParent end as 'cateParent'
         from category
         where cateCode=#{cateCode};
+    </select>
+    
+    <select id="findCateParent" parameterType="String" resultType="String">
+        select cateParent from category where cateCode=#{cateCode};
     </select>
 </mapper>
