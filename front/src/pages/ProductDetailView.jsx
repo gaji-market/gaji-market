@@ -60,7 +60,6 @@ export default function ProductDetailView() {
     }
   }, [slideX, product?.fileInfos]);
 
-  console.log(slideX);
   if (isError) {
     return <Error />;
   }
@@ -79,7 +78,7 @@ export default function ProductDetailView() {
 
           <ProductTop>
             <div className='img-container'>
-              <ul ref={slideRef} className='imgList'>
+              <ul ref={slideRef} className='img-list'>
                 {product.fileInfos.length > 0 &&
                   product.fileInfos.map((image) => {
                     return (
