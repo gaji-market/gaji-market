@@ -37,6 +37,7 @@ export const productApi = createApi({
         method: 'POST',
         body: product,
       }),
+      invalidatesTags: ['BuyAll'],
     }),
   }),
 });
