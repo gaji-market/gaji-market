@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,10 +140,22 @@ public class ProductServiceImpl implements ProductService {
         List<Map<String, Object>> fileInfo = fileDAO.findFileInfo(prodNo);
         result.put("fileInfos",fileInfo);
 
-        //카테고리
-        String cateCode = productDAO.findProdNoByCategoryNo(prodNo);
-        Map<String,Object> categoryInfo = categoryDAO.findCategoryInfo(cateCode);
-        result.put("categoryInfo",categoryInfo);
+        //카테고리 정보
+        List<Map<String,Object>> categoryInfo = new ArrayList<>();
+
+        String smallCateCode = productDAO.findProdNoByCategoryNo(prodNo);
+        String mediumCateCode = categoryDAO.findCateParent(smallCateCode);
+        String largeCateCode = categoryDAO.findCateParent(mediumCateCode);
+
+        Map<String,Object> categoryInfo1 = categoryDAO.findCategoryInfo(smallCateCode);
+        Map<String,Object> categoryInfo2 = categoryDAO.findCategoryInfo(mediumCateCode);
+        Map<String,Object> categoryInfo3 = categoryDAO.findCategoryInfo(largeCateCode);
+
+        categoryInfo.add(categoryInfo3);
+        categoryInfo.add(categoryInfo2);
+        categoryInfo.add(categoryInfo1);
+
+        result.put("categoryInfos",categoryInfo);
 
         //해시태그
         List<Map<String,Object>> hashTagInfo = hashTagDAO.findHashTag(prodNo);
@@ -256,9 +269,21 @@ public class ProductServiceImpl implements ProductService {
         result.put("fileInfos",fileInfo);
 
         //카테고리 정보
-        String cateCode = productDAO.findProdNoByCategoryNo(prodNo);
-        Map<String,Object> categoryInfo = categoryDAO.findCategoryInfo(cateCode);
-        result.put("categoryInfo",categoryInfo);
+        List<Map<String,Object>> categoryInfo = new ArrayList<>();
+
+        String smallCateCode = productDAO.findProdNoByCategoryNo(prodNo);
+        String mediumCateCode = categoryDAO.findCateParent(smallCateCode);
+        String largeCateCode = categoryDAO.findCateParent(mediumCateCode);
+
+        Map<String,Object> categoryInfo1 = categoryDAO.findCategoryInfo(smallCateCode);
+        Map<String,Object> categoryInfo2 = categoryDAO.findCategoryInfo(mediumCateCode);
+        Map<String,Object> categoryInfo3 = categoryDAO.findCategoryInfo(largeCateCode);
+
+        categoryInfo.add(categoryInfo3);
+        categoryInfo.add(categoryInfo2);
+        categoryInfo.add(categoryInfo1);
+
+        result.put("categoryInfos",categoryInfo);
 
         //해시태그 정보
         List<Map<String, Object>> hashTagInfo = hashTagDAO.findHashTag(prodNo);
@@ -455,6 +480,8 @@ public class ProductServiceImpl implements ProductService {
 
         return result2;
     }
+
+
 
     /**
      * 아래는 보류 별점 저장쪽

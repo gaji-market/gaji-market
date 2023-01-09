@@ -285,8 +285,8 @@
     </select>
 
     <!-- 상세보기에서 유저 정보 찾기 -->
-    <select id="findUserInfo" resultType="map" parameterType="int">
-        select nickname,address,dbFileName
+    <select id="findUserInfo" resultType="java.util.LinkedHashMap" parameterType="int">
+        select u.no as 'userNo',nickname,address,dbFileName
         from user_info u
                  inner join file f
                             on u.no = f.no

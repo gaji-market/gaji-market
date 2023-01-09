@@ -13,4 +13,6 @@ public interface CategoryDAO {
 
     //카테고리 정보 가져오기
     Map<String, Object> findCategoryInfo(String cateCode);
+
+    String findCateParent(String cateCode);
 }
