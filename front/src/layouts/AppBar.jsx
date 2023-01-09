@@ -62,12 +62,7 @@ export default function AppBar() {
   return (
     <>
       {/* TODO: function 적용 */}
-      <Modal
-        ref={modalRef}
-        text='로그아웃 하시겠습니까?'
-        leftBtnText='네'
-        rightBtnText='아니요'
-      />
+      <Modal ref={modalRef} text='로그아웃 하시겠습니까?' leftBtnText='네' rightBtnText='아니요' />
 
       <StyledWrapper className='fade-in'>
         <ItemGroup>
@@ -94,9 +89,7 @@ export default function AppBar() {
           />
           {isLoggedIn ? (
             <>
-              {Object.values(toggles).includes(true) && (
-                <BlurContainer onClick={blurHandler} />
-              )}
+              {Object.values(toggles).includes(true) && <BlurContainer onClick={blurHandler} />}
               <Alarm aria-expanded={toggles.alarm}>
                 <Toggle
                   onClick={() => [
@@ -121,29 +114,17 @@ export default function AppBar() {
                 )}
               </Alarm>
               <UserItem>
-                <Toggle
-                  onClick={() =>
-                    setToggles((prev) => ({ ...prev, userId: !prev.userId }))
-                  }
-                >
+                <Toggle onClick={() => setToggles((prev) => ({ ...prev, userId: !prev.userId }))}>
                   <FaUserCircle size={24} color={GRAY_COLOR} />
                   <span>UserID</span>
                 </Toggle>
                 {toggles.userId && (
                   <UserIdDropdown>
-                    <DropdownItem
-                      onClick={() => [
-                        navigate('/mypage'),
-                        setToggles(initToggles),
-                      ]}
-                    >
+                    <DropdownItem onClick={() => [navigate('/mypage'), setToggles(initToggles)]}>
                       마이페이지
                     </DropdownItem>
                     <DropdownItem
-                      onClick={() => [
-                        modalRef.current?.showModal(),
-                        setToggles(initToggles),
-                      ]}
+                      onClick={() => [modalRef.current?.showModal(), setToggles(initToggles)]}
                     >
                       로그아웃
                     </DropdownItem>
@@ -153,17 +134,21 @@ export default function AppBar() {
             </>
           ) : (
             <>
-              <Button size='sm' isOutline onClick={() => navigate('/login')}>
+              <Button
+                size='sm'
+                padding='0'
+                height='32px'
+                isOutline
+                onClick={() => navigate('/login')}
+              >
                 로그인
               </Button>
-              <Button size='sm' onClick={() => navigate('/signup')}>
+              <Button size='sm' padding='0' height='32px' onClick={() => navigate('/signup')}>
                 회원가입
               </Button>
             </>
           )}
-          <TestToggle onClick={() => setIsLoggedIn((prev) => !prev)}>
-            test
-          </TestToggle>
+          <TestToggle onClick={() => setIsLoggedIn((prev) => !prev)}>test</TestToggle>
         </ItemGroup>
       </StyledWrapper>
     </>
