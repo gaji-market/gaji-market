@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import project.gajimarket.Utils.JWTUtil;
 import project.gajimarket.dao.*;
 import project.gajimarket.model.*;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
+import project.gajimarket.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
+    private final UserService userService;
 
     //카테고리 전체 정보
     @Override
@@ -54,8 +57,9 @@ public class ProductServiceImpl implements ProductService {
             //상품 저장
             ProductDTO productDTO = new ProductDTO();
             productDTO.setCateCode((String) param.get("cateCode"));
-            //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
-            int userNo = 1;
+            int userNo = loginUserNo(); //로그인한 userNo
+            System.out.println("userNo = " + userNo);
+            //int userNo = 1;
             productDTO.setUserNo(userNo);//테스트 유저번호
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
@@ -95,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setCateCode((String) param.get("cateCode"));
-            //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
+            //int userNo = loginUserNo(); 로그인한 userNo
             int userNo = 1;
             productDTO.setUserNo(userNo);//테스트 유저번호
             String address = productDAO.findUserAddress(userNo);
@@ -479,6 +483,24 @@ public class ProductServiceImpl implements ProductService {
         result2.put("buyInfos",buyInfos);
 
         return result2;
+    }
+
+    private int loginUserNo(){
+        Map<String, Object> param = null;
+
+        String headerToken = JWTUtil.getHeaderToken(request);
+        System.out.println("UserController myPage token : " + headerToken);
+
+        // 토큰 복호화
+        if (headerToken != null && !"".equals(headerToken)) {
+            param = JWTUtil.getTokenInfo(headerToken);
+            if (param != null) {
+                UserDTO selectUser = userService.selectUser(param);
+                System.out.println("UserController myPage userDto : " + selectUser);
+                return selectUser.getUserNo();
+            }
+        }
+        return 0;
     }
 
 
