@@ -11,6 +11,7 @@ import { RiTimerLine } from 'react-icons/ri';
 
 import { useGetProductQuery } from 'services/productApi';
 import { Error } from './index';
+import { SELL } from 'constants/params';
 
 const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
 const NEXT_X = 400;
@@ -68,7 +69,13 @@ export default function ProductDetailView() {
     <>
       {isSuccess && (
         <Container>
-          <Categories>{product.categoryInfo.cateName}</Categories>
+          <Categories>
+            {product.categoryInfos.map((category) => {
+              if (category) {
+                return <span className='category-depth'>{category?.cateName}</span>;
+              }
+            })}
+          </Categories>
 
           <ProductTop>
             <div className='img-container'>
@@ -99,7 +106,7 @@ export default function ProductDetailView() {
                 <WatcherIcon />
                 <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
               </Watcher>
-              <ProductState>판매중</ProductState>
+              <ProductState>{param === SELL ? '판매중' : '구매중'}</ProductState>
               <Title>{product.productInfo.prodName}</Title>
               <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
               <StatusWrapper>
@@ -177,6 +184,14 @@ const Categories = styled.div`
   display: flex;
   justify-content: flex-end;
   padding-right: 23px;
+
+  .category-depth {
+    margin-right: 5px;
+
+    &:not(:last-child)::after {
+      content: ' >';
+    }
+  }
 `;
 
 const ProductTop = styled.div`
