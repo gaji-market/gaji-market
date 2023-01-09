@@ -45,6 +45,7 @@ export default function ProductView() {
 
   const [products, setProducts] = useState(null);
 
+  // TODO: 중복되는 코드 리팩토링
   useEffect(() => {
     if (type === BUY) {
       setCurrentPage(BUY);
@@ -57,13 +58,26 @@ export default function ProductView() {
   let lastPage = useRef(0);
 
   useEffect(() => {
+    if (type !== SELL) return;
+
     if (getSellAll.data && getSellAll.isSuccess) {
       setProducts(getSellAll.data.sellInfos);
     }
   }, [getSellAll.isSuccess]);
 
+  useEffect(() => {
+    if (type !== BUY) return;
+
+    if (getBuyAll.data && getBuyAll.isSuccess) {
+      setProducts(getBuyAll.data.buyInfos);
+    }
+  }, [getBuyAll.isSuccess]);
+
+  console.log(products);
+
   if (products) {
-    lastPage.current = getSellAll.data.schPage.totalPageCount;
+    if (type === BUY) lastPage.current = getBuyAll.data.schPage.totalPageCount;
+    if (type === SELL) lastPage.current = getSellAll.data.schPage.totalPageCount;
   }
 
   const getCards = () => {
@@ -76,34 +90,46 @@ export default function ProductView() {
   };
 
   useEffect(() => {
-    if (products && getSellAll.isSuccess) {
-      const { sellInfos } = getSellAll.data;
+    if (products && (getSellAll.isSuccess || getBuyAll.isSuccess)) {
+      let infos;
+      if (type === SELL) {
+        const { sellInfos } = getSellAll.data;
+        infos = sellInfos;
+      }
+      if (type === BUY) {
+        const { buyInfos } = getBuyAll.data;
+        infos = buyInfos;
+      }
 
       const cardCount = products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
       if (cardCount) {
         setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
       }
 
-      sellInfos.forEach((product) => {
+      infos.forEach((product) => {
         setCards((prev) => [...prev, product]);
       });
 
       setCards((prev) => [...new Set(prev)]);
     }
-  }, [products, getSellAll.isSuccess, getSellAll.data]);
+  }, [products, getSellAll.isSuccess, getSellAll.data, getBuyAll.isSuccess, getBuyAll.data]);
 
   useEffect(() => {
-    if (getSellAll.isFetching) {
+    if (getSellAll.isFetching || getBuyAll.isFetching) {
       return setShowSkeletonCard(true);
     }
 
-    if (!getSellAll.isFetching) {
+    if (!getSellAll.isFetching || !getBuyAll.isFetching) {
       setTimeout(() => {
         return setShowSkeletonCard(false);
       }, 500);
     }
 
-    if (inView && lastPage.current > pageQueryParams.currentPage && !getSellAll.isFetching) {
+    if (
+      inView &&
+      lastPage.current > pageQueryParams.currentPage &&
+      (!getSellAll.isFetching || !getBuyAll.isFetching)
+    ) {
       getCards();
     }
   }, [inView, getCards, pageQueryParams]);
@@ -115,11 +141,11 @@ export default function ProductView() {
     navigate(`/products/${type}/detail/${prodNo}`);
   };
 
-  if (getSellAll.isError) {
+  if (getSellAll.isError || getBuyAll.isError) {
     return <Error />;
   }
 
-  if (getSellAll.isLoading) {
+  if (getSellAll.isLoading || getBuyAll.isLoading) {
     return <Loading />;
   }
 
