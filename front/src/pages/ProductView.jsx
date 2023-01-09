@@ -16,8 +16,6 @@ import { Error } from './index';
 import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
 import { SELL, BUY } from 'constants/params';
 
-const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
-
 export default function ProductView() {
   const { type } = useParams();
 
@@ -171,7 +169,9 @@ export default function ProductView() {
               return (
                 <Card
                   key={prodNo}
-                  productImage={dbFileName ? `${IMG_PREFIX_URL}${dbFileName}` : null}
+                  productImage={
+                    dbFileName ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}` : null
+                  }
                   title={prodName}
                   price={prodPrice.toLocaleString()}
                   area={address}
@@ -236,6 +236,7 @@ const CardContainer = styled.div`
     position: absolute;
     bottom: 0;
     right: 0;
+    z-index: -5;
   }
 `;
 
