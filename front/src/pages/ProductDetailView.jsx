@@ -1,9 +1,8 @@
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
-
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR } from 'components/common/commonColor';
+import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import Button from 'components/common/Button';
 
 import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
@@ -12,20 +11,57 @@ import { RiTimerLine } from 'react-icons/ri';
 
 import { useGetProductQuery } from 'services/productApi';
 import { Error } from './index';
+import { SELL } from 'constants/params';
 
-const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
+const NEXT_X = 400;
 
 export default function ProductDetailView() {
+  const slideRef = useRef();
+
   const { type: param, id: prodNo } = useParams();
   const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
 
   const [productDate, setProductDate] = useState('');
+  const [slideX, setSlideX] = useState(0);
+
+  const clickPrevImg = () => {
+    setSlideX(slideX - 1);
+  };
+
+  const clickNextImg = () => {
+    setSlideX(slideX + 1);
+  };
 
   useEffect(() => {
     if (product) {
       setProductDate(new Date(product.productInfo.regDt));
     }
   }, [product]);
+
+  useEffect(() => {
+    const { current } = slideRef;
+    if (!current) return;
+
+    if (slideX < 0) {
+      setSlideX(product?.fileInfos.length - 1);
+      current.style.transform = `translateX(${NEXT_X * slideX}px)`;
+      return;
+    }
+
+    if (slideX > product?.fileInfos.length - 1) {
+      setSlideX(0);
+      current.style.transform = 'translateX(0px)';
+      return;
+    }
+
+    if (slideX >= 0) {
+      current.style.transform = `translateX(-${NEXT_X * slideX}px)`;
+    }
+  }, [slideX, product?.fileInfos]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (isError) {
     return <Error />;
@@ -35,26 +71,40 @@ export default function ProductDetailView() {
     <>
       {isSuccess && (
         <Container>
-          <Categories>{'카테고리 > 카테고리2 > 카테고리3'}</Categories>
+          <Categories>
+            {product.categoryInfos.map((category, i) => {
+              if (category) {
+                return (
+                  <span key={`${category.cateCode} ${i}`} className='category-depth'>
+                    {category?.cateName}
+                  </span>
+                );
+              }
+            })}
+          </Categories>
 
           <ProductTop>
-            <div className='imgContainer'>
-              <ul>
+            <div className='img-container'>
+              <ul ref={slideRef} className='img-list'>
                 {product.fileInfos.length > 0 &&
                   product.fileInfos.map((image) => {
                     return (
-                      <li key={image.fileOrder}>
+                      <li key={`${image.fileOrder} ${image.dbFileName}`}>
                         <img
-                          className='productImage'
-                          src={`${IMG_PREFIX_URL}${image.dbFileName}`}
+                          className='product-image'
+                          src={`${process.env.REACT_APP_IMG_PREFIX_URL}${image.dbFileName}`}
                           alt='product_img'
                         />
                       </li>
                     );
                   })}
               </ul>
-              <button>◀</button>
-              <button>▶</button>
+              {product.fileInfos.length > 1 && (
+                <div className='slide-btns'>
+                  <span className='arrow arrow-left' role='button' onClick={clickPrevImg}></span>
+                  <span className='arrow arrow-right' onClick={clickNextImg} role='button'></span>
+                </div>
+              )}
             </div>
 
             <ProductSummary>
@@ -62,7 +112,7 @@ export default function ProductDetailView() {
                 <WatcherIcon />
                 <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
               </Watcher>
-              <ProductState>판매중</ProductState>
+              <ProductState>{param === SELL ? '판매중' : '구매중'}</ProductState>
               <Title>{product.productInfo.prodName}</Title>
               <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
               <StatusWrapper>
@@ -71,7 +121,7 @@ export default function ProductDetailView() {
                     <ReportIcon />
                     <span>신고 {product.productInfo.reportCnt}회</span>
                     <VerticalBar>|</VerticalBar>
-                    <span>신고하기</span>
+                    <span className='report-btn'>신고하기</span>
                   </Report>
                   <Location>
                     <LocationIcon />
@@ -140,6 +190,14 @@ const Categories = styled.div`
   display: flex;
   justify-content: flex-end;
   padding-right: 23px;
+
+  .category-depth {
+    margin-right: 5px;
+
+    &:not(:last-child)::after {
+      content: ' >';
+    }
+  }
 `;
 
 const ProductTop = styled.div`
@@ -149,25 +207,79 @@ const ProductTop = styled.div`
   align-items: center;
   justify-content: space-around;
 
-  .imgContainer {
+  .img-container {
     width: 400px;
     height: 400px;
     overflow: hidden;
+    position: relative;
   }
 
-  .imgContainer ul {
+  .img-container ul {
     display: flex;
     height: 100%;
   }
 
-  .productImages li {
+  .img-list {
+    align-items: center;
+    transition: all 0.4s;
+  }
+
+  .product-images li {
     width: 400px;
     height: 400px;
   }
 
-  .productImage {
+  .product-image {
     width: 400px;
     display: block;
+  }
+
+  .slide-btns {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 46%;
+    z-index: 10;
+
+    .arrow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      content: '';
+      width: 25px;
+      height: 25px;
+      border-top: 5px solid ${WHITE_COLOR};
+      border-right: 5px solid ${WHITE_COLOR};
+      border-radius: 0px;
+      border-top-right-radius: 10px;
+      cursor: pointer;
+    }
+
+    .arrow-left {
+      transform: rotate(225deg);
+      left: 15px;
+      background: linear-gradient(
+        to bottom,
+        #00000050,
+        transparent,
+        transparent,
+        transparent,
+        transparent
+      );
+    }
+
+    .arrow-right {
+      transform: rotate(45deg);
+      left: 355px;
+      background: linear-gradient(
+        to left,
+        #00000050,
+        transparent,
+        transparent,
+        transparent,
+        transparent
+      );
+    }
   }
 `;
 
@@ -203,8 +315,10 @@ const ProductState = styled.p`
 
 const Title = styled.h2`
   font-size: 35px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
+  margin-top: 5px;
+  margin-bottom: 5px;
 `;
 
 const Price = styled.p`
@@ -253,6 +367,10 @@ const Report = styled.div`
   align-items: center;
   margin-top: 10px;
   margin-bottom: 5px;
+
+  .report-btn {
+    cursor: pointer;
+  }
 `;
 
 const VerticalBar = styled.span`
@@ -262,6 +380,7 @@ const VerticalBar = styled.span`
 
 const ReportIcon = styled(AiOutlineAlert)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const Location = styled.div`
@@ -272,6 +391,7 @@ const Location = styled.div`
 
 const LocationIcon = styled(HiOutlineLocationMarker)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const DateCreated = styled.div`
@@ -281,6 +401,7 @@ const DateCreated = styled.div`
 
 const DateIcon = styled(RiTimerLine)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const HashTags = styled.div`
@@ -313,7 +434,7 @@ const UserInfo = styled.div`
 
 const UserInfoTitle = styled.h4`
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
   margin-bottom: 20px;
 `;
@@ -350,7 +471,7 @@ const ProductBottom = styled.div`
 
 const ProductInfoTitle = styled.h4`
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
   margin-bottom: 20px;
 `;

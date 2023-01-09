@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
+  useGetCategoriesQuery,
 } from 'services/productApi';
 
 import styled from 'styled-components';
@@ -19,63 +20,49 @@ import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
 import isEmptyValue from 'utils/isEmptyValue';
+import deduplicationState from 'utils/deduplicationState';
 
 const MAX_UPLOAD_COUNT = 5;
 const NEXT_X = -690;
+
+const MAX_HASHTAGS = 10;
+
+const CHECK = Object.freeze({
+  o: '1',
+  x: '0',
+});
 
 export default function Editor() {
   const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
     prodPrice: 0, // required
     prodName: '', // required
-    imageFiles: [], // required
-    largeCateNo: 1, // required : 1로 보내기
-    mediumCateNo: 1, // required : 1
-    smallCateNo: 1, // required : 1
-    prodExplain: '', // 상품설명 required
-    freeCheck: '0', // string : 무료나눔(0: X, 1: O) required
-    priceOffer: '0', // string : 가격제안유무(0: 제안X, 1: 제안O) required
+    imageFiles: [], // required - 살래요인 경우 option
+    cateCode: '0', // required string
+    prodExplain: '', // required : 상품 설명
+    freeCheck: '0', // required string : 무료나눔(0: X, 1: O)
+    priceOffer: '0', // required string : 가격제안유무(0: 제안X, 1: 제안O)
     hashtags: [],
   });
-  //TODO: 폼 전송 테스트를 위해 카테고리는 임의로 1값을 주었음.
-
-  useEffect(() => {
-    if (param === SELL && formDatas.freeCheck === '1') {
-      // 무료나눔 O
-      setIsCompleteForm(
-        Object.values(formDatas)
-          .slice(1, 7)
-          .every((formData) => !!formData.toString())
-      );
-    } else if (param === SELL && formDatas.freeCheck === '0') {
-      // 무료나눔 X
-      setIsCompleteForm(
-        Object.values(formDatas)
-          .slice(0, 7)
-          .every((formData) => formData) && formDatas.imageFiles.length
-      );
-    } else if (param === BUY) {
-      setIsCompleteForm(
-        Object.values(formDatas)
-          .slice(0, 7)
-          .filter((formData) => !Array.isArray(formData))
-          .every((formData) => !!formData)
-      );
-    } else {
-      setIsCompleteForm(false);
-    }
-  }, [formDatas]);
-
-  //TODO: 서버에서 전송, 받아오기 실패 시 예외처리하기
-  //TODO: 해시태그 10개 이상 등록 못하게 막기
 
   const navigate = useNavigate();
 
-  // const { data: productCategories, isLoading, isSuccess, isError } = useGetCategoryQuery();
-  // console.log(productCategories);
-  //TODO: 카테고리 추가하기
+  const { data: productCategories, isSuccess, isError: ErrorByCategory } = useGetCategoriesQuery();
+  const [largeCategory, setLargeCategory] = useState([]);
+  const [midiumCategory, setMidiumCategory] = useState([]);
+  const [smallCetegory, setSmallCategory] = useState([]);
+  const selectCategory = {
+    1: setLargeCategory,
+    2: setMidiumCategory,
+    3: setSmallCategory,
+  };
+
+  const [userSelectedCategoryCode, setUserSelectedCategoryCode] = useState('0');
+  const [isSelectedCategories, setIsSelectedCategories] = useState(false);
+  // 서버로 보낼 유저가 선택한 카테고리 코드
 
   const [createSaleProduct] = useCreateSaleProductMutation();
+  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
   const [imgSlide, setImgSlide] = useState([]);
 
@@ -90,6 +77,45 @@ export default function Editor() {
   const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
 
   const { type: param } = useParams();
+
+  const checkCompleteForm = useCallback(
+    (start, end, callback) => {
+      return Object.values(formDatas).slice(start, end).every(callback);
+    },
+    [formDatas]
+  );
+
+  useEffect(() => {
+    if (param === SELL && formDatas.freeCheck === CHECK.o && isSelectedCategories) {
+      // 무료나눔 O
+      const callback = (formData) => !!formData.toString();
+      return setIsCompleteForm(checkCompleteForm(1, 6, callback));
+    }
+    if (param === SELL && formDatas.freeCheck === CHECK.x && isSelectedCategories) {
+      // 무료나눔 X
+      const callback = (formData) => formData && formDatas.imageFiles.length;
+      return setIsCompleteForm(checkCompleteForm(0, 7, callback));
+    }
+
+    if (param === BUY && isSelectedCategories) {
+      setIsCompleteForm(
+        Object.values(formDatas)
+          .filter((formData) => !Array.isArray(formData))
+          .every((formData) => !!formData)
+      );
+    } else {
+      setIsCompleteForm(false);
+    }
+  }, [formDatas, isSelectedCategories]);
+
+  useEffect(() => {
+    if (isSuccess && productCategories) {
+      productCategories.categoryInfos.forEach((cate) => {
+        const tierIndex = cate.tier;
+        selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
+      });
+    }
+  }, [productCategories]);
 
   useEffect(() => {
     if (param === SELL) {
@@ -112,14 +138,14 @@ export default function Editor() {
   const checkedAllowPriceSuggestions = useCallback(({ target }) => {
     setFormDatas((prev) => ({
       ...prev,
-      priceOffer: target.checked ? '1' : '0',
+      priceOffer: target.checked ? CHECK.o : CHECK.x,
     }));
   }, []);
 
   const checkedFreeSharing = useCallback(({ target }) => {
     setFormDatas((prev) => ({
       ...prev,
-      freeCheck: target.checked ? '1' : '0',
+      freeCheck: target.checked ? CHECK.o : CHECK.x,
     }));
   }, []);
 
@@ -142,10 +168,9 @@ export default function Editor() {
   }, [formDatas.freeCheck]);
 
   const changeProductPrice = useCallback(({ target }) => {
-    // TODO : 문자가 섞여있는 경우 강제 삭제시키기
     setFormDatas((prev) => ({
       ...prev,
-      prodPrice: target.value,
+      prodPrice: Math.abs(target.value),
     }));
   }, []);
 
@@ -155,6 +180,14 @@ export default function Editor() {
       prodExplain: target.value,
     }));
   }, []);
+
+  /**
+   * 글 발행
+   */
+  const queryPerParam = {
+    pal: createSaleProduct,
+    sal: createPurchaseProduct,
+  };
 
   const createPost = async (e) => {
     try {
@@ -169,15 +202,16 @@ export default function Editor() {
 
       formDatas.imageFiles = formData;
 
-      const { data: response } = await createSaleProduct(formData);
+      const { data: response } = await queryPerParam[param](formData);
+
       if (response.result === 'Success') {
-        alert('게시글 등록 완료');
+        window.alert('게시글 등록 완료');
         navigate(`/products/${param}`);
       } else {
         throw new Error('게시글 등록 실패');
       }
     } catch (err) {
-      alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
+      window.alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
       console.error(err);
 
       navigate(`/products/${param}`);
@@ -328,6 +362,19 @@ export default function Editor() {
     }
   }, [formDatas.hashtags.length]);
 
+  useEffect(() => {
+    console.log(formDatas.hashtags.length);
+
+    if (formDatas.hashtags.length > MAX_HASHTAGS) {
+      setFormDatas((prev) => ({
+        ...prev,
+        hashtags: prev.hashtags.slice(0, MAX_HASHTAGS),
+      }));
+
+      return window.alert('해시태그는 10개 이상 등록할 수 없습니다.');
+    }
+  }, [formDatas.hashtags.length]);
+
   const keyDownHandler = useCallback((e) => {
     if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
     e.preventDefault();
@@ -342,13 +389,6 @@ export default function Editor() {
     setInputHashTag(e.target.value);
   }, []);
 
-  // TODO : 해시태그 10개 제한하기
-  // useEffect(() => {
-  //   if (formDatas.hashTags.length === 10) {
-  //     window.alert('해시태그는 10개까지만 등록할 수 있습니다.');
-  //   }
-  // }, [formDatas.hashTags.length]);
-
   const removeHashtagClickHandler = (e) => {
     const newHashtags = formDatas.hashtags.filter((hashtag) => {
       return e.target.innerHTML !== hashtag;
@@ -360,12 +400,126 @@ export default function Editor() {
     }));
   };
 
+  /**
+   * 카테고리 선택
+   */
+
+  const [isDisabledMdCate, setIsDisabledMdCate] = useState(true);
+  const [isDisabledSmCate, setIsDisabledSmCate] = useState(true);
+  const [currentCategories, setCurrentCategories] = useState({
+    lg: '',
+    md: [],
+    sm: [],
+  });
+
+  useEffect(() => {
+    if (!currentCategories.md.length) {
+      setIsDisabledMdCate(true);
+    } else setIsDisabledMdCate(false);
+
+    if (!currentCategories.sm.length) {
+      setIsDisabledSmCate(true);
+    } else setIsDisabledSmCate(false);
+  }, [currentCategories?.md.length, currentCategories?.sm.length]);
+
+  useEffect(() => {
+    if (currentCategories?.lg) {
+      setCurrentCategories((prev) => {
+        const newMdCate = midiumCategory.filter((mdCate) => {
+          return mdCate.cateParent === currentCategories.lg;
+        });
+
+        return { ...prev, md: newMdCate, sm: [] };
+      });
+    }
+  }, [currentCategories?.lg]);
+
+  const categoryDefaultValue = {
+    lg: '0',
+    md: '1',
+    sm: '2',
+  };
+
+  const categoryDefaultCode = {
+    lg: 10_000,
+    md: 100,
+    sm: 10,
+  };
+
+  useEffect(() => {
+    //TODO: 리팩토링
+    if (Object.values(categoryDefaultValue).includes(userSelectedCategoryCode)) {
+      return setIsSelectedCategories(false);
+    }
+
+    if (currentCategories.md.length && userSelectedCategoryCode <= currentCategories.lg) {
+      console.log('ㅠㅠ');
+      return setIsSelectedCategories(false);
+    } else if (
+      !currentCategories.sm.length &&
+      !(userSelectedCategoryCode % categoryDefaultCode.md) &&
+      userSelectedCategoryCode > categoryDefaultCode.lg
+    ) {
+      setIsSelectedCategories(true);
+    } else if (currentCategories.sm.length && userSelectedCategoryCode % categoryDefaultCode.sm) {
+      setIsSelectedCategories(true);
+    } else setIsSelectedCategories(false);
+
+    setFormDatas((prev) => ({
+      ...prev,
+      cateCode: userSelectedCategoryCode,
+    }));
+  }, [currentCategories, userSelectedCategoryCode]);
+
+  const changeSelectBoxHandler = ({ target }) => {
+    //TODO: 리팩토링
+    if (!(target.value % categoryDefaultCode.lg)) {
+      setUserSelectedCategoryCode(target.value);
+    } else if (!(target.value % categoryDefaultCode.md)) {
+      if (currentCategories.sm.length) {
+        setUserSelectedCategoryCode(Math.max(userSelectedCategoryCode, target.value));
+      } else {
+        setUserSelectedCategoryCode(target.value);
+      }
+    } else if (target.value % categoryDefaultCode.sm) {
+      setUserSelectedCategoryCode(target.value);
+    }
+
+    if (!(target.value % categoryDefaultCode.lg)) {
+      return setCurrentCategories((prev) => ({ ...prev, lg: target.value }));
+    }
+
+    if (target.value === categoryDefaultValue.md) {
+      return setCurrentCategories((prev) => {
+        const newSmCate = smallCetegory.filter((smCate) => {
+          return smCate.cateParent === target.value;
+        });
+
+        return { ...prev, sm: newSmCate };
+      });
+    }
+
+    if (target.value !== categoryDefaultValue.md && !(target.value % categoryDefaultCode.md)) {
+      return setCurrentCategories((prev) => {
+        const newSmCate = smallCetegory.filter((smCate) => {
+          return smCate.cateParent === target.value;
+        });
+
+        return { ...prev, sm: newSmCate };
+      });
+    }
+  };
+
+  if (ErrorByCategory) {
+    return <div>카테고리 불러오기 오류! 잠시 후 재시도 해주세요</div>;
+  }
+
   return (
     <div className='container'>
       <form className='form'>
-        <div className='contentHeader'>
-          <h2 className='editorTitle'>{formTitle}</h2>
-          <h3 className='editorSubTitle'>{subFormTitle}</h3>
+        <div className='content-header'>
+          <h2 className='editor-title'>{formTitle}</h2>
+          <h3 className='editor-sub-title'>{subFormTitle}</h3>
         </div>
         <div>
           <ImageWrapper>
@@ -373,7 +527,7 @@ export default function Editor() {
               <ImageUpLoaderLabel htmlFor='image-uploader'>이미지 등록</ImageUpLoaderLabel>
             )}
 
-            <ul className='imgSlider' ref={imgSliderRef}>
+            <ul className='img-slider' ref={imgSliderRef}>
               {imgSlide.length > 0 &&
                 imgSlide.map((imageUrl, idx) => {
                   return (
@@ -381,14 +535,14 @@ export default function Editor() {
                       onMouseOver={mouseOverHandler}
                       onMouseLeave={mouseLeaveHandler}
                       key={imageUrl}
-                      className='imgList'
+                      className='img-list'
                     >
                       <Image src={imageUrl} alt='upload_image' />
-                      <p className='imgPage'>{`${idx + 1}/${imgSlide.length}`}</p>
+                      <p className='img-page'>{`${idx + 1}/${imgSlide.length}`}</p>
                       {showImgDeleteBtn && (
                         <button
                           type='button'
-                          className='deleteImgBtn'
+                          className='delete-img-btn'
                           onClick={deleteImg(imageUrl, idx)}
                         >
                           삭제
@@ -399,11 +553,11 @@ export default function Editor() {
                 })}
             </ul>
             {imgSlide.length > 0 && (
-              <div className='btnWrapper'>
-                <button className='prevBtn' onClick={clickPrevImg} type='button'>
+              <div className='btn-wrapper'>
+                <button className='prev-btn' onClick={clickPrevImg} type='button'>
                   ⥢ PREV
                 </button>
-                <button className='nextBtn' onClick={clickNextImg} type='button'>
+                <button className='next-btn' onClick={clickNextImg} type='button'>
                   NEXT ⥤
                 </button>
               </div>
@@ -435,7 +589,7 @@ export default function Editor() {
                 <InputTitle isRequired title='가격' />
               </div>
               <div>
-                {formDatas.freeCheck === '0' && param === SELL && (
+                {formDatas.freeCheck === CHECK.x && param === SELL && (
                   <CheckBox
                     onChange={checkedAllowPriceSuggestions}
                     marginRight='140px'
@@ -448,8 +602,8 @@ export default function Editor() {
 
             <PriceInputContainer>
               <InputTextBox
-                isReadOnly={formDatas.freeCheck === '1' && 'readonly'}
-                isDisabled={formDatas.freeCheck === '1'}
+                isReadOnly={formDatas.freeCheck === CHECK.o && 'readonly'}
+                isDisabled={formDatas.freeCheck === CHECK.o}
                 inputRef={productPriceRef}
                 onChange={changeProductPrice}
                 required
@@ -470,17 +624,47 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <select className='selectBox' required>
-                <option value=''>대분류</option>
-                <option value=''>테스트1</option>
+              <select onChange={changeSelectBoxHandler} className='select-box lg' required>
+                <option value={0}>대분류</option>
+                {largeCategory?.map((largeCate) => {
+                  return (
+                    <option key={largeCate.cateCode} value={largeCate.cateCode}>
+                      {largeCate.cateName}
+                    </option>
+                  );
+                })}
               </select>
-              <select className='selectBox' required>
-                <option value=''>중분류</option>
-                <option value=''>테스트2</option>
+
+              <select
+                disabled={isDisabledMdCate}
+                onChange={changeSelectBoxHandler}
+                className='select-box md'
+                required
+              >
+                <option value={1}>중분류</option>
+                {currentCategories.md?.map((mdCate) => {
+                  return (
+                    <option key={mdCate.cateCode} value={mdCate.cateCode}>
+                      {mdCate.cateName}
+                    </option>
+                  );
+                })}
               </select>
-              <select className='selectBox' required>
-                <option value=''>소분류</option>
-                <option value=''>테스트3</option>
+
+              <select
+                disabled={isDisabledSmCate}
+                onChange={changeSelectBoxHandler}
+                className='select-box sm'
+                required
+              >
+                <option value={2}>소분류</option>
+                {currentCategories.sm?.map((smCate) => {
+                  return (
+                    <option key={smCate.cateCode} value={smCate.cateCode}>
+                      {smCate.cateName}
+                    </option>
+                  );
+                })}
               </select>
             </Categories>
           </CategoryContainer>
@@ -491,7 +675,7 @@ export default function Editor() {
             <textarea
               maxLength='500'
               onChange={changeProductContent}
-              className='textArea'
+              className='textarea'
               required
               placeholder='물품 상세 정보를 입력해주세요. (최대 500자)'
             />
@@ -499,7 +683,7 @@ export default function Editor() {
 
           <HashTageContainer>
             <InputTitle title='해시태그' />
-            <div className='hashTags'>
+            <div className='hashtags'>
               {formDatas.hashtags.length > 0 &&
                 formDatas.hashtags.map((hashTag) => {
                   return (
@@ -515,14 +699,14 @@ export default function Editor() {
                 onKeyUp={addHashTag}
                 onKeyDown={keyDownHandler}
                 placeholder='#해시태그를 등록해보세요. (최대 10개)'
-                className='hashTagInput'
+                className='hashtag-input'
                 maxLength='20'
               />
             </div>
           </HashTageContainer>
         </div>
 
-        <div className='buttonContainer'>
+        <div className='button-container'>
           <Button
             formEncType='multipart/form-data'
             type='submit'
