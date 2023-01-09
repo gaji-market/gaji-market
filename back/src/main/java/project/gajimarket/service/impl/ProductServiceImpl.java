@@ -494,11 +494,8 @@ public class ProductServiceImpl implements ProductService {
         // 토큰 복호화
         if (headerToken != null && !"".equals(headerToken)) {
             param = JWTUtil.getTokenInfo(headerToken);
-            if (param != null) {
-                UserDTO selectUser = userService.selectUser(param);
-                System.out.println("UserController myPage userDto : " + selectUser);
-                return selectUser.getUserNo();
-            }
+            int userNo = (int) param.get("userNo");
+            return userNo;
         }
         return 0;
     }
