@@ -74,8 +74,8 @@ export default function ProductView() {
   console.log(products);
 
   if (products) {
-    if (type === BUY) lastPage.current = getBuyAll.data.schPage.totalPageCount;
-    if (type === SELL) lastPage.current = getSellAll.data.schPage.totalPageCount;
+    if (type === BUY) lastPage.current = getBuyAll.data?.schPage.totalPageCount;
+    if (type === SELL) lastPage.current = getSellAll.data?.schPage.totalPageCount;
   }
 
   const getCards = () => {
