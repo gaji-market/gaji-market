@@ -27,8 +27,8 @@ public class NotifiServiceImpl implements NotifiService {
     }
 
     @Override
-    public Map<String, Object> getNotification() {
-        return null;
+    public Map<String, Object> getNotification(int notifiNo) {
+        return notifiDAO.selectNotification(notifiNo);
     }
 
     @Override
@@ -46,18 +46,10 @@ public class NotifiServiceImpl implements NotifiService {
     }
 
     @Override
-    public Map<String, Object> updateNotification(Map<String, Object> map) {
-        Map<String, Object> resultMap = new HashMap<>();
+    public Map<String, Object> updateNotification(int notifiNo) {
+        int result = notifiDAO.updateNotification(notifiNo);
 
-        int result = notifiDAO.updateNotificationList(map);
-        resultMap.put("result", CommonUtil.resultMsg(result));
-
-        return resultMap;
-    }
-
-    @Override
-    public int getNotificationCnt(Map<String, Object> map) {
-        return notifiDAO.selectNotificationListCnt(map);
+        return CommonUtil.resultMsg(result);
     }
 
     @Override

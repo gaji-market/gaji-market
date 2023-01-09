@@ -9,11 +9,11 @@ import java.util.Map;
 public interface NotifiDAO {
     int insertNotification(Map<String, Object> map);
 
-    Map<String, Object> selectNotification(Map<String, Object> map);
+    Map<String, Object> selectNotification(int notifiNo);
 
     List<Map<String, Object>> selectNotificationList(Map<String, Object> map);
 
-    int updateNotificationList(Map<String, Object> map);
+    int updateNotification(int notifiNo);
 
     int selectNotificationListCnt(Map<String, Object> map);
 
