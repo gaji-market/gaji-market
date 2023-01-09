@@ -37,7 +37,7 @@ export default function Editor() {
   const [formDatas, setFormDatas] = useState({
     prodPrice: 0, // required
     prodName: '', // required
-    imageFiles: [], // required
+    imageFiles: [], // required - 살래요인 경우 option
     cateCode: '0', // required string
     prodExplain: '', // required : 상품 설명
     freeCheck: '0', // required string : 무료나눔(0: X, 1: O)
@@ -62,6 +62,7 @@ export default function Editor() {
   // 서버로 보낼 유저가 선택한 카테고리 코드
 
   const [createSaleProduct] = useCreateSaleProductMutation();
+  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
   const [imgSlide, setImgSlide] = useState([]);
 
@@ -99,7 +100,6 @@ export default function Editor() {
     if (param === BUY && isSelectedCategories) {
       setIsCompleteForm(
         Object.values(formDatas)
-          .slice(0, 7)
           .filter((formData) => !Array.isArray(formData))
           .every((formData) => !!formData)
       );
@@ -184,6 +184,11 @@ export default function Editor() {
   /**
    * 글 발행
    */
+  const queryPerParam = {
+    pal: createSaleProduct,
+    sal: createPurchaseProduct,
+  };
+
   const createPost = async (e) => {
     try {
       e.preventDefault();
@@ -197,7 +202,8 @@ export default function Editor() {
 
       formDatas.imageFiles = formData;
 
-      const { data: response } = await createSaleProduct(formData);
+      const { data: response } = await queryPerParam[param](formData);
+
       if (response.result === 'Success') {
         window.alert('게시글 등록 완료');
         navigate(`/products/${param}`);
