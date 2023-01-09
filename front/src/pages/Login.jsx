@@ -1,21 +1,27 @@
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { NavLink, useNavigate } from 'react-router-dom';
+
+import styled from 'styled-components';
+
+import { usePostUserLoginMutation } from 'services/signUpApi';
+import { startSession } from 'store/sessionSlice';
+
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
-import React from 'react';
-import { useState } from 'react';
-import styled from 'styled-components';
 import Button from 'components/common/Button';
-import { NavLink, useNavigate } from 'react-router-dom';
+import useToast from 'hooks/toast';
+
 import { GRAY_COLOR } from 'components/common/commonColor';
+
 import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
-import { usePostUserLoginMutation } from 'services/signUpApi';
-import { useEffect } from 'react';
-import useToast from 'hooks/toast';
 
 export default function Login() {
   const [login] = usePostUserLoginMutation();
   const nav = useNavigate();
   const { addToast } = useToast();
+  const dispatch = useDispatch();
 
   const [signUpForm, setSignUpForm] = useState({
     id: '',
@@ -24,9 +30,13 @@ export default function Login() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
     if (signUpForm.id !== '' && signUpForm.password !== '') {
       try {
-        const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
+        const res = await login({
+          userId: signUpForm.id,
+          userPwd: signUpForm.password,
+        }).unwrap();
         if (res.result === 'fail') {
           addToast({
             isToastSuccess: false,
@@ -39,8 +49,8 @@ export default function Login() {
             isMainTheme: true,
             toastMessage: '로그인 되었습니다.',
           });
+          dispatch(startSession(res.token));
           setTimeout(() => nav('/'), 1500);
-          sessionStorage.setItem('userToken', res.token);
         }
       } catch (error) {
         console.log(error);
@@ -58,13 +68,6 @@ export default function Login() {
     setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
-  useEffect(() => {
-    const isToken = sessionStorage.getItem('userToken');
-    if (isToken !== null) {
-      alert('이미 로그인 하셨습니다. 홈페이지로 돌아갑니다.');
-      nav('/');
-    }
-  }, []);
   return (
     <Container>
       {/* {toast.isToastAppear && <Toast key={toast.toastMessage} toast={toast} setToast={setToast} />} */}

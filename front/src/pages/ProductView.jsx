@@ -45,7 +45,12 @@ export default function ProductView() {
     sort: 'default',
   });
 
-  const { data: products, isLoading, isSuccess, isError } = useGetSellAllQuery(pageQueryParams);
+  const {
+    data: products,
+    isLoading,
+    isSuccess,
+    isError,
+  } = useGetSellAllQuery(pageQueryParams);
 
   let lastPage = useRef(0);
   if (products) {
@@ -83,14 +88,19 @@ export default function ProductView() {
       return setShowSkeletonCard(true);
     }
 
-    if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
+    if (
+      lastPage.current > pageQueryParams.currentPage &&
+      inView &&
+      !isLoading
+    ) {
       getCards();
     }
   }, [inView, isLoading]);
 
   const moveProductDetail = (prodNo) => (e) => {
     const className = e.target.className;
-    if (className.includes('empty-heart') || className.includes('fill-heart')) return;
+    if (className.includes('empty-heart') || className.includes('fill-heart'))
+      return;
 
     navigate(`/products/${type}/detail/${prodNo}`);
   };
@@ -110,22 +120,42 @@ export default function ProductView() {
         text='등록하기 페이지로 이동할까요?'
         leftBtnText='네! 좋아요.'
         rightBtnText='아니요, 괜찮아요!'
+        confirmHandler={() => {
+          if (type === SELL) {
+            navigate('/write/pal');
+          }
+
+          if (type === BUY) {
+            navigate('/write/sal');
+          }
+        }}
       />
 
       <Container>
         <Header>
           <Title>{currentPage === BUY ? TITLE.sal : TITLE.pal}</Title>
-          <SubText>{currentPage === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}</SubText>
+          <SubText>
+            {currentPage === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}
+          </SubText>
         </Header>
         <CardContainer>
           {cards.length > 0 &&
             cards.map((product) => {
-              const { address, dbFileName, interestCnt, prodName, prodNo, prodPrice, tradState } =
-                product;
+              const {
+                address,
+                dbFileName,
+                interestCnt,
+                prodName,
+                prodNo,
+                prodPrice,
+                tradState,
+              } = product;
               return (
                 <Card
                   key={prodNo}
-                  productImage={dbFileName ? `${IMG_PREFIX_URL}${dbFileName}` : null}
+                  productImage={
+                    dbFileName ? `${IMG_PREFIX_URL}${dbFileName}` : null
+                  }
                   title={prodName}
                   price={prodPrice.toLocaleString()}
                   area={address}

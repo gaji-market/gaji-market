@@ -1,55 +1,44 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from './Button';
 import { PRIMARY_COLOR, WHITE_COLOR } from './commonColor';
-import { SELL, BUY } from 'constants/params';
 
-const Modal = forwardRef(({ text, leftBtnText, rightBtnText }, ref) => {
-  const { type } = useParams();
-  const [visible, setVisible] = useState(false);
+const Modal = forwardRef(
+  ({ text, leftBtnText, rightBtnText, confirmHandler }, ref) => {
+    const [visible, setVisible] = useState(false);
 
-  const navigate = useNavigate();
+    useImperativeHandle(ref, () => ({
+      showModal() {
+        setVisible(true);
+      },
 
-  useImperativeHandle(ref, () => ({
-    showModal() {
-      setVisible(true);
-    },
+      closeModal(e) {
+        if (e.target !== e.currentTarget) return;
+        setVisible(false);
+      },
+    }));
 
-    closeModal(e) {
-      if (e.target !== e.currentTarget) return;
-      setVisible(false);
-    },
-
-    movePage() {
-      if (type === SELL) {
-        navigate('/write/pal');
-      }
-
-      if (type === BUY) {
-        navigate('/write/sal');
-      }
-    },
-  }));
-
-  return (
-    <>
-      {visible && (
-        <Bg className='modalBg' onClick={ref.current.closeModal} ref={ref}>
-          <Card>
-            <p>{text}</p>
-            <ButtonWrapper>
-              <Button onClick={ref.current.movePage}>{leftBtnText}</Button>
-              <Button isDarkColor isOutline onClick={ref.current.closeModal}>
-                {rightBtnText}
-              </Button>
-            </ButtonWrapper>
-          </Card>
-        </Bg>
-      )}
-    </>
-  );
-});
+    return (
+      <>
+        {visible && (
+          <Bg className='modalBg' onClick={ref.current.closeModal} ref={ref}>
+            <Card>
+              <p>{text}</p>
+              <ButtonWrapper>
+                <Button onClick={() => [confirmHandler(), setVisible(false)]}>
+                  {leftBtnText}
+                </Button>
+                <Button isDarkColor isOutline onClick={ref.current.closeModal}>
+                  {rightBtnText}
+                </Button>
+              </ButtonWrapper>
+            </Card>
+          </Bg>
+        )}
+      </>
+    );
+  },
+);
 
 export default Modal;
 
