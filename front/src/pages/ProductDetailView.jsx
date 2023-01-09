@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR, WHITE_COLOR } from 'components/common/commonColor';
@@ -13,7 +13,6 @@ import { useGetProductQuery } from 'services/productApi';
 import { Error } from './index';
 import { SELL } from 'constants/params';
 
-const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
 const NEXT_X = 400;
 
 export default function ProductDetailView() {
@@ -60,6 +59,10 @@ export default function ProductDetailView() {
     }
   }, [slideX, product?.fileInfos]);
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   if (isError) {
     return <Error />;
   }
@@ -69,9 +72,13 @@ export default function ProductDetailView() {
       {isSuccess && (
         <Container>
           <Categories>
-            {product.categoryInfos.map((category) => {
+            {product.categoryInfos.map((category, i) => {
               if (category) {
-                return <span className='category-depth'>{category?.cateName}</span>;
+                return (
+                  <span key={`${category.cateCode} ${i}`} className='category-depth'>
+                    {category?.cateName}
+                  </span>
+                );
               }
             })}
           </Categories>
@@ -85,7 +92,7 @@ export default function ProductDetailView() {
                       <li key={`${image.fileOrder} ${image.dbFileName}`}>
                         <img
                           className='product-image'
-                          src={`${IMG_PREFIX_URL}${image.dbFileName}`}
+                          src={`${process.env.REACT_APP_IMG_PREFIX_URL}${image.dbFileName}`}
                           alt='product_img'
                         />
                       </li>
