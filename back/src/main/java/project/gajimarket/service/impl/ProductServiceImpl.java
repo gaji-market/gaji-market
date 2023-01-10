@@ -12,6 +12,7 @@ import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 import project.gajimarket.service.UserService;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -97,7 +98,8 @@ public class ProductServiceImpl implements ProductService {
         try {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setCateCode((String) param.get("cateCode"));
-            int userNo = loginUserNo();// 로그인한 userNo
+            //int userNo = loginUserNo();// 로그인한 userNo
+            int userNo = 1;
             productDTO.setUserNo(userNo);
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
@@ -238,7 +240,7 @@ public class ProductServiceImpl implements ProductService {
         Map<String,Object> result = new LinkedHashMap<>();
 
         //조회수 증가
-        productDAO.viewCntUpdate(prodNo);
+        viewCountUp(prodNo);
 
         //상품 등록한 회원 정보 가져오기(닉네임,주소,프로필 사진 이미지)
         int loginUserNo = loginUserNo();
@@ -249,7 +251,6 @@ public class ProductServiceImpl implements ProductService {
         result.put("userInfo",userInfo);
 
         //좋아요 정보
-
         Map<String,Object> interestInfo = new LinkedHashMap<>();
         Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
         if (interestYN==null){
@@ -348,7 +349,7 @@ public class ProductServiceImpl implements ProductService {
        return result;
     }
 
-    // 경매 기능
+    // 경매 기능(삭제)
     @Override
     public void priceOfferUpdate(Map<String,Object> param) {
         int prodNo = (int) param.get("prodNo");
@@ -365,7 +366,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    //태그 클릭
+    //태그 클릭(삭제)
     @Override
     public void tagClick(Map<String,Object> param) throws IOException {
         int prodNo = (int) param.get("prodNo");
@@ -386,7 +387,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    //카테고리 클릭
+    //카테고리 클릭(삭제)
     @Override
     public void categoryClick(Map<String,Object> param) throws IOException {
         int prodNo = (int) param.get("prodNo");
@@ -404,7 +405,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    //메인카테고리 클릭
+    //메인카테고리 클릭 (삭제예정)
     public void mainCategoryClick(Map<String,Object> param) throws IOException {
         String tradeState = (String) param.get("tradeState");
         Integer largeCateNo = (Integer) param.get("largeCateNo");
@@ -481,6 +482,9 @@ public class ProductServiceImpl implements ProductService {
         return result2;
     }
 
+    /**
+     로그인한 유저번호 가지고오기
+     */
     private int loginUserNo(){
         Map<String, Object> param = null;
 
@@ -494,6 +498,39 @@ public class ProductServiceImpl implements ProductService {
             return userNo;
         }
         return 0;
+    }
+
+    /**
+     조회수 중복 방지
+     **/
+    private void viewCountUp(int prodNo) {
+
+        Cookie oldCookie = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("postView")) {
+                    oldCookie = cookie;
+                }
+            }
+        }
+        String stringProdNo = Integer.toString(prodNo);
+
+        if (oldCookie != null) {
+            if (!oldCookie.getValue().contains("[" + stringProdNo + "]")) {
+                productDAO.viewCntUpdate(prodNo);
+                oldCookie.setValue(oldCookie.getValue() + "_[" + prodNo + "]");
+                oldCookie.setPath("/");
+                oldCookie.setMaxAge(60 * 60 * 24);
+                response.addCookie(oldCookie);
+            }
+        } else {
+            productDAO.viewCntUpdate(prodNo);
+            Cookie newCookie = new Cookie("postView","[" + prodNo + "]");
+            newCookie.setPath("/");
+            newCookie.setMaxAge(60 * 60 * 24);
+            response.addCookie(newCookie);
+        }
     }
 
 
