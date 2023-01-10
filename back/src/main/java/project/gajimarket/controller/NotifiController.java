@@ -75,7 +75,8 @@ public class NotifiController {
 
     @Operation(summary = "알림 조회")
     @GetMapping("/getNotifi/{notifiNo}")
-    public Map<String, Object> getNotification(@PathVariable int notifiNo) {
+    public Map<String, Object> getNotification(
+            @ApiParam(value = "알림번호", defaultValue = "1", example = "1") @PathVariable int notifiNo) {
         try {
             return notifiService.getNotification(notifiNo);
         } catch (Exception e) {
@@ -83,9 +84,10 @@ public class NotifiController {
         }
     }
 
-    @Operation(summary = "알림 확인")
+    @Operation(summary = "알림 확인 (N => Y)")
     @GetMapping("/checkNotifi/{notifiNo}")
-    public Map<String, Object> checkNotification(@PathVariable int notifiNo) {
+    public Map<String, Object> checkNotification(
+            @ApiParam(value = "알림번호", defaultValue = "1", example = "1") @PathVariable int notifiNo) {
         try {
             return notifiService.updateNotification(notifiNo);
         } catch (Exception e) {
