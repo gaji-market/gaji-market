@@ -49,7 +49,7 @@ public class ProductController {
 
     //살래요 상품 등록
     @PostMapping(value = "/buySave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public Map<String, Object> buySave(@RequestPart Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String, Object> buySave(@RequestPart Map<String,Object> param, @RequestPart(required = false) List<MultipartFile> imageFiles) throws IOException {
 
         for (MultipartFile imageFile : imageFiles) {
             log.info("imageFiles={}", imageFile.getOriginalFilename());

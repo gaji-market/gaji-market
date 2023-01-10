@@ -113,6 +113,10 @@ public class ProductServiceImpl implements ProductService {
             for (String tagName : tagNames) {
                 hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
             }
+            /**
+             * 파일이 없을수 있음
+             * 안되면 if문 써서 잇고 없고 해주기
+             */
             //파일 저장
             List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
             for (int i = 0; i < storeImageFiles.size(); i++) {
