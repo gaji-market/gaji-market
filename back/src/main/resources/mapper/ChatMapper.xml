@@ -118,6 +118,32 @@
          WHERE messageNo = #{messageNo}
     </update>
 
+    <select id="selectUserInfo" parameterType="int" resultType="UserDTO">
+        SELECT user_info.no AS userNo
+               , id AS userId
+               , pwd AS userPwd
+               , name AS userName
+               , nickname AS userNickName
+               , gender AS userGender
+               , birth AS userBirth
+               , phone AS userPhone
+               , address AS userAddress
+               , reportCnt
+               , starScore
+               , socialKind
+               , chatNtfct
+               , cmntsNtfct
+               , interstNtfct
+               , outYn
+               , IFNULL(f.dbFileName, '') AS dbFileName
+               , IFNULL(f.uploadFileName, '') AS uploadFileName
+          FROM user_info LEFT JOIN ( SELECT *
+                                       FROM file
+                                      WHERE gubun = 1
+                                    ) f ON f.no = user_info.no
+         WHERE user_info.no = #{userNo}
+    </select>
+
     <!-- 채팅방 참여 인원 조회 (API 확인용) -->
     <select id="selectUserNoTest" parameterType="int" resultType="java.util.Map">
         SELECT userNo, tgUserNo
