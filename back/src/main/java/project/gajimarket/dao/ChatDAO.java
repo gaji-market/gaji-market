@@ -2,6 +2,7 @@ package project.gajimarket.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import project.gajimarket.model.ChatRoomDTO;
+import project.gajimarket.model.UserDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -27,4 +28,6 @@ public interface ChatDAO {
     int deleteChatMessage(int messageNo);
 
     Map<String, Object> selectUserNoTest(int chatNo);
+
+    UserDTO selectUserInfo(int userNo);
 }

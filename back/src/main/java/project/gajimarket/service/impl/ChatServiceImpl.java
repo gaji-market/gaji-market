@@ -58,9 +58,24 @@ public class ChatServiceImpl implements ChatService {
     public Map<String, Object> getChatRoom(Map<String, Object> map) {
         Map<String, Object> resultMap = new HashMap<>();
 
-        resultMap.put("chatRoomInfo", chatDAO.selectChatRoom(map));
+        ChatRoomDTO chatRoom = chatDAO.selectChatRoom(map);
+        resultMap.put("chatRoomInfo", chatRoom);
         List<Map<String, Object>> chatMsgList = chatDAO.selectChatMessage(map);
         resultMap.put("chatMessageInfos", chatMsgList);
+
+        if (chatRoom != null) {
+            Map<String, Object> userProfile = new HashMap<>();
+            int userNo = (int) map.get("userNo");
+            userProfile.put("myInfo", chatDAO.selectUserInfo(userNo));
+
+            if (chatRoom.getUserNo() != userNo) { //현재 로그인된 유저랑 같지 않다면
+                userProfile.put("otherInfo", chatDAO.selectUserInfo(chatRoom.getUserNo()));
+            } else {
+                userProfile.put("otherInfo", chatDAO.selectUserInfo(chatRoom.getTgUserNo()));
+            }
+
+            resultMap.put("userProfiles", userProfile);
+        }
 
         if (chatMsgList != null && !chatMsgList.isEmpty()) {
             chatDAO.updateChatMessageCheck(map);

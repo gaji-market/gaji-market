@@ -32,8 +32,10 @@
         WHERE notifiNo = #{notifiNo}
     </update>
 
-    <select id="selectNotification" parameterType="java.util.Map" resultType="java.util.Map">
-
+    <select id="selectNotification" parameterType="int" resultType="java.util.Map">
+        SELECT *
+          FROM notification_info
+         WHERE notifiNo = #{notifiNo}
     </select>
 
     <select id="selectNotificationList" parameterType="java.util.Map" resultType="java.util.Map">
