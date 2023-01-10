@@ -36,7 +36,6 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
-    private final UserService userService;
 
     //카테고리 전체 정보
     @Override
@@ -59,7 +58,6 @@ public class ProductServiceImpl implements ProductService {
             productDTO.setCateCode((String) param.get("cateCode"));
             int userNo = loginUserNo(); //로그인한 userNo
             System.out.println("userNo = " + userNo);
-            //int userNo = 1;
             productDTO.setUserNo(userNo);//테스트 유저번호
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
@@ -99,9 +97,8 @@ public class ProductServiceImpl implements ProductService {
         try {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setCateCode((String) param.get("cateCode"));
-            //int userNo = loginUserNo(); 로그인한 userNo
-            int userNo = 1;
-            productDTO.setUserNo(userNo);//테스트 유저번호
+            int userNo = loginUserNo();// 로그인한 userNo
+            productDTO.setUserNo(userNo);
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
 
@@ -175,9 +172,8 @@ public class ProductServiceImpl implements ProductService {
         try {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setCateCode((String) param.get("cateCode"));
-            //int userNo = Utils.getUserInfo(request).getUserNo(); 희주님 로그인한 userNo 가져오기 코드
-            int userNo = 1;
-            productDTO.setUserNo(userNo);//테스트 유저번호
+            int userNo = loginUserNo(); //로그인한 userNo
+            productDTO.setUserNo(userNo);
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
 
@@ -241,24 +237,22 @@ public class ProductServiceImpl implements ProductService {
         productDAO.viewCntUpdate(prodNo);
 
         //상품 등록한 회원 정보 가져오기(닉네임,주소,프로필 사진 이미지)
+        int loginUserNo = loginUserNo();
         int userNo = productDAO.findUserNo(prodNo);
         Map<String, Object> userInfo = productDAO.findUserInfo(userNo);
+        userInfo.put("loginUserNo",loginUserNo);
+
         result.put("userInfo",userInfo);
 
-        //HttpSession session = request.getSession();
-        //Object findSession = session.getAttribute("userInfo");
-        //int loginUserNo = productDAO.findSessionUser(findSession);
-        //로그인한 회원이 좋아요 눌럿는지 확인하는부분 지금은 불가능
-
-
         //좋아요 정보
+
         Map<String,Object> interestInfo = new LinkedHashMap<>();
-//        Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
-//        if (interestYN==null){
-//            interestInfo.put("interestYN",null);
-//        }else {
-//            interestInfo.put("interestYN",interestYN);
-//        }
+        Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
+        if (interestYN==null){
+            interestInfo.put("interestYN",0);
+        }else {
+            interestInfo.put("interestYN",interestYN);
+        }
         //좋아요 갯수 가져오기
         int interestCnt = interestDAO.findInterestCnt(prodNo);
         interestInfo.put("interestCnt",interestCnt);
@@ -304,9 +298,7 @@ public class ProductServiceImpl implements ProductService {
         int prodNo = (int) param.get("prodNo");
         interestDTO.setProdNo(prodNo);
 
-        HttpSession session = request.getSession();
-        Object findSession = session.getAttribute("userInfo");
-        int loginUserNo = productDAO.findSessionUser(findSession);
+        int loginUserNo = loginUserNo();
         interestDTO.setUserNo(loginUserNo);
 
         Integer interestYN = interestDAO.findInterest(interestDTO.getProdNo(), interestDTO.getUserNo());
@@ -324,7 +316,7 @@ public class ProductServiceImpl implements ProductService {
 
         Integer interestYN2 = interestDAO.findInterest(prodNo, loginUserNo);
         if (interestYN2==null){
-            interestInfo.put("interestYN",null);
+            interestInfo.put("interestYN",0);
         }else {
             interestInfo.put("interestYN",interestYN2);
         }
@@ -445,7 +437,7 @@ public class ProductServiceImpl implements ProductService {
         // body = sort,search
 
         //세션으로 로그인한사람찾기
-        int loginUserNo = 0;
+        int loginUserNo = loginUserNo();
         //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
         result.put("loginUserNo",loginUserNo);
         System.out.println("result = " + result);
@@ -467,7 +459,7 @@ public class ProductServiceImpl implements ProductService {
     public Map<String,Object> findBuyAll(Map<String,Object> result) {
 
         //세션으로 로그인한사람찾기
-        int loginUserNo = 0;
+        int loginUserNo = loginUserNo();
         //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
         result.put("loginUserNo",loginUserNo);
         System.out.println("result = " + result);
@@ -489,7 +481,7 @@ public class ProductServiceImpl implements ProductService {
         Map<String, Object> param = null;
 
         String headerToken = JWTUtil.getHeaderToken(request);
-        System.out.println("UserController myPage token : " + headerToken);
+        System.out.println("Token : " + headerToken);
 
         // 토큰 복호화
         if (headerToken != null && !"".equals(headerToken)) {

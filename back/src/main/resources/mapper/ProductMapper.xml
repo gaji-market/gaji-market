@@ -308,10 +308,4 @@
     <select id="findUserAddress" parameterType="int" resultType="String">
         select address from user_info where no = #{userNo}
     </select>
-
-    <!-- 세션 값으로 회원번호 찾기 -->
-    <select id="findSessionUser" resultType="int">
-        select no from user_info where id=#{param1};
-    </select>
-
 </mapper>
