@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
+
 import { useGetBuyAllQuery, useGetSellAllQuery } from 'services/productApi';
 
 import styled from 'styled-components';
@@ -21,35 +22,46 @@ export default function ProductView() {
 
   const navigate = useNavigate();
 
-  const [currentPage, setCurrentPage] = useState('');
-  const [cards, setCards] = useState([]);
+  const [currentPageParam, setCurrentPageParam] = useState('');
+
+  const [saleCards, setSaleCards] = useState([]);
+  const [purchaseCards, setPurchaseCards] = useState([]);
+
   const [showSkeletonCard, setShowSkeletonCard] = useState(false);
-  const [skeletonCardCount, setSkeletonCardCount] = useState(LOADING_CARD_COUNT);
+  const [skeletonCardCount, setSkeletonCardCount] =
+    useState(LOADING_CARD_COUNT);
 
   const modalRef = useRef(null);
 
   const [cardRef, inView] = useInView();
-  const [pageQueryParams, setPageQueryParams] = useState({
+
+  const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
+    recordCount: 8, // 게시글 몇 개 보여줄지
+    currentPage: 1,
+    sort: 'default',
+  });
+
+  const [pageQueryForSale, setPageQueryForSale] = useState({
     recordCount: 8, // 게시글 몇 개 보여줄지
     currentPage: 1,
     sort: 'default',
   });
 
   const sellAllOption = { skip: type !== SELL };
-  const getSellAll = useGetSellAllQuery(pageQueryParams, sellAllOption);
+  const getSellAll = useGetSellAllQuery(pageQueryForSale, sellAllOption);
 
   const buyAllOption = { skip: type !== BUY };
-  const getBuyAll = useGetBuyAllQuery(pageQueryParams, buyAllOption);
+  const getBuyAll = useGetBuyAllQuery(pageQueryForPurchase, buyAllOption);
 
   const [products, setProducts] = useState(null);
 
   // TODO: 중복되는 코드 리팩토링
   useEffect(() => {
     if (type === BUY) {
-      setCurrentPage(BUY);
+      setCurrentPageParam(BUY);
     }
     if (type === SELL) {
-      setCurrentPage(SELL);
+      setCurrentPageParam(SELL);
     }
   }, [type]);
 
@@ -61,7 +73,7 @@ export default function ProductView() {
     if (getSellAll.data && getSellAll.isSuccess) {
       setProducts(getSellAll.data.sellInfos);
     }
-  }, [getSellAll.isSuccess]);
+  }, [getSellAll.isSuccess, type]);
 
   useEffect(() => {
     if (type !== BUY) return;
@@ -69,48 +81,93 @@ export default function ProductView() {
     if (getBuyAll.data && getBuyAll.isSuccess) {
       setProducts(getBuyAll.data.buyInfos);
     }
-  }, [getBuyAll.isSuccess]);
-
-  console.log(products);
+  }, [getBuyAll.isSuccess, type]);
 
   if (products) {
-    if (type === BUY) lastPage.current = getBuyAll.data?.schPage.totalPageCount;
-    if (type === SELL) lastPage.current = getSellAll.data?.schPage.totalPageCount;
+    if (type === BUY) {
+      lastPage.current = getBuyAll.data?.schPage.totalPageCount;
+    }
+
+    if (type === SELL) {
+      lastPage.current = getSellAll.data?.schPage.totalPageCount;
+    }
   }
 
   const getCards = () => {
-    if (products) {
-      setPageQueryParams((prev) => ({
+    if (products && type === SELL) {
+      setPageQueryForSale((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage + 1,
+      }));
+    }
+
+    if (products && type === BUY) {
+      setPageQueryForPurchase((prev) => ({
         ...prev,
         currentPage: prev.currentPage + 1,
       }));
     }
   };
 
+  // 팔래요
   useEffect(() => {
-    if (products && (getSellAll.isSuccess || getBuyAll.isSuccess)) {
-      let infos;
+    if (type !== SELL) return;
+
+    if (products && getSellAll.isSuccess) {
+      let productsOfCurrentParam;
       if (type === SELL) {
         const { sellInfos } = getSellAll.data;
-        infos = sellInfos;
-      }
-      if (type === BUY) {
-        const { buyInfos } = getBuyAll.data;
-        infos = buyInfos;
+        productsOfCurrentParam = sellInfos;
       }
 
-      const cardCount = products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
+      const cardCount =
+        products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
+
       if (cardCount) {
         setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
       }
 
-      infos.forEach((product) => {
-        setCards((prev) => [...prev, product]);
+      productsOfCurrentParam.forEach((product) => {
+        if (type === SELL) {
+          setSaleCards((prev) => [...prev, product]);
+          setSaleCards((prev) => {
+            return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
+          });
+        }
       });
-
-      setCards((prev) => [...new Set(prev)]);
     }
-  }, [products, getSellAll.isSuccess, getSellAll.data, getBuyAll.isSuccess, getBuyAll.data]);
+  }, [products, type]);
+
+  // TODO: 중복 코드 리팩토링
+
+  // 살래요
+  useEffect(() => {
+    if (type !== BUY) return;
+
+    if (products && getBuyAll.isSuccess) {
+      let productsOfCurrentParam;
+      if (type === BUY) {
+        const { buyInfos } = getBuyAll.data;
+        productsOfCurrentParam = buyInfos;
+      }
+
+      const cardCount =
+        products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
+
+      if (cardCount) {
+        setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
+      }
+
+      productsOfCurrentParam.forEach((product) => {
+        if (type === BUY) {
+          setPurchaseCards((prev) => [...prev, product]);
+          setPurchaseCards((prev) => {
+            return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
+          });
+        }
+      });
+    }
+  }, [products, type]);
 
   useEffect(() => {
     if (getSellAll.isFetching || getBuyAll.isFetching) {
@@ -124,13 +181,23 @@ export default function ProductView() {
     }
 
     if (
+      type === BUY &&
       inView &&
-      lastPage.current > pageQueryParams.currentPage &&
-      (!getSellAll.isFetching || !getBuyAll.isFetching)
+      lastPage.current > pageQueryForPurchase.currentPage &&
+      !getSellAll.isFetching
     ) {
       getCards();
     }
-  }, [inView, getCards, pageQueryParams]);
+
+    if (
+      type === SELL &&
+      inView &&
+      lastPage.current > pageQueryForSale.currentPage &&
+      !getBuyAll.isFetching
+    ) {
+      getCards();
+    }
+  }, [inView, getCards, pageQueryForPurchase, pageQueryForSale]);
 
   const moveProductDetail = (prodNo) => (e) => {
     const tagName = e.target.tagName;
@@ -158,19 +225,61 @@ export default function ProductView() {
 
       <Container>
         <Header>
-          <Title>{currentPage === BUY ? TITLE.sal : TITLE.pal}</Title>
-          <SubText>{currentPage === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}</SubText>
+          <Title>{currentPageParam === BUY ? TITLE.sal : TITLE.pal}</Title>
+          <SubText>
+            {currentPageParam === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}
+          </SubText>
         </Header>
         <CardContainer>
-          {cards.length > 0 &&
-            cards.map((product) => {
-              const { address, dbFileName, interestCnt, prodName, prodNo, prodPrice, tradState } =
-                product;
+          {type === SELL &&
+            saleCards.length > 0 &&
+            saleCards.map((product) => {
+              const {
+                address,
+                dbFileName,
+                interestCnt,
+                prodName,
+                prodNo,
+                prodPrice,
+                tradState,
+              } = product;
               return (
                 <Card
                   key={prodNo}
                   productImage={
-                    dbFileName ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}` : null
+                    dbFileName
+                      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
+                      : null
+                  }
+                  title={prodName}
+                  price={prodPrice.toLocaleString()}
+                  area={address}
+                  likes={interestCnt.toLocaleString()}
+                  state={tradState}
+                  onClick={moveProductDetail(prodNo)}
+                />
+              );
+            })}
+
+          {type === BUY &&
+            purchaseCards.length > 0 &&
+            purchaseCards.map((product) => {
+              const {
+                address,
+                dbFileName,
+                interestCnt,
+                prodName,
+                prodNo,
+                prodPrice,
+                tradState,
+              } = product;
+              return (
+                <Card
+                  key={prodNo}
+                  productImage={
+                    dbFileName
+                      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
+                      : null
                   }
                   title={prodName}
                   price={prodPrice.toLocaleString()}

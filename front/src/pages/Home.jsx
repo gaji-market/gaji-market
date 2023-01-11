@@ -32,6 +32,9 @@ export default function Home() {
       });
 
       setCards((prev) => [...new Set(prev)]);
+      setCards((prev) => {
+        return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
+      });
     }
   }, [products]);
 
