@@ -30,6 +30,9 @@ export const productApi = createApi({
         url: 'sellSave',
         method: 'POST',
         body: product,
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
+        },
       }),
       invalidatesTags: ['SellAll'],
     }),
@@ -38,6 +41,9 @@ export const productApi = createApi({
         url: 'buySave',
         method: 'POST',
         body: product,
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
+        },
       }),
       invalidatesTags: ['BuyAll'],
     }),
