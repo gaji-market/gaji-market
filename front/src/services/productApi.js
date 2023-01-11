@@ -47,6 +47,18 @@ export const productApi = createApi({
       }),
       invalidatesTags: ['BuyAll'],
     }),
+    increaseInterest: builder.mutation({
+      query: (product) => ({
+        url: 'buySave',
+        method: 'POST',
+        body: product.id,
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
+        },
+      }),
+
+      invalidatesTags: ['SellAll', 'BuyAll'],
+    }),
   }),
 });
 
@@ -59,4 +71,5 @@ export const {
   useGetProductQuery,
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
+  useIncreaseInterestMutation,
 } = productApi;
