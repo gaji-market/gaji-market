@@ -98,8 +98,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setCateCode((String) param.get("cateCode"));
-            //int userNo = loginUserNo();// 로그인한 userNo
-            int userNo = 1;
+            int userNo = loginUserNo();// 로그인한 userNo
             productDTO.setUserNo(userNo);
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
@@ -115,16 +114,17 @@ public class ProductServiceImpl implements ProductService {
             for (String tagName : tagNames) {
                 hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
             }
-            /**
-             * 파일이 없을수 있음
-             * 안되면 if문 써서 잇고 없고 해주기
-             */
+
             //파일 저장
-            List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
-            for (int i = 0; i < storeImageFiles.size(); i++) {
-                String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-                String dbFileName = storeImageFiles.get(i).getDbFileName();
-                fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+            if (imageFiles==null){
+                System.out.println("No image");
+            }else {
+                List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+                for (int i = 0; i < storeImageFiles.size(); i++) {
+                    String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+                    String dbFileName = storeImageFiles.get(i).getDbFileName();
+                    fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+                }
             }
             result.put("result","Success");
         }catch (Exception e){

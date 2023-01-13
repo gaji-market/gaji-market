@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.*;
+import project.gajimarket.model.file.UploadFile;
+import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
 import java.io.IOException;
@@ -22,12 +24,6 @@ import java.util.*;
 public class ProductController {
 
     private final ProductService productService;
-
-    @PostMapping(value = "/test",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-    public void test(@RequestParam Map<String,Object> param,@RequestBody Map<String,Object> param2){
-        System.out.println("param = " + param);
-        System.out.println("param2 = " + param2);
-    }
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
@@ -51,8 +47,12 @@ public class ProductController {
     @PostMapping(value = "/buySave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
     public Map<String, Object> buySave(@RequestPart Map<String,Object> param, @RequestPart(required = false) List<MultipartFile> imageFiles) throws IOException {
 
-        for (MultipartFile imageFile : imageFiles) {
-            log.info("imageFiles={}", imageFile.getOriginalFilename());
+        if (imageFiles==null){
+            System.out.println("No image");
+        }else {
+            for (MultipartFile imageFile : imageFiles) {
+                log.info("imageFiles={}", imageFile.getOriginalFilename());
+            }
         }
         log.info("param={}",param);
 
