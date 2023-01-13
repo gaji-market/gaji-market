@@ -110,9 +110,11 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="param.cateCode != null">
+            <if test="cateCode != null">
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                and c.cateCode=#{param.cateCode}
+                and (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+            </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
             f.gubun='2'
@@ -146,9 +148,11 @@
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="param.cateCode != null">
+            <if test="cateCode != null">
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and c.cateCode=#{param.cateCode}
+                and (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+            </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
             f.gubun='2'
@@ -189,9 +193,11 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
             </if>
             </if>
-            <if test="param.cateCode != null">
+            <if test="cateCode != null">
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                                  and c.cateCode=#{param.cateCode}
+                and (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+            </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
         </where>
@@ -252,9 +258,11 @@
                 and (p.prodName like concat('%',#{body.search},'%') or p.address like concat('%',#{body.search},'%') or h.tagName like concat('%',#{body.search},'%'))
                                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
             </if>
-            <if test="param.cateCode != null">
+            <if test="cateCode != null">
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and c.cateCode=#{param.cateCode}
+                and (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+            </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
         </where>
