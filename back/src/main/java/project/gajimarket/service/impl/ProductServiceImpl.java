@@ -10,7 +10,6 @@ import project.gajimarket.model.*;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
-import project.gajimarket.service.UserService;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -445,6 +444,10 @@ public class ProductServiceImpl implements ProductService {
         int loginUserNo = loginUserNo();
         //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
         result.put("loginUserNo",loginUserNo);
+
+        //메인화면 카테고리 클릭 메소드
+        category(result);
+
         System.out.println("result = " + result);
 
         List<Map<String, Object>> sellInfos = productDAO.findSellAll(result);
@@ -467,6 +470,10 @@ public class ProductServiceImpl implements ProductService {
         int loginUserNo = loginUserNo();
         //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
         result.put("loginUserNo",loginUserNo);
+
+        //메인화면 카테고리 클릭 메소드
+        category(result);
+
         System.out.println("result = " + result);
 
         List<Map<String, Object>> buyInfos = productDAO.findBuyAll(result);
@@ -480,6 +487,33 @@ public class ProductServiceImpl implements ProductService {
         result2.put("buyInfos",buyInfos);
 
         return result2;
+    }
+
+    /**
+     * 메인화면 카테고리 클릭 메소드
+     */
+    private void category(Map<String, Object> result) {
+        //메인에서 10000을 클릭햇다면?
+        Map<String,Object> param = (Map<String, Object>) result.get("param");
+        System.out.println("param = " + param);
+        String cateParent = (String) param.get("cateCode");
+        System.out.println("cateParent = " + cateParent);
+
+        List<String> cateCode = categoryDAO.findCateCode(cateParent);//[10100, 10200, 10300, 10400, 10500]
+        System.out.println("cateCode = " + cateCode);
+        cateCode.add(cateParent);
+        System.out.println("cateCode = " + cateCode);
+
+        List<String> listCateCode = categoryDAO.findListCateCode(cateCode);//[10101, 10102, 10103, 10104, 10201, 10202, 10501, 10502, 10503]
+        System.out.println("listCateCode = " + listCateCode);
+        for (int i = 0; i < listCateCode.size(); i++) {
+            String arr = listCateCode.get(i);
+            cateCode.add(arr);
+        }
+
+        System.out.println("cateCode = " + cateCode);
+
+        result.put("cateCode",cateCode);
     }
 
     /**
