@@ -28,6 +28,10 @@ import { Error } from './index';
 import { SELL } from 'constants/params';
 
 const NEXT_X = 400;
+const ADDRESS = {
+  start: 0,
+  end: 2,
+};
 
 export default function ProductDetailView() {
   const slideRef = useRef();
@@ -214,7 +218,10 @@ export default function ProductDetailView() {
                 <div>
                   <UserNickName>{product.userInfo.nickname}</UserNickName>
                   <UserArea>
-                    {product.userInfo.address.split(' ').slice(0, 3).join(' ')}
+                    {product.userInfo.address
+                      .split(' ')
+                      .slice(ADDRESS.start, ADDRESS.end)
+                      .join(' ')}
                   </UserArea>
                 </div>
               </ProfileWrapper>
