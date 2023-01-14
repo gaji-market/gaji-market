@@ -91,8 +91,7 @@ export default function ProductDetailView() {
 
   const changeInterestCountHandler = async () => {
     try {
-      const result = changeInterestCountMutation(Number(prodNo)).unwrap();
-      console.log(result);
+      await changeInterestCountMutation(Number(prodNo));
     } catch (error) {
       console.error(error);
     }
@@ -100,8 +99,7 @@ export default function ProductDetailView() {
 
   const changeReportCountHandler = async () => {
     try {
-      const result = changeReportCountMutation(Number(prodNo)).unwrap();
-      console.log(result);
+      await changeReportCountMutation(Number(prodNo));
     } catch (error) {
       console.error(error);
     }
