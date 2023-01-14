@@ -17,8 +17,20 @@ import { Error } from './index';
 import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
 import { SELL, BUY } from 'constants/params';
 
+// 백엔드에서 받아오는 key값 이름
+const itemsKeyName = Object.freeze({
+  pal: 'sellInfos',
+  sal: 'buyInfos',
+});
+
+const getItemsQuery = {
+  recordCount: 8, // 게시글 불러오기 개수
+  currentPage: 1,
+  sort: 'default',
+};
+
 export default function ProductView() {
-  const { type } = useParams();
+  const { type: param } = useParams();
 
   const navigate = useNavigate();
 
@@ -36,181 +48,139 @@ export default function ProductView() {
   const [cardRef, inView] = useInView();
 
   const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
-    recordCount: 8, // 게시글 몇 개 보여줄지
-    currentPage: 1,
-    sort: 'default',
+    ...getItemsQuery,
   });
 
   const [pageQueryForSale, setPageQueryForSale] = useState({
-    recordCount: 8, // 게시글 몇 개 보여줄지
-    currentPage: 1,
-    sort: 'default',
+    ...getItemsQuery,
   });
 
-  const sellAllOption = { skip: type !== SELL };
+  const sellAllOption = { skip: param !== SELL };
   const getSellAll = useGetSellAllQuery(pageQueryForSale, sellAllOption);
 
-  const buyAllOption = { skip: type !== BUY };
+  const buyAllOption = { skip: param !== BUY };
   const getBuyAll = useGetBuyAllQuery(pageQueryForPurchase, buyAllOption);
 
   const [products, setProducts] = useState(null);
-
-  // TODO: 중복되는 코드 리팩토링
-  useEffect(() => {
-    if (type === BUY) {
-      setCurrentPageParam(BUY);
-    }
-    if (type === SELL) {
-      setCurrentPageParam(SELL);
-    }
-  }, [type]);
+  const [currentParamItems, setCurrentParamItems] = useState();
 
   let lastPage = useRef(0);
 
   useEffect(() => {
-    if (type !== SELL) return;
+    setCurrentPageParam(param);
 
-    if (getSellAll.data && getSellAll.isSuccess) {
-      setProducts(getSellAll.data.sellInfos);
+    if (getSellAll.isSuccess || getBuyAll.isSuccess) {
+      setCurrentParamItems((prev) => ({
+        ...prev,
+        pal: {
+          data: getSellAll?.data,
+          infos: getSellAll?.data?.sellInfos,
+          isSuccess: getSellAll?.isSuccess,
+        },
+        sal: {
+          data: getBuyAll?.data,
+          infos: getBuyAll?.data?.buyInfos,
+          isSuccess: getBuyAll?.isSuccess,
+        },
+      }));
     }
-  }, [getSellAll.isSuccess, type]);
+  }, [param, getSellAll.isSuccess, getBuyAll.isSuccess]);
 
   useEffect(() => {
-    if (type !== BUY) return;
-
-    if (getBuyAll.data && getBuyAll.isSuccess) {
-      setProducts(getBuyAll.data.buyInfos);
+    const salOrPal = param;
+    if (
+      currentParamItems?.[salOrPal]?.data &&
+      currentParamItems?.[salOrPal]?.isSuccess
+    ) {
+      setProducts(currentParamItems[salOrPal]?.infos);
     }
-  }, [getBuyAll.isSuccess, type]);
+  }, [param, currentParamItems]);
 
-  if (products) {
-    if (type === BUY) {
-      lastPage.current = getBuyAll.data?.schPage.totalPageCount;
-    }
-
-    if (type === SELL) {
-      lastPage.current = getSellAll.data?.schPage.totalPageCount;
-    }
-  }
-
-  const getCards = () => {
-    if (products && type === SELL) {
-      setPageQueryForSale((prev) => ({
-        ...prev,
-        currentPage: prev.currentPage + 1,
-      }));
-    }
-
-    if (products && type === BUY) {
-      setPageQueryForPurchase((prev) => ({
-        ...prev,
-        currentPage: prev.currentPage + 1,
-      }));
-    }
+  const getAllProducts = {
+    pal: getSellAll,
+    sal: getBuyAll,
   };
 
-  // 팔래요
-  useEffect(() => {
-    if (type !== SELL) return;
+  if (products) {
+    lastPage.current = getAllProducts[param].data?.schPage.totalPageCount;
+  }
 
-    if (products && getSellAll.isSuccess) {
-      let productsOfCurrentParam;
-      if (type === SELL) {
-        const { sellInfos } = getSellAll.data;
-        productsOfCurrentParam = sellInfos;
-      }
+  const setQuery = {
+    pal: setPageQueryForSale,
+    sal: setPageQueryForPurchase,
+  };
+
+  const getCards = () => {
+    setQuery[param]((prev) => ({
+      ...prev,
+      currentPage: prev.currentPage + 1,
+    }));
+  };
+
+  const setCard = {
+    pal: setSaleCards,
+    sal: setPurchaseCards,
+  };
+
+  useEffect(() => {
+    if (products && getAllProducts?.[param]?.isSuccess) {
+      const productsOfParam =
+        getAllProducts?.[param]?.data?.[itemsKeyName[param]];
 
       const cardCount =
-        products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
+        getAllProducts?.[param]?.data?.schPage?.totalRecordCount %
+        LOADING_CARD_COUNT;
 
       if (cardCount) {
         setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
       }
 
-      productsOfCurrentParam.forEach((product) => {
-        if (type === SELL) {
-          setSaleCards((prev) => [...prev, product]);
-          setSaleCards((prev) => {
-            return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
-          });
-        }
+      productsOfParam.forEach((product) => {
+        setCard[param]((prev) => [...prev, product]);
+      });
+
+      setCard[param]((prev) => {
+        return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
       });
     }
-  }, [products, type]);
-
-  // TODO: 중복 코드 리팩토링
-
-  // 살래요
-  useEffect(() => {
-    if (type !== BUY) return;
-
-    if (products && getBuyAll.isSuccess) {
-      let productsOfCurrentParam;
-      if (type === BUY) {
-        const { buyInfos } = getBuyAll.data;
-        productsOfCurrentParam = buyInfos;
-      }
-
-      const cardCount =
-        products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
-
-      if (cardCount) {
-        setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
-      }
-
-      productsOfCurrentParam.forEach((product) => {
-        if (type === BUY) {
-          setPurchaseCards((prev) => [...prev, product]);
-          setPurchaseCards((prev) => {
-            return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
-          });
-        }
-      });
-    }
-  }, [products, type]);
+  }, [products, param]);
 
   useEffect(() => {
-    if (getSellAll.isFetching || getBuyAll.isFetching) {
+    if (getAllProducts?.[param]?.isFetching) {
       return setShowSkeletonCard(true);
-    }
-
-    if (!getSellAll.isFetching || !getBuyAll.isFetching) {
+    } else {
       setTimeout(() => {
         return setShowSkeletonCard(false);
       }, 500);
     }
+  }, [getAllProducts]);
 
-    if (
-      type === BUY &&
-      inView &&
-      lastPage.current > pageQueryForPurchase.currentPage &&
-      !getSellAll.isFetching
-    ) {
+  const pageQuery = {
+    sal: pageQueryForPurchase,
+    pal: pageQueryForSale,
+  };
+
+  useEffect(() => {
+    if (getAllProducts[param]?.isFetching) return;
+
+    if (inView && lastPage.current >= pageQuery[param].currentPage) {
       getCards();
     }
-
-    if (
-      type === SELL &&
-      inView &&
-      lastPage.current > pageQueryForSale.currentPage &&
-      !getBuyAll.isFetching
-    ) {
-      getCards();
-    }
-  }, [inView, getCards, pageQueryForPurchase, pageQueryForSale]);
+  }, [inView, getCards, param]);
 
   const moveProductDetail = (prodNo) => (e) => {
     const tagName = e.target.tagName;
-    if (tagName === 'svg' || tagName === 'path') return;
+    const invalidTags = ['path', 'svg'];
 
-    navigate(`/products/${type}/detail/${prodNo}`);
+    if (invalidTags.includes(tagName)) return;
+    navigate(`/products/${param}/detail/${prodNo}`);
   };
 
-  if (getSellAll.isError || getBuyAll.isError) {
+  if (getAllProducts?.[param]?.isError) {
     return <Error />;
   }
 
-  if (getSellAll.isLoading || getBuyAll.isLoading) {
+  if (getAllProducts?.[param]?.isLoading) {
     return <Loading />;
   }
 
@@ -231,7 +201,7 @@ export default function ProductView() {
           </SubText>
         </Header>
         <CardContainer>
-          {type === SELL &&
+          {param === SELL &&
             saleCards.length > 0 &&
             saleCards.map((product) => {
               const {
@@ -261,7 +231,7 @@ export default function ProductView() {
               );
             })}
 
-          {type === BUY &&
+          {param === BUY &&
             purchaseCards.length > 0 &&
             purchaseCards.map((product) => {
               const {
@@ -335,7 +305,7 @@ const SubText = styled.p`
 const CardContainer = styled.div`
   width: 1024px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   margin: 0 auto;
   position: relative;
 
