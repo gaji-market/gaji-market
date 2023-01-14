@@ -29,6 +29,7 @@ import {
   GRAY_COLOR,
   PRIMARY_VAR_COLOR,
   DARK_GRAY_COLOR,
+  WHITE_COLOR,
 } from 'components/common/commonColor';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
@@ -217,6 +218,7 @@ export default function AppBar() {
           )}
         </ItemGroup>
       </StyledWrapper>
+      <Spacer />
     </>
   );
 }
@@ -228,7 +230,15 @@ const menubarHandler = () => {
   }
 };
 
+const Spacer = styled.div`
+  height: 56px;
+`;
+
 const StyledWrapper = styled.div`
+  position: fixed;
+  width: 100vw;
+  top: 0;
+  z-index: 10000000;
   display: flex;
   column-gap: 16px;
   align-items: center;
@@ -237,6 +247,7 @@ const StyledWrapper = styled.div`
   height: 56px;
   box-sizing: border-box;
   border-bottom: 2px solid ${PRIMARY_COLOR};
+  background-color: ${WHITE_COLOR};
 `;
 
 const ItemGroup = styled.div`
