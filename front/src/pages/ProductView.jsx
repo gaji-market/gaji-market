@@ -143,7 +143,9 @@ export default function ProductView() {
       });
 
       setCard[param]((prev) => {
-        return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
+        return [...new Set(prev.map((prodNo) => JSON.stringify(prodNo)))].map(
+          JSON.parse
+        );
       });
     }
   }, [products, param]);
