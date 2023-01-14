@@ -12,15 +12,13 @@ import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
 import {
   Home,
   Login,
-  SliceTest,
   SignUp,
   ProductView,
   ProductDetailView,
   Editor,
-  Error,
   MyPage,
   MyEditPage,
-  Test,
+  SearchPage,
   Chat,
 } from 'pages';
 
@@ -112,6 +110,8 @@ export default function Router() {
           <Route path=':type' element={<ProductView />} />
           <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
+
+        <Route path='/search' element={<SearchPage />} />
 
         <Route path='/chat' element={<Chat />} />
       </Route>

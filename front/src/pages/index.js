@@ -8,5 +8,5 @@ export { default as Editor } from './Editor';
 export { default as Error } from './Error';
 export { default as MyPage } from './MyPage';
 export { default as MyEditPage } from './MyEditPage';
-export { default as Test } from './Test';
+export { default as SearchPage } from './SearchPage';
 export { default as Chat } from './Chat';
