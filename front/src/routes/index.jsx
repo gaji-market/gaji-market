@@ -85,6 +85,8 @@ export default function Router() {
             <Route path=':type' element={<ProductView />} />
             <Route path=':type/detail/:id' element={<Navigate to='/login' />} />
           </Route>
+
+          <Route path='/search' element={<SearchPage />} />
         </Route>
 
         <Route path='*' element={<Navigate to='/' />} />
