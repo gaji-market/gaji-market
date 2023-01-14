@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 
-import { useGetBuyAllQuery, useGetSellAllQuery } from 'services/productApi';
+import {
+  useChangeInterestCountMutation,
+  useGetBuyAllQuery,
+  useGetSellAllQuery,
+} from 'services/productApi';
 
 import styled from 'styled-components';
 
@@ -44,32 +48,36 @@ export default function ProductView() {
     useState(LOADING_CARD_COUNT);
 
   const modalRef = useRef(null);
+  const lastPage = useRef(null);
 
   const [cardRef, inView] = useInView();
-
-  const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
-    ...getItemsQuery,
-  });
 
   const [pageQueryForSale, setPageQueryForSale] = useState({
     ...getItemsQuery,
   });
-
   const sellAllOption = { skip: param !== SELL };
   const getSellAll = useGetSellAllQuery(pageQueryForSale, sellAllOption);
 
+  const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
+    ...getItemsQuery,
+  });
   const buyAllOption = { skip: param !== BUY };
   const getBuyAll = useGetBuyAllQuery(pageQueryForPurchase, buyAllOption);
+
+  const [changeInterestCountMutation] = useChangeInterestCountMutation();
 
   const [products, setProducts] = useState(null);
   const [currentParamItems, setCurrentParamItems] = useState();
 
-  let lastPage = useRef(0);
+  const getAllProducts = {
+    pal: getSellAll,
+    sal: getBuyAll,
+  };
 
   useEffect(() => {
     setCurrentPageParam(param);
 
-    if (getSellAll.isSuccess || getBuyAll.isSuccess) {
+    if (getAllProducts[param]?.isSuccess) {
       setCurrentParamItems((prev) => ({
         ...prev,
         pal: {
@@ -95,11 +103,6 @@ export default function ProductView() {
       setProducts(currentParamItems[salOrPal]?.infos);
     }
   }, [param, currentParamItems]);
-
-  const getAllProducts = {
-    pal: getSellAll,
-    sal: getBuyAll,
-  };
 
   if (products) {
     lastPage.current = getAllProducts[param].data?.schPage.totalPageCount;
@@ -170,10 +173,19 @@ export default function ProductView() {
 
   const moveProductDetail = (prodNo) => (e) => {
     const tagName = e.target.tagName;
-    const invalidTags = ['path', 'svg'];
+    const interestIconTag = ['path', 'svg'];
 
-    if (invalidTags.includes(tagName)) return;
-    navigate(`/products/${param}/detail/${prodNo}`);
+    if (interestIconTag.includes(tagName)) {
+      (async () => {
+        try {
+          await changeInterestCountMutation(prodNo);
+        } catch (error) {
+          console.error(error);
+        }
+      })();
+    } else {
+      navigate(`/products/${param}/detail/${prodNo}`);
+    }
   };
 
   if (getAllProducts?.[param]?.isError) {
@@ -208,6 +220,7 @@ export default function ProductView() {
                 address,
                 dbFileName,
                 interestCnt,
+                interestYN,
                 prodName,
                 prodNo,
                 prodPrice,
@@ -225,6 +238,7 @@ export default function ProductView() {
                   price={prodPrice.toLocaleString()}
                   area={address}
                   likes={interestCnt.toLocaleString()}
+                  isInterest={interestYN}
                   state={tradState}
                   onClick={moveProductDetail(prodNo)}
                 />
@@ -238,6 +252,7 @@ export default function ProductView() {
                 address,
                 dbFileName,
                 interestCnt,
+                interestYN,
                 prodName,
                 prodNo,
                 prodPrice,
@@ -255,6 +270,7 @@ export default function ProductView() {
                   price={prodPrice.toLocaleString()}
                   area={address}
                   likes={interestCnt.toLocaleString()}
+                  isInterest={interestYN}
                   state={tradState}
                   onClick={moveProductDetail(prodNo)}
                 />
