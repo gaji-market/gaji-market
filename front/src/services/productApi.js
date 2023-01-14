@@ -16,13 +16,14 @@ export const productApi = createApi({
       }),
     }),
     getBuyAll: builder.query({
-      query: ({ recordCount, currentPage, sort }) =>
-        `buyAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}`,
       providesTags: ['BuyAll'],
       keepUnusedDataFor: 0,
-      headers: {
-        'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
-      },
+      query: ({ recordCount, currentPage, sort }) => ({
+        url: `buyAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}`,
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
+        },
+      }),
     }),
     getCategories: builder.query({
       query: () => 'categoryInfo',
