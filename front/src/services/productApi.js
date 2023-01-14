@@ -59,9 +59,20 @@ export const productApi = createApi({
       }),
       invalidatesTags: ['BuyAll'],
     }),
-    increaseInterest: builder.mutation({
+    changeInterestCount: builder.mutation({
       query: (prodNo) => ({
         url: 'interest',
+        method: 'POST',
+        body: { prodNo: Number(prodNo) },
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
+        },
+      }),
+      invalidatesTags: ['SellAll', 'BuyAll'],
+    }),
+    changeReportCount: builder.mutation({
+      query: (prodNo) => ({
+        url: 'report',
         method: 'POST',
         body: { prodNo: Number(prodNo) },
         headers: {
@@ -76,10 +87,10 @@ export const productApi = createApi({
 export const {
   useGetSellAllQuery,
   useGetBuyAllQuery,
-  useLazyGetSellAllQuery,
-  useLazyGetBuyAllQuery,
   useGetCategoriesQuery,
   useGetProductQuery,
+  useChangeInterestCountMutation,
+  useChangeReportCountMutation,
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
   useIncreaseInterestMutation,
