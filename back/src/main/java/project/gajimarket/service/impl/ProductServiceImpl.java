@@ -308,9 +308,11 @@ public class ProductServiceImpl implements ProductService {
 
         int prodNo = (int) param.get("prodNo");
         interestDTO.setProdNo(prodNo);
+        System.out.println("prodNo = " + prodNo);
 
         int loginUserNo = loginUserNo();
         interestDTO.setUserNo(loginUserNo);
+        System.out.println("loginUserNo = " + loginUserNo);
 
         Integer interestYN = interestDAO.findInterest(interestDTO.getProdNo(), interestDTO.getUserNo());
         if (interestYN==null){
