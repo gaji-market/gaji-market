@@ -54,7 +54,7 @@ export default function AppBar() {
 
   const keydownHandler = (e) => {
     if (e.key === 'Enter' && searchRef.current.value) {
-      navigate('/search?query=' + searchRef.current.value);
+      navigate(`/search?query=${searchRef.current.value}`);
     }
   };
 
