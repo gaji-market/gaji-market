@@ -1,18 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useLocation, NavLink, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 
 import styled from 'styled-components';
 
 import {
-  useGetChatRoomListMutation,
-  useAddChatMessageMutation,
-  useAddChatRoomMutation,
-  useLazyGetChatRoomQuery,
-  useLazyGetUserNoQuery,
-  useLazyRemoveChatMessageQuery,
-  useLazyRemoveChatRoomQuery,
-} from 'services/chatApi';
+  useLazyGetCheckCntQuery,
+  useGetNotifiListMutation,
+  useLazyCheckNotifiQuery,
+} from 'services/alarmApi';
 
 import { selectSession, endSession } from 'store/sessionSlice';
 
@@ -30,13 +26,15 @@ import {
   PRIMARY_VAR_COLOR,
   DARK_GRAY_COLOR,
   WHITE_COLOR,
+  RED_COLOR,
 } from 'components/common/commonColor';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
+import CountBadge from 'components/common/CountBadge';
 
 export default function AppBar() {
-  const { userId, isLoggedIn } = useSelector(selectSession);
+  const { userId, userNo, isLoggedIn } = useSelector(selectSession);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,14 +42,24 @@ export default function AppBar() {
   const { addToast } = useToast();
   const { search } = useLocation();
   const { type } = useParams();
-  const [getChatRoomList] = useGetChatRoomListMutation();
+
+  const [getNotiList] = useGetNotifiListMutation();
+  const [checkNoti] = useLazyCheckNotifiQuery();
+  const [getCheckCnt] = useLazyGetCheckCntQuery({
+    pollingInterval: 5000,
+  });
 
   const modalRef = useRef(null);
   const searchRef = useRef(null);
 
   const initToggles = { productSwitch: true, alarm: false, userId: false };
   const [toggles, setToggles] = useState(initToggles);
-  const [chatRoomInfos, setChatRoomInfos] = useState([]);
+  const [currentTab, setCurrentTab] = useState('채팅');
+  const [notificationInfos, setNotificationInfos] = useState([]);
+  const [counts, setCounts] = useState({
+    intstCheckCnt: 0,
+    chatCheckCnt: 0,
+  });
 
   const keydownHandler = (e) => {
     if (e.key === 'Enter' && searchRef.current.value) {
@@ -63,17 +71,33 @@ export default function AppBar() {
     setToggles(initToggles);
   };
 
-  const getChatRoomListHandler = async () => {
+  const getNotiListHandler = async (tab = '채팅') => {
     try {
-      const { chatRoomInfos, schPage } = await getChatRoomList({
+      const { notificationInfos } = await getNotiList({
         // TODO: get userNo from sessionSlice
-        userNo: 1,
-        currentPage: 1,
-        recordCount: 10,
+        gubun: tab === '채팅' ? 1 : 2,
+        userNo: userNo,
       }).unwrap();
-      setChatRoomInfos(chatRoomInfos);
+      setNotificationInfos(notificationInfos);
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const getCheckCntHandler = async () => {
+    try {
+      const data = await getCheckCnt(userNo).unwrap();
+      setCounts(data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const checkNotiHandler = async (notiNo) => {
+    try {
+      await checkNoti(notiNo).unwrap();
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -87,6 +111,12 @@ export default function AppBar() {
       setToggles((prev) => ({ ...prev, productSwitch: false }));
     }
   }, [location]);
+
+  useEffect(() => {
+    if (userNo) {
+      getCheckCntHandler();
+    }
+  }, []);
 
   return (
     <>
@@ -144,23 +174,73 @@ export default function AppBar() {
               <Alarm aria-expanded={toggles.alarm}>
                 <Toggle
                   onClick={() => [
-                    getChatRoomListHandler(),
+                    getNotiListHandler(),
                     setToggles((prev) => ({ ...prev, alarm: !prev.alarm })),
                   ]}
                 >
                   <FaBell size={24} color={PRIMARY_COLOR} />
+                  {counts.intstCheckCnt + counts.chatCheckCnt > 0 && (
+                    <CountBadge
+                      count={counts.intstCheckCnt + counts.chatCheckCnt}
+                      style={{ marginLeft: '-16px' }}
+                    />
+                  )}
                 </Toggle>
                 {toggles.alarm && (
                   <AlarmContainer id='app-alarm-container'>
-                    <NavLink to='/chat'>CHAT PAGE</NavLink>
-                    {chatRoomInfos.map((item, idx) => (
-                      <ChatItem key={idx}>
-                        <span>{item.nickname}</span>
-                        <span>{item.lastMessage}</span>
-                        <span>{item.regDate}</span>
-                        <span>{item.regTime}</span>
-                      </ChatItem>
-                    ))}
+                    <Title>알림</Title>
+                    <Tabs>
+                      <Tab
+                        aria-current={currentTab === '채팅' && 'page'}
+                        onClick={() => [
+                          setCurrentTab('채팅'),
+                          getNotiListHandler(),
+                        ]}
+                      >
+                        <span>채팅</span>
+                        {counts.chatCheckCnt > 0 && (
+                          <CountBadge
+                            count={counts.chatCheckCnt}
+                            style={{ marginLeft: '8px' }}
+                          />
+                        )}
+                      </Tab>
+                      <Tab
+                        aria-current={currentTab === '좋아요' && 'page'}
+                        onClick={() => [
+                          setCurrentTab('좋아요'),
+                          getNotiListHandler('좋아요'),
+                        ]}
+                      >
+                        <span>좋아요</span>
+                        {counts.intstCheckCnt > 0 && (
+                          <CountBadge
+                            count={counts.intstCheckCnt}
+                            style={{ marginLeft: '8px' }}
+                          />
+                        )}
+                      </Tab>
+                    </Tabs>
+                    <AlarmBody>
+                      {notificationInfos.length === 0 && (
+                        <EmptyMsg>알림이 없습니다.</EmptyMsg>
+                      )}
+                      {notificationInfos.map((item, idx) => (
+                        <NotiItem
+                          key={idx}
+                          aria-checked={item.checkYn === 'Y'}
+                          onClick={() =>
+                            item.checkYn === 'N' &&
+                            checkNotiHandler(item.notifiNo)
+                          }
+                        >
+                          <div>{item.nickname}</div>
+                          <div>{item.message}</div>
+                          <span>{item.regDate.split('T')[0]}</span>
+                          <NewBadge aria-checked={item.checkYn === 'Y'} />
+                        </NotiItem>
+                      ))}
+                    </AlarmBody>
                   </AlarmContainer>
                 )}
               </Alarm>
@@ -293,6 +373,8 @@ const Alarm = styled.div`
 `;
 
 const AlarmContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   z-index: 100000;
   position: absolute;
   width: 480px;
@@ -311,12 +393,85 @@ const AlarmContainer = styled.div`
   }
 `;
 
-const ChatItem = styled.div`
-  display: flex;
-  height: 36px;
+const Title = styled.h2`
+  font-size: 28px;
+  font-weight: bolder;
+  margin: 16px;
+`;
 
-  span {
+const Tabs = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin: 16px;
+`;
+
+const Tab = styled.div`
+  flex: 1;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &[aria-current='page'] {
+    border-bottom: 4px solid ${PRIMARY_COLOR};
+  }
+
+  span:hover {
+    cursor: pointer;
+    font-size: 24px;
+    color: ${PRIMARY_COLOR};
+  }
+`;
+
+const AlarmBody = styled.div`
+  flex: 1;
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+`;
+
+const EmptyMsg = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const NotiItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 16px;
+  border-radius: 4px;
+
+  div {
     flex: 1;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${PRIMARY_VAR_COLOR};
+  }
+`;
+
+const NewBadge = styled.span`
+  display: block;
+  margin: 0 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  text-align: center;
+
+  &[aria-checked='false'] {
+    background-color: ${RED_COLOR};
+  }
+  &[aria-checked='true'] {
+    background-color: ${GRAY_COLOR};
   }
 `;
 
@@ -360,8 +515,4 @@ const DropdownItem = styled.li`
     cursor: pointer;
     background-color: ${PRIMARY_VAR_COLOR};
   }
-`;
-
-const TestToggle = styled.div`
-  color: white;
 `;
