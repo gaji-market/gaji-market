@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
 import styled from 'styled-components';
 
 import { useGetSellAllQuery } from 'services/productApi';
 
 import Card from 'components/common/Card';
+import Button from 'components/common/Button';
 
 import { GRAY_COLOR } from 'components/common/commonColor';
 
@@ -54,6 +54,25 @@ export default function Home() {
           <Header>
             <Title>우리들의 가지마켓</Title>
             <SubText>중고거래, 어디로 가지~? 여기로 가지!</SubText>
+            <BtnGroup>
+              <Button
+                size='lg'
+                padding='0'
+                height='40px'
+                onClick={() => navigate('/products/pal')}
+              >
+                팔래요
+              </Button>
+              <Button
+                size='lg'
+                padding='0'
+                height='40px'
+                isOutline
+                onClick={() => navigate('/products/sal')}
+              >
+                살래요
+              </Button>
+            </BtnGroup>
           </Header>
         </Intro>
         <Divider />
@@ -132,6 +151,13 @@ const SubText = styled.p`
   font-size: 16px;
   padding-top: 7px;
   text-indent: 7px;
+`;
+
+const BtnGroup = styled.div`
+  padding-top: 40px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
 `;
 
 const Divider = styled.div`
