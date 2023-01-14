@@ -24,6 +24,11 @@
         delete from file where no=#{param1} and gubun='2';
     </delete>
 
+    <!-- 상세보기 파일가져오기 -->
+    <select id="findDetailFile" resultType="String">
+        select dbFileName from file where no=#{userNo} and gubun='1';
+    </select>
+
     <!-- 사용자 이미지 저장 -->
     <insert id="userFileSave" parameterType="java.util.Map">
         INSERT INTO file

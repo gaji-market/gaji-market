@@ -70,8 +70,6 @@ public interface ProductDAO {
     //상품 상세보기에서 회원정보 가져오기
     Map<String, Object> findUserInfo(int userNo);
 
-    String findDetailFile(int userNo);
-
     //채팅한 사람정보 가져오기
     List<Map<String, Object>> findChatUserInfo(int prodNo);
 
