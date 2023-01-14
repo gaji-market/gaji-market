@@ -28,10 +28,13 @@ export const productApi = createApi({
       query: () => 'categoryInfo',
     }),
     getProduct: builder.query({
-      query: (id) => `/${id}`,
-      headers: {
-        'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
-      },
+      query: (id) => ({
+        url: `/${id}`,
+        headers: {
+          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
+        },
+      }),
+
       providesTags: ['SellAll', 'BuyAll'],
     }),
     createSaleProduct: builder.mutation({
