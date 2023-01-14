@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 import {
+  DARK_GRAY_COLOR,
   GRAY_COLOR,
   PRIMARY_COLOR,
   SUB_COLOR,
@@ -212,10 +213,19 @@ export default function ProductDetailView() {
                 <ProfileImg />
                 <div>
                   <UserNickName>{product.userInfo.nickname}</UserNickName>
-                  <UserArea>{product.userInfo.address}</UserArea>
+                  <UserArea>
+                    {product.userInfo.address.split(' ').slice(0, 3).join(' ')}
+                  </UserArea>
                 </div>
               </ProfileWrapper>
-              <Button isDarkColor>정보보기</Button>
+              <Button
+                isDarkColor
+                customSize={'215px'}
+                height={'35px'}
+                padding={0}
+              >
+                정보보기
+              </Button>
             </UserInfo>
           </ProductMid>
 
@@ -480,15 +490,16 @@ const ProductMid = styled.div`
 `;
 
 const UserInfo = styled.div`
-  width: 200px;
-  margin: 20px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const UserInfoTitle = styled.h4`
   font-size: 18px;
   font-weight: 900;
   color: ${SUB_COLOR};
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 `;
 
 const ProfileWrapper = styled.div`
@@ -503,6 +514,8 @@ const ProfileImg = styled.div`
   height: 70px;
   border-radius: 100px;
   background: #ddd;
+  margin-bottom: 3px;
+  margin-right: 5px;
 `;
 
 const UserNickName = styled.p`
@@ -519,6 +532,10 @@ const ProductBottom = styled.div`
   height: 500px;
   padding: 20px;
   margin: 20px;
+
+  p {
+    color: ${DARK_GRAY_COLOR};
+  }
 `;
 
 const ProductInfoTitle = styled.h4`
