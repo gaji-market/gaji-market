@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { useNavigate, useLocation, NavLink, useParams } from 'react-router-dom';
 
 import styled from 'styled-components';
 
@@ -42,6 +42,7 @@ export default function AppBar() {
   const dispatch = useDispatch();
   const { addToast } = useToast();
   const { search } = useLocation();
+  const { type } = useParams();
   const [getChatRoomList] = useGetChatRoomListMutation();
 
   const modalRef = useRef(null);
@@ -117,6 +118,7 @@ export default function AppBar() {
         <ItemGroup>
           {toggles.productSwitch && (
             <ToggleSwitch
+              defaultValue={type === 'pal'}
               on={{
                 name: '팔래요',
                 handler: () => navigate(`products/pal${search}`),
