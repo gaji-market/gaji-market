@@ -22,7 +22,8 @@ import { RiTimerLine } from 'react-icons/ri';
 
 import {
   useGetProductQuery,
-  useIncreaseInterestMutation,
+  useChangeInterestCountMutation,
+  useChangeReportCountMutation,
 } from 'services/productApi';
 import { Error } from './index';
 import { SELL } from 'constants/params';
@@ -44,7 +45,9 @@ export default function ProductDetailView() {
     isLoading,
     isSuccess,
   } = useGetProductQuery(prodNo);
-  const [increaseInterestMutation] = useIncreaseInterestMutation();
+
+  const [changeInterestCountMutation] = useChangeInterestCountMutation();
+  const [changeReportCountMutation] = useChangeReportCountMutation();
 
   console.log(product);
 
@@ -86,6 +89,24 @@ export default function ProductDetailView() {
     }
   }, [slideX, product?.fileInfos]);
 
+  const changeInterestCountHandler = async () => {
+    try {
+      const result = changeInterestCountMutation(Number(prodNo)).unwrap();
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const changeReportCountHandler = async () => {
+    try {
+      const result = changeReportCountMutation(Number(prodNo)).unwrap();
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -93,15 +114,6 @@ export default function ProductDetailView() {
   if (isError) {
     return <Error />;
   }
-
-  const changeInterestCountHandler = async () => {
-    try {
-      const result = increaseInterestMutation(Number(prodNo)).unwrap();
-      console.log(result);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   return (
     <>
@@ -170,7 +182,13 @@ export default function ProductDetailView() {
                     <ReportIcon />
                     <span>신고 {product.productInfo.reportCnt}회</span>
                     <VerticalBar>|</VerticalBar>
-                    <span className='report-btn'>신고하기</span>
+                    <span
+                      className='report-btn'
+                      role='button'
+                      onClick={changeReportCountHandler}
+                    >
+                      신고하기
+                    </span>
                   </Report>
                   <Location>
                     <LocationIcon />
