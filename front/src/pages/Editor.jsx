@@ -47,7 +47,11 @@ export default function Editor() {
 
   const navigate = useNavigate();
 
-  const { data: productCategories, isSuccess, isError: ErrorByCategory } = useGetCategoriesQuery();
+  const {
+    data: productCategories,
+    isSuccess,
+    isError: ErrorByCategory,
+  } = useGetCategoriesQuery();
   const [largeCategory, setLargeCategory] = useState([]);
   const [midiumCategory, setMidiumCategory] = useState([]);
   const [smallCetegory, setSmallCategory] = useState([]);
@@ -86,12 +90,20 @@ export default function Editor() {
   );
 
   useEffect(() => {
-    if (param === SELL && formDatas.freeCheck === CHECK.o && isSelectedCategories) {
+    if (
+      param === SELL &&
+      formDatas.freeCheck === CHECK.o &&
+      isSelectedCategories
+    ) {
       // 무료나눔 O
       const callback = (formData) => !!formData.toString();
       return setIsCompleteForm(checkCompleteForm(1, 6, callback));
     }
-    if (param === SELL && formDatas.freeCheck === CHECK.x && isSelectedCategories) {
+    if (
+      param === SELL &&
+      formDatas.freeCheck === CHECK.x &&
+      isSelectedCategories
+    ) {
       // 무료나눔 X
       const callback = (formData) => formData && formDatas.imageFiles.length;
       return setIsCompleteForm(checkCompleteForm(0, 7, callback));
@@ -198,7 +210,10 @@ export default function Editor() {
         formData.append('imageFiles', item);
       });
 
-      formData.append('param', new Blob([JSON.stringify(formDatas)], { type: 'application/json' }));
+      formData.append(
+        'param',
+        new Blob([JSON.stringify(formDatas)], { type: 'application/json' })
+      );
 
       formDatas.imageFiles = formData;
 
@@ -229,7 +244,9 @@ export default function Editor() {
   const changeFileUploadHandler = ({ target }) => {
     const fileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
-    const extension = target.files[0].name.slice(findExtensionsIndex + 1).toLowerCase();
+    const extension = target.files[0].name
+      .slice(findExtensionsIndex + 1)
+      .toLowerCase();
 
     if (!fileExtensions.includes(extension)) {
       return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
@@ -241,7 +258,10 @@ export default function Editor() {
     [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
 
-      if (!(imgUrls.length >= MAX_UPLOAD_COUNT) && imgUrls.length < MAX_UPLOAD_COUNT) {
+      if (
+        !(imgUrls.length >= MAX_UPLOAD_COUNT) &&
+        imgUrls.length < MAX_UPLOAD_COUNT
+      ) {
         imgUrls.push(url);
         imgFiles.push(file);
       }
@@ -311,7 +331,9 @@ export default function Editor() {
       setTimeout(() => {
         current.style.opacity = '1';
         if (currentSlideNumber >= 0) {
-          current.style.transform = `translateX(${NEXT_X * currentSlideNumber}px)`;
+          current.style.transform = `translateX(${
+            NEXT_X * currentSlideNumber
+          }px)`;
         }
       }, 100);
 
@@ -346,7 +368,10 @@ export default function Editor() {
     if (isEmptyValue(newHashTag)) return;
 
     setFormDatas((prev) => {
-      return { ...prev, hashtags: [...new Set([...prev.hashtags, newHashTag.trim()])] };
+      return {
+        ...prev,
+        hashtags: [...new Set([...prev.hashtags, newHashTag.trim()])],
+      };
     });
 
     setInputHashTag('');
@@ -363,8 +388,6 @@ export default function Editor() {
   }, [formDatas.hashtags.length]);
 
   useEffect(() => {
-    console.log(formDatas.hashtags.length);
-
     if (formDatas.hashtags.length > MAX_HASHTAGS) {
       setFormDatas((prev) => ({
         ...prev,
@@ -448,12 +471,16 @@ export default function Editor() {
 
   useEffect(() => {
     //TODO: 리팩토링
-    if (Object.values(categoryDefaultValue).includes(userSelectedCategoryCode)) {
+    if (
+      Object.values(categoryDefaultValue).includes(userSelectedCategoryCode)
+    ) {
       return setIsSelectedCategories(false);
     }
 
-    if (currentCategories.md.length && userSelectedCategoryCode <= currentCategories.lg) {
-      console.log('ㅠㅠ');
+    if (
+      currentCategories.md.length &&
+      userSelectedCategoryCode <= currentCategories.lg
+    ) {
       return setIsSelectedCategories(false);
     } else if (
       !currentCategories.sm.length &&
@@ -461,7 +488,10 @@ export default function Editor() {
       userSelectedCategoryCode > categoryDefaultCode.lg
     ) {
       setIsSelectedCategories(true);
-    } else if (currentCategories.sm.length && userSelectedCategoryCode % categoryDefaultCode.sm) {
+    } else if (
+      currentCategories.sm.length &&
+      userSelectedCategoryCode % categoryDefaultCode.sm
+    ) {
       setIsSelectedCategories(true);
     } else setIsSelectedCategories(false);
 
@@ -477,7 +507,9 @@ export default function Editor() {
       setUserSelectedCategoryCode(target.value);
     } else if (!(target.value % categoryDefaultCode.md)) {
       if (currentCategories.sm.length) {
-        setUserSelectedCategoryCode(Math.max(userSelectedCategoryCode, target.value));
+        setUserSelectedCategoryCode(
+          Math.max(userSelectedCategoryCode, target.value)
+        );
       } else {
         setUserSelectedCategoryCode(target.value);
       }
@@ -499,7 +531,10 @@ export default function Editor() {
       });
     }
 
-    if (target.value !== categoryDefaultValue.md && !(target.value % categoryDefaultCode.md)) {
+    if (
+      target.value !== categoryDefaultValue.md &&
+      !(target.value % categoryDefaultCode.md)
+    ) {
       return setCurrentCategories((prev) => {
         const newSmCate = smallCetegory.filter((smCate) => {
           return smCate.cateParent === target.value;
@@ -524,7 +559,9 @@ export default function Editor() {
         <div>
           <ImageWrapper>
             {!imgSlide.length && (
-              <ImageUpLoaderLabel htmlFor='image-uploader'>이미지 등록</ImageUpLoaderLabel>
+              <ImageUpLoaderLabel htmlFor='image-uploader'>
+                이미지 등록
+              </ImageUpLoaderLabel>
             )}
 
             <ul className='img-slider' ref={imgSliderRef}>
@@ -538,7 +575,9 @@ export default function Editor() {
                       className='img-list'
                     >
                       <Image src={imageUrl} alt='upload_image' />
-                      <p className='img-page'>{`${idx + 1}/${imgSlide.length}`}</p>
+                      <p className='img-page'>{`${idx + 1}/${
+                        imgSlide.length
+                      }`}</p>
                       {showImgDeleteBtn && (
                         <button
                           type='button'
@@ -554,10 +593,18 @@ export default function Editor() {
             </ul>
             {imgSlide.length > 0 && (
               <div className='btn-wrapper'>
-                <button className='prev-btn' onClick={clickPrevImg} type='button'>
+                <button
+                  className='prev-btn'
+                  onClick={clickPrevImg}
+                  type='button'
+                >
                   ⥢ PREV
                 </button>
-                <button className='next-btn' onClick={clickNextImg} type='button'>
+                <button
+                  className='next-btn'
+                  onClick={clickNextImg}
+                  type='button'
+                >
                   NEXT ⥤
                 </button>
               </div>
@@ -588,7 +635,7 @@ export default function Editor() {
               <div>
                 <InputTitle isRequired title='가격' />
               </div>
-              <div>
+              {/* <div>
                 {formDatas.freeCheck === CHECK.x && param === SELL && (
                   <CheckBox
                     onChange={checkedAllowPriceSuggestions}
@@ -597,7 +644,7 @@ export default function Editor() {
                     title='가격 제안 허용'
                   />
                 )}
-              </div>
+              </div> */}
             </PriceTitleContainer>
 
             <PriceInputContainer>
@@ -616,7 +663,12 @@ export default function Editor() {
                 placeholderPosition='right'
               />
               {param === SELL && (
-                <CheckBox onChange={checkedFreeSharing} width='110px' id='free' title='무료나눔' />
+                <CheckBox
+                  onChange={checkedFreeSharing}
+                  width='110px'
+                  id='free'
+                  title='무료나눔'
+                />
               )}
             </PriceInputContainer>
           </TitleAndPriceWrapper>
@@ -624,7 +676,11 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <select onChange={changeSelectBoxHandler} className='select-box lg' required>
+              <select
+                onChange={changeSelectBoxHandler}
+                className='select-box lg'
+                required
+              >
                 <option value={0}>대분류</option>
                 {largeCategory?.map((largeCate) => {
                   return (
@@ -687,7 +743,11 @@ export default function Editor() {
               {formDatas.hashtags.length > 0 &&
                 formDatas.hashtags.map((hashTag) => {
                   return (
-                    <div onClick={removeHashtagClickHandler} key={hashTag} className='tag'>
+                    <div
+                      onClick={removeHashtagClickHandler}
+                      key={hashTag}
+                      className='tag'
+                    >
                       {hashTag}
                     </div>
                   );
@@ -716,7 +776,11 @@ export default function Editor() {
           >
             등록하기
           </Button>
-          <Button onClick={cancleAddingProductClickHandler} customSize='50%' isOutline>
+          <Button
+            onClick={cancleAddingProductClickHandler}
+            customSize='50%'
+            isOutline
+          >
             취소하기
           </Button>
         </div>
