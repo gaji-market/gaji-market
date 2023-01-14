@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
+
 import styled from 'styled-components';
 
 import {
@@ -11,6 +13,10 @@ import {
   useLazyRemoveChatMessageQuery,
   useLazyRemoveChatRoomQuery,
 } from 'services/chatApi';
+
+import { selectSession, endSession } from 'store/sessionSlice';
+
+import useToast from 'hooks/toast';
 
 import ToggleSwitch from 'components/common/ToggleSwitch';
 import Button from 'components/common/Button';
@@ -29,14 +35,16 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
 
 export default function AppBar() {
+  const { userId, isLoggedIn } = useSelector(selectSession);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { addToast } = useToast();
   const { search } = useLocation();
   const [getChatRoomList] = useGetChatRoomListMutation();
 
   const modalRef = useRef(null);
 
-  // TODO: ADD LOGIC
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const initToggles = { alarm: false, userId: false };
   const [toggles, setToggles] = useState(initToggles);
   const [chatRoomInfos, setChatRoomInfos] = useState([]);
@@ -67,6 +75,14 @@ export default function AppBar() {
         text='로그아웃 하시겠습니까?'
         leftBtnText='네'
         rightBtnText='아니요'
+        confirmHandler={() => {
+          dispatch(endSession());
+          addToast({
+            isToastSuccess: true,
+            isMainTheme: true,
+            toastMessage: '로그아웃 되었습니다.',
+          });
+        }}
       />
 
       <StyledWrapper className='fade-in'>
@@ -127,7 +143,7 @@ export default function AppBar() {
                   }
                 >
                   <FaUserCircle size={24} color={GRAY_COLOR} />
-                  <span>UserID</span>
+                  <span>{userId || ''}</span>
                 </Toggle>
                 {toggles.userId && (
                   <UserIdDropdown>
@@ -172,9 +188,6 @@ export default function AppBar() {
               </Button>
             </>
           )}
-          <TestToggle onClick={() => setIsLoggedIn((prev) => !prev)}>
-            test
-          </TestToggle>
         </ItemGroup>
       </StyledWrapper>
     </>

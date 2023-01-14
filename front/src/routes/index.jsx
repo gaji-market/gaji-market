@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, Route, Routes, Outlet, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
+import useToast from 'hooks/toast';
+
+import { setupSession, selectIsLoggedIn } from 'store/sessionSlice';
 
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
@@ -24,9 +29,17 @@ import Splash from 'components/common/Splash';
 export default function Router() {
   const splashRef = useRef(null);
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { addToast } = useToast();
+
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const [splashToggle, setSplashToggle] = useState(false);
 
   useEffect(() => {
+    // init session
+    dispatch(setupSession());
+
+    // splash
     if (location.pathname === '/') {
       setSplashToggle(true);
       if (splashRef.current) {
@@ -38,6 +51,16 @@ export default function Router() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isLoggedIn && location.pathname.includes('detail')) {
+      addToast({
+        isToastSuccess: true,
+        isMainTheme: true,
+        toastMessage: '해당 페이지 이용을 위해 로그인이 필요합니다.',
+      });
+    }
+  }, [location]);
+
   if (splashToggle) {
     return (
       <Routes>
@@ -46,12 +69,36 @@ export default function Router() {
     );
   }
 
+  if (!isLoggedIn) {
+    return (
+      <Routes>
+        <Route path='/' element={<Layout />}>
+          <Route index element={<Home />} />
+        </Route>
+
+        <Route element={<LayoutWithoutBar />}>
+          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<SignUp />} />
+        </Route>
+
+        <Route element={<Layout />}>
+          <Route path='/products' element={<Outlet />}>
+            <Route index element={<Navigate to='/products/pal' />} />
+            <Route path=':type' element={<ProductView />} />
+            <Route path=':type/detail/:id' element={<Navigate to='/login' />} />
+          </Route>
+        </Route>
+
+        <Route path='*' element={<Navigate to='/' />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
       <Route path='/' element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path='/test' element={<Test />} />
-        <Route path='/test/slice' element={<SliceTest />} />
+
         <Route path='/mypage' element={<MyPage />} />
         <Route path='/mypage/edit' element={<MyEditPage />} />
 
@@ -65,15 +112,11 @@ export default function Router() {
           <Route path=':type' element={<ProductView />} />
           <Route path=':type/detail/:id' element={<ProductDetailView />} />
         </Route>
+
         <Route path='/chat' element={<Chat />} />
       </Route>
 
-      <Route element={<LayoutWithoutBar />}>
-        <Route path='/login' element={<Login />} />
-        <Route path='/signup' element={<SignUp />} />
-      </Route>
-
-      <Route path='*' element={<Error />} />
+      <Route path='*' element={<Navigate to='/' />} />
     </Routes>
   );
 }
