@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
@@ -38,16 +38,24 @@ export default function AppBar() {
   const { userId, isLoggedIn } = useSelector(selectSession);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { addToast } = useToast();
   const { search } = useLocation();
   const [getChatRoomList] = useGetChatRoomListMutation();
 
   const modalRef = useRef(null);
+  const searchRef = useRef(null);
 
-  const initToggles = { alarm: false, userId: false };
+  const initToggles = { productSwitch: true, alarm: false, userId: false };
   const [toggles, setToggles] = useState(initToggles);
   const [chatRoomInfos, setChatRoomInfos] = useState([]);
+
+  const keydownHandler = (e) => {
+    if (e.key === 'Enter' && searchRef.current.value) {
+      navigate('/search?query=' + searchRef.current.value);
+    }
+  };
 
   const blurHandler = () => {
     setToggles(initToggles);
@@ -67,9 +75,19 @@ export default function AppBar() {
     }
   };
 
+  useEffect(() => {
+    if (!location.pathname.includes('/search') && searchRef.current) {
+      searchRef.current.value = '';
+    }
+    if (location.pathname.includes('products')) {
+      setToggles((prev) => ({ ...prev, productSwitch: true }));
+    } else {
+      setToggles((prev) => ({ ...prev, productSwitch: false }));
+    }
+  }, [location]);
+
   return (
     <>
-      {/* TODO: function 적용 */}
       <Modal
         ref={modalRef}
         text='로그아웃 하시겠습니까?'
@@ -97,20 +115,27 @@ export default function AppBar() {
           />
         </ItemGroup>
         <ItemGroup>
-          <Search type='search' />
-          <ToggleSwitch
-            on={{
-              name: '팔래요',
-              handler: () => navigate(`products/pal${search}`),
-            }}
-            off={{
-              name: '살래요',
-              handler: () => navigate(`products/sal${search}`),
-            }}
+          {toggles.productSwitch && (
+            <ToggleSwitch
+              on={{
+                name: '팔래요',
+                handler: () => navigate(`products/pal${search}`),
+              }}
+              off={{
+                name: '살래요',
+                handler: () => navigate(`products/sal${search}`),
+              }}
+            />
+          )}
+          <Search
+            type='search'
+            ref={searchRef}
+            placeholder='상품명을 입력하세요'
+            onKeyDown={keydownHandler}
           />
           {isLoggedIn ? (
             <>
-              {Object.values(toggles).includes(true) && (
+              {(toggles.alarm || toggles.userId) && (
                 <BlurContainer onClick={blurHandler} />
               )}
               <Alarm aria-expanded={toggles.alarm}>
