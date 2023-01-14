@@ -248,7 +248,7 @@ public class ProductServiceImpl implements ProductService {
 
         Map<String, Object> userInfo = productDAO.findUserInfo(userNo);
         System.out.println("userInfo = " + userInfo);
-        String detailFile = productDAO.findDetailFile(userNo);
+        String detailFile = fileDAO.findDetailFile(userNo);
         System.out.println("detailFile = " + detailFile);
 
         userInfo.put("dbFileName",detailFile);
