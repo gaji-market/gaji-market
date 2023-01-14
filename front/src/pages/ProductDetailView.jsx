@@ -2,14 +2,27 @@ import styled from 'styled-components';
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR, WHITE_COLOR } from 'components/common/commonColor';
+import {
+  GRAY_COLOR,
+  PRIMARY_COLOR,
+  SUB_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
 import Button from 'components/common/Button';
 
-import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
+import {
+  AiOutlineAlert,
+  AiOutlineEye,
+  AiOutlineHeart,
+  AiFillHeart,
+} from 'react-icons/ai';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { RiTimerLine } from 'react-icons/ri';
 
-import { useGetProductQuery } from 'services/productApi';
+import {
+  useGetProductQuery,
+  useIncreaseInterestMutation,
+} from 'services/productApi';
 import { Error } from './index';
 import { SELL } from 'constants/params';
 
@@ -19,7 +32,16 @@ export default function ProductDetailView() {
   const slideRef = useRef();
 
   const { type: param, id: prodNo } = useParams();
-  const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+
+  const {
+    data: product,
+    isError,
+    isLoading,
+    isSuccess,
+  } = useGetProductQuery(prodNo);
+  const [increaseInterestMutation] = useIncreaseInterestMutation();
+
+  console.log(product);
 
   const [productDate, setProductDate] = useState('');
   const [slideX, setSlideX] = useState(0);
@@ -67,6 +89,15 @@ export default function ProductDetailView() {
     return <Error />;
   }
 
+  const changeInterestCountHandler = async () => {
+    try {
+      const result = increaseInterestMutation(Number(prodNo)).unwrap();
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       {isSuccess && (
@@ -75,7 +106,10 @@ export default function ProductDetailView() {
             {product.categoryInfos.map((category, i) => {
               if (category) {
                 return (
-                  <span key={`${category.cateCode} ${i}`} className='category-depth'>
+                  <span
+                    key={`${category.cateCode} ${i}`}
+                    className='category-depth'
+                  >
                     {category?.cateName}
                   </span>
                 );
@@ -101,8 +135,16 @@ export default function ProductDetailView() {
               </ul>
               {product.fileInfos.length > 1 && (
                 <div className='slide-btns'>
-                  <span className='arrow arrow-left' role='button' onClick={clickPrevImg}></span>
-                  <span className='arrow arrow-right' onClick={clickNextImg} role='button'></span>
+                  <span
+                    className='arrow arrow-left'
+                    role='button'
+                    onClick={clickPrevImg}
+                  ></span>
+                  <span
+                    className='arrow arrow-right'
+                    onClick={clickNextImg}
+                    role='button'
+                  ></span>
                 </div>
               )}
             </div>
@@ -112,7 +154,9 @@ export default function ProductDetailView() {
                 <WatcherIcon />
                 <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
               </Watcher>
-              <ProductState>{param === SELL ? '판매중' : '구매중'}</ProductState>
+              <ProductState>
+                {param === SELL ? '판매중' : '구매중'}
+              </ProductState>
               <Title>{product.productInfo.prodName}</Title>
               <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
               <StatusWrapper>
@@ -133,21 +177,29 @@ export default function ProductDetailView() {
                   </DateCreated>
                 </Status>
                 <LikesWrapper>
-                  <HeartIcon />
+                  {!product.interestInfo.interestYN ? (
+                    <HeartIcon onClick={changeInterestCountHandler} />
+                  ) : (
+                    <FillHeartIcon onClick={changeInterestCountHandler} />
+                  )}
                   <LikesCount>{product.interestInfo.interestCnt}</LikesCount>
                 </LikesWrapper>
               </StatusWrapper>
 
               <ButtonWrapper>
-                <Button customSize='50%'>채팅하기</Button>
-                <Button isOutline isDarkColor customSize='50%'>
+                <Button customSize='100%'>채팅하기</Button>
+                {/* <Button isOutline isDarkColor customSize='50%'>
                   가격 제안하기
-                </Button>
+                </Button> */}
               </ButtonWrapper>
               <HashTags>
                 {product.hashTagInfos.length > 0 &&
                   product.hashTagInfos.map((hashtag, idx) => {
-                    return <HashTag key={`${hashtag.tagName}${idx}`}>#{hashtag.tagName}</HashTag>;
+                    return (
+                      <HashTag key={`${hashtag.tagName}${idx}`}>
+                        #{hashtag.tagName}
+                      </HashTag>
+                    );
                   })}
               </HashTags>
             </ProductSummary>
@@ -357,7 +409,7 @@ const HeartIcon = styled(AiOutlineHeart)`
 
 const FillHeartIcon = styled(AiFillHeart)`
   cursor: pointer;
-  font-size: 36px;
+  font-size: 45px;
 `;
 
 const LikesCount = styled.div``;
