@@ -63,6 +63,7 @@ export const alarmApi = createApi({
     }),
     getCheckCnt: query({
       // FIXME: userNo 삭제
+      providesTags: ['Alarm'],
       query: (userNo) => `getCheckCnt/${userNo}`,
       // response
       // {
@@ -70,11 +71,17 @@ export const alarmApi = createApi({
       //   intstCheckCnt: Number;
       // }
     }),
+    checkNotifi: query({
+      invalidatesTags: ['Alarm'],
+      query: (notiNo) => `checkNotifi/${notiNo}`,
+    }),
   }),
 });
 
 export const {
   useGetCheckCntQuery,
+  useLazyGetCheckCntQuery,
   useAddNotifiMutation,
   useGetNotifiListMutation,
+  useLazyCheckNotifiQuery,
 } = alarmApi;
