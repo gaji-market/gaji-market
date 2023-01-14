@@ -49,8 +49,6 @@ export default function ProductDetailView() {
   const [changeInterestCountMutation] = useChangeInterestCountMutation();
   const [changeReportCountMutation] = useChangeReportCountMutation();
 
-  console.log(product);
-
   const [productDate, setProductDate] = useState('');
   const [slideX, setSlideX] = useState(0);
 
@@ -91,7 +89,7 @@ export default function ProductDetailView() {
 
   const changeInterestCountHandler = async () => {
     try {
-      await changeInterestCountMutation(Number(prodNo));
+      await changeInterestCountMutation(prodNo);
     } catch (error) {
       console.error(error);
     }
@@ -99,7 +97,7 @@ export default function ProductDetailView() {
 
   const changeReportCountHandler = async () => {
     try {
-      await changeReportCountMutation(Number(prodNo));
+      await changeReportCountMutation(prodNo);
     } catch (error) {
       console.error(error);
     }
