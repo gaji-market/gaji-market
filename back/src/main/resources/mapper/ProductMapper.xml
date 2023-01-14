@@ -296,11 +296,14 @@
 
     <!-- 상세보기에서 유저 정보 찾기 -->
     <select id="findUserInfo" resultType="java.util.LinkedHashMap" parameterType="int">
-        select u.no as 'userNo',nickname,address,dbFileName
-        from user_info u
-                 inner join file f
-                            on u.no = f.no
-        where f.gubun='1' and u.no=#{userNo};
+        select no as 'userNo',nickname,address
+        from user_info
+        where no=#{userNo};
+    </select>
+
+    <!-- 상세보기 파일가져오기 -->
+    <select id="findDetailFile" resultType="String">
+        select dbFileName from file where no=#{userNo} and gubun='1';
     </select>
 
     <!-- 채팅한 유저 정보 찾기 -->
