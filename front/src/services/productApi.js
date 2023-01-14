@@ -32,6 +32,7 @@ export const productApi = createApi({
       headers: {
         'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
       },
+      providesTags: ['SellAll', 'BuyAll'],
     }),
     createSaleProduct: builder.mutation({
       query: (product) => ({
