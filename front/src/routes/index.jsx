@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Navigate, Route, Routes, Outlet, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
+import useToast from 'hooks/toast';
+
 import { setupSession, selectIsLoggedIn } from 'store/sessionSlice';
 
 import Layout from 'layouts/Layout';
@@ -28,6 +30,7 @@ export default function Router() {
   const splashRef = useRef(null);
   const location = useLocation();
   const dispatch = useDispatch();
+  const { addToast } = useToast();
 
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const [splashToggle, setSplashToggle] = useState(false);
@@ -48,6 +51,16 @@ export default function Router() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isLoggedIn && location.pathname.includes('detail')) {
+      addToast({
+        isToastSuccess: true,
+        isMainTheme: true,
+        toastMessage: '해당 페이지 이용을 위해 로그인이 필요합니다.',
+      });
+    }
+  }, [location]);
+
   if (splashToggle) {
     return (
       <Routes>
@@ -66,6 +79,14 @@ export default function Router() {
         <Route element={<LayoutWithoutBar />}>
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<SignUp />} />
+        </Route>
+
+        <Route element={<Layout />}>
+          <Route path='/products' element={<Outlet />}>
+            <Route index element={<Navigate to='/products/pal' />} />
+            <Route path=':type' element={<ProductView />} />
+            <Route path=':type/detail/:id' element={<Navigate to='/login' />} />
+          </Route>
         </Route>
 
         <Route path='*' element={<Navigate to='/' />} />
