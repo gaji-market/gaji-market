@@ -501,16 +501,17 @@ public class ProductServiceImpl implements ProductService {
 
         List<String> cateCode = categoryDAO.findCateCode(cateParent);//[10100, 10200, 10300, 10400, 10500]
         System.out.println("cateCode = " + cateCode);
-        cateCode.add(cateParent);
-        System.out.println("cateCode = " + cateCode);
-
-        List<String> listCateCode = categoryDAO.findListCateCode(cateCode);//[10101, 10102, 10103, 10104, 10201, 10202, 10501, 10502, 10503]
-        System.out.println("listCateCode = " + listCateCode);
-        for (int i = 0; i < listCateCode.size(); i++) {
-            String arr = listCateCode.get(i);
-            cateCode.add(arr);
+        if (cateParent==null){
+            System.out.println("cateCode null");
+        }else {
+            cateCode.add(cateParent);
+            List<String> listCateCode = categoryDAO.findListCateCode(cateCode);//[10101, 10102, 10103, 10104, 10201, 10202, 10501, 10502, 10503]
+            System.out.println("listCateCode = " + listCateCode);
+            for (int i = 0; i < listCateCode.size(); i++) {
+                String arr = listCateCode.get(i);
+                cateCode.add(arr);
+            }
         }
-
         System.out.println("cateCode = " + cateCode);
 
         result.put("cateCode",cateCode);

@@ -110,7 +110,7 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
                 and (<foreach collection="cateCode" item="arr" separator="or">
                 c.cateCode=#{arr}
@@ -148,11 +148,12 @@
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and (<foreach collection="cateCode" item="arr" separator="or">
+                and
+                (<foreach collection="cateCode" item="arr" separator="or">
                 c.cateCode=#{arr}
-            </foreach>)
+                </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
             f.gubun='2'
@@ -193,9 +194,10 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
             </if>
             </if>
-            <if test="cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                and (<foreach collection="cateCode" item="arr" separator="or">
+                and
+                (<foreach collection="cateCode" item="arr" separator="or">
                 c.cateCode=#{arr}
             </foreach>)
             </if>
@@ -258,7 +260,7 @@
                 and (p.prodName like concat('%',#{body.search},'%') or p.address like concat('%',#{body.search},'%') or h.tagName like concat('%',#{body.search},'%'))
                                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
             </if>
-            <if test="cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
                 and (<foreach collection="cateCode" item="arr" separator="or">
                 c.cateCode=#{arr}
