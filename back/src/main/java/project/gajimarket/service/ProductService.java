@@ -60,6 +60,7 @@ public interface ProductService {
      * 아래는 보류
      */
 
+
     //채팅한 사람정보 가져오기
     List<Map<String, Object>> findChatUserInfo(int prodNo);
 

@@ -244,7 +244,14 @@ public class ProductServiceImpl implements ProductService {
         //상품 등록한 회원 정보 가져오기(닉네임,주소,프로필 사진 이미지)
         int loginUserNo = loginUserNo();
         int userNo = productDAO.findUserNo(prodNo);
+        System.out.println("userNo = " + userNo);
+
         Map<String, Object> userInfo = productDAO.findUserInfo(userNo);
+        System.out.println("userInfo = " + userInfo);
+        String detailFile = productDAO.findDetailFile(userNo);
+        System.out.println("detailFile = " + detailFile);
+
+        userInfo.put("dbFileName",detailFile);
         userInfo.put("loginUserNo",loginUserNo);
 
         result.put("userInfo",userInfo);
