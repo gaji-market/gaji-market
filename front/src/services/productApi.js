@@ -8,18 +8,18 @@ export const productApi = createApi({
 
   endpoints: (builder) => ({
     getSellAll: builder.query({
-      query: ({ recordCount, currentPage, sort, search }) =>
-        `sellAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}&search=${
-          search || ''
-        }`,
+      query: ({ recordCount, currentPage, sort, search, cateCode }) =>
+        `sellAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}${
+          search ? `&search=${search}` : ''
+        }${cateCode ? `&cateCode=${cateCode}` : ''}`,
       providesTags: ['SellAll'],
       keepUnusedDataFor: 0,
     }),
     getBuyAll: builder.query({
-      query: ({ recordCount, currentPage, sort, search }) =>
-        `buyAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}&search=${
-          search || ''
-        }`,
+      query: ({ recordCount, currentPage, sort, search, cateCode }) =>
+        `buyAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}${
+          search ? `&search=${search}` : ''
+        }${cateCode ? `&cateCode=${cateCode}` : ''}`,
       providesTags: ['BuyAll'],
       keepUnusedDataFor: 0,
     }),
