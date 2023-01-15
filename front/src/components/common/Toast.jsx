@@ -63,6 +63,7 @@ to{
   }
 `;
 const ToastContainer = styled.div`
+  z-index: 999;
   position: absolute;
   right: 3%;
   top: 7%;
@@ -77,7 +78,8 @@ const ToastBox = styled.div`
   align-items: center;
   word-wrap: break-word;
   color: red;
-  animation: ${toastFadeIn} 0.3s 0s linear forwards, ${toastFadeOut} 0.5s 3s linear forwards;
+  animation: ${toastFadeIn} 0.3s 0s linear forwards,
+    ${toastFadeOut} 0.5s 3s linear forwards;
   font-weight: 800;
   .Check {
     margin-right: 15px;
@@ -92,7 +94,11 @@ const ToastBox = styled.div`
   }
 
   ${({ toastPosition }) => css`
-    top: ${toastPosition === 'top' ? '5%' : toastPosition === 'center' ? '40%' : '85%'};
+    top: ${toastPosition === 'top'
+      ? '5%'
+      : toastPosition === 'center'
+      ? '40%'
+      : '85%'};
   `}
 
   ${({ isMainTheme }) =>
