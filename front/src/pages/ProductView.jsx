@@ -2,11 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 
-import {
-  useChangeInterestCountMutation,
-  useGetBuyAllQuery,
-  useGetSellAllQuery,
-} from 'services/productApi';
+import { useGetBuyAllQuery, useGetSellAllQuery } from 'services/productApi';
 
 import styled from 'styled-components';
 
@@ -63,8 +59,6 @@ export default function ProductView() {
   });
   const buyAllOption = { skip: param !== BUY };
   const getBuyAll = useGetBuyAllQuery(pageQueryForPurchase, buyAllOption);
-
-  const [changeInterestCountMutation] = useChangeInterestCountMutation();
 
   const [products, setProducts] = useState(null);
   const [currentParamItems, setCurrentParamItems] = useState();
@@ -202,13 +196,7 @@ export default function ProductView() {
         leftBtnText='네! 좋아요.'
         rightBtnText='아니요, 괜찮아요!'
         confirmHandler={() => {
-          if (type === SELL) {
-            navigate('/write/pal');
-          }
-
-          if (type === BUY) {
-            navigate('/write/sal');
-          }
+          navigate(`/write/${param}`);
         }}
       />
 
