@@ -66,5 +66,6 @@ export const { setupSession, startSession, endSession } = sessionSlice.actions;
 
 export const selectSession = (state) => state.session;
 export const selectIsLoggedIn = (state) => state.session.isLoggedIn;
+export const selectUserNo = (state) => state.session.userNo;
 
 export default sessionSlice.reducer;
