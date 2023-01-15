@@ -74,6 +74,33 @@ export default function ProductView() {
     sal: getBuyAll,
   };
 
+  const setQuery = {
+    pal: setPageQueryForSale,
+    sal: setPageQueryForPurchase,
+  };
+
+  const pageQuery = {
+    pal: pageQueryForSale,
+    sal: pageQueryForPurchase,
+  };
+
+  const cards = {
+    pal: saleCards,
+    sal: purchaseCards,
+  };
+
+  const setCard = {
+    pal: setSaleCards,
+    sal: setPurchaseCards,
+  };
+
+  const getCards = () => {
+    setQuery[param]((prev) => ({
+      ...prev,
+      currentPage: prev.currentPage + 1,
+    }));
+  };
+
   useEffect(() => {
     setCurrentPageParam(param);
 
@@ -107,23 +134,6 @@ export default function ProductView() {
   if (products) {
     lastPage.current = getAllProducts[param].data?.schPage.totalPageCount;
   }
-
-  const setQuery = {
-    pal: setPageQueryForSale,
-    sal: setPageQueryForPurchase,
-  };
-
-  const getCards = () => {
-    setQuery[param]((prev) => ({
-      ...prev,
-      currentPage: prev.currentPage + 1,
-    }));
-  };
-
-  const setCard = {
-    pal: setSaleCards,
-    sal: setPurchaseCards,
-  };
 
   useEffect(() => {
     if (products && getAllProducts?.[param]?.isSuccess) {
@@ -159,11 +169,6 @@ export default function ProductView() {
       }, 500);
     }
   }, [getAllProducts]);
-
-  const pageQuery = {
-    sal: pageQueryForPurchase,
-    pal: pageQueryForSale,
-  };
 
   useEffect(() => {
     if (getAllProducts[param]?.isFetching) return;
@@ -215,9 +220,8 @@ export default function ProductView() {
           </SubText>
         </Header>
         <CardContainer>
-          {param === SELL &&
-            saleCards.length > 0 &&
-            saleCards.map((product) => {
+          {cards[param].length > 0 &&
+            cards[param].map((product) => {
               const {
                 address,
                 dbFileName,
@@ -247,37 +251,6 @@ export default function ProductView() {
               );
             })}
 
-          {param === BUY &&
-            purchaseCards.length > 0 &&
-            purchaseCards.map((product) => {
-              const {
-                address,
-                dbFileName,
-                interestCnt,
-                interestYN,
-                prodName,
-                prodNo,
-                prodPrice,
-                tradState,
-              } = product;
-              return (
-                <Card
-                  key={prodNo}
-                  productImage={
-                    dbFileName
-                      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
-                      : null
-                  }
-                  title={prodName}
-                  price={prodPrice.toLocaleString()}
-                  area={address}
-                  likes={interestCnt.toLocaleString()}
-                  isInterest={interestYN}
-                  state={tradState}
-                  onClick={moveProductDetail(prodNo)}
-                />
-              );
-            })}
           {showSkeletonCard &&
             Array(skeletonCardCount)
               .fill()
