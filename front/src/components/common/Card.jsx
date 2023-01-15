@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
-
 import StateBadge from './StateBadge';
-
+import { useChangeInterestCountMutation } from 'services/productApi';
 const PRODUCT_STATE = {
   0: '판매중',
   1: '구매중',
@@ -25,11 +24,26 @@ export default function Card({
   isInterest,
   title,
   price,
+  prodNo,
   area,
   likes,
   state,
   onClick,
 }) {
+  const [InterestState, setIsInterestState] = useState(isInterest);
+  const [likesState, setLikesState] = useState(likes);
+  const [changeInterestCountMutation] = useChangeInterestCountMutation();
+
+  async function isInterestClick() {
+    try {
+      const res = await changeInterestCountMutation(prodNo).unwrap();
+
+      setIsInterestState(() => res.interestInfo.interestYN);
+      setLikesState(() => res.interestInfo.interestCnt);
+    } catch (error) {
+      console.error(error);
+    }
+  }
   return (
     <CardContainer onClick={onClick}>
       <CardHead>
@@ -61,12 +75,15 @@ export default function Card({
               {area.split(' ').slice(ADDRESS.start, ADDRESS.end).join(' ')}
             </AreaText>
             <LikesWrapper>
-              {isInterest ? (
-                <FillHeartIcon className='fillHeart' />
+              {InterestState ? (
+                <FillHeartIcon
+                  onClick={isInterestClick}
+                  className='fillHeart'
+                />
               ) : (
-                <HeartIcon className='emptyHeart' />
+                <HeartIcon onClick={isInterestClick} className='emptyHeart' />
               )}
-              <LikesCount>{likes}</LikesCount>
+              <LikesCount>{likesState}</LikesCount>
             </LikesWrapper>
           </SubContent>
         </CardContent>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import styled, { css } from 'styled-components';
-import io from 'socket.io-client';
+//import io from 'socket.io-client';
 
 import {
   useGetChatRoomListMutation,
@@ -98,9 +98,7 @@ export default function Chat() {
           {chatRoomInfos.map((item, i) => (
             <ChatItem
               key={item.chatNo}
-              className={
-                target?.id === `${item.userNo}_${item.chatNo}` ? 'current' : ''
-              }
+              className={target?.id === `${item.userNo}_${item.chatNo}` ? 'current' : ''}
               onClick={() => getChatRoomHandler(item)}
             >
               <Box padding='8px' center='true'>
@@ -110,9 +108,7 @@ export default function Chat() {
               </Box>
               <Box padding='8px' fill='true'>
                 <UserInfo>
-                  <Avatar>
-                    {item.avatar && <img src={item.avatar} alt='avatar.jpg' />}
-                  </Avatar>
+                  <Avatar>{item.avatar && <img src={item.avatar} alt='avatar.jpg' />}</Avatar>
                   <Username>{item.nickname}</Username>
                 </UserInfo>
                 <LastMsg>{item.lastMessage}</LastMsg>
