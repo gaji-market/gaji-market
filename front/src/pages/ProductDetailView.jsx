@@ -1,11 +1,22 @@
 import styled from 'styled-components';
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
-import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR, WHITE_COLOR } from 'components/common/commonColor';
+import {
+  GRAY_COLOR,
+  PRIMARY_COLOR,
+  SUB_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
 import Button from 'components/common/Button';
+import Modal from 'components/common/Modal';
 
-import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
+import {
+  AiOutlineAlert,
+  AiOutlineEye,
+  AiOutlineHeart,
+  AiFillHeart,
+} from 'react-icons/ai';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { RiTimerLine } from 'react-icons/ri';
 
@@ -17,9 +28,16 @@ const NEXT_X = 400;
 
 export default function ProductDetailView() {
   const slideRef = useRef();
+  const modalRef = useRef(null);
 
+  const navigate = useNavigate();
   const { type: param, id: prodNo } = useParams();
-  const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+  const {
+    data: product,
+    isError,
+    isLoading,
+    isSuccess,
+  } = useGetProductQuery(prodNo);
 
   const [productDate, setProductDate] = useState('');
   const [slideX, setSlideX] = useState(0);
@@ -75,7 +93,10 @@ export default function ProductDetailView() {
             {product.categoryInfos.map((category, i) => {
               if (category) {
                 return (
-                  <span key={`${category.cateCode} ${i}`} className='category-depth'>
+                  <span
+                    key={`${category.cateCode} ${i}`}
+                    className='category-depth'
+                  >
                     {category?.cateName}
                   </span>
                 );
@@ -101,8 +122,16 @@ export default function ProductDetailView() {
               </ul>
               {product.fileInfos.length > 1 && (
                 <div className='slide-btns'>
-                  <span className='arrow arrow-left' role='button' onClick={clickPrevImg}></span>
-                  <span className='arrow arrow-right' onClick={clickNextImg} role='button'></span>
+                  <span
+                    className='arrow arrow-left'
+                    role='button'
+                    onClick={clickPrevImg}
+                  ></span>
+                  <span
+                    className='arrow arrow-right'
+                    onClick={clickNextImg}
+                    role='button'
+                  ></span>
                 </div>
               )}
             </div>
@@ -112,7 +141,9 @@ export default function ProductDetailView() {
                 <WatcherIcon />
                 <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
               </Watcher>
-              <ProductState>{param === SELL ? '판매중' : '구매중'}</ProductState>
+              <ProductState>
+                {param === SELL ? '판매중' : '구매중'}
+              </ProductState>
               <Title>{product.productInfo.prodName}</Title>
               <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
               <StatusWrapper>
@@ -139,7 +170,24 @@ export default function ProductDetailView() {
               </StatusWrapper>
 
               <ButtonWrapper>
-                <Button customSize='50%'>채팅하기</Button>
+                <Button
+                  customSize='50%'
+                  onClick={() => modalRef.current?.showModal()}
+                >
+                  채팅하기
+                </Button>
+                <Modal
+                  ref={modalRef}
+                  text={`${
+                    param === SELL ? '판매자' : '구매자'
+                  }와 채팅을 시작하시겠습니까?`}
+                  leftBtnText='네'
+                  rightBtnText='아니요'
+                  confirmHandler={() =>
+                    navigate(`/chat/${product.userInfo.userNo}`)
+                  }
+                />
+
                 <Button isOutline isDarkColor customSize='50%'>
                   가격 제안하기
                 </Button>
@@ -147,7 +195,11 @@ export default function ProductDetailView() {
               <HashTags>
                 {product.hashTagInfos.length > 0 &&
                   product.hashTagInfos.map((hashtag, idx) => {
-                    return <HashTag key={`${hashtag.tagName}${idx}`}>#{hashtag.tagName}</HashTag>;
+                    return (
+                      <HashTag key={`${hashtag.tagName}${idx}`}>
+                        #{hashtag.tagName}
+                      </HashTag>
+                    );
                   })}
               </HashTags>
             </ProductSummary>
