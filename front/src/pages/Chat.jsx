@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 import styled, { css } from 'styled-components';
 //import io from 'socket.io-client';
@@ -13,6 +15,8 @@ import {
   useLazyRemoveChatRoomQuery,
 } from 'services/chatApi';
 
+import { selectUserNo } from 'store/sessionSlice';
+
 import {
   DARK_GRAY_COLOR,
   GRAY_COLOR,
@@ -26,13 +30,17 @@ const TEMP_SERVER_URL = 'http://localhost:8080';
 export default function Chat() {
   const [getChatRoomList] = useGetChatRoomListMutation();
   const [getChatRoom] = useLazyGetChatRoomQuery();
+  const [addChatRoom] = useAddChatRoomMutation();
   // const socket = io.connect(TEMP_SERVER_URL);
+
+  const { id: prodNo } = useParams();
 
   const [target, setTarget] = useState(null);
   const [msg, setMsg] = useState('');
   const [messages, setMessages] = useState([]);
-
   const [chatRoomInfos, setChatRoomInfos] = useState([]);
+
+  const userNo = useSelector(selectUserNo);
 
   // useEffect(() => {
   //   socket.on('chat', (payload) => {
@@ -69,8 +77,22 @@ export default function Chat() {
     }
   };
 
+  const addChatRoomHandler = async (prodNo, userNo) => {
+    try {
+      const res = await addChatRoom({
+        prodNo: prodNo,
+        userNo: userNo,
+      }).unwrap();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     getChatRoomListHandler();
+    if (prodNo && userNo) {
+      addChatRoomHandler(prodNo, userNo);
+    }
   }, []);
 
   const changeHandler = (e) => {

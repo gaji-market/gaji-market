@@ -272,9 +272,7 @@ export default function ProductDetailView() {
                       }와 채팅을 시작하시겠습니까?`}
                       leftBtnText='네'
                       rightBtnText='아니요'
-                      confirmHandler={() =>
-                        navigate(`/chat/${data.userInfo.userNo}`)
-                      }
+                      confirmHandler={() => navigate(`/chat/${prodNo}`)}
                     />
                     {/* <Button isOutline isDarkColor customSize='50%'>
                       가격 제안하기
