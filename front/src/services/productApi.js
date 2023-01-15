@@ -88,6 +88,8 @@ export const productApi = createApi({
 export const {
   useGetSellAllQuery,
   useGetBuyAllQuery,
+  useLazyGetSellAllQuery,
+  useLazyGetBuyAllQuery,
   useGetCategoriesQuery,
   useGetProductQuery,
   useChangeInterestCountMutation,
