@@ -20,4 +20,17 @@
     <select id="findCateParent" parameterType="String" resultType="String">
         select cateParent from category where cateCode=#{cateCode};
     </select>
+
+    <select id="findCateCode" resultType="String" parameterType="String">
+        select cateCode from category where cateParent=#{cateParent};
+    </select>
+
+    <select id="findListCateCode" parameterType="list" resultType="String">
+        select cateCode from category where
+        <foreach collection="cateCode" item="arr" separator="or">
+            cateParent=#{arr}
+        </foreach>
+    </select>
+
+
 </mapper>

@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.*;
+import project.gajimarket.model.file.UploadFile;
+import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
 import java.io.IOException;
@@ -22,12 +24,6 @@ import java.util.*;
 public class ProductController {
 
     private final ProductService productService;
-
-    @PostMapping(value = "/test",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-    public void test(@RequestParam Map<String,Object> param,@RequestBody Map<String,Object> param2){
-        System.out.println("param = " + param);
-        System.out.println("param2 = " + param2);
-    }
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
@@ -51,8 +47,12 @@ public class ProductController {
     @PostMapping(value = "/buySave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
     public Map<String, Object> buySave(@RequestPart Map<String,Object> param, @RequestPart(required = false) List<MultipartFile> imageFiles) throws IOException {
 
-        for (MultipartFile imageFile : imageFiles) {
-            log.info("imageFiles={}", imageFile.getOriginalFilename());
+        if (imageFiles==null){
+            System.out.println("No image");
+        }else {
+            for (MultipartFile imageFile : imageFiles) {
+                log.info("imageFiles={}", imageFile.getOriginalFilename());
+            }
         }
         log.info("param={}",param);
 
@@ -163,11 +163,15 @@ public class ProductController {
     //별점이랑 후기 저장
     //채팅한사람 클릭후 여기로 넘어옴 별점정보랑 후기작성 데이터 넘어오면 가지고와서 저장
     @PostMapping("/{prodNo}/scoreSave")
-    public void productScoreSave(@PathVariable int prodNo,@ModelAttribute ScoreDTO scoreDTO, @RequestParam int userNo){
+    public void productScoreSave(@RequestBody Map<String,Object> param,@ModelAttribute ScoreDTO scoreDTO){
+
+        // param 으로 prodNo,userNo가 넘어온다 userNo는 어떤사람한테 팔았는지 클릭한사람 userNo
+        int prodNo = (int) param.get("prodNo");
+        int userNo = (int) param.get("userNo");
 
         //게시글 등록한 사람의 회원 번호가져오기
-        //int findUserNo = productService.findUserNo(prodNo); 보류여서 주석해놈
-        //scoreDTO.setUserNo(findUserNo); 보류여서 주석해놈
+        //int findUserNo = productService.findUserNo(prodNo);
+        //scoreDTO.setUserNo(findUserNo);
         //상품 번호 저장
         scoreDTO.setProdNo(prodNo);
         //별점 정보 저장 (후기포함)

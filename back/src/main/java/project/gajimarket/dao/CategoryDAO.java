@@ -15,4 +15,8 @@ public interface CategoryDAO {
     Map<String, Object> findCategoryInfo(String cateCode);
 
     String findCateParent(String cateCode);
+
+    List<String> findCateCode(String cateParent);
+
+    List<String> findListCateCode(List<String> cateCode);
 }

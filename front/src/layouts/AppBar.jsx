@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react';
-import { useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useLocation, NavLink, useParams } from 'react-router-dom';
+
 import styled from 'styled-components';
 
 import {
@@ -12,6 +14,10 @@ import {
   useLazyRemoveChatRoomQuery,
 } from 'services/chatApi';
 
+import { selectSession, endSession } from 'store/sessionSlice';
+
+import useToast from 'hooks/toast';
+
 import ToggleSwitch from 'components/common/ToggleSwitch';
 import Button from 'components/common/Button';
 import Modal from 'components/common/Modal';
@@ -23,23 +29,35 @@ import {
   GRAY_COLOR,
   PRIMARY_VAR_COLOR,
   DARK_GRAY_COLOR,
+  WHITE_COLOR,
 } from 'components/common/commonColor';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
 
 export default function AppBar() {
+  const { userId, isLoggedIn } = useSelector(selectSession);
+
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { addToast } = useToast();
   const { search } = useLocation();
+  const { type } = useParams();
   const [getChatRoomList] = useGetChatRoomListMutation();
 
   const modalRef = useRef(null);
+  const searchRef = useRef(null);
 
-  // TODO: ADD LOGIC
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const initToggles = { alarm: false, userId: false };
+  const initToggles = { productSwitch: true, alarm: false, userId: false };
   const [toggles, setToggles] = useState(initToggles);
   const [chatRoomInfos, setChatRoomInfos] = useState([]);
+
+  const keydownHandler = (e) => {
+    if (e.key === 'Enter' && searchRef.current.value) {
+      navigate(`/search?query=${searchRef.current.value}`);
+    }
+  };
 
   const blurHandler = () => {
     setToggles(initToggles);
@@ -59,14 +77,32 @@ export default function AppBar() {
     }
   };
 
+  useEffect(() => {
+    if (!location.pathname.includes('/search') && searchRef.current) {
+      searchRef.current.value = '';
+    }
+    if (location.pathname.includes('products')) {
+      setToggles((prev) => ({ ...prev, productSwitch: true }));
+    } else {
+      setToggles((prev) => ({ ...prev, productSwitch: false }));
+    }
+  }, [location]);
+
   return (
     <>
-      {/* TODO: function 적용 */}
       <Modal
         ref={modalRef}
         text='로그아웃 하시겠습니까?'
         leftBtnText='네'
         rightBtnText='아니요'
+        confirmHandler={() => {
+          dispatch(endSession());
+          addToast({
+            isToastSuccess: true,
+            isMainTheme: true,
+            toastMessage: '로그아웃 되었습니다.',
+          });
+        }}
       />
 
       <StyledWrapper className='fade-in'>
@@ -81,20 +117,28 @@ export default function AppBar() {
           />
         </ItemGroup>
         <ItemGroup>
-          <Search type='search' />
-          <ToggleSwitch
-            on={{
-              name: '팔래요',
-              handler: () => navigate(`products/pal${search}`),
-            }}
-            off={{
-              name: '살래요',
-              handler: () => navigate(`products/sal${search}`),
-            }}
+          {toggles.productSwitch && (
+            <ToggleSwitch
+              defaultValue={type === 'pal'}
+              on={{
+                name: '팔래요',
+                handler: () => navigate(`products/pal${search}`),
+              }}
+              off={{
+                name: '살래요',
+                handler: () => navigate(`products/sal${search}`),
+              }}
+            />
+          )}
+          <Search
+            type='search'
+            ref={searchRef}
+            placeholder='상품명을 입력하세요'
+            onKeyDown={keydownHandler}
           />
           {isLoggedIn ? (
             <>
-              {Object.values(toggles).includes(true) && (
+              {(toggles.alarm || toggles.userId) && (
                 <BlurContainer onClick={blurHandler} />
               )}
               <Alarm aria-expanded={toggles.alarm}>
@@ -127,7 +171,7 @@ export default function AppBar() {
                   }
                 >
                   <FaUserCircle size={24} color={GRAY_COLOR} />
-                  <span>UserID</span>
+                  <span>{userId || ''}</span>
                 </Toggle>
                 {toggles.userId && (
                   <UserIdDropdown>
@@ -172,11 +216,9 @@ export default function AppBar() {
               </Button>
             </>
           )}
-          <TestToggle onClick={() => setIsLoggedIn((prev) => !prev)}>
-            test
-          </TestToggle>
         </ItemGroup>
       </StyledWrapper>
+      <Spacer />
     </>
   );
 }
@@ -188,7 +230,15 @@ const menubarHandler = () => {
   }
 };
 
+const Spacer = styled.div`
+  height: 56px;
+`;
+
 const StyledWrapper = styled.div`
+  position: fixed;
+  width: 100vw;
+  top: 0;
+  z-index: 10000000;
   display: flex;
   column-gap: 16px;
   align-items: center;
@@ -197,6 +247,7 @@ const StyledWrapper = styled.div`
   height: 56px;
   box-sizing: border-box;
   border-bottom: 2px solid ${PRIMARY_COLOR};
+  background-color: ${WHITE_COLOR};
 `;
 
 const ItemGroup = styled.div`

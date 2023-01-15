@@ -10,8 +10,8 @@ import project.gajimarket.model.*;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
-import project.gajimarket.service.UserService;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -113,16 +113,17 @@ public class ProductServiceImpl implements ProductService {
             for (String tagName : tagNames) {
                 hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
             }
-            /**
-             * 파일이 없을수 있음
-             * 안되면 if문 써서 잇고 없고 해주기
-             */
+
             //파일 저장
-            List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
-            for (int i = 0; i < storeImageFiles.size(); i++) {
-                String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-                String dbFileName = storeImageFiles.get(i).getDbFileName();
-                fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+            if (imageFiles==null){
+                System.out.println("No image");
+            }else {
+                List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+                for (int i = 0; i < storeImageFiles.size(); i++) {
+                    String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+                    String dbFileName = storeImageFiles.get(i).getDbFileName();
+                    fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+                }
             }
             result.put("result","Success");
         }catch (Exception e){
@@ -238,18 +239,24 @@ public class ProductServiceImpl implements ProductService {
         Map<String,Object> result = new LinkedHashMap<>();
 
         //조회수 증가
-        productDAO.viewCntUpdate(prodNo);
+        viewCountUp(prodNo);
 
         //상품 등록한 회원 정보 가져오기(닉네임,주소,프로필 사진 이미지)
         int loginUserNo = loginUserNo();
         int userNo = productDAO.findUserNo(prodNo);
+        System.out.println("userNo = " + userNo);
+
         Map<String, Object> userInfo = productDAO.findUserInfo(userNo);
+        System.out.println("userInfo = " + userInfo);
+        String detailFile = fileDAO.findDetailFile(userNo);
+        System.out.println("detailFile = " + detailFile);
+
+        userInfo.put("dbFileName",detailFile);
         userInfo.put("loginUserNo",loginUserNo);
 
         result.put("userInfo",userInfo);
 
         //좋아요 정보
-
         Map<String,Object> interestInfo = new LinkedHashMap<>();
         Integer interestYN = interestDAO.findInterest(prodNo, loginUserNo);
         if (interestYN==null){
@@ -301,9 +308,11 @@ public class ProductServiceImpl implements ProductService {
 
         int prodNo = (int) param.get("prodNo");
         interestDTO.setProdNo(prodNo);
+        System.out.println("prodNo = " + prodNo);
 
         int loginUserNo = loginUserNo();
         interestDTO.setUserNo(loginUserNo);
+        System.out.println("loginUserNo = " + loginUserNo);
 
         Integer interestYN = interestDAO.findInterest(interestDTO.getProdNo(), interestDTO.getUserNo());
         if (interestYN==null){
@@ -348,7 +357,7 @@ public class ProductServiceImpl implements ProductService {
        return result;
     }
 
-    // 경매 기능
+    // 경매 기능(삭제)
     @Override
     public void priceOfferUpdate(Map<String,Object> param) {
         int prodNo = (int) param.get("prodNo");
@@ -365,7 +374,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    //태그 클릭
+    //태그 클릭(삭제)
     @Override
     public void tagClick(Map<String,Object> param) throws IOException {
         int prodNo = (int) param.get("prodNo");
@@ -386,7 +395,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    //카테고리 클릭
+    //카테고리 클릭(삭제)
     @Override
     public void categoryClick(Map<String,Object> param) throws IOException {
         int prodNo = (int) param.get("prodNo");
@@ -404,7 +413,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    //메인카테고리 클릭
+    //메인카테고리 클릭 (삭제예정)
     public void mainCategoryClick(Map<String,Object> param) throws IOException {
         String tradeState = (String) param.get("tradeState");
         Integer largeCateNo = (Integer) param.get("largeCateNo");
@@ -444,6 +453,10 @@ public class ProductServiceImpl implements ProductService {
         int loginUserNo = loginUserNo();
         //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
         result.put("loginUserNo",loginUserNo);
+
+        //메인화면 카테고리 클릭 메소드
+        category(result);
+
         System.out.println("result = " + result);
 
         List<Map<String, Object>> sellInfos = productDAO.findSellAll(result);
@@ -466,6 +479,10 @@ public class ProductServiceImpl implements ProductService {
         int loginUserNo = loginUserNo();
         //로그인 완성되면 로그인 한사람 findSellAll에 넣어서 로그인한 회원이 좋아요한거 찾아줌
         result.put("loginUserNo",loginUserNo);
+
+        //메인화면 카테고리 클릭 메소드
+        category(result);
+
         System.out.println("result = " + result);
 
         List<Map<String, Object>> buyInfos = productDAO.findBuyAll(result);
@@ -481,6 +498,37 @@ public class ProductServiceImpl implements ProductService {
         return result2;
     }
 
+    /**
+     * 메인화면 카테고리 클릭 메소드
+     */
+    private void category(Map<String, Object> result) {
+        //메인에서 10000을 클릭햇다면?
+        Map<String,Object> param = (Map<String, Object>) result.get("param");
+        System.out.println("param = " + param);
+        String cateParent = (String) param.get("cateCode");
+        System.out.println("cateParent = " + cateParent);
+
+        List<String> cateCode = categoryDAO.findCateCode(cateParent);//[10100, 10200, 10300, 10400, 10500]
+        System.out.println("cateCode = " + cateCode);
+        if (cateParent==null){
+            System.out.println("cateCode null");
+        }else {
+            cateCode.add(cateParent);
+            List<String> listCateCode = categoryDAO.findListCateCode(cateCode);//[10101, 10102, 10103, 10104, 10201, 10202, 10501, 10502, 10503]
+            System.out.println("listCateCode = " + listCateCode);
+            for (int i = 0; i < listCateCode.size(); i++) {
+                String arr = listCateCode.get(i);
+                cateCode.add(arr);
+            }
+        }
+        System.out.println("cateCode = " + cateCode);
+
+        result.put("cateCode",cateCode);
+    }
+
+    /**
+     로그인한 유저번호 가지고오기
+     */
     private int loginUserNo(){
         Map<String, Object> param = null;
 
@@ -494,6 +542,39 @@ public class ProductServiceImpl implements ProductService {
             return userNo;
         }
         return 0;
+    }
+
+    /**
+     조회수 중복 방지
+     **/
+    private void viewCountUp(int prodNo) {
+
+        Cookie oldCookie = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("postView")) {
+                    oldCookie = cookie;
+                }
+            }
+        }
+        String stringProdNo = Integer.toString(prodNo);
+
+        if (oldCookie != null) {
+            if (!oldCookie.getValue().contains("[" + stringProdNo + "]")) {
+                productDAO.viewCntUpdate(prodNo);
+                oldCookie.setValue(oldCookie.getValue() + "_[" + prodNo + "]");
+                oldCookie.setPath("/");
+                oldCookie.setMaxAge(60 * 60 * 24);
+                response.addCookie(oldCookie);
+            }
+        } else {
+            productDAO.viewCntUpdate(prodNo);
+            Cookie newCookie = new Cookie("postView","[" + prodNo + "]");
+            newCookie.setPath("/");
+            newCookie.setMaxAge(60 * 60 * 24);
+            response.addCookie(newCookie);
+        }
     }
 
 
