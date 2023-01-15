@@ -1,8 +1,26 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { decrypt } from 'utils/crypto';
 
 export const signUpApi = createApi({
   reducerPath: 'signUpApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://3.39.156.141:8080/user/' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${process.env.REACT_APP_BASE_URL}/user/`,
+    prepareHeaders: (headers, { getState }) => {
+      let token;
+      if (getState().session?.token) {
+        token = decrypt(
+          process.env.REACT_APP_SESSION_KEY || '',
+          getState().session.token
+        );
+      }
+
+      if (token) {
+        headers.set('X-AUTH-TOKEN', token);
+      }
+
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     postUserSignForm: builder.mutation({
       query: (userData) => ({
@@ -15,9 +33,6 @@ export const signUpApi = createApi({
       query: () => ({
         url: 'myPage',
         method: 'POST',
-        headers: {
-          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
-        },
       }),
     }),
     postUserCheckId: builder.mutation({
@@ -38,9 +53,6 @@ export const signUpApi = createApi({
       query: (edit) => ({
         url: 'userUpdate',
         method: 'POST',
-        headers: {
-          'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
-        },
         body: edit,
       }),
     }),
