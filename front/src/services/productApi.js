@@ -69,7 +69,6 @@ export const productApi = createApi({
           'X-AUTH-TOKEN': sessionStorage.getItem('userToken'),
         },
       }),
-      invalidatesTags: ['SellAll', 'BuyAll'],
     }),
     changeReportCount: builder.mutation({
       query: (prodNo) => ({
