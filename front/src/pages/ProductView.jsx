@@ -177,17 +177,18 @@ export default function ProductView() {
     const tagName = e.target.tagName;
     const interestIconTag = ['path', 'svg'];
 
-    if (interestIconTag.includes(tagName)) {
-      (async () => {
-        try {
-          await changeInterestCountMutation(prodNo);
-        } catch (error) {
-          console.error(error);
-        }
-      })();
-    } else {
-      navigate(`/products/${param}/detail/${prodNo}`);
-    }
+    // if (interestIconTag.includes(tagName)) {
+    //   (async () => {
+    //     try {
+    //       const res = await changeInterestCountMutation(prodNo).unwrap();
+    //       console.log(res);
+    //     } catch (error) {
+    //       console.error(error);
+    //     }
+    //   })();
+    // } else {
+    //   navigate(`/products/${param}/detail/${prodNo}`);
+    // }
   };
 
   if (getAllProducts?.[param]?.isError) {
@@ -238,6 +239,7 @@ export default function ProductView() {
                   }
                   title={prodName}
                   price={prodPrice.toLocaleString()}
+                  prodNo={prodNo}
                   area={address}
                   likes={interestCnt.toLocaleString()}
                   isInterest={interestYN}
