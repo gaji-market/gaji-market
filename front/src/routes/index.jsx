@@ -33,10 +33,10 @@ export default function Router() {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const [splashToggle, setSplashToggle] = useState(false);
 
-  useEffect(() => {
-    // init session
-    dispatch(setupSession());
+  // init session
+  dispatch(setupSession());
 
+  useEffect(() => {
     // splash
     if (location.pathname === '/') {
       setSplashToggle(true);
