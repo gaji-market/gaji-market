@@ -30,7 +30,7 @@ export default function Card({
   state,
   onClick,
 }) {
-  const [InterestState, setIsInterestState] = useState(isInterest);
+  const [interestState, setIsInterestState] = useState(isInterest);
   const [likesState, setLikesState] = useState(likes);
   const [changeInterestCountMutation] = useChangeInterestCountMutation();
 
@@ -75,7 +75,7 @@ export default function Card({
               {area.split(' ').slice(ADDRESS.start, ADDRESS.end).join(' ')}
             </AreaText>
             <LikesWrapper>
-              {InterestState ? (
+              {interestState ? (
                 <FillHeartIcon
                   onClick={isInterestClick}
                   className='fillHeart'
