@@ -52,6 +52,11 @@ export const productApi = createApi({
 
       providesTags: ['SellAll', 'BuyAll', 'DetailView'],
     }),
+    getProductModification: builder.query({
+      query: (prodNo) => ({
+        url: `beforeUpdate/${prodNo}`,
+      }),
+    }),
     createSaleProduct: builder.mutation({
       query: (product) => ({
         url: 'sellSave',
@@ -110,6 +115,7 @@ export const {
   useLazyGetBuyAllQuery,
   useGetCategoriesQuery,
   useGetProductQuery,
+  useGetProductModificationQuery,
   useChangeInterestCountMutation,
   useChangeReportCountMutation,
   useCreateSaleProductMutation,
