@@ -54,7 +54,7 @@ export default function Router() {
       addToast({
         isToastSuccess: true,
         isMainTheme: true,
-        toastMessage: '해당 페이지 이용을 위해 로그인이 필요합니다.',
+        toastMessage: '로그인한 유저만 열람할 수 있습니다.',
       });
     }
   }, [location]);
@@ -105,6 +105,11 @@ export default function Router() {
         <Route path='/write' element={<Outlet />}>
           <Route index element={<Navigate to='/products/pal' />} />
           <Route path=':type' element={<Editor />} />
+        </Route>
+
+        <Route path='/modify' element={<Outlet />}>
+          <Route index element={<Navigate to='/products/pal' />} />
+          <Route path=':type/:id' element={<Editor />} />
         </Route>
 
         <Route path='/products' element={<Outlet />}>
