@@ -17,8 +17,20 @@ import { Error } from './index';
 import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
 import { SELL, BUY } from 'constants/params';
 
+// 백엔드에서 받아오는 key값 이름
+const itemsKeyName = Object.freeze({
+  pal: 'sellInfos',
+  sal: 'buyInfos',
+});
+
+const getItemsQuery = {
+  recordCount: 8, // 게시글 불러오기 개수
+  currentPage: 1,
+  sort: 'default',
+};
+
 export default function ProductView() {
-  const { type } = useParams();
+  const { type: param } = useParams();
 
   const navigate = useNavigate();
 
@@ -32,185 +44,147 @@ export default function ProductView() {
     useState(LOADING_CARD_COUNT);
 
   const modalRef = useRef(null);
+  const lastPage = useRef(null);
 
   const [cardRef, inView] = useInView();
 
-  const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
-    recordCount: 8, // 게시글 몇 개 보여줄지
-    currentPage: 1,
-    sort: 'default',
-  });
-
   const [pageQueryForSale, setPageQueryForSale] = useState({
-    recordCount: 8, // 게시글 몇 개 보여줄지
-    currentPage: 1,
-    sort: 'default',
+    ...getItemsQuery,
   });
-
-  const sellAllOption = { skip: type !== SELL };
+  const sellAllOption = { skip: param !== SELL };
   const getSellAll = useGetSellAllQuery(pageQueryForSale, sellAllOption);
 
-  const buyAllOption = { skip: type !== BUY };
+  const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
+    ...getItemsQuery,
+  });
+  const buyAllOption = { skip: param !== BUY };
   const getBuyAll = useGetBuyAllQuery(pageQueryForPurchase, buyAllOption);
 
   const [products, setProducts] = useState(null);
+  const [currentParamItems, setCurrentParamItems] = useState();
 
-  // TODO: 중복되는 코드 리팩토링
-  useEffect(() => {
-    if (type === BUY) {
-      setCurrentPageParam(BUY);
-    }
-    if (type === SELL) {
-      setCurrentPageParam(SELL);
-    }
-  }, [type]);
-
-  let lastPage = useRef(0);
-
-  useEffect(() => {
-    if (type !== SELL) return;
-
-    if (getSellAll.data && getSellAll.isSuccess) {
-      setProducts(getSellAll.data.sellInfos);
-    }
-  }, [getSellAll.isSuccess, type]);
-
-  useEffect(() => {
-    if (type !== BUY) return;
-
-    if (getBuyAll.data && getBuyAll.isSuccess) {
-      setProducts(getBuyAll.data.buyInfos);
-    }
-  }, [getBuyAll.isSuccess, type]);
-
-  if (products) {
-    if (type === BUY) {
-      lastPage.current = getBuyAll.data?.schPage.totalPageCount;
-    }
-
-    if (type === SELL) {
-      lastPage.current = getSellAll.data?.schPage.totalPageCount;
-    }
-  }
-
-  const getCards = () => {
-    if (products && type === SELL) {
-      setPageQueryForSale((prev) => ({
-        ...prev,
-        currentPage: prev.currentPage + 1,
-      }));
-    }
-
-    if (products && type === BUY) {
-      setPageQueryForPurchase((prev) => ({
-        ...prev,
-        currentPage: prev.currentPage + 1,
-      }));
-    }
+  const getAllProducts = {
+    pal: getSellAll,
+    sal: getBuyAll,
   };
 
-  // 팔래요
-  useEffect(() => {
-    if (type !== SELL) return;
+  const setQuery = {
+    pal: setPageQueryForSale,
+    sal: setPageQueryForPurchase,
+  };
 
-    if (products && getSellAll.isSuccess) {
-      let productsOfCurrentParam;
-      if (type === SELL) {
-        const { sellInfos } = getSellAll.data;
-        productsOfCurrentParam = sellInfos;
-      }
+  const pageQuery = {
+    pal: pageQueryForSale,
+    sal: pageQueryForPurchase,
+  };
+
+  const cards = {
+    pal: saleCards,
+    sal: purchaseCards,
+  };
+
+  const setCard = {
+    pal: setSaleCards,
+    sal: setPurchaseCards,
+  };
+
+  const getCards = () => {
+    setQuery[param]((prev) => ({
+      ...prev,
+      currentPage: prev.currentPage + 1,
+    }));
+  };
+
+  useEffect(() => {
+    setCurrentPageParam(param);
+
+    if (getAllProducts[param]?.isSuccess) {
+      setCurrentParamItems((prev) => ({
+        ...prev,
+        pal: {
+          data: getSellAll?.data,
+          infos: getSellAll?.data?.sellInfos,
+          isSuccess: getSellAll?.isSuccess,
+        },
+        sal: {
+          data: getBuyAll?.data,
+          infos: getBuyAll?.data?.buyInfos,
+          isSuccess: getBuyAll?.isSuccess,
+        },
+      }));
+    }
+  }, [param, getSellAll.isSuccess, getBuyAll.isSuccess]);
+
+  useEffect(() => {
+    const salOrPal = param;
+    if (
+      currentParamItems?.[salOrPal]?.data &&
+      currentParamItems?.[salOrPal]?.isSuccess
+    ) {
+      setProducts(currentParamItems[salOrPal]?.infos);
+    }
+  }, [param, currentParamItems]);
+
+  if (products) {
+    lastPage.current = getAllProducts[param].data?.schPage.totalPageCount;
+  }
+
+  useEffect(() => {
+    if (products && getAllProducts?.[param]?.isSuccess) {
+      const productsOfParam =
+        getAllProducts?.[param]?.data?.[itemsKeyName[param]];
 
       const cardCount =
-        products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
+        getAllProducts?.[param]?.data?.schPage?.totalRecordCount %
+        LOADING_CARD_COUNT;
 
       if (cardCount) {
         setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
       }
 
-      productsOfCurrentParam.forEach((product) => {
-        if (type === SELL) {
-          setSaleCards((prev) => [...prev, product]);
-          setSaleCards((prev) => {
-            return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
-          });
-        }
+      productsOfParam.forEach((product) => {
+        setCard[param]((prev) => [...prev, product]);
+      });
+
+      setCard[param]((prev) => {
+        return [...new Set(prev.map((prodNo) => JSON.stringify(prodNo)))].map(
+          JSON.parse
+        );
       });
     }
-  }, [products, type]);
-
-  // TODO: 중복 코드 리팩토링
-
-  // 살래요
-  useEffect(() => {
-    if (type !== BUY) return;
-
-    if (products && getBuyAll.isSuccess) {
-      let productsOfCurrentParam;
-      if (type === BUY) {
-        const { buyInfos } = getBuyAll.data;
-        productsOfCurrentParam = buyInfos;
-      }
-
-      const cardCount =
-        products?.schPage?.totalRecordCount % LOADING_CARD_COUNT;
-
-      if (cardCount) {
-        setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
-      }
-
-      productsOfCurrentParam.forEach((product) => {
-        if (type === BUY) {
-          setPurchaseCards((prev) => [...prev, product]);
-          setPurchaseCards((prev) => {
-            return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
-          });
-        }
-      });
-    }
-  }, [products, type]);
+  }, [products, param]);
 
   useEffect(() => {
-    if (getSellAll.isFetching || getBuyAll.isFetching) {
+    if (getAllProducts?.[param]?.isFetching) {
       return setShowSkeletonCard(true);
-    }
-
-    if (!getSellAll.isFetching || !getBuyAll.isFetching) {
+    } else {
       setTimeout(() => {
         return setShowSkeletonCard(false);
       }, 500);
     }
+  }, [getAllProducts]);
 
-    if (
-      type === BUY &&
-      inView &&
-      lastPage.current > pageQueryForPurchase.currentPage &&
-      !getSellAll.isFetching
-    ) {
+  useEffect(() => {
+    if (getAllProducts[param]?.isFetching) return;
+
+    if (inView && lastPage.current >= pageQuery[param].currentPage) {
       getCards();
     }
-
-    if (
-      type === SELL &&
-      inView &&
-      lastPage.current > pageQueryForSale.currentPage &&
-      !getBuyAll.isFetching
-    ) {
-      getCards();
-    }
-  }, [inView, getCards, pageQueryForPurchase, pageQueryForSale]);
+  }, [inView, getCards, param]);
 
   const moveProductDetail = (prodNo) => (e) => {
     const tagName = e.target.tagName;
-    if (tagName === 'svg' || tagName === 'path') return;
+    const interestIconTag = ['path', 'svg'];
 
-    navigate(`/products/${type}/detail/${prodNo}`);
+    if (interestIconTag.includes(tagName)) return;
+    navigate(`/products/${param}/detail/${prodNo}`);
   };
 
-  if (getSellAll.isError || getBuyAll.isError) {
+  if (getAllProducts?.[param]?.isError) {
     return <Error />;
   }
 
-  if (getSellAll.isLoading || getBuyAll.isLoading) {
+  if (getAllProducts?.[param]?.isLoading) {
     return <Loading />;
   }
 
@@ -222,13 +196,7 @@ export default function ProductView() {
         leftBtnText='네! 좋아요.'
         rightBtnText='아니요, 괜찮아요!'
         confirmHandler={() => {
-          if (type === SELL) {
-            navigate('/write/pal');
-          }
-
-          if (type === BUY) {
-            navigate('/write/sal');
-          }
+          navigate(`/write/${param}`);
         }}
       />
 
@@ -240,13 +208,13 @@ export default function ProductView() {
           </SubText>
         </Header>
         <CardContainer>
-          {type === SELL &&
-            saleCards.length > 0 &&
-            saleCards.map((product) => {
+          {cards[param].length > 0 &&
+            cards[param].map((product) => {
               const {
                 address,
                 dbFileName,
                 interestCnt,
+                interestYN,
                 prodName,
                 prodNo,
                 prodPrice,
@@ -262,43 +230,16 @@ export default function ProductView() {
                   }
                   title={prodName}
                   price={prodPrice.toLocaleString()}
+                  prodNo={prodNo}
                   area={address}
                   likes={interestCnt.toLocaleString()}
+                  isInterest={interestYN}
                   state={tradState}
                   onClick={moveProductDetail(prodNo)}
                 />
               );
             })}
 
-          {type === BUY &&
-            purchaseCards.length > 0 &&
-            purchaseCards.map((product) => {
-              const {
-                address,
-                dbFileName,
-                interestCnt,
-                prodName,
-                prodNo,
-                prodPrice,
-                tradState,
-              } = product;
-              return (
-                <Card
-                  key={prodNo}
-                  productImage={
-                    dbFileName
-                      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
-                      : null
-                  }
-                  title={prodName}
-                  price={prodPrice.toLocaleString()}
-                  area={address}
-                  likes={interestCnt.toLocaleString()}
-                  state={tradState}
-                  onClick={moveProductDetail(prodNo)}
-                />
-              );
-            })}
           {showSkeletonCard &&
             Array(skeletonCardCount)
               .fill()
@@ -344,7 +285,7 @@ const SubText = styled.p`
 const CardContainer = styled.div`
   width: 1024px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   margin: 0 auto;
   position: relative;
 

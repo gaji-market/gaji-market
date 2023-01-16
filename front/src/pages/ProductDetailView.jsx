@@ -2,24 +2,52 @@ import styled from 'styled-components';
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR, WHITE_COLOR } from 'components/common/commonColor';
+import {
+  DARK_GRAY_COLOR,
+  GRAY_COLOR,
+  PRIMARY_COLOR,
+  SUB_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
 import Button from 'components/common/Button';
 
-import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
+import {
+  AiOutlineAlert,
+  AiOutlineEye,
+  AiOutlineHeart,
+  AiFillHeart,
+} from 'react-icons/ai';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { RiTimerLine } from 'react-icons/ri';
 
-import { useGetProductQuery } from 'services/productApi';
+import {
+  useGetProductQuery,
+  useChangeInterestCountMutation,
+  useChangeReportCountMutation,
+} from 'services/productApi';
 import { Error } from './index';
 import { SELL } from 'constants/params';
 
 const NEXT_X = 400;
+const ADDRESS = {
+  start: 0,
+  end: 2,
+};
 
 export default function ProductDetailView() {
   const slideRef = useRef();
 
   const { type: param, id: prodNo } = useParams();
-  const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+
+  const {
+    data: product,
+    isError,
+    isLoading,
+    isSuccess,
+  } = useGetProductQuery(prodNo);
+
+  const [changeInterestCountMutation] = useChangeInterestCountMutation();
+  const [changeReportCountMutation] = useChangeReportCountMutation();
 
   const [productDate, setProductDate] = useState('');
   const [slideX, setSlideX] = useState(0);
@@ -59,6 +87,22 @@ export default function ProductDetailView() {
     }
   }, [slideX, product?.fileInfos]);
 
+  const changeInterestCountHandler = async () => {
+    try {
+      await changeInterestCountMutation(prodNo);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const changeReportCountHandler = async () => {
+    try {
+      await changeReportCountMutation(prodNo);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -75,7 +119,10 @@ export default function ProductDetailView() {
             {product.categoryInfos.map((category, i) => {
               if (category) {
                 return (
-                  <span key={`${category.cateCode} ${i}`} className='category-depth'>
+                  <span
+                    key={`${category.cateCode} ${i}`}
+                    className='category-depth'
+                  >
                     {category?.cateName}
                   </span>
                 );
@@ -101,8 +148,16 @@ export default function ProductDetailView() {
               </ul>
               {product.fileInfos.length > 1 && (
                 <div className='slide-btns'>
-                  <span className='arrow arrow-left' role='button' onClick={clickPrevImg}></span>
-                  <span className='arrow arrow-right' onClick={clickNextImg} role='button'></span>
+                  <span
+                    className='arrow arrow-left'
+                    role='button'
+                    onClick={clickPrevImg}
+                  ></span>
+                  <span
+                    className='arrow arrow-right'
+                    onClick={clickNextImg}
+                    role='button'
+                  ></span>
                 </div>
               )}
             </div>
@@ -112,7 +167,9 @@ export default function ProductDetailView() {
                 <WatcherIcon />
                 <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
               </Watcher>
-              <ProductState>{param === SELL ? '판매중' : '구매중'}</ProductState>
+              <ProductState>
+                {param === SELL ? '판매중' : '구매중'}
+              </ProductState>
               <Title>{product.productInfo.prodName}</Title>
               <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
               <StatusWrapper>
@@ -121,7 +178,13 @@ export default function ProductDetailView() {
                     <ReportIcon />
                     <span>신고 {product.productInfo.reportCnt}회</span>
                     <VerticalBar>|</VerticalBar>
-                    <span className='report-btn'>신고하기</span>
+                    <span
+                      className='report-btn'
+                      role='button'
+                      onClick={changeReportCountHandler}
+                    >
+                      신고하기
+                    </span>
                   </Report>
                   <Location>
                     <LocationIcon />
@@ -133,21 +196,29 @@ export default function ProductDetailView() {
                   </DateCreated>
                 </Status>
                 <LikesWrapper>
-                  <HeartIcon />
+                  {!product.interestInfo.interestYN ? (
+                    <HeartIcon onClick={changeInterestCountHandler} />
+                  ) : (
+                    <FillHeartIcon onClick={changeInterestCountHandler} />
+                  )}
                   <LikesCount>{product.interestInfo.interestCnt}</LikesCount>
                 </LikesWrapper>
               </StatusWrapper>
 
               <ButtonWrapper>
-                <Button customSize='50%'>채팅하기</Button>
-                <Button isOutline isDarkColor customSize='50%'>
+                <Button customSize='100%'>채팅하기</Button>
+                {/* <Button isOutline isDarkColor customSize='50%'>
                   가격 제안하기
-                </Button>
+                </Button> */}
               </ButtonWrapper>
               <HashTags>
                 {product.hashTagInfos.length > 0 &&
                   product.hashTagInfos.map((hashtag, idx) => {
-                    return <HashTag key={`${hashtag.tagName}${idx}`}>#{hashtag.tagName}</HashTag>;
+                    return (
+                      <HashTag key={`${hashtag.tagName}${idx}`}>
+                        #{hashtag.tagName}
+                      </HashTag>
+                    );
                   })}
               </HashTags>
             </ProductSummary>
@@ -160,10 +231,22 @@ export default function ProductDetailView() {
                 <ProfileImg />
                 <div>
                   <UserNickName>{product.userInfo.nickname}</UserNickName>
-                  <UserArea>{product.userInfo.address}</UserArea>
+                  <UserArea>
+                    {product.userInfo.address
+                      .split(' ')
+                      .slice(ADDRESS.start, ADDRESS.end)
+                      .join(' ')}
+                  </UserArea>
                 </div>
               </ProfileWrapper>
-              <Button isDarkColor>정보보기</Button>
+              <Button
+                isDarkColor
+                customSize={'215px'}
+                height={'35px'}
+                padding={0}
+              >
+                정보보기
+              </Button>
             </UserInfo>
           </ProductMid>
 
@@ -357,7 +440,7 @@ const HeartIcon = styled(AiOutlineHeart)`
 
 const FillHeartIcon = styled(AiFillHeart)`
   cursor: pointer;
-  font-size: 36px;
+  font-size: 45px;
 `;
 
 const LikesCount = styled.div``;
@@ -428,15 +511,16 @@ const ProductMid = styled.div`
 `;
 
 const UserInfo = styled.div`
-  width: 200px;
-  margin: 20px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const UserInfoTitle = styled.h4`
   font-size: 18px;
   font-weight: 900;
   color: ${SUB_COLOR};
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 `;
 
 const ProfileWrapper = styled.div`
@@ -451,6 +535,8 @@ const ProfileImg = styled.div`
   height: 70px;
   border-radius: 100px;
   background: #ddd;
+  margin-bottom: 3px;
+  margin-right: 5px;
 `;
 
 const UserNickName = styled.p`
@@ -467,6 +553,10 @@ const ProductBottom = styled.div`
   height: 500px;
   padding: 20px;
   margin: 20px;
+
+  p {
+    color: ${DARK_GRAY_COLOR};
+  }
 `;
 
 const ProductInfoTitle = styled.h4`

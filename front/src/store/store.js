@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import tempSlice from './tempSlice';
 import toastSlice from './toastSlice';
 import sessionSlice from './sessionSlice';
 
@@ -10,7 +9,6 @@ import { chatApi } from 'services/chatApi';
 
 export const store = configureStore({
   reducer: {
-    temp: tempSlice,
     toast: toastSlice,
     session: sessionSlice,
     [signUpApi.reducerPath]: signUpApi.reducer,
