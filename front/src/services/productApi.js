@@ -32,9 +32,6 @@ export const productApi = createApi({
         url: `sellAll?recordCount=${recordCount}&currentPage=${currentPage}&sort=${sort}${
           search ? `&search=${search}` : ''
         }${cateCode ? `&cateCode=${cateCode}` : ''}`,
-        headers: {
-          Authorization: sessionStorage.getItem('info'),
-        },
       }),
     }),
     getBuyAll: builder.query({
