@@ -84,6 +84,22 @@ export const productApi = createApi({
       }),
       invalidatesTags: ['SellAll', 'BuyAll'],
     }),
+    deleteProduct: builder.mutation({
+      query: (prodNo) => ({
+        url: 'delete',
+        method: 'POST',
+        body: { prodNo: Number(prodNo) },
+      }),
+      invalidatesTags: ['SellAll', 'BuyAll'],
+    }),
+    modifyProduct: builder.mutation({
+      query: (product) => ({
+        url: 'update',
+        method: 'POST',
+        body: product,
+      }),
+      invalidatesTags: ['SellAll', 'BuyAll'],
+    }),
   }),
 });
 
@@ -99,4 +115,6 @@ export const {
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
   useIncreaseInterestMutation,
+  useDeleteProductMutation,
+  useModifyProductMutation,
 } = productApi;
