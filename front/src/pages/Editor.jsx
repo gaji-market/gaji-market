@@ -23,9 +23,9 @@ import { TITLE, SUB_TITLE } from 'constants/editor';
 
 import isEmptyValue from 'utils/isEmptyValue';
 import deduplicationState from 'utils/deduplicationState';
+import Slider from 'components/common/Slider';
 
 const MAX_UPLOAD_COUNT = 5;
-const NEXT_X = -690;
 
 const MAX_HASHTAGS = 10;
 
@@ -53,9 +53,11 @@ export default function Editor() {
     hashtags: [],
 
     // TODO: prodNo, tradState 값 넣어줘야함
-    prodNo: 230, // productNo
-    tradState: '0', // 상품 상태값 판매중0, 사는중1, 구매중2, 판매완료3
+    // prodNo: 230, // productNo
+    // tradState: '0', // 상품 상태값 판매중0, 사는중1, 구매중2, 판매완료3
   });
+
+  const [addedImgs, setAddedImgs] = useState([]);
 
   console.log(location);
   console.log(formDatas);
@@ -98,16 +100,11 @@ export default function Editor() {
   const [createSaleProduct] = useCreateSaleProductMutation();
   const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
-  const [imgSlide, setImgSlide] = useState([]);
-
   const [inputHashTag, setInputHashTag] = useState('');
 
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
 
-  const [showImgDeleteBtn, setShowImgDeleteBtn] = useState(false);
-
-  const imgSliderRef = useRef(null);
   const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
 
   const checkCompleteForm = useCallback(
@@ -143,7 +140,7 @@ export default function Editor() {
         return `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`;
       });
 
-      setImgSlide((prev) => [...prev, ...images]);
+      setAddedImgs((prev) => [...prev, ...images]);
       setTitleValue(productInfo.prodName);
       setPriceValue(productInfo.prodPrice);
       productPriceRef.current.value = productInfo.prodPrice;
@@ -311,6 +308,7 @@ export default function Editor() {
       formDatas.imageFiles = formData;
 
       const { data: response } = await queryPerParam[param](formData);
+      console.log(response);
 
       if (response.result === 'Success') {
         window.alert('게시글 등록 완료');
@@ -399,82 +397,13 @@ export default function Editor() {
       }
     });
 
-    setImgSlide((prev) => [...prev, ...imgUrls]);
+    setAddedImgs((prev) => [...prev, ...imgUrls]);
 
     setFormDatas((prev) => ({
       ...prev,
       imageFiles: formDatas.imageFiles.concat(imgFiles),
     }));
   };
-
-  const mouseOverHandler = useCallback(() => {
-    setShowImgDeleteBtn(true);
-  }, []);
-
-  const mouseLeaveHandler = useCallback(() => {
-    setShowImgDeleteBtn(false);
-  }, []);
-
-  const deleteImg = (deleteTargetImg, deleteImageIdx) => () => {
-    const imgs = imgSlide.filter((img) => {
-      return img !== deleteTargetImg;
-    });
-
-    const serverImgs = formDatas.imageFiles.filter((_, index) => {
-      return index !== deleteImageIdx;
-    });
-
-    setImgSlide(imgs);
-    setFormDatas((prev) => ({ ...prev, imageFiles: serverImgs }));
-
-    if (currentSlideNumber - 1 === imgSlide.length) {
-      setCurrentSlideNumber(0);
-    }
-  };
-
-  /**
-   * 캐러셀
-   */
-  const clickPrevImg = useCallback(() => {
-    setCurrentSlideNumber(currentSlideNumber - 1);
-  }, [currentSlideNumber]);
-
-  const clickNextImg = useCallback(() => {
-    setCurrentSlideNumber(currentSlideNumber + 1);
-  }, [currentSlideNumber]);
-
-  useEffect(() => {
-    const { current } = imgSliderRef;
-
-    if (currentSlideNumber < 0) {
-      setCurrentSlideNumber(imgSlide.length - 1);
-      return;
-    }
-
-    if (currentSlideNumber > imgSlide.length - 1) {
-      setCurrentSlideNumber(0);
-      current.style.transform = 'translateX(0px)';
-      return;
-    }
-
-    if (currentSlideNumber <= imgSlide.length - 1) {
-      current.style.opacity = '0';
-
-      setTimeout(() => {
-        current.style.opacity = '1';
-        if (currentSlideNumber >= 0) {
-          current.style.transform = `translateX(${
-            NEXT_X * currentSlideNumber
-          }px)`;
-        }
-      }, 100);
-
-      return () => {
-        current.style.opacity = '0';
-        current.style.transition = 'opacity .4s';
-      };
-    }
-  }, [currentSlideNumber, imgSlide.length]);
 
   /**
    * 해시태그
@@ -682,59 +611,18 @@ export default function Editor() {
         </div>
         <div>
           <ImageWrapper>
-            {!imgSlide.length && (
-              <ImageUpLoaderLabel htmlFor='image-uploader'>
+            {!addedImgs.length ? (
+              <ImageUploaderLabel htmlFor='image-uploader'>
                 이미지 등록
-              </ImageUpLoaderLabel>
+              </ImageUploaderLabel>
+            ) : (
+              <Slider
+                images={addedImgs}
+                setFormDatas={setFormDatas}
+                setAddedImgs={setAddedImgs}
+              />
             )}
-
-            <ul className='img-slider' ref={imgSliderRef}>
-              {imgSlide.length > 0 &&
-                imgSlide.map((imageUrl, idx) => {
-                  return (
-                    <li
-                      onMouseOver={mouseOverHandler}
-                      onMouseLeave={mouseLeaveHandler}
-                      key={imageUrl}
-                      className='img-list'
-                    >
-                      <Image src={imageUrl} alt='upload_image' />
-                      <p className='img-page'>{`${idx + 1}/${
-                        imgSlide.length
-                      }`}</p>
-                      {showImgDeleteBtn && (
-                        <button
-                          type='button'
-                          className='delete-img-btn'
-                          onClick={deleteImg(imageUrl, idx)}
-                        >
-                          삭제
-                        </button>
-                      )}
-                    </li>
-                  );
-                })}
-            </ul>
-            {imgSlide.length > 0 && (
-              <div className='btn-wrapper'>
-                <button
-                  className='prev-btn'
-                  onClick={clickPrevImg}
-                  type='button'
-                >
-                  ⥢ PREV
-                </button>
-                <button
-                  className='next-btn'
-                  onClick={clickNextImg}
-                  type='button'
-                >
-                  NEXT ⥤
-                </button>
-              </div>
-            )}
-
-            <ImageUpLoaderInput
+            <ImageUploaderInput
               id='image-uploader'
               name='image-uploader'
               type='file'
@@ -939,7 +827,7 @@ const ImageWrapper = styled.div`
   overflow: hidden;
 `;
 
-const ImageUpLoaderLabel = styled.label`
+const ImageUploaderLabel = styled.label`
   width: 100%;
   display: block;
   background: ${GRAY_COLOR};
@@ -951,19 +839,11 @@ const ImageUpLoaderLabel = styled.label`
   margin-top: 15px;
 `;
 
-const ImageUpLoaderInput = styled.input.attrs({
+const ImageUploaderInput = styled.input.attrs({
   multiple: true,
   accept: 'image/*',
 })`
   display: none;
-`;
-
-const Image = styled.img`
-  width: 690px;
-  height: 250px;
-  object-fit: contain;
-  border-radius: 10px;
-  display: block;
 `;
 
 const TitleAndPriceWrapper = styled.div`
