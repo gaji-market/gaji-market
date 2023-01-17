@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
-import StateBadge from './StateBadge';
+
 import { useChangeInterestCountMutation } from 'services/productApi';
+
+import StateBadge from './StateBadge';
+
 const PRODUCT_STATE = {
   0: '판매중',
   1: '구매중',
