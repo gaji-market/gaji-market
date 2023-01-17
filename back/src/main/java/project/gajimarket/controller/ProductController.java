@@ -11,6 +11,7 @@ import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -24,6 +25,12 @@ import java.util.*;
 public class ProductController {
 
     private final ProductService productService;
+
+    @PostMapping("/test")
+    public File test(){
+        File file = new File("https://gajimarket.s3.ap-northeast-2.amazonaws.com/0130d1f9-f683-4fb1-b212-829f9bc08a45.jpeg");
+        return file;
+    }
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
@@ -162,31 +169,8 @@ public class ProductController {
      */
     //별점이랑 후기 저장
     //채팅한사람 클릭후 여기로 넘어옴 별점정보랑 후기작성 데이터 넘어오면 가지고와서 저장
-    @PostMapping("/{prodNo}/scoreSave")
-    public void productScoreSave(@RequestBody Map<String,Object> param,@ModelAttribute ScoreDTO scoreDTO){
-
-        // param 으로 prodNo,userNo가 넘어온다 userNo는 어떤사람한테 팔았는지 클릭한사람 userNo
-        int prodNo = (int) param.get("prodNo");
-        int userNo = (int) param.get("userNo");
-
-        //게시글 등록한 사람의 회원 번호가져오기
-        //int findUserNo = productService.findUserNo(prodNo);
-        //scoreDTO.setUserNo(findUserNo);
-        //상품 번호 저장
-        scoreDTO.setProdNo(prodNo);
-        //별점 정보 저장 (후기포함)
-        scoreDTO.setScore1(5);
-        scoreDTO.setTag1("약속을 잘 지켜요");
-        scoreDTO.setScore2(4);
-        scoreDTO.setTag2("친절해요");
-        scoreDTO.setScore3(4);
-        scoreDTO.setTag3("물건이 좋아요");
-        scoreDTO.setTradeReview("거래후기 테스트");
-        //DB 별점 정보 저장
-        productService.productScoreSave(scoreDTO);
-
-        //update (product_info 에서 구매자No에 채팅한사람클릭한거 저장(update))
-        //넘어온 userNo로 product update 후 판매완료로 상태변경
-        productService.buyUserUpdate(userNo,prodNo);
+    @PostMapping("/scoreSave")
+    public Map<String,Object> productScoreSave(@RequestBody ScoreDTO scoreDTO){
+        return productService.productScoreSave(scoreDTO);
     }
 }

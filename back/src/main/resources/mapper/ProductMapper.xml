@@ -80,8 +80,8 @@
     </select>
 
     <!-- 판매완료 후 update -->
-    <update id="buyUserUpdate">
-        update product_info set tradState='3', buyUserNo=#{userNo} where prodNo=#{prodNo};
+    <update id="buyUserUpdate" parameterType="project.gajimarket.model.ScoreDTO">
+        update product_info set tradState='3', buyUserNo=#{buyUserNo} where prodNo=#{prodNo};
     </update>
 
     <!-- 팔래요 전체갯수 -->

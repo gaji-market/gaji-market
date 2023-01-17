@@ -20,4 +20,6 @@ public interface FileService {
 
     //업로드한 이미지 파일 삭제
     void fileDelete(List<String> findFileDB) throws IOException;
+
+    //aws에서 이미지 파일 가져오기
 }

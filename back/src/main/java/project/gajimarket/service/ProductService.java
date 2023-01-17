@@ -41,12 +41,6 @@ public interface ProductService {
     //가격 경매 update
     void priceOfferUpdate(Map<String,Object> param);
 
-    //태그 클릭
-    void tagClick(Map<String,Object> param) throws IOException;
-
-    //카테고리 클릭
-    void categoryClick(Map<String,Object> param) throws IOException;
-
     //메인카테고리 클릭
     void mainCategoryClick(Map<String,Object> param) throws IOException;
 
@@ -56,19 +50,20 @@ public interface ProductService {
     //살래요 최신순 전체보기
     Map<String,Object> findBuyAll(Map<String,Object> result);
 
+    //별점 정보 저장
+    Map<String,Object> productScoreSave(ScoreDTO scoreDTO);
+
     /**
      * 아래는 보류
      */
-
-
     //채팅한 사람정보 가져오기
     List<Map<String, Object>> findChatUserInfo(int prodNo);
 
-    //별점 정보 저장
-    void productScoreSave(ScoreDTO scoreDTO);
+    //태그 클릭
+    void tagClick(Map<String,Object> param) throws IOException;
 
-    //판매완료 후 update
-    void buyUserUpdate(int userNo,int prodNo);
+    //카테고리 클릭
+    void categoryClick(Map<String,Object> param) throws IOException;
 
 
 }
