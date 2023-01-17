@@ -2,6 +2,9 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.util.MapUtil;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +30,9 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/test")
-    public File test(){
-        File file = new File("https://gajimarket.s3.ap-northeast-2.amazonaws.com/0130d1f9-f683-4fb1-b212-829f9bc08a45.jpeg");
-        return file;
+    public Resource test(){
+        Resource resource = new FileSystemResource("https://gajimarket.s3.ap-northeast-2.amazonaws.com/0130d1f9-f683-4fb1-b212-829f9bc08a45.jpeg");
+        return resource;
     }
 
     //카테고리 전체 정보
@@ -76,7 +79,7 @@ public class ProductController {
 
     //수정
     @PostMapping(value = "/update",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public Map<String, Object> productUpdate(@RequestBody Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String, Object> productUpdate(@RequestPart Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         return productService.productUpdate(param,imageFiles);
     }
 
