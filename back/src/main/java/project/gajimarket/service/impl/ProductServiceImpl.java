@@ -15,6 +15,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -143,8 +144,20 @@ public class ProductServiceImpl implements ProductService {
         result.put("productInfo",productInfo);
 
         //이미지 index 0- 메인이다 gubun으로 넘겨줘야할듯
+        File file = new File("https://gajimarket.s3.ap-northeast-2.amazonaws.com/0130d1f9-f683-4fb1-b212-829f9bc08a45.jpeg");
+
+
         List<Map<String, Object>> fileInfo = fileDAO.findFileInfo(prodNo);
         result.put("fileInfos",fileInfo);
+        //result.put("file",file);
+        //여기서 파일로 보내줘야한다
+//        for (Map<String,Object> file : fileInfo){
+//            String dbFileName = (String) file.get("dbFileName");
+//
+//        }
+
+
+
 
         //카테고리 정보
         List<Map<String,Object>> categoryInfo = new ArrayList<>();
@@ -584,19 +597,22 @@ public class ProductServiceImpl implements ProductService {
      */
 
     @Override
-    public void productScoreSave(ScoreDTO scoreDTO) {
-        scoreDAO.productScoreSave(scoreDTO);
+    public Map<String,Object> productScoreSave(ScoreDTO scoreDTO) {
+        Map<String,Object> result = new LinkedHashMap<>();
+        System.out.println("scoreDTO = " + scoreDTO);
+        try {
+            scoreDAO.productScoreSave(scoreDTO);
+            productDAO.buyUserUpdate(scoreDTO);
+            result.put("result","Success");
+        }catch (Exception e){
+            log.error(e.toString());
+            result.put("result","Fail");
+        }
+        return result;
     }
 
     @Override
     public List<Map<String, Object>> findChatUserInfo(int prodNo) {
         return productDAO.findChatUserInfo(prodNo);
     }
-
-    @Override
-    public void buyUserUpdate(int userNo, int prodNo) {
-        productDAO.buyUserUpdate(userNo,prodNo);
-    }
-
-
 }

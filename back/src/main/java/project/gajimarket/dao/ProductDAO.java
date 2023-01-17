@@ -74,5 +74,5 @@ public interface ProductDAO {
     List<Map<String, Object>> findChatUserInfo(int prodNo);
 
     //판매완료 후 update
-    void buyUserUpdate(int userNo,int prodNo);
+    void buyUserUpdate(ScoreDTO scoreDTO);
 }
