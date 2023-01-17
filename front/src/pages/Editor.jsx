@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import {
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
   useGetCategoriesQuery,
+  useGetProductModificationQuery,
+  useModifyProductMutation,
 } from 'services/productApi';
 
 import styled from 'styled-components';
@@ -33,6 +35,12 @@ const CHECK = Object.freeze({
 });
 
 export default function Editor() {
+  const { type: param } = useParams();
+
+  const navigate = useNavigate();
+
+  const location = useLocation();
+
   const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
     prodPrice: 0, // required
@@ -43,15 +51,21 @@ export default function Editor() {
     freeCheck: '0', // required string : 무료나눔(0: X, 1: O)
     priceOffer: '0', // required string : 가격제안유무(0: 제안X, 1: 제안O)
     hashtags: [],
+
+    // TODO: prodNo, tradState 값 넣어줘야함
+    prodNo: 230, // productNo
+    tradState: '0', // 상품 상태값 판매중0, 사는중1, 구매중2, 판매완료3
   });
 
-  const navigate = useNavigate();
+  console.log(location);
+  console.log(formDatas);
 
   const {
     data: productCategories,
     isSuccess,
     isError: ErrorByCategory,
   } = useGetCategoriesQuery();
+
   const [largeCategory, setLargeCategory] = useState([]);
   const [midiumCategory, setMidiumCategory] = useState([]);
   const [smallCetegory, setSmallCategory] = useState([]);
@@ -64,6 +78,22 @@ export default function Editor() {
   const [userSelectedCategoryCode, setUserSelectedCategoryCode] = useState('0');
   const [isSelectedCategories, setIsSelectedCategories] = useState(false);
   // 서버로 보낼 유저가 선택한 카테고리 코드
+
+  const path = location.pathname.split('/');
+  const [postNo, setPostNo] = useState(null);
+
+  useEffect(() => {
+    setPostNo(path[path.length - 1]);
+  }, [path]);
+
+  /** 게시글 수정하기 */
+
+  const option = { skip: !postNo || !path.includes('modify') };
+  const { data: modifyProduct, isSuccess: isSuccessOfModificationData } =
+    useGetProductModificationQuery(postNo, option);
+  /** */
+
+  const [modifyProductMutation] = useModifyProductMutation();
 
   const [createSaleProduct] = useCreateSaleProductMutation();
   const [createPurchaseProduct] = useCreatePurchaseProductMutation();
@@ -80,14 +110,71 @@ export default function Editor() {
   const imgSliderRef = useRef(null);
   const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
 
-  const { type: param } = useParams();
-
   const checkCompleteForm = useCallback(
     (start, end, callback) => {
       return Object.values(formDatas).slice(start, end).every(callback);
     },
     [formDatas]
   );
+
+  /**
+   * 카테고리 선택
+   */
+
+  const [isDisabledMdCate, setIsDisabledMdCate] = useState(true);
+  const [isDisabledSmCate, setIsDisabledSmCate] = useState(true);
+  const [currentCategories, setCurrentCategories] = useState({
+    lg: '',
+    md: [],
+    sm: [],
+  });
+
+  // 게시글 수정하기
+  const [titleValue, setTitleValue] = useState('');
+  const [priceValue, setPriceValue] = useState();
+  const [isFreeChecked, setIsFreeChecked] = useState(false);
+  const [contents, setContents] = useState('');
+
+  useEffect(() => {
+    if (isSuccessOfModificationData) {
+      const { categoryInfos, fileInfos, hashTagInfos, productInfo } =
+        modifyProduct;
+      const images = fileInfos.map(({ dbFileName }) => {
+        return `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`;
+      });
+
+      setImgSlide((prev) => [...prev, ...images]);
+      setTitleValue(productInfo.prodName);
+      setPriceValue(productInfo.prodPrice);
+      productPriceRef.current.value = productInfo.prodPrice;
+      if (productInfo.freeCheck === '1') {
+        setIsFreeChecked(true);
+      }
+      setContents(productInfo.prodExplain);
+
+      const hashTags = hashTagInfos.map(({ tagName }) => tagName);
+      const categoryCodes = categoryInfos.map((category) => category?.cateCode);
+      const cateCode = categoryCodes[categoryCodes.length - 1];
+
+      setFormDatas((prev) => ({
+        ...prev,
+
+        prodName: productInfo.prodName,
+        prodPrice: productInfo.prodPrice,
+        prodExplain: productInfo.prodExplain,
+        cateCode: cateCode,
+        freeCheck: productInfo.freeCheck,
+        priceOffer: productInfo.priceOffer,
+        hashtags: [...prev.hashtags, ...hashTags],
+        prodNo: Number(postNo),
+      }));
+
+      //TODO: 이미지를 어떻게 다시 보낼지 고민
+      //TODO: 카테고리 선택한 내용 에디터에 반영시키기
+    }
+  }, [isSuccessOfModificationData]);
+
+  //
 
   useEffect(() => {
     if (
@@ -138,6 +225,11 @@ export default function Editor() {
       setFormTitle(TITLE.addSal);
       setFormSubTitle(SUB_TITLE.addSal);
     }
+
+    if (path.includes('modify')) {
+      setFormTitle('작성한 게시글 수정하기');
+      setFormSubTitle('');
+    }
   }, [param]);
 
   const changeProductTitle = useCallback(({ target }) => {
@@ -186,12 +278,13 @@ export default function Editor() {
     }));
   }, []);
 
-  const changeProductContent = useCallback(({ target }) => {
+  const changeProductContent = ({ target }) => {
+    setContents(target.value);
     setFormDatas((prev) => ({
       ...prev,
       prodExplain: target.value,
     }));
-  }, []);
+  };
 
   /**
    * 글 발행
@@ -229,6 +322,45 @@ export default function Editor() {
       window.alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
       console.error(err);
 
+      navigate(`/products/${param}`);
+    }
+  };
+
+  console.log(formDatas);
+
+  //TODO: 중복코드 제거
+  // 수정하기 버튼
+  const modifyPost = async (e) => {
+    console.log(e);
+    try {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formDatas.imageFiles.forEach((item) => {
+        formData.append('imageFiles', item);
+      });
+
+      formData.append(
+        'param',
+        new Blob([JSON.stringify(formDatas)], { type: 'application/json' })
+      );
+
+      formDatas.imageFiles = formData;
+
+      const response = await modifyProductMutation(formData);
+
+      console.log(response);
+
+      if (response.result === 'Success') {
+        window.alert('게시글 수정 완료');
+        navigate(`/products/${param}`);
+      } else {
+        throw new Error('게시글 수정 실패');
+      }
+    } catch (error) {
+      window.alert('게시글 수정 실패! 잠시 후 다시 시도해주세요.');
+
+      console.error(error);
       navigate(`/products/${param}`);
     }
   };
@@ -423,18 +555,6 @@ export default function Editor() {
     }));
   };
 
-  /**
-   * 카테고리 선택
-   */
-
-  const [isDisabledMdCate, setIsDisabledMdCate] = useState(true);
-  const [isDisabledSmCate, setIsDisabledSmCate] = useState(true);
-  const [currentCategories, setCurrentCategories] = useState({
-    lg: '',
-    md: [],
-    sm: [],
-  });
-
   useEffect(() => {
     if (!currentCategories.md.length) {
       setIsDisabledMdCate(true);
@@ -451,7 +571,6 @@ export default function Editor() {
         const newMdCate = midiumCategory.filter((mdCate) => {
           return mdCate.cateParent === currentCategories.lg;
         });
-
         return { ...prev, md: newMdCate, sm: [] };
       });
     }
@@ -471,6 +590,10 @@ export default function Editor() {
 
   useEffect(() => {
     //TODO: 리팩토링
+
+    console.log(currentCategories, userSelectedCategoryCode);
+    console.log(Object.values(categoryDefaultValue), userSelectedCategoryCode);
+
     if (
       Object.values(categoryDefaultValue).includes(userSelectedCategoryCode)
     ) {
@@ -503,8 +626,9 @@ export default function Editor() {
 
   const changeSelectBoxHandler = ({ target }) => {
     //TODO: 리팩토링
+
+    // 사용자가 선택한 카테고리에 따라 2차, 3차 분류
     if (!(target.value % categoryDefaultCode.lg)) {
-      setUserSelectedCategoryCode(target.value);
     } else if (!(target.value % categoryDefaultCode.md)) {
       if (currentCategories.sm.length) {
         setUserSelectedCategoryCode(
@@ -625,6 +749,7 @@ export default function Editor() {
               minLength={2}
               maxLength={50}
               onChange={changeProductTitle}
+              value={titleValue}
               required
               width='100%'
               padding='10px'
@@ -653,6 +778,7 @@ export default function Editor() {
                 isDisabled={formDatas.freeCheck === CHECK.o}
                 inputRef={productPriceRef}
                 onChange={changeProductPrice}
+                value={priceValue}
                 required
                 type='number'
                 min='0'
@@ -665,9 +791,13 @@ export default function Editor() {
               {param === SELL && (
                 <CheckBox
                   onChange={checkedFreeSharing}
+                  onClick={() => {
+                    setIsFreeChecked(!isFreeChecked);
+                  }}
                   width='110px'
                   id='free'
                   title='무료나눔'
+                  isChecked={isFreeChecked}
                 />
               )}
             </PriceInputContainer>
@@ -730,6 +860,7 @@ export default function Editor() {
             <br />
             <textarea
               maxLength='500'
+              value={contents}
               onChange={changeProductContent}
               className='textarea'
               required
@@ -767,15 +898,28 @@ export default function Editor() {
         </div>
 
         <div className='button-container'>
-          <Button
-            formEncType='multipart/form-data'
-            type='submit'
-            onClick={createPost}
-            customSize='50%'
-            isDisabled={!isCompleteForm}
-          >
-            등록하기
-          </Button>
+          {!path.includes('modify') && (
+            <Button
+              formEncType='multipart/form-data'
+              type='submit'
+              onClick={createPost}
+              customSize='50%'
+              isDisabled={!isCompleteForm}
+            >
+              등록하기
+            </Button>
+          )}
+          {path.includes('modify') && (
+            <Button
+              formEncType='multipart/form-data'
+              type='submit'
+              onClick={modifyPost}
+              customSize='50%'
+              isDisabled={!isCompleteForm}
+            >
+              수정하기
+            </Button>
+          )}
           <Button
             onClick={cancleAddingProductClickHandler}
             customSize='50%'
