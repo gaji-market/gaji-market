@@ -27,7 +27,10 @@
 
     <!-- 상품 수정 -->
     <update id="productUpdate">
-        update product_info set cateCode=#{dto.cateCode},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address} where prodNo=#{param1};
+        update product_info set
+        cateCode=#{dto.cateCode},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer},
+        freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address}
+        where prodNo=#{param1};
     </update>
 
     <!-- 상품 정보 찾기 -->
