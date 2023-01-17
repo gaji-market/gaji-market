@@ -3,6 +3,7 @@ package project.gajimarket.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.util.MapUtil;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import project.gajimarket.service.ProductService;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 
@@ -29,11 +31,11 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping("/test")
-    public Resource test(){
-        Resource resource = new FileSystemResource("https://gajimarket.s3.ap-northeast-2.amazonaws.com/0130d1f9-f683-4fb1-b212-829f9bc08a45.jpeg");
-        return resource;
-    }
+//    @GetMapping("/test")
+//    public @ResponseBody byte[] test() throws IOException {
+//        InputStream in = getClass().getResourceAsStream("https://gajimarket.s3.ap-northeast-2.amazonaws.com/0130d1f9-f683-4fb1-b212-829f9bc08a45.jpeg");
+//        //return IOUtils.toByteArray(in);
+//    }
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")

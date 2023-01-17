@@ -187,6 +187,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Map<String, Object> productUpdate(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
         Map<String,Object> result = new LinkedHashMap<>();
+        System.out.println("param = " + param);
+        System.out.println("imageFiles = " + imageFiles);
         try {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setCateCode((String) param.get("cateCode"));
@@ -210,7 +212,7 @@ public class ProductServiceImpl implements ProductService {
             //해시태그 다시 저장
             List<String> tagNames = (List<String>) param.get("hashtags");
             for (String tagName : tagNames) {
-                hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
+                hashTagDAO.productHashTagSave(prodNo, tagName);
             }
 
             List<String> findDBFile = fileDAO.productFindDBFile(prodNo);
@@ -221,7 +223,7 @@ public class ProductServiceImpl implements ProductService {
             for (int i = 0; i < storeImageFiles.size(); i++) {
                 String uploadFileName = storeImageFiles.get(i).getUploadFileName();
                 String dbFileName = storeImageFiles.get(i).getDbFileName();
-                fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+                fileDAO.productFileSave(uploadFileName, dbFileName, prodNo, Integer.toString(i));
             }
             result.put("result","Success");
         }catch (Exception e){
