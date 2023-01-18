@@ -21,13 +21,11 @@ import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import { SELL, BUY } from 'constants/params';
 import { TITLE, SUB_TITLE } from 'constants/editor';
 
-import isEmptyValue from 'utils/isEmptyValue';
 import deduplicationState from 'utils/deduplicationState';
 import Slider from 'components/common/Slider';
+import Hashtag from 'components/common/Hashtag';
 
 const MAX_UPLOAD_COUNT = 5;
-
-const MAX_HASHTAGS = 10;
 
 const CHECK = Object.freeze({
   o: '1',
@@ -58,9 +56,6 @@ export default function Editor() {
   });
 
   const [addedImgs, setAddedImgs] = useState([]);
-
-  console.log(location);
-  console.log(formDatas);
 
   const {
     data: productCategories,
@@ -100,12 +95,8 @@ export default function Editor() {
   const [createSaleProduct] = useCreateSaleProductMutation();
   const [createPurchaseProduct] = useCreatePurchaseProductMutation();
 
-  const [inputHashTag, setInputHashTag] = useState('');
-
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
-
-  const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
 
   const checkCompleteForm = useCallback(
     (start, end, callback) => {
@@ -324,8 +315,6 @@ export default function Editor() {
     }
   };
 
-  console.log(formDatas);
-
   //TODO: 중복코드 제거
   // 수정하기 버튼
   const modifyPost = async (e) => {
@@ -402,85 +391,6 @@ export default function Editor() {
     setFormDatas((prev) => ({
       ...prev,
       imageFiles: formDatas.imageFiles.concat(imgFiles),
-    }));
-  };
-
-  /**
-   * 해시태그
-   */
-
-  const addHashTag = useCallback((e) => {
-    const allowedCommand = ['Comma', 'Enter', 'Space', 'NumpadEnter'];
-    if (!allowedCommand.includes(e.code)) return;
-
-    if (isEmptyValue(e.target.value.trim())) {
-      return setInputHashTag('');
-    }
-
-    let newHashTag = e.target.value.trim();
-    const regExp = /[\{\}\[\]\/?.;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g;
-    if (regExp.test(newHashTag)) {
-      newHashTag = newHashTag.replace(regExp, '');
-    }
-    if (newHashTag.includes(',')) {
-      newHashTag = newHashTag.split(',').join('');
-    }
-
-    if (isEmptyValue(newHashTag)) return;
-
-    setFormDatas((prev) => {
-      return {
-        ...prev,
-        hashtags: [...new Set([...prev.hashtags, newHashTag.trim()])],
-      };
-    });
-
-    setInputHashTag('');
-  }, []);
-
-  useEffect(() => {
-    if (formDatas.hashtags.length) {
-      const removeSpace = formDatas.hashtags.map((tag) => {
-        return tag.replace(' ', '');
-      });
-
-      setFormDatas((prev) => ({ ...prev, hashtags: removeSpace }));
-    }
-  }, [formDatas.hashtags.length]);
-
-  useEffect(() => {
-    if (formDatas.hashtags.length > MAX_HASHTAGS) {
-      setFormDatas((prev) => ({
-        ...prev,
-        hashtags: prev.hashtags.slice(0, MAX_HASHTAGS),
-      }));
-
-      return window.alert('해시태그는 10개 이상 등록할 수 없습니다.');
-    }
-  }, [formDatas.hashtags.length]);
-
-  const keyDownHandler = useCallback((e) => {
-    if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
-    e.preventDefault();
-
-    const regExp = /^[a-z|A-Z|가-힣|ㄱ-ㅎ|ㅏ-ㅣ|0-9| \t|]+$/g;
-    if (!regExp.test(e.target.value)) {
-      setInputHashTag('');
-    }
-  }, []);
-
-  const changeHashTagInput = useCallback((e) => {
-    setInputHashTag(e.target.value);
-  }, []);
-
-  const removeHashtagClickHandler = (e) => {
-    const newHashtags = formDatas.hashtags.filter((hashtag) => {
-      return e.target.innerHTML !== hashtag;
-    });
-
-    setFormDatas((prev) => ({
-      ...prev,
-      hashtags: newHashtags,
     }));
   };
 
@@ -756,33 +666,7 @@ export default function Editor() {
             />
           </InputContent>
 
-          <HashTageContainer>
-            <InputTitle title='해시태그' />
-            <div className='hashtags'>
-              {formDatas.hashtags.length > 0 &&
-                formDatas.hashtags.map((hashTag) => {
-                  return (
-                    <div
-                      onClick={removeHashtagClickHandler}
-                      key={hashTag}
-                      className='tag'
-                    >
-                      {hashTag}
-                    </div>
-                  );
-                })}
-
-              <input
-                value={inputHashTag}
-                onChange={changeHashTagInput}
-                onKeyUp={addHashTag}
-                onKeyDown={keyDownHandler}
-                placeholder='#해시태그를 등록해보세요. (최대 10개)'
-                className='hashtag-input'
-                maxLength='20'
-              />
-            </div>
-          </HashTageContainer>
+          <Hashtag hashtags={formDatas.hashtags} setFormDatas={setFormDatas} />
         </div>
 
         <div className='button-container'>
@@ -874,9 +758,5 @@ const Categories = styled.div`
 `;
 
 const InputContent = styled.div`
-  margin-top: 20px;
-`;
-
-const HashTageContainer = styled.div`
   margin-top: 20px;
 `;
