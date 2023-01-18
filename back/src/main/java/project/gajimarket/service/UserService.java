@@ -15,10 +15,13 @@ public interface UserService {
     public UserDTO selectUser(Map<String, Object> param);
 
     public List<Map<String, Object>> selectUserInterestProd(Map<String, Object> param);
+    public int selectUserInterestProdCnt(Map<String, Object> param);
 
     public List<Map<String, Object>> selectUserSellProd(Map<String, Object> param);
+    public int selectUserSellProdCnt(Map<String, Object> param);
 
     public List<Map<String, Object>> selectUserBuyProd(Map<String, Object> param);
+    public int selectUserBuyProdCnt(Map<String, Object> param);
 
     public int updateUser(UserDTO userDto, MultipartFile imgFile);
 

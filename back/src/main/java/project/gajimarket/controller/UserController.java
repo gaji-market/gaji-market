@@ -107,6 +107,11 @@ public class UserController {
     public Map<String, Object> myPage(HttpServletRequest request) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = null;
+
+        SearchPagination schPage = new SearchPagination();
+        schPage.setLimitPage(0);
+        schPage.setRecordCount(4);
+
         String result = "fail";
 
         try {
@@ -126,13 +131,15 @@ public class UserController {
                 }
             }
 
-            System.out.println(param);
             if (param != null) {
+                param.put("schPage", schPage);
+                System.out.println(param);
                 // 좋아요 상품
                 List<Map<String, Object>> interestProdList = userService.selectUserInterestProd(param);
                 System.out.println("UserController myPage interestProdList : " + interestProdList);
                 if (interestProdList != null) {
                     resultMap.put("interestProdList", interestProdList);
+                    resultMap.put("interestProdListCnt", userService.selectUserInterestProdCnt(param));
                 }
 
                 // 판매
@@ -140,6 +147,7 @@ public class UserController {
                 System.out.println("UserController myPage sellProdList : " + sellProdList);
                 if (sellProdList != null) {
                     resultMap.put("sellProdList", sellProdList);
+                    resultMap.put("sellProdListCnt", userService.selectUserSellProdCnt(param));
                 }
 
                 // 구매
@@ -147,15 +155,36 @@ public class UserController {
                 System.out.println("UserController myPage buyProdList : " + buyProdList);
                 if (buyProdList != null) {
                     resultMap.put("buyProdList", buyProdList);
+                    resultMap.put("buyProdListCnt", userService.selectUserBuyProdCnt(param));
                 }
             }
-
 
             resultMap.put("result", result);
         } catch (Exception e) {
             System.out.println("UserController myPage : " + e);
         }
         return resultMap;
+    }
+
+    // 좋아요 상품
+    @PostMapping(value = "/interestProdList")
+    public Map<String, Object> interestProdList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+
+        try {
+            String headerToken = JWTUtil.getHeaderToken(request);
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtil.getTokenInfo(headerToken);
+                if (param != null) {
+                    param.put("schPage", searchPagination);
+                }
+            }
+        } catch (Exception e){
+            System.out.println("UserController interestProdList : " + e);
+        }
+
+        return result;
     }
 
     // 내정보 수정
