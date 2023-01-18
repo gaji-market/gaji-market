@@ -19,18 +19,28 @@ import 'styles/editor.scss';
 
 import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import { SELL, BUY } from 'constants/params';
-import { TITLE, SUB_TITLE } from 'constants/editor';
+import {
+  TITLE,
+  SUB_TITLE,
+  MAX_IMAGE_COUNT,
+  DEFAULT_CATEGORY_CODE,
+  CHECK,
+  CATEGORY_TIER,
+  CATEGORY_DEFAULT_VALUE,
+} from 'constants/editor';
 
 import deduplicationState from 'utils/deduplicationState';
 import Slider from 'components/common/Slider';
 import Hashtag from 'components/common/Hashtag';
+import SelectBox from 'components/Editor/SelectBox';
 
-const MAX_UPLOAD_COUNT = 5;
+import isIncludes from 'utils/isIncludes';
+import splitSpacing from 'utils/splitSpacing';
+import isAllMoreThen from 'utils/isAllMoreThen';
 
-const CHECK = Object.freeze({
-  o: '1',
-  x: '0',
-});
+const isIncludesCategoryTier = (target, tier) => {
+  return isIncludes(splitSpacing(target), tier);
+};
 
 export default function Editor() {
   const { type: param } = useParams();
@@ -55,26 +65,151 @@ export default function Editor() {
     // tradState: '0', // 상품 상태값 판매중0, 사는중1, 구매중2, 판매완료3
   });
 
-  const [addedImgs, setAddedImgs] = useState([]);
-
   const {
     data: productCategories,
     isSuccess,
     isError: ErrorByCategory,
   } = useGetCategoriesQuery();
 
-  const [largeCategory, setLargeCategory] = useState([]);
-  const [midiumCategory, setMidiumCategory] = useState([]);
-  const [smallCetegory, setSmallCategory] = useState([]);
-  const selectCategory = {
-    1: setLargeCategory,
-    2: setMidiumCategory,
-    3: setSmallCategory,
+  // 서버에서 받아온 모든 카테고리
+  const [largeCategories, setLargeCategories] = useState([]);
+  const [midiumCategories, setMidiumCategories] = useState([]);
+  const [smallCategories, setSmallCategories] = useState([]);
+  const categories = [largeCategories, midiumCategories, smallCategories];
+
+  const selectCategory = Object.freeze({
+    1: setLargeCategories,
+    2: setMidiumCategories,
+    3: setSmallCategories,
+  });
+
+  // 유저가 선택한 카테고리 (카테고리 기본값 0, 1, 2)
+  const [selectedLgCategory, setSelectedLgCategory] = useState('0');
+  const [selectedMdCategory, setSelectedMdCategory] = useState('1');
+  const [selectedSmCategory, setSelectedSmCategory] = useState('2');
+
+  // 하위 분류가 존재하지 않을 경우 disabled
+  const [isDisabledMdCategory, setIsDisabledMdCategory] = useState(true);
+  const [isDisabledSmCategory, setIsDisabledSmCategory] = useState(true);
+
+  // 유저가 선택한 카테고리에 따라 바뀔 카테고리
+  // Md는 selectedLgCategory에 의해 결정됩니다.
+  const [appearMdCategories, setAppearMdCategories] = useState([]);
+  const [appearSmCategories, setAppearSmCategories] = useState([]);
+
+  // 모든 카테고리 선택 완료
+  const [isDoneSelectedCategories, setIsDoneSelectedCategories] =
+    useState(false);
+
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    productCategories.categoryInfos.forEach((cate) => {
+      const tierIndex = cate.tier;
+      selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
+    });
+  }, [productCategories]);
+
+  const changeSelectedOption = ({ target }) => {
+    // 사용자가 선택한 카테고리
+    if (isIncludesCategoryTier(target, CATEGORY_TIER.lg)) {
+      return setSelectedLgCategory(target.value);
+    }
+
+    if (isIncludesCategoryTier(target, CATEGORY_TIER.md)) {
+      return setSelectedMdCategory(target.value);
+    }
+
+    if (isIncludesCategoryTier(target, CATEGORY_TIER.sm)) {
+      return setSelectedSmCategory(target.value);
+    }
   };
 
-  const [userSelectedCategoryCode, setUserSelectedCategoryCode] = useState('0');
-  const [isSelectedCategories, setIsSelectedCategories] = useState(false);
-  // 서버로 보낼 유저가 선택한 카테고리 코드
+  useEffect(() => {
+    // 대분류가 변경되면 중/소분류 기본값으로 변경
+    setSelectedMdCategory(CATEGORY_DEFAULT_VALUE.md);
+    setSelectedSmCategory(CATEGORY_DEFAULT_VALUE.sm);
+
+    setAppearMdCategories(() => {
+      return midiumCategories.filter(
+        ({ cateParent }) => cateParent === selectedLgCategory
+      );
+    });
+  }, [selectedLgCategory]);
+
+  useEffect(() => {
+    setSelectedSmCategory(CATEGORY_DEFAULT_VALUE.sm);
+
+    setAppearSmCategories(() => {
+      return smallCategories.filter(
+        ({ cateParent }) => cateParent === selectedMdCategory
+      );
+    });
+  }, [selectedLgCategory, selectedMdCategory]);
+
+  useEffect(() => {
+    // 대분류가 기본 값이 아닌 경우
+    if (selectedLgCategory !== CATEGORY_DEFAULT_VALUE.lg) {
+      return setIsDisabledMdCategory(false);
+    }
+
+    setIsDisabledMdCategory(true);
+    setIsDisabledSmCategory(true);
+  }, [selectedLgCategory]);
+
+  useEffect(() => {
+    // 중분류가 기본 값이거나 하위 분류가 존재하지 않는 경우
+    if (selectedMdCategory.length && CATEGORY_DEFAULT_VALUE.md) {
+      return setIsDisabledSmCategory(false);
+    }
+
+    setIsDisabledSmCategory(true);
+  }, [selectedMdCategory.length]);
+
+  useEffect(() => {
+    // 소분류가 존재하지 않는 경우
+    if (!appearSmCategories.length) setIsDisabledSmCategory(true);
+    else setIsDisabledSmCategory(false);
+  }, [selectedMdCategory, appearSmCategories.length]);
+
+  useEffect(() => {
+    // 모든 카테고리를 선택했는지 확인
+    if (
+      !appearSmCategories.length &&
+      isAllMoreThen(
+        [selectedLgCategory, selectedMdCategory],
+        DEFAULT_CATEGORY_CODE
+      )
+    ) {
+      setIsDoneSelectedCategories(true);
+      return setFormDatas((prev) => ({
+        ...prev,
+        cateCode: selectedMdCategory,
+      }));
+    } else if (
+      appearSmCategories.length &&
+      isAllMoreThen(
+        [selectedLgCategory, selectedMdCategory, selectedSmCategory],
+        DEFAULT_CATEGORY_CODE
+      )
+    ) {
+      setIsDoneSelectedCategories(true);
+      // 서버로 보낼 카테고리 코드 지정
+      return setFormDatas((prev) => ({
+        ...prev,
+        cateCode: selectedSmCategory,
+      }));
+    } else setIsDoneSelectedCategories(false);
+  }, [
+    selectedLgCategory,
+    selectedMdCategory,
+    selectedSmCategory,
+    appearSmCategories.length,
+  ]);
+
+  /**
+   * TODO: 여기부터 리팩토링 해야함
+   */
 
   const path = location.pathname.split('/');
   const [postNo, setPostNo] = useState(null);
@@ -82,6 +217,8 @@ export default function Editor() {
   useEffect(() => {
     setPostNo(path[path.length - 1]);
   }, [path]);
+
+  const [addedImgs, setAddedImgs] = useState([]);
 
   /** 게시글 수정하기 */
 
@@ -104,18 +241,6 @@ export default function Editor() {
     },
     [formDatas]
   );
-
-  /**
-   * 카테고리 선택
-   */
-
-  const [isDisabledMdCate, setIsDisabledMdCate] = useState(true);
-  const [isDisabledSmCate, setIsDisabledSmCate] = useState(true);
-  const [currentCategories, setCurrentCategories] = useState({
-    lg: '',
-    md: [],
-    sm: [],
-  });
 
   // 게시글 수정하기
   const [titleValue, setTitleValue] = useState('');
@@ -168,7 +293,7 @@ export default function Editor() {
     if (
       param === SELL &&
       formDatas.freeCheck === CHECK.o &&
-      isSelectedCategories
+      isDoneSelectedCategories
     ) {
       // 무료나눔 O
       const callback = (formData) => !!formData.toString();
@@ -177,14 +302,14 @@ export default function Editor() {
     if (
       param === SELL &&
       formDatas.freeCheck === CHECK.x &&
-      isSelectedCategories
+      isDoneSelectedCategories
     ) {
       // 무료나눔 X
       const callback = (formData) => formData && formDatas.imageFiles.length;
       return setIsCompleteForm(checkCompleteForm(0, 7, callback));
     }
 
-    if (param === BUY && isSelectedCategories) {
+    if (param === BUY && isDoneSelectedCategories) {
       setIsCompleteForm(
         Object.values(formDatas)
           .filter((formData) => !Array.isArray(formData))
@@ -193,25 +318,16 @@ export default function Editor() {
     } else {
       setIsCompleteForm(false);
     }
-  }, [formDatas, isSelectedCategories]);
-
-  useEffect(() => {
-    if (isSuccess && productCategories) {
-      productCategories.categoryInfos.forEach((cate) => {
-        const tierIndex = cate.tier;
-        selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
-      });
-    }
-  }, [productCategories]);
+  }, [formDatas, isDoneSelectedCategories]);
 
   useEffect(() => {
     if (param === SELL) {
-      setFormTitle(TITLE.addPal);
-      setFormSubTitle(SUB_TITLE.addPal);
+      setFormTitle(TITLE.createPal);
+      setFormSubTitle(SUB_TITLE.createPal);
     }
     if (param === BUY) {
-      setFormTitle(TITLE.addSal);
-      setFormSubTitle(SUB_TITLE.addSal);
+      setFormTitle(TITLE.createSal);
+      setFormSubTitle(SUB_TITLE.createSal);
     }
 
     if (path.includes('modify')) {
@@ -378,8 +494,8 @@ export default function Editor() {
       const url = URL.createObjectURL(file);
 
       if (
-        !(imgUrls.length >= MAX_UPLOAD_COUNT) &&
-        imgUrls.length < MAX_UPLOAD_COUNT
+        !(imgUrls.length >= MAX_IMAGE_COUNT) &&
+        imgUrls.length < MAX_IMAGE_COUNT
       ) {
         imgUrls.push(url);
         imgFiles.push(file);
@@ -392,120 +508,6 @@ export default function Editor() {
       ...prev,
       imageFiles: formDatas.imageFiles.concat(imgFiles),
     }));
-  };
-
-  useEffect(() => {
-    if (!currentCategories.md.length) {
-      setIsDisabledMdCate(true);
-    } else setIsDisabledMdCate(false);
-
-    if (!currentCategories.sm.length) {
-      setIsDisabledSmCate(true);
-    } else setIsDisabledSmCate(false);
-  }, [currentCategories?.md.length, currentCategories?.sm.length]);
-
-  useEffect(() => {
-    if (currentCategories?.lg) {
-      setCurrentCategories((prev) => {
-        const newMdCate = midiumCategory.filter((mdCate) => {
-          return mdCate.cateParent === currentCategories.lg;
-        });
-        return { ...prev, md: newMdCate, sm: [] };
-      });
-    }
-  }, [currentCategories?.lg]);
-
-  const categoryDefaultValue = {
-    lg: '0',
-    md: '1',
-    sm: '2',
-  };
-
-  const categoryDefaultCode = {
-    lg: 10_000,
-    md: 100,
-    sm: 10,
-  };
-
-  useEffect(() => {
-    //TODO: 리팩토링
-
-    console.log(currentCategories, userSelectedCategoryCode);
-    console.log(Object.values(categoryDefaultValue), userSelectedCategoryCode);
-
-    if (
-      Object.values(categoryDefaultValue).includes(userSelectedCategoryCode)
-    ) {
-      return setIsSelectedCategories(false);
-    }
-
-    if (
-      currentCategories.md.length &&
-      userSelectedCategoryCode <= currentCategories.lg
-    ) {
-      return setIsSelectedCategories(false);
-    } else if (
-      !currentCategories.sm.length &&
-      !(userSelectedCategoryCode % categoryDefaultCode.md) &&
-      userSelectedCategoryCode > categoryDefaultCode.lg
-    ) {
-      setIsSelectedCategories(true);
-    } else if (
-      currentCategories.sm.length &&
-      userSelectedCategoryCode % categoryDefaultCode.sm
-    ) {
-      setIsSelectedCategories(true);
-    } else setIsSelectedCategories(false);
-
-    setFormDatas((prev) => ({
-      ...prev,
-      cateCode: userSelectedCategoryCode,
-    }));
-  }, [currentCategories, userSelectedCategoryCode]);
-
-  const changeSelectBoxHandler = ({ target }) => {
-    //TODO: 리팩토링
-
-    // 사용자가 선택한 카테고리에 따라 2차, 3차 분류
-    if (!(target.value % categoryDefaultCode.lg)) {
-    } else if (!(target.value % categoryDefaultCode.md)) {
-      if (currentCategories.sm.length) {
-        setUserSelectedCategoryCode(
-          Math.max(userSelectedCategoryCode, target.value)
-        );
-      } else {
-        setUserSelectedCategoryCode(target.value);
-      }
-    } else if (target.value % categoryDefaultCode.sm) {
-      setUserSelectedCategoryCode(target.value);
-    }
-
-    if (!(target.value % categoryDefaultCode.lg)) {
-      return setCurrentCategories((prev) => ({ ...prev, lg: target.value }));
-    }
-
-    if (target.value === categoryDefaultValue.md) {
-      return setCurrentCategories((prev) => {
-        const newSmCate = smallCetegory.filter((smCate) => {
-          return smCate.cateParent === target.value;
-        });
-
-        return { ...prev, sm: newSmCate };
-      });
-    }
-
-    if (
-      target.value !== categoryDefaultValue.md &&
-      !(target.value % categoryDefaultCode.md)
-    ) {
-      return setCurrentCategories((prev) => {
-        const newSmCate = smallCetegory.filter((smCate) => {
-          return smCate.cateParent === target.value;
-        });
-
-        return { ...prev, sm: newSmCate };
-      });
-    }
   };
 
   if (ErrorByCategory) {
@@ -604,52 +606,34 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <select
-                onChange={changeSelectBoxHandler}
+              <SelectBox
                 className='select-box lg'
-                required
-              >
-                <option value={0}>대분류</option>
-                {largeCategory?.map((largeCate) => {
-                  return (
-                    <option key={largeCate.cateCode} value={largeCate.cateCode}>
-                      {largeCate.cateName}
-                    </option>
-                  );
-                })}
-              </select>
+                required='required'
+                onChange={changeSelectedOption}
+                categories={categories[0]}
+                optionValue={CATEGORY_DEFAULT_VALUE.lg}
+                optionText='대분류'
+              />
 
-              <select
-                disabled={isDisabledMdCate}
-                onChange={changeSelectBoxHandler}
+              <SelectBox
                 className='select-box md'
-                required
-              >
-                <option value={1}>중분류</option>
-                {currentCategories.md?.map((mdCate) => {
-                  return (
-                    <option key={mdCate.cateCode} value={mdCate.cateCode}>
-                      {mdCate.cateName}
-                    </option>
-                  );
-                })}
-              </select>
+                required='required'
+                onChange={changeSelectedOption}
+                categories={appearMdCategories}
+                optionValue={CATEGORY_DEFAULT_VALUE.md}
+                optionText='중분류'
+                disabled={isDisabledMdCategory}
+              />
 
-              <select
-                disabled={isDisabledSmCate}
-                onChange={changeSelectBoxHandler}
+              <SelectBox
                 className='select-box sm'
-                required
-              >
-                <option value={2}>소분류</option>
-                {currentCategories.sm?.map((smCate) => {
-                  return (
-                    <option key={smCate.cateCode} value={smCate.cateCode}>
-                      {smCate.cateName}
-                    </option>
-                  );
-                })}
-              </select>
+                required='required'
+                onChange={changeSelectedOption}
+                categories={appearSmCategories}
+                optionValue={CATEGORY_DEFAULT_VALUE.sm}
+                optionText='소분류'
+                disabled={isDisabledSmCategory}
+              />
             </Categories>
           </CategoryContainer>
 
