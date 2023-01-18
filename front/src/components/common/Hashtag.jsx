@@ -49,6 +49,27 @@ export default function Hashtag({ hashtags, setFormDatas }) {
     setHashtagInput('');
   };
 
+  const changeInput = ({ target }) => {
+    setHashtagInput(target.value);
+  };
+
+  const deleteHashtag = ({ target }) => {
+    const newHashtags = hashtags.filter((hashtag) => {
+      return target.innerHTML !== hashtag;
+    });
+
+    setFormDatas((prev) => ({
+      ...prev,
+      hashtags: newHashtags,
+    }));
+  };
+
+  const keyDownHandler = ({ target }) => {
+    if (!HASHTAG_REG_EXP.test(target.value)) {
+      setHashtagInput(target.value.replace(SPECIAL_CHARACTERS_REG_EXP, ''));
+    }
+  };
+
   useEffect(() => {
     setFormDatas((prev) => ({
       ...prev,
@@ -66,27 +87,6 @@ export default function Hashtag({ hashtags, setFormDatas }) {
       return window.alert('해시태그는 10개 이상 등록할 수 없습니다.');
     }
   }, [hashtags.length]);
-
-  const keyDownHandler = (e) => {
-    if (!HASHTAG_REG_EXP.test(e.target.value)) {
-      setHashtagInput(e.target.value.replace(SPECIAL_CHARACTERS_REG_EXP, ''));
-    }
-  };
-
-  const changeInput = ({ target }) => {
-    setHashtagInput(target.value);
-  };
-
-  const deleteHashtag = ({ target }) => {
-    const newHashtags = hashtags.filter((hashtag) => {
-      return target.innerHTML !== hashtag;
-    });
-
-    setFormDatas((prev) => ({
-      ...prev,
-      hashtags: newHashtags,
-    }));
-  };
 
   return (
     <Container>
