@@ -35,11 +35,11 @@ import Hashtag from 'components/common/Hashtag';
 import SelectBox from 'components/Editor/SelectBox';
 
 import isIncludes from 'utils/isIncludes';
-import splitSpacing from 'utils/splitSpacing';
+import splitClassNameSpacing from 'utils/splitClassNameSpacing';
 import isAllMoreThen from 'utils/isAllMoreThen';
 
 const isIncludesCategoryTier = (target, tier) => {
-  return isIncludes(splitSpacing(target), tier);
+  return isIncludes(splitClassNameSpacing(target), tier);
 };
 
 export default function Editor() {
