@@ -135,7 +135,7 @@ public class UserController {
                 param.put("schPage", schPage);
                 System.out.println(param);
                 // 좋아요 상품
-                List<Map<String, Object>> interestProdList = userService.selectUserInterestProd(param);
+                List<Map<String, Object>> interestProdList = userService.selectUserInterestProdList(param);
                 System.out.println("UserController myPage interestProdList : " + interestProdList);
                 if (interestProdList != null) {
                     resultMap.put("interestProdList", interestProdList);
@@ -143,7 +143,7 @@ public class UserController {
                 }
 
                 // 판매
-                List<Map<String, Object>> sellProdList = userService.selectUserSellProd(param);
+                List<Map<String, Object>> sellProdList = userService.selectUserSellProdList(param);
                 System.out.println("UserController myPage sellProdList : " + sellProdList);
                 if (sellProdList != null) {
                     resultMap.put("sellProdList", sellProdList);
@@ -151,7 +151,7 @@ public class UserController {
                 }
 
                 // 구매
-                List<Map<String, Object>> buyProdList = userService.selectUserBuyProd(param);
+                List<Map<String, Object>> buyProdList = userService.selectUserBuyProdList(param);
                 System.out.println("UserController myPage buyProdList : " + buyProdList);
                 if (buyProdList != null) {
                     resultMap.put("buyProdList", buyProdList);
@@ -177,7 +177,7 @@ public class UserController {
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
-                    List<Map<String, Object>> interestProdList = userService.selectUserInterestProd(param);
+                    List<Map<String, Object>> interestProdList = userService.selectUserInterestProdList(param);
                     searchPagination.setTotalRecordCount(userService.selectUserInterestProdCnt(param));
                     result.put("shcPage", searchPagination);
                     result.put("interestProdList", interestProdList);
@@ -185,6 +185,54 @@ public class UserController {
             }
         } catch (Exception e){
             System.out.println("UserController interestProdList : " + e);
+        }
+
+        return result;
+    }
+
+    // 판매 상품
+    @PostMapping(value="/sellProdList")
+    public Map<String, Object> sellProdList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+        System.out.println(searchPagination);
+        try {
+            String headerToken = JWTUtil.getHeaderToken(request);
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtil.getTokenInfo(headerToken);
+                if (param != null) {
+                    List<Map<String, Object>> sellProdList = userService.selectUserSellProdList(param);
+                    searchPagination.setTotalRecordCount(userService.selectUserSellProdCnt(param));
+                    result.put("shcPage", searchPagination);
+                    result.put("sellProdList", sellProdList);
+                }
+            }
+        } catch (Exception e){
+            System.out.println("UserController sellProdList : " + e);
+        }
+
+        return result;
+    }
+
+    // 구매 상품
+    @PostMapping(value="/buyProdList")
+    public Map<String, Object> buyProdList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+        System.out.println(searchPagination);
+        try {
+            String headerToken = JWTUtil.getHeaderToken(request);
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtil.getTokenInfo(headerToken);
+                if (param != null) {
+                    List<Map<String, Object>> buyProdList = userService.selectUserBuyProdList(param);
+                    searchPagination.setTotalRecordCount(userService.selectUserBuyProdCnt(param));
+                    result.put("shcPage", searchPagination);
+                    result.put("buyProdList", buyProdList);
+                }
+            }
+        } catch (Exception e){
+            System.out.println("UserController sellProdList : " + e);
         }
 
         return result;
