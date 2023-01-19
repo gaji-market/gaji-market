@@ -171,13 +171,16 @@ public class UserController {
     public Map<String, Object> interestProdList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
-
+        System.out.println(searchPagination);
         try {
             String headerToken = JWTUtil.getHeaderToken(request);
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
-                    param.put("schPage", searchPagination);
+                    List<Map<String, Object>> interestProdList = userService.selectUserInterestProd(param);
+                    searchPagination.setTotalRecordCount(userService.selectUserInterestProdCnt(param));
+                    result.put("shcPage", searchPagination);
+                    result.put("interestProdList", interestProdList);
                 }
             }
         } catch (Exception e){
