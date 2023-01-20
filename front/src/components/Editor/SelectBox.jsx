@@ -8,6 +8,7 @@ export default function SelectBox({
   categories,
   optionText,
   optionValue,
+  selected,
 }) {
   return (
     <>
@@ -16,6 +17,7 @@ export default function SelectBox({
         className={className}
         required={required}
         disabled={disabled}
+        value={selected}
       >
         <option value={optionValue}>{optionText}</option>
         {categories?.map((category) => {
