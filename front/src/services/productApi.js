@@ -56,6 +56,7 @@ export const productApi = createApi({
       query: (prodNo) => ({
         url: `beforeUpdate/${prodNo}`,
       }),
+      providesTags: ['DetailView'],
     }),
     createSaleProduct: builder.mutation({
       query: (product) => ({
