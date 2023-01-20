@@ -49,13 +49,7 @@
              (
                 SELECT prodNo
                 FROM interest_info inst_info
-                WHERE userNo IN
-                             (
-                                SELECT no
-                                FROM user_info
-                                WHERE id = #{userId}
-                                AND pwd = #{userPwd}
-                             )
+                WHERE userNo = #{userNo}
              )
     </sql>
 
@@ -90,13 +84,7 @@
          WHERE prod_info.delYn != 'Y'
            AND prod_info.tradState = 3
            AND prod_info.tradeKind = 0
-           AND prod_info.userNo =
-                (
-                    SELECT no
-                    FROM user_info u_info
-                    WHERE id = #{userId}
-                    AND pwd = #{userPwd}
-                )
+           AND prod_info.userNo = #{userNo}
     </sql>
 
     <sql id="userBuyProdList">
@@ -130,13 +118,7 @@
          WHERE prod_info.delYn != 'Y'
            AND prod_info.tradState = 3
            AND prod_info.tradeKind = 1
-           AND prod_info.buyUserNo =
-                (
-                SELECT no
-                FROM user_info u_info
-                WHERE id = #{userId}
-                AND pwd = #{userPwd}
-                )
+           AND prod_info.buyUserNo = #{userNo}
     </sql>
 
     <!-- 아이디 중복 확인 -->

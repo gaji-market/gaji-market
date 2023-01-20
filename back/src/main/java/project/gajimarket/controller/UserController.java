@@ -84,6 +84,8 @@ public class UserController {
             if (selectUser != null) {
                 // 토큰 생성
                 param.put("userNo", selectUser.getUserNo());
+                param.remove("userId");
+                param.remove("userPwd");
                 token = JWTUtil.createAccessToken(param);
                 System.out.println("UserController signIn token : " + token);
                 if (token != null && !"".equals(token)) {
@@ -121,13 +123,11 @@ public class UserController {
             // 토큰 복호화
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
-                if (param != null) {
-                    UserDTO selectUser = userService.selectUser(param);
-                    System.out.println("UserController myPage userDto : " + selectUser);
-                    if (selectUser != null) {
-                        result = "success";
-                        resultMap.put("userInfo", selectUser);
-                    }
+                UserDTO selectUser = userService.selectUser(param);
+                System.out.println("UserController myPage userDto : " + selectUser);
+                if (selectUser != null) {
+                    result = "success";
+                    resultMap.put("userInfo", selectUser);
                 }
             }
 
@@ -177,8 +177,9 @@ public class UserController {
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
-                    List<Map<String, Object>> interestProdList = userService.selectUserInterestProdList(param);
                     searchPagination.setTotalRecordCount(userService.selectUserInterestProdCnt(param));
+                    param.put("schPage", searchPagination);
+                    List<Map<String, Object>> interestProdList = userService.selectUserInterestProdList(param);
                     result.put("shcPage", searchPagination);
                     result.put("interestProdList", interestProdList);
                 }
@@ -201,8 +202,9 @@ public class UserController {
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
-                    List<Map<String, Object>> sellProdList = userService.selectUserSellProdList(param);
                     searchPagination.setTotalRecordCount(userService.selectUserSellProdCnt(param));
+                    param.put("schPage", searchPagination);
+                    List<Map<String, Object>> sellProdList = userService.selectUserSellProdList(param);
                     result.put("shcPage", searchPagination);
                     result.put("sellProdList", sellProdList);
                 }
@@ -225,8 +227,9 @@ public class UserController {
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
                 if (param != null) {
-                    List<Map<String, Object>> buyProdList = userService.selectUserBuyProdList(param);
                     searchPagination.setTotalRecordCount(userService.selectUserBuyProdCnt(param));
+                    param.put("schPage", searchPagination);
+                    List<Map<String, Object>> buyProdList = userService.selectUserBuyProdList(param);
                     result.put("shcPage", searchPagination);
                     result.put("buyProdList", buyProdList);
                 }
