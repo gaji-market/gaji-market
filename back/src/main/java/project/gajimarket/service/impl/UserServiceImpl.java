@@ -94,10 +94,8 @@ public class UserServiceImpl implements UserService {
 
                 System.out.println("UserServiceImpl uploadFile : " + uploadFile);
                 int fileSaveResult = fileDAO.userFileSave(paramMap);
-                if (fileSaveResult > 0) {
-                    result = userDao.updateUser(userDto);
-                }
             }
+            result = userDao.updateUser(userDto);
 
         } catch (IOException e) {
             System.out.println("UserServiceImpl updateUser : " + e);

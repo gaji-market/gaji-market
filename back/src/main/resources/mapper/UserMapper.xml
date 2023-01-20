@@ -242,9 +242,17 @@
     <!-- 회원정보 수정 -->
     <update id="updateUser" parameterType="project.gajimarket.model.UserDTO">
         UPDATE user_info
-        SET pwd = #{userPwd}
-          , nickname = #{userNickName}
-          , address = #{userAddress}
+        <set>
+            <if test='userPwd != null and userPwd != ""'>
+                pwd = #{userPwd},
+            </if>
+            <if test='userNickName != null and userNickName != ""'>
+                nickname = #{userNickName},
+            </if>
+            <if test='userAddress != null and userAddress != ""'>
+                address = #{userAddress}
+            </if>
+        </set>
         WHERE no = #{userNo}
     </update>
 
