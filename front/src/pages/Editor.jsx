@@ -38,10 +38,23 @@ import isIncludes from 'utils/isIncludes';
 import splitClassNameSpacing from 'utils/splitClassNameSpacing';
 import isAllMoreThen from 'utils/isAllMoreThen';
 
+const NO_IMAGE =
+  'https://raw.githubusercontent.com/gaji-market/gaji-market/reason/front/src/assets/no_image.png';
+
 const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
 
 const isIncludesCategoryTier = (target, tier) => {
   return isIncludes(splitClassNameSpacing(target), tier);
+};
+
+const convertImageUrlToFile = async (imgUrl) => {
+  const res = await fetch(imgUrl);
+  const blob = await res.blob();
+  const fileName = imgUrl.split('/').pop();
+  const fileExtension = fileName.split('.').pop();
+  const metaData = { type: `image/${fileExtension}` };
+
+  return new File([blob], fileName, metaData);
 };
 
 export default function Editor() {
@@ -75,6 +88,13 @@ export default function Editor() {
     tradState: '0', // 상품 상태값 판매중0, 사는중1, 구매중2, 판매완료3
     // TODO: tradState 상태값 넣을 셀렉트 필요할듯
   });
+
+  useEffect(() => {
+    setFormDatas((prev) => ({
+      ...prev,
+      tradState: param === SELL ? '0' : '1',
+    }));
+  }, [param]);
 
   // 서버에서 받아온 모든 카테고리
   const [largeCategories, setLargeCategories] = useState([]);
@@ -214,6 +234,7 @@ export default function Editor() {
 
   /**
    * 게시글 수정하기
+   * 팔래요/살래요 prodState 달라야함
    * */
   const path = location.pathname.split('/');
   console.log(path);
@@ -234,7 +255,6 @@ export default function Editor() {
     [formDatas]
   );
 
-  // 게시글 수정하기
   const [modifyModeValues, setModifyModeValues] = useState({
     title: '',
     price: 0,
@@ -244,16 +264,6 @@ export default function Editor() {
     mdCategory: '1',
     smCategory: '2',
   });
-
-  const convertImageUrlToFile = async (imgUrl) => {
-    const res = await fetch(imgUrl);
-    const blob = await res.blob();
-    const fileName = imgUrl.split('/').pop();
-    const fileExtension = fileName.split('.').pop();
-    const metaData = { type: `image/${fileExtension}` };
-
-    return new File([blob], fileName, metaData);
-  };
 
   useEffect(() => {
     setProductNo(path[path.length - 1]);
@@ -272,7 +282,8 @@ export default function Editor() {
     if (isSuccessOfModificationData) {
       const { categoryInfos, fileInfos, hashTagInfos, productInfo } =
         modifyProduct;
-      const [lgCategory, mdCategory, smCategory] = categoryInfos;
+
+      const category = categoryInfos.filter((category) => !!category);
 
       const images = fileInfos.map(({ dbFileName }) => {
         return `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`;
@@ -284,26 +295,30 @@ export default function Editor() {
         price: productInfo.prodPrice,
         isFreeChecked: productInfo.freeCheck === '1' ? true : false,
         contents: productInfo.prodExplain,
-        lgCategory: lgCategory.cateCode,
-        mdCategory: mdCategory.cateCode,
-        smCategory: smCategory.cateCode,
+        lgCategory: category[0].cateCode,
+        mdCategory: category[1].cateCode,
+        smCategory: category[2]?.cateCode,
       }));
 
-      setSelectedLgCategory(lgCategory.cateCode);
-      setSelectedMdCategory(mdCategory.cateCode);
-      setSelectedSmCategory(smCategory.cateCode);
+      setSelectedLgCategory(category[0].cateCode);
+      setSelectedMdCategory(category[1].cateCode);
+      setSelectedSmCategory(category[2]?.cateCode);
       setIsDoneSelectedCategories(true);
 
       setAddedImgs((prev) => [...prev, ...images]);
       productPriceRef.current.value = productInfo.prodPrice;
 
       modifyProduct.fileInfos.map(async ({ dbFileName }) => {
-        await convertImageUrlToFile(dbFileName).then((imageFile) => {
-          setFormDatas((prev) => ({
-            ...prev,
-            imageFiles: [...prev.imageFiles, imageFile],
-          }));
-        });
+        try {
+          await convertImageUrlToFile(dbFileName).then((imageFile) => {
+            setFormDatas((prev) => ({
+              ...prev,
+              imageFiles: [...prev.imageFiles, imageFile],
+            }));
+          });
+        } catch (error) {
+          console.error(error);
+        }
       });
 
       const hashTags = hashTagInfos.map(({ tagName }) => tagName);
@@ -312,7 +327,6 @@ export default function Editor() {
 
       setFormDatas((prev) => ({
         ...prev,
-
         prodName: productInfo.prodName,
         prodPrice: productInfo.prodPrice,
         prodExplain: productInfo.prodExplain,
@@ -324,9 +338,9 @@ export default function Editor() {
       }));
     }
   }, [isSuccessOfModificationData]);
+  console.log(formDatas);
 
-  //
-
+  // 폼 데이터가 전부 채워졌는지 체크
   useEffect(() => {
     if (
       param === SELL &&
@@ -349,9 +363,12 @@ export default function Editor() {
 
     if (param === BUY && isDoneSelectedCategories) {
       setIsCompleteForm(
-        Object.values(formDatas)
-          .filter((formData) => !Array.isArray(formData))
-          .every((formData) => !!formData)
+        [
+          formDatas.prodPrice,
+          formDatas.prodName,
+          formDatas.cateCode,
+          formDatas.prodExplain,
+        ].every((data) => !!data)
       );
     } else {
       setIsCompleteForm(false);
@@ -442,36 +459,85 @@ export default function Editor() {
     try {
       e.preventDefault();
 
-      const formData = new FormData();
-      formDatas.imageFiles.forEach((item) => {
-        formData.append('imageFiles', item);
-      });
+      // 살래요 이미지 없이 보내기
+      // TODO: 코드 리팩토링
+      if (param === BUY && !formDatas.imageFiles.length) {
+        convertImageUrlToFile(NO_IMAGE)
+          .then((noimage) => {
+            formDatas.imageFiles = [noimage];
+            const formData = new FormData();
+            formDatas.imageFiles.forEach((item) => {
+              formData.append('imageFiles', item);
+            });
 
-      formData.append(
-        'param',
-        new Blob([JSON.stringify(formDatas)], { type: 'application/json' })
-      );
+            formData.append(
+              'param',
+              new Blob([JSON.stringify(formDatas)], {
+                type: 'application/json',
+              })
+            );
 
-      formDatas.imageFiles = formData;
+            formDatas.imageFiles = formData;
 
-      let response;
-      if (!path.includes('modify')) {
-        // 등록하기
-        response = await queryPerParam[param](formData);
-        if (response.data.result === 'Success') {
-          window.alert('게시글 등록 완료'); // TODO: 수정하기 일 때 멘트 수정
-          navigate(`/products/${param}`);
-        } else {
-          throw new Error('게시글 등록 실패');
-        }
+            if (!path.includes('modify')) {
+              // 등록하기
+              console.log('살래요', formData);
+
+              queryPerParam[param](formData).then((response) => {
+                if (response.data.result === 'Success') {
+                  window.alert('게시글 등록 완료');
+                  navigate(`/products/${param}`);
+                } else {
+                  throw new Error('게시글 등록 실패');
+                }
+              });
+            } else {
+              // 수정하기
+              modifyProductMutation(formData).then((response) => {
+                if (response.data.result === 'Success') {
+                  window.alert('게시글 수정 완료'); // TODO: 수정하기 일 때 멘트 수정
+                  navigate(`/products/${param}`);
+                } else {
+                  throw new Error('게시글 수정 실패');
+                }
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       } else {
-        // 수정하기
-        response = await modifyProductMutation(formData);
-        if (response.data.result === 'Success') {
-          window.alert('게시글 수정 완료'); // TODO: 수정하기 일 때 멘트 수정
-          navigate(`/products/${param}`);
+        const formData = new FormData();
+        formDatas.imageFiles.forEach((item) => {
+          formData.append('imageFiles', item);
+        });
+
+        formData.append(
+          'param',
+          new Blob([JSON.stringify(formDatas)], { type: 'application/json' })
+        );
+
+        formDatas.imageFiles = formData;
+
+        let response;
+        if (!path.includes('modify')) {
+          // 등록하기
+          response = await queryPerParam[param](formData);
+          if (response.data.result === 'Success') {
+            window.alert('게시글 등록 완료'); // TODO: 수정하기 일 때 멘트 수정
+            navigate(`/products/${param}`);
+          } else {
+            throw new Error('게시글 등록 실패');
+          }
         } else {
-          throw new Error('게시글 수정 실패');
+          // 수정하기
+          response = await modifyProductMutation(formData);
+          if (response.data.result === 'Success') {
+            window.alert('게시글 수정 완료'); // TODO: 수정하기 일 때 멘트 수정
+            navigate(`/products/${param}`);
+          } else {
+            throw new Error('게시글 수정 실패');
+          }
         }
       }
     } catch (err) {
@@ -491,6 +557,7 @@ export default function Editor() {
    */
 
   const changeFileUploadHandler = ({ target }) => {
+    console.log(target);
     const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
     const extension = target.files[0].name
       .slice(findExtensionsIndex + 1)
