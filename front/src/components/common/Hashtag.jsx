@@ -64,9 +64,11 @@ export default function Hashtag({ hashtags, setFormDatas }) {
     }));
   };
 
-  const keyDownHandler = ({ target }) => {
-    if (!HASHTAG_REG_EXP.test(target.value)) {
-      setHashtagInput(target.value.replace(SPECIAL_CHARACTERS_REG_EXP, ''));
+  const keyDownHandler = (e) => {
+    e.preventDefault();
+
+    if (!HASHTAG_REG_EXP.test(e.target.value)) {
+      setHashtagInput(e.target.value.replace(SPECIAL_CHARACTERS_REG_EXP, ''));
     }
   };
 
