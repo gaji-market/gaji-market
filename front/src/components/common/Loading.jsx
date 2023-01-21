@@ -35,35 +35,35 @@ export default function Loading() {
 
 const moveImageFirst = keyframes`
     0%{
-      transform:translateX(-55px)  rotate(0deg) 
+      transform:translateX(-25px) 
     }
     50%{
-      transform:translateX(40px)  rotate(360deg) 
+      transform:translateX(10px)   
     }  
     100%{
-      transform:translateX(-55px)  rotate(0deg) 
+      transform:translateX(-25px) 
     }    
 `;
 const moveImageMiddle = keyframes`
-      0%{
-      transform: rotate(0deg) 
+    0%{
+      transform:translateX(5px)   
     }
     50%{
-      transform: rotate(360deg) 
+      transform:translateX(0px) 
     }  
     100%{
-      transform:  rotate(0deg) 
+      transform:translateX(5px) 
     }    
 `;
 const moveImageLast = keyframes`
     0%{
-      transform:translateX(55px)  rotate(0deg) 
+      transform:translateX(25px)   
     }
     50%{
-      transform:translateX(-40px)  rotate(360deg) 
+      transform:translateX(-10px) 
     }  
     100%{
-      transform:translateX(55px)  rotate(0deg) 
+      transform:translateX(25px) 
     }    
 `;
 const TextAnimation = keyframes`
@@ -71,7 +71,7 @@ const TextAnimation = keyframes`
     transform:translateY(0px) 
   }
   50%{
-    transform:translateY(30px) 
+    transform:translateY(8px) 
   }
   100%{
     transform:translateY(0px) 
