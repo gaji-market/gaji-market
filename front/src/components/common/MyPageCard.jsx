@@ -17,8 +17,8 @@ export default function MyPageCard({ title, cardList, totalCount }) {
   function CardComponent({ cards }) {
     return (
       <>
-        {cards?.length > 0 &&
-          cards?.slice(0, 4).map((product) => {
+        {cards.length > 0 &&
+          cards.slice(0, 4).map((product) => {
             const {
               address,
               dbFileName,
@@ -53,7 +53,7 @@ export default function MyPageCard({ title, cardList, totalCount }) {
   return (
     <>
       <ProductHead>
-        <ProductHeadTitle>{title}게시글</ProductHeadTitle>
+        <ProductHeadTitle>{title}</ProductHeadTitle>
         <ProductHeadSubtext>더보기({totalCount})</ProductHeadSubtext>
         <PlusButton customSize='35px' />
       </ProductHead>
