@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
+import 'react-tooltip/dist/react-tooltip.css';
 import styled from 'styled-components';
 
 import {
-  useLazyGetCheckCntQuery,
+  useGetCheckCntQuery,
   useGetNotifiListMutation,
   useLazyCheckNotifiQuery,
 } from 'services/alarmApi';
@@ -45,7 +47,7 @@ export default function AppBar() {
 
   const [getNotiList] = useGetNotifiListMutation();
   const [checkNoti] = useLazyCheckNotifiQuery();
-  const [getCheckCnt] = useLazyGetCheckCntQuery({
+  const { data: counts } = useGetCheckCntQuery(userNo, {
     pollingInterval: 5000,
   });
 
@@ -56,10 +58,6 @@ export default function AppBar() {
   const [toggles, setToggles] = useState(initToggles);
   const [currentTab, setCurrentTab] = useState('채팅');
   const [notificationInfos, setNotificationInfos] = useState([]);
-  const [counts, setCounts] = useState({
-    intstCheckCnt: 0,
-    chatCheckCnt: 0,
-  });
 
   const keydownHandler = (e) => {
     if (e.key === 'Enter' && searchRef.current.value) {
@@ -84,15 +82,6 @@ export default function AppBar() {
     }
   };
 
-  const getCheckCntHandler = async () => {
-    try {
-      const data = await getCheckCnt(userNo).unwrap();
-      setCounts(data);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   const checkNotiHandler = async (notiNo) => {
     try {
       await checkNoti(notiNo).unwrap();
@@ -111,12 +100,6 @@ export default function AppBar() {
       setToggles((prev) => ({ ...prev, productSwitch: false }));
     }
   }, [location]);
-
-  useEffect(() => {
-    if (userNo) {
-      getCheckCntHandler();
-    }
-  }, []);
 
   return (
     <>
@@ -238,18 +221,27 @@ export default function AppBar() {
                         <EmptyMsg>알림이 없습니다.</EmptyMsg>
                       )}
                       {notificationInfos.map((item, idx) => (
-                        <NotiItem
-                          key={idx}
-                          aria-checked={item.checkYn === 'Y'}
-                          onClick={() =>
-                            item.checkYn === 'N' &&
-                            checkNotiHandler(item.notifiNo)
-                          }
-                        >
+                        <NotiItem key={idx} aria-checked={item.checkYn === 'Y'}>
                           <div>{item.nickname}</div>
                           <div>{item.message}</div>
                           <span>{item.regDate.split('T')[0]}</span>
-                          <NewBadge aria-checked={item.checkYn === 'Y'} />
+                          <NewBadge
+                            id={item.notifiNo}
+                            aria-checked={item.checkYn === 'Y'}
+                            onClick={() =>
+                              item.checkYn === 'N' && [
+                                checkNotiHandler(item.notifiNo),
+                                getNotiListHandler(currentTab),
+                              ]
+                            }
+                          />
+                          {item.checkYn === 'N' && (
+                            <ReactTooltip
+                              anchorId={item.notifiNo}
+                              place='top'
+                              content='읽음으로 표시'
+                            />
+                          )}
                         </NotiItem>
                       ))}
                     </AlarmBody>
@@ -450,6 +442,7 @@ const FloatRight = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-right: 24px;
+  margin-bottom: 16px;
 
   span {
     color: ${PRIMARY_COLOR};
@@ -493,6 +486,7 @@ const NewBadge = styled.span`
   height: 12px;
   border-radius: 12px;
   text-align: center;
+  border: 4px solid transparent;
 
   &[aria-checked='false'] {
     background-color: ${RED_COLOR};
