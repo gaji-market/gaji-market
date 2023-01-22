@@ -65,7 +65,7 @@ export default function Hashtag({ hashtags, setFormDatas }) {
   };
 
   const keyDownHandler = (e) => {
-    e.preventDefault();
+    if (ALLOWED_COMMANDS.includes(e.code)) e.preventDefault();
 
     if (!HASHTAG_REG_EXP.test(e.target.value)) {
       setHashtagInput(e.target.value.replace(SPECIAL_CHARACTERS_REG_EXP, ''));
