@@ -1,8 +1,7 @@
 /* eslint-disable indent */
-import { useEffect } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { BsCheckCircle } from 'react-icons/bs';
-import { RiForbid2Line } from 'react-icons/ri';
+import { TiWarning } from 'react-icons/ti';
 
 import { PRIMARY_COLOR } from './commonColor';
 import useToast from 'hooks/toast';
@@ -25,12 +24,15 @@ export default function Toast() {
             onClick={() => deleteToast(toast.id)}
           >
             {toast.isToastSuccess ? (
-              <BsCheckCircle className='Check' size='35' />
+              <CheckCircleIcon className='Check' size='35' />
             ) : (
-              <RiForbid2Line className='Check' size='35' />
+              <WarningIcon className='Check' size='40' />
             )}
-            {toast.toastTitle}
-            {toast.toastMessage}
+            <div className='toast-messages'>
+              <h3>{toast.toastTitle}</h3>
+              <Blank />
+              {toast.toastMessage}
+            </div>
           </ToastBox>
         );
       })}
@@ -63,34 +65,47 @@ to{
   }
 `;
 const ToastContainer = styled.div`
-  z-index: 999;
+  z-index: 1000000000;
   position: absolute;
   right: 3%;
   top: 7%;
 `;
+
 const ToastBox = styled.div`
+  min-width: 300px;
+  font-size: 15px;
+  position: relative;
   margin-bottom: 15px;
   background-color: #fcccd3;
   border-radius: 10px;
   overflow: hidden;
-  width: 400px;
+  width: 100%;
+  padding: 15px 25px 15px 0;
   display: flex;
   align-items: center;
   word-wrap: break-word;
   color: red;
   animation: ${toastFadeIn} 0.3s 0s linear forwards,
     ${toastFadeOut} 0.5s 3s linear forwards;
-  font-weight: 800;
+
   .Check {
     margin-right: 15px;
   }
 
+  .toast-messages {
+    font-weight: 500;
+
+    > h3 {
+      font-weight: 900;
+    }
+  }
+
   &::before {
     content: '';
-    width: 15px;
-    height: 80px;
+    width: 12px;
+    height: 300px;
     background: #ff7e92;
-    margin-right: 50px;
+    margin-right: 20px;
   }
 
   ${({ toastPosition }) => css`
@@ -106,9 +121,10 @@ const ToastBox = styled.div`
     css`
       color: white;
       &::before {
-        background: #ff1c3e;
+        background: #bf1818;
+        position: absolute;
       }
-      background: #fc5c74;
+      background: #e05151;
     `}
 
   ${({ isToastSuccess }) =>
@@ -116,7 +132,8 @@ const ToastBox = styled.div`
     css`
       color: ${PRIMARY_COLOR};
       &::before {
-        background: #7307ff;
+        background: #6418ba;
+        position: absolute;
       }
       background: #ececece2;
     `}
@@ -127,8 +144,22 @@ const ToastBox = styled.div`
     css`
       color: white;
       &::before {
-        background: #7307ff;
+        background: #6418ba;
       }
       background: ${PRIMARY_COLOR};
     `}
+`;
+
+const Blank = styled.div`
+  margin-top: 5px;
+  width: 100px;
+`;
+
+const WarningIcon = styled(TiWarning)`
+  font-size: 23px;
+  margin-left: 30px;
+`;
+
+const CheckCircleIcon = styled(BsCheckCircle)`
+  margin-left: 30px;
 `;
