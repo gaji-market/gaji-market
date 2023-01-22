@@ -30,6 +30,8 @@ import {
 import { Error } from './index';
 import { SELL } from 'constants/params';
 
+import useToast from 'hooks/toast';
+
 const NEXT_X = 400;
 const ADDRESS = {
   start: 0,
@@ -37,6 +39,8 @@ const ADDRESS = {
 };
 
 export default function ProductDetailView() {
+  const { addToast } = useToast();
+
   const slideRef = useRef();
   const modalRef = useRef(null);
 
@@ -45,6 +49,7 @@ export default function ProductDetailView() {
   const { type: param, id: prodNo } = useParams();
 
   const { data, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+  const [authorImage, setAuthorImage] = useState(false);
   const [isCreatedUser, setIsCreatedUser] = useState(false);
 
   useEffect(() => {
@@ -55,6 +60,12 @@ export default function ProductDetailView() {
       if (loggedInUserNo === CreatedUserNo) setIsCreatedUser(true);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (isSuccess && data.userInfo.dbFileName) {
+      setAuthorImage(true);
+    }
+  }, [data?.userInfo?.dbFileName]);
 
   const [changeInterestCountMutation] = useChangeInterestCountMutation();
   const [changeReportCountMutation] = useChangeReportCountMutation();
@@ -123,10 +134,24 @@ export default function ProductDetailView() {
     try {
       const result = await deleteProductMutation(prodNo).unwrap();
       console.log(result);
-      // TODO: 삭제 완료 토스트 띄우고 네비게이트
+      addToast({
+        isToastSuccess: true,
+        isMainTheme: true,
+        toastTitle: '게시글 삭제 완료!',
+        toastMessage: '상품 전체보기 페이지로 이동합니다.',
+      });
+
+      setTimeout(() => {
+        navigate(`/products/${param}`);
+      }, 500);
     } catch (error) {
       console.error(error);
-      // TODO: 삭제 실패 토스트 띄우고 네비게이트
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastTitle: '게시글 삭제 실패!',
+        toastMessage: '잠시 후 다시 시도해주세요.',
+      });
     }
   };
 
@@ -285,7 +310,16 @@ export default function ProductDetailView() {
             <UserInfo>
               <UserInfoTitle>판매자 정보</UserInfoTitle>
               <ProfileWrapper>
-                <ProfileImg />
+                {authorImage ? (
+                  <ProfileImg>
+                    <img
+                      src={`${process.env.REACT_APP_IMG_PREFIX_URL}${data?.userInfo.dbFileName}`}
+                      alt='작성자 프로필 사진'
+                    ></img>
+                  </ProfileImg>
+                ) : (
+                  <ProfileImg />
+                )}
                 <div>
                   <UserNickName>{data.userInfo.nickname}</UserNickName>
                   <UserArea>
@@ -594,6 +628,14 @@ const ProfileImg = styled.div`
   background: #ddd;
   margin-bottom: 3px;
   margin-right: 5px;
+  overflow: hidden;
+
+  > img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 100px;
+  }
 `;
 
 const UserNickName = styled.p`
