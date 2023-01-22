@@ -33,7 +33,7 @@ export const alarmApi = createApi({
         method: 'POST',
         body: {
           currentPage: 1, //시작 페이지
-          recordCount: 10, //한 페이지 당 가져올 글의 개수
+          recordCount: 100, //한 페이지 당 가져올 글의 개수
         },
       }),
       // response

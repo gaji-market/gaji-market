@@ -22,6 +22,7 @@ import Modal from 'components/common/Modal';
 import {
   DARK_GRAY_COLOR,
   GRAY_COLOR,
+  LIGHT_GRAY_COLOR,
   PRIMARY_COLOR,
   PRIMARY_VAR_COLOR,
   WHITE_COLOR,
@@ -58,11 +59,17 @@ export default function Chat() {
     try {
       const { chatRoomInfos, schPage } = await getChatRoomList({
         // TODO: get userNo from sessionSlice
-        userNo: 1,
+        userNo: userNo,
         currentPage: 1,
-        recordCount: 10,
+        recordCount: 100,
       }).unwrap();
       setChatRoomInfos(chatRoomInfos);
+
+      console.log('chatRoomInfos', chatRoomInfos);
+
+      if (chatRoomInfos[0]) {
+        getChatRoomHandler(chatRoomInfos[0]);
+      }
       if (prodNo && userNo) {
         addChatRoomHandler(prodNo, userNo);
       }
@@ -292,7 +299,9 @@ const Wrapper = styled.div`
   display: flex;
   margin: 16px;
   height: calc(100% - 32px);
-  column-gap: 16px;
+  background-color: white;
+  box-shadow: 3px 3px 30px ${GRAY_COLOR};
+  border-radius: 16px;
 `;
 
 const Header = styled.h3`
@@ -321,17 +330,15 @@ const Footer = styled.div`
 const ChatList = styled.div`
   overflow: auto;
   padding: 16px;
-  background-color: ${PRIMARY_VAR_COLOR};
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
   width: 480px;
-  box-shadow: 1px 1px 2px ${GRAY_COLOR};
+  border-right: 3px solid ${LIGHT_GRAY_COLOR};
 
   .current {
+    /* background-color: ${PRIMARY_VAR_COLOR}; */
     border: 2px solid ${PRIMARY_COLOR};
-    box-shadow: 2px 2px 2px ${GRAY_COLOR};
   }
 `;
 
@@ -341,10 +348,11 @@ const ChatItemWrapper = styled.div`
   padding: 8px;
   background: ${WHITE_COLOR};
   border-radius: 8px;
-  border: 2px solid ${WHITE_COLOR};
+  border: 2px solid ${LIGHT_GRAY_COLOR};
+
   &:hover {
     cursor: pointer;
-    border-color: ${PRIMARY_COLOR};
+    border: 2px solid ${PRIMARY_COLOR};
   }
 `;
 
@@ -352,6 +360,10 @@ const ChatItem = styled.div`
   display: flex;
   justify-content: space-around;
   flex: 1;
+
+  div > span {
+    color: ${DARK_GRAY_COLOR};
+  }
 `;
 
 const Box = styled.div`
@@ -384,6 +396,7 @@ const IconButton = styled.span`
 
 const Username = styled.div`
   font-weight: bold;
+  color: ${PRIMARY_COLOR};
 `;
 
 // message
@@ -391,19 +404,14 @@ const LastMsg = styled.div`
   color: ${DARK_GRAY_COLOR};
   margin-top: 8px;
   height: 16px;
-  /* margin-left: 32px; */
-  /* height: 50%; */
 `;
 
 // right - chat message
 const ChatMessage = styled.div`
-  background-color: #f6f6f6;
   flex: 1;
-  border-radius: 16px;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  box-shadow: 1px 1px 2px ${GRAY_COLOR};
   justify-content: center;
 
   h1 {
