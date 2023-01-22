@@ -38,18 +38,21 @@ export default function Chat() {
   const [getChatRoom] = useLazyGetChatRoomQuery();
   const [addChatRoom] = useAddChatRoomMutation();
   const [removeChatRoom] = useLazyRemoveChatRoomQuery();
+  const [removeChatMsg] = useLazyRemoveChatMessageQuery();
   const { addToast } = useToast();
   // const socket = io.connect(TEMP_SERVER_URL);
 
   const { id: prodNo } = useParams();
 
-  const modalRef = useRef(null);
+  const roomDeleteModalRef = useRef(null);
+  const msgDeleteModalRef = useRef(null);
 
   const [target, setTarget] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteRoomTarget, setDeleteRoomTarget] = useState(null);
+  const [deleteMsgTarget, setDeleteMsgTarget] = useState(null);
   const [msg, setMsg] = useState('');
-  const [messages, setMessages] = useState([]);
   const [chatRoomInfos, setChatRoomInfos] = useState([]);
+  const [messages, setMessages] = useState([]);
 
   const userNo = useSelector(selectUserNo);
 
@@ -61,7 +64,6 @@ export default function Chat() {
         currentPage: 1,
         recordCount: 10,
       }).unwrap();
-      console.log(chatRoomInfos);
       setChatRoomInfos(chatRoomInfos);
     } catch (err) {
       console.log(err);
@@ -98,7 +100,7 @@ export default function Chat() {
 
   const removeChatRoomHandler = async () => {
     try {
-      await removeChatRoom(deleteTarget).unwrap();
+      await removeChatRoom(deleteRoomTarget).unwrap();
       getChatRoomListHandler();
 
       addToast({
@@ -109,7 +111,23 @@ export default function Chat() {
     } catch (err) {
       console.log(err);
     } finally {
-      setDeleteTarget(null);
+      setDeleteRoomTarget(null);
+    }
+  };
+
+  const removeMsgHandler = async () => {
+    try {
+      await removeChatMsg(deleteMsgTarget).unwrap();
+      getChatRoomHandler(target);
+      addToast({
+        isToastSuccess: true,
+        isMainTheme: true,
+        toastMessage: '채팅 메시지가 삭제 되었습니다.',
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setDeleteMsgTarget(null);
     }
   };
 
@@ -146,11 +164,18 @@ export default function Chat() {
   return (
     <>
       <Modal
-        ref={modalRef}
+        ref={roomDeleteModalRef}
         text='정말 삭제 하시겠습니까?'
         leftBtnText='네'
         rightBtnText='아니요'
         confirmHandler={removeChatRoomHandler}
+      />
+      <Modal
+        ref={msgDeleteModalRef}
+        text='정말 삭제 하시겠습니까?'
+        leftBtnText='네'
+        rightBtnText='아니요'
+        confirmHandler={removeMsgHandler}
       />
       <Wrapper>
         <ChatList>
@@ -177,8 +202,8 @@ export default function Chat() {
                 <Box padding='8px' center='true'>
                   <IconButton
                     onClick={() => [
-                      modalRef.current?.showModal(),
-                      setDeleteTarget(item.chatNo),
+                      roomDeleteModalRef.current?.showModal(),
+                      setDeleteRoomTarget(item.chatNo),
                     ]}
                   >
                     <RiDeleteBinLine size={22} color={GRAY_COLOR} />
@@ -204,6 +229,14 @@ export default function Chat() {
                         <span>
                           {info.checkYn === 'Y' ? '읽음' : '읽지 않음'}
                         </span>
+                        <IconButton
+                          onClick={() => [
+                            msgDeleteModalRef.current?.showModal(),
+                            setDeleteMsgTarget(info.no),
+                          ]}
+                        >
+                          <RiDeleteBinLine size={22} color={GRAY_COLOR} />
+                        </IconButton>
                       </Bubble>
                     </React.Fragment>
                   ))}
@@ -314,7 +347,7 @@ const Box = styled.div`
     `}
 `;
 
-const IconButton = styled.div`
+const IconButton = styled.span`
   &:hover {
     cursor: pointer;
 
