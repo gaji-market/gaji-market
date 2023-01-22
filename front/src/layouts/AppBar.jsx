@@ -17,6 +17,7 @@ import { selectSession, endSession } from 'store/sessionSlice';
 import useToast from 'hooks/toast';
 
 import ToggleSwitch from 'components/common/ToggleSwitch';
+import CountBadge from 'components/common/CountBadge';
 import Button from 'components/common/Button';
 import Modal from 'components/common/Modal';
 
@@ -27,13 +28,14 @@ import {
   GRAY_COLOR,
   PRIMARY_VAR_COLOR,
   DARK_GRAY_COLOR,
+  LIGHT_GRAY_COLOR,
   WHITE_COLOR,
   RED_COLOR,
 } from 'components/common/commonColor';
 
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
-import CountBadge from 'components/common/CountBadge';
+import { AiFillMessage } from 'react-icons/ai';
 
 export default function AppBar() {
   const { userId, userNo, isLoggedIn } = useSelector(selectSession);
@@ -231,12 +233,16 @@ export default function AppBar() {
                       )}
                       {notificationInfos.map((item, idx) => (
                         <NotiItem key={idx} aria-checked={item.checkYn === 'Y'}>
+                          <div className='strong-text'>{item.message}</div>
                           <div>{item.nickname}</div>
-                          <div>{item.message}</div>
                           <span>{item.regDate.split('T')[0]}</span>
-                          <NewBadge
+                          <AiFillMessage
                             id={item.notifiNo}
+                            className='msg-icon'
                             aria-checked={item.checkYn === 'Y'}
+                            color={
+                              item.checkYn === 'Y' ? GRAY_COLOR : RED_COLOR
+                            }
                             onClick={() =>
                               item.checkYn === 'N' && [
                                 checkNotiHandler(item.notifiNo),
@@ -392,12 +398,12 @@ const AlarmContainer = styled.div`
   position: absolute;
   width: 480px;
   height: 720px;
-  top: 40px;
+  top: 38px;
   right: -16px;
-  border-radius: 4px;
-  border: 1px solid ${PRIMARY_VAR_COLOR};
+  border-radius: 8px;
+  border: 3px solid ${PRIMARY_COLOR};
   background-color: white;
-  box-shadow: 2px 2px 4px ${GRAY_COLOR};
+  box-shadow: 3px 3px 30px ${GRAY_COLOR};
   padding: 16px;
 
   a {
@@ -483,28 +489,30 @@ const NotiItem = styled.div`
 
   div {
     flex: 1;
+    color: ${GRAY_COLOR};
+  }
+
+  span {
+    color: ${GRAY_COLOR};
   }
 
   &:hover {
+    /* cursor: pointer; */
+    /* background-color: ${LIGHT_GRAY_COLOR}; */
+  }
+
+  .msg-icon {
     cursor: pointer;
-    background-color: ${PRIMARY_VAR_COLOR};
-  }
-`;
+    margin: 0 8px;
 
-const NewBadge = styled.span`
-  display: block;
-  margin: 0 8px;
-  width: 12px;
-  height: 12px;
-  border-radius: 12px;
-  text-align: center;
-  border: 4px solid transparent;
-
-  &[aria-checked='false'] {
-    background-color: ${RED_COLOR};
+    &[aria-checked='true'] {
+      cursor: default;
+    }
   }
-  &[aria-checked='true'] {
-    background-color: ${GRAY_COLOR};
+
+  .strong-text {
+    font-weight: bold;
+    color: ${DARK_GRAY_COLOR};
   }
 `;
 
@@ -527,12 +535,13 @@ const UserIdDropdown = styled.div`
   z-index: 100000;
   position: fixed;
   width: 160px;
-  top: 56px;
+  top: 53px;
   right: 4px;
-  border: 1px solid ${PRIMARY_VAR_COLOR};
+  border: 3px solid ${PRIMARY_COLOR};
   background-color: white;
-  box-shadow: 2px 2px 4px ${GRAY_COLOR};
+  box-shadow: 3px 3px 30px ${GRAY_COLOR};
   border-radius: 8px;
+  overflow: hidden;
 `;
 
 const DropdownItem = styled.li`
