@@ -14,6 +14,7 @@ export default function MyPageCard({ title, cardList, totalCount }) {
       nav(`/products/sal/detail/${prodNo}`);
     }
   };
+
   function CardComponent({ cards }) {
     return (
       <>

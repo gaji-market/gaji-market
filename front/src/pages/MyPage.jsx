@@ -3,12 +3,11 @@ import styled from 'styled-components';
 import basicLogo from 'assets/BasicLogo.svg';
 import StarRate from 'components/common/StarRate';
 import Button from 'components/common/Button';
-import { useGetSellAllQuery } from 'services/productApi';
 import { usePostUserMyPageMutation } from 'services/signUpApi';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MyPageCard from 'components/common/MyPageCard';
-
+const TITLE = ['좋아요 목록', '구매 목록', '판매 목록'];
 export default function MyPage() {
   const [cardData, setCardData] = useState();
   const [getMyPage] = usePostUserMyPageMutation();
@@ -37,7 +36,13 @@ export default function MyPage() {
     <Container>
       <TopSection>
         <UserInfoBox>
-          <LeftSection src={basicLogo}></LeftSection>
+          <LeftSection
+            src={
+              userInfo.dbFileName
+                ? `${process.env.REACT_APP_IMG_PREFIX_URL}${userInfo.dbFileName}`
+                : basicLogo
+            }
+          ></LeftSection>
           <RightSection>
             <TextBox marginBottom={'15px'}>
               닉네임: {userInfo?.userNickName}
@@ -65,10 +70,10 @@ export default function MyPage() {
         </ButtonWrapper>
       </TopSection>
 
-      {cardData?.map((card) => {
+      {cardData?.map((card, i) => {
         return (
           <MyPageCard
-            title={'좋아요 한'}
+            title={TITLE[i]}
             cardList={card[0]}
             totalCount={card[1]}
           />
@@ -90,8 +95,11 @@ const UserInfoBox = styled.div`
   padding: 15px 0px;
 `;
 const LeftSection = styled.img`
-  width: 40%;
-  height: 100px;
+  width: 120px;
+  height: 120px;
+  border-radius: 100px;
+  margin-left: 10px;
+  margin-right: 10px;
 `;
 const RightSection = styled.div`
   width: 60%;
