@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-
 import useToast from 'hooks/toast';
 
 import styled, { css } from 'styled-components';
-//import io from 'socket.io-client';
 
 import { RiDeleteBinLine } from 'react-icons/ri';
 
 import {
   useGetChatRoomListMutation,
-  useAddChatMessageMutation,
   useAddChatRoomMutation,
   useLazyGetChatRoomQuery,
-  useLazyGetUserNoQuery,
   useLazyRemoveChatMessageQuery,
   useLazyRemoveChatRoomQuery,
 } from 'services/chatApi';
@@ -30,8 +26,6 @@ import {
   PRIMARY_VAR_COLOR,
   WHITE_COLOR,
 } from 'components/common/commonColor';
-
-const TEMP_SERVER_URL = 'http://localhost:8080';
 
 export default function Chat() {
   const [getChatRoomList] = useGetChatRoomListMutation();
@@ -65,6 +59,34 @@ export default function Chat() {
         recordCount: 10,
       }).unwrap();
       setChatRoomInfos(chatRoomInfos);
+      if (prodNo && userNo) {
+        addChatRoomHandler(prodNo, userNo);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const addChatRoomHandler = async (prodNo, userNo) => {
+    try {
+      const res = await addChatRoom({
+        prodNo: prodNo,
+        userNo: userNo,
+      }).unwrap();
+      // chatNo: 57, prodNo: 225, userNo: 120, tgUserNo: 120
+      setChatRoomInfos((prev) => [
+        {
+          ...res.chatRoomInfo,
+          nickname: 'New Chat',
+          lastMessage: '대화를 시작하세요',
+        },
+        ...prev,
+      ]);
+
+      setTarget({
+        id: `${res.chatRoomInfo.userNo}_${res.chatRoomInfo.chatNo}`,
+        ...res.chatRoomInfo,
+      });
     } catch (err) {
       console.log(err);
     }
@@ -82,19 +104,6 @@ export default function Chat() {
     } finally {
       setTarget({ id: `${item.userNo}_${item.chatNo}`, ...item });
       setMsg('');
-    }
-  };
-
-  const addChatRoomHandler = async (prodNo, userNo) => {
-    try {
-      const res = await addChatRoom({
-        prodNo: prodNo,
-        userNo: 120,
-      }).unwrap();
-
-      console.log(res);
-    } catch (err) {
-      console.log(err);
     }
   };
 
@@ -156,9 +165,6 @@ export default function Chat() {
 
   useEffect(() => {
     getChatRoomListHandler();
-    if (prodNo && userNo) {
-      addChatRoomHandler(prodNo, userNo);
-    }
   }, []);
 
   return (
