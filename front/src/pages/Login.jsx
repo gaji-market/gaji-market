@@ -50,7 +50,7 @@ export default function Login() {
             toastMessage: '로그인 되었습니다.',
           });
           dispatch(startSession(res.token));
-          setTimeout(() => nav('/'), 1500);
+          setTimeout(() => nav('/'), 500);
         }
       } catch (error) {
         console.log(error);

@@ -13,7 +13,6 @@ export const signUpApi = createApi({
           getState().session.token
         );
       }
-
       if (token) {
         headers.set('X-AUTH-TOKEN', token);
       }

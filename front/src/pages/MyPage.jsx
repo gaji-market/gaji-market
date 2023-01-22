@@ -3,63 +3,26 @@ import styled from 'styled-components';
 import basicLogo from 'assets/BasicLogo.svg';
 import StarRate from 'components/common/StarRate';
 import Button from 'components/common/Button';
-import { useGetSellAllQuery } from 'services/productApi';
 import { usePostUserMyPageMutation } from 'services/signUpApi';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import Card from 'components/common/Card';
-import PlusButton from 'components/common/PlusButton';
-
-function CardComponent({ cards, moveProductDetail }) {
-  return (
-    <>
-      {cards.length > 0 &&
-        cards.slice(0, 4).map((product) => {
-          const {
-            address,
-            dbFileName,
-            interestCnt,
-            prodName,
-            prodNo,
-            prodPrice,
-            tradState,
-          } = product;
-          return (
-            <Card
-              key={prodNo}
-              // productImage={dbFileName}
-              title={prodName}
-              price={prodPrice.toLocaleString()}
-              area={address}
-              likes={interestCnt.toLocaleString()}
-              state={tradState}
-              onClick={moveProductDetail(prodNo)}
-            />
-          );
-        })}
-    </>
-  );
-}
-
+import MyPageCard from 'components/common/MyPageCard';
+const TITLE = ['좋아요 목록', '구매 목록', '판매 목록'];
 export default function MyPage() {
-  const { data: datas } = useGetSellAllQuery();
+  const [cardData, setCardData] = useState();
   const [getMyPage] = usePostUserMyPageMutation();
   const nav = useNavigate();
-  const { type } = useParams();
-  const [cards, setCards] = useState([]);
   const [userInfo, setUserInfo] = useState();
-  useEffect(() => {
-    if (datas) {
-      const { sellInfos } = datas;
-      sellInfos.forEach((data) => {
-        setCards((prev) => [...prev, data]);
-      });
-    }
-  }, [datas]);
+
   async function getUserData() {
     try {
       const res = await getMyPage().unwrap();
       console.log(res);
+      setCardData([
+        [res.interestProdList, res.interestProdListCnt],
+        [res.buyProdList, res.buyProdListCnt],
+        [res.sellProdList, res.sellProdListCnt],
+      ]);
       setUserInfo(res.userInfo);
     } catch (e) {
       console.log(e);
@@ -69,15 +32,17 @@ export default function MyPage() {
     getUserData();
   }, []);
 
-  const moveProductDetail = (prodNo) => (e) => {
-    nav(`/products/${type}/detail/${prodNo}`);
-  };
-
   return (
     <Container>
       <TopSection>
         <UserInfoBox>
-          <LeftSection src={basicLogo}></LeftSection>
+          <LeftSection
+            src={
+              userInfo.dbFileName
+                ? `${process.env.REACT_APP_IMG_PREFIX_URL}${userInfo.dbFileName}`
+                : basicLogo
+            }
+          ></LeftSection>
           <RightSection>
             <TextBox marginBottom={'15px'}>
               닉네임: {userInfo?.userNickName}
@@ -104,36 +69,16 @@ export default function MyPage() {
           </Button>
         </ButtonWrapper>
       </TopSection>
-      <ProductHead>
-        <ProductHeadTitle>좋아요 한 게시글</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(52)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
-      <ProductHead>
-        <ProductHeadTitle>구매내역</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(25)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
-      <ProductHead>
-        <ProductHeadTitle>판매내역</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(60)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
+
+      {cardData?.map((card, i) => {
+        return (
+          <MyPageCard
+            title={TITLE[i]}
+            cardList={card[0]}
+            totalCount={card[1]}
+          />
+        );
+      })}
     </Container>
   );
 }
@@ -141,23 +86,7 @@ export default function MyPage() {
 const Container = styled.div`
   padding: 15px 90px;
 `;
-const ProductHead = styled.div`
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 10px;
-`;
-const ProductCard = styled.div`
-  display: flex;
-`;
-const ProductHeadTitle = styled.div`
-  margin-top: 20px;
-  font-size: 30px;
-  font-weight: 800;
-`;
-const ProductHeadSubtext = styled.div`
-  margin-left: 15px;
-  margin-right: 15px;
-`;
+
 const UserInfoBox = styled.div`
   border: 3px solid ${PRIMARY_COLOR};
   border-radius: 30px;
@@ -166,8 +95,11 @@ const UserInfoBox = styled.div`
   padding: 15px 0px;
 `;
 const LeftSection = styled.img`
-  width: 40%;
-  height: 100px;
+  width: 120px;
+  height: 120px;
+  border-radius: 100px;
+  margin-left: 10px;
+  margin-right: 10px;
 `;
 const RightSection = styled.div`
   width: 60%;
@@ -186,7 +118,4 @@ const ButtonWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
-`;
-const ProductSection = styled.div`
-  display: flex;
 `;
