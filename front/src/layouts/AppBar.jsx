@@ -222,6 +222,18 @@ export default function AppBar() {
                       </Tab>
                     </Tabs>
                     <AlarmBody>
+                      <FloatRight>
+                        <span
+                          onClick={() => [
+                            navigate(
+                              currentTab === '채팅' ? '/chat' : '/myPage',
+                            ),
+                            blurHandler(),
+                          ]}
+                        >
+                          전체보기
+                        </span>
+                      </FloatRight>
                       {notificationInfos.length === 0 && (
                         <EmptyMsg>알림이 없습니다.</EmptyMsg>
                       )}
@@ -432,6 +444,21 @@ const AlarmBody = styled.div`
   padding: 32px 0;
   display: flex;
   flex-direction: column;
+`;
+
+const FloatRight = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 24px;
+
+  span {
+    color: ${PRIMARY_COLOR};
+    text-decoration: underline;
+    &:hover {
+      cursor: pointer;
+      font-weight: bold;
+    }
+  }
 `;
 
 const EmptyMsg = styled.div`
