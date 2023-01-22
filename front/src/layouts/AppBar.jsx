@@ -35,7 +35,7 @@ import {
 
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FaBell, FaUserCircle } from 'react-icons/fa';
-import { AiFillMessage } from 'react-icons/ai';
+import { AiFillMessage, AiFillHeart } from 'react-icons/ai';
 
 export default function AppBar() {
   const { userId, userNo, isLoggedIn } = useSelector(selectSession);
@@ -234,20 +234,37 @@ export default function AppBar() {
                           <div className='strong-text'>{item.message}</div>
                           <div>{item.nickname}</div>
                           <span>{item.regDate.split('T')[0]}</span>
-                          <AiFillMessage
-                            id={item.notifiNo}
-                            className='msg-icon'
-                            aria-checked={item.checkYn === 'Y'}
-                            color={
-                              item.checkYn === 'Y' ? GRAY_COLOR : RED_COLOR
-                            }
-                            onClick={() =>
-                              item.checkYn === 'N' && [
-                                checkNotiHandler(item.notifiNo),
-                                getNotiListHandler(currentTab),
-                              ]
-                            }
-                          />
+                          {currentTab === '채팅' ? (
+                            <AiFillMessage
+                              id={item.notifiNo}
+                              className='msg-icon'
+                              aria-checked={item.checkYn === 'Y'}
+                              color={
+                                item.checkYn === 'Y' ? GRAY_COLOR : RED_COLOR
+                              }
+                              onClick={() =>
+                                item.checkYn === 'N' && [
+                                  checkNotiHandler(item.notifiNo),
+                                  getNotiListHandler(currentTab),
+                                ]
+                              }
+                            />
+                          ) : (
+                            <AiFillHeart
+                              id={item.notifiNo}
+                              className='msg-icon'
+                              aria-checked={item.checkYn === 'Y'}
+                              color={
+                                item.checkYn === 'Y' ? GRAY_COLOR : RED_COLOR
+                              }
+                              onClick={() =>
+                                item.checkYn === 'N' && [
+                                  checkNotiHandler(item.notifiNo),
+                                  getNotiListHandler(currentTab),
+                                ]
+                              }
+                            />
+                          )}
                           {item.checkYn === 'N' && (
                             <ReactTooltip
                               anchorId={item.notifiNo}

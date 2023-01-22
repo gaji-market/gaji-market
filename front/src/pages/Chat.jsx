@@ -25,8 +25,14 @@ import {
   LIGHT_GRAY_COLOR,
   PRIMARY_COLOR,
   PRIMARY_VAR_COLOR,
+  SECONDARY_COLOR,
   WHITE_COLOR,
 } from 'components/common/commonColor';
+
+import { AiFillWechat } from 'react-icons/ai';
+import { FaUserCircle } from 'react-icons/fa';
+import { RiSendPlaneFill } from 'react-icons/ri';
+import { ReactComponent as GradationLogo } from 'assets/GradationLogo.svg';
 
 const URL = '3.39.156.141:8080';
 
@@ -59,13 +65,11 @@ export default function Chat() {
     try {
       const { chatRoomInfos, schPage } = await getChatRoomList({
         // TODO: get userNo from sessionSlice
-        userNo: userNo,
+        userNo: 1,
         currentPage: 1,
         recordCount: 100,
       }).unwrap();
       setChatRoomInfos(chatRoomInfos);
-
-      console.log('chatRoomInfos', chatRoomInfos);
 
       if (chatRoomInfos[0]) {
         getChatRoomHandler(chatRoomInfos[0]);
@@ -209,7 +213,10 @@ export default function Chat() {
       />
       <Wrapper>
         <ChatList>
-          <Header>Chat</Header>
+          <FlexBox>
+            <AiFillWechat size={32} color={PRIMARY_COLOR} />
+            <Header>Chat</Header>
+          </FlexBox>
           <Body>
             {chatRoomInfos.map((item, i) => (
               <ChatItemWrapper
@@ -246,44 +253,62 @@ export default function Chat() {
         <ChatMessage>
           {target ? (
             <>
-              <Header>{target.nickname}</Header>
+              <FlexBox>
+                <Avatar isTarget='true'>
+                  <GradationLogo height='36px' />
+                </Avatar>
+                <Header>{target.nickname}</Header>
+              </FlexBox>
               <Body>
                 <ChatContent>
                   {messages.map((info, idx) => (
-                    <React.Fragment key={`${info.no}_${idx}`}>
-                      <h3>{info.nickname}</h3>
-                      <Bubble>
-                        <div>{info.message}</div>
-                        <span>{info.regDate}</span>
-                        <span>{info.regTime}</span>
-                        <span>
-                          {info.checkYn === 'Y' ? '읽음' : '읽지 않음'}
-                        </span>
-                        <IconButton
-                          onClick={() => [
-                            msgDeleteModalRef.current?.showModal(),
-                            setDeleteMsgTarget(info.no),
-                          ]}
-                        >
-                          <RiDeleteBinLine size={22} color={GRAY_COLOR} />
-                        </IconButton>
-                      </Bubble>
-                    </React.Fragment>
+                    <Bubble key={`${info.no}_${idx}`}>
+                      {info.nickname === target.nickname ? (
+                        <Avatar isTarget='true'>
+                          <GradationLogo height='36px' />
+                        </Avatar>
+                      ) : (
+                        <Avatar>
+                          <FaUserCircle size={32} color={GRAY_COLOR} />
+                        </Avatar>
+                      )}
+                      <div className='msg-container'>
+                        <div className='name-and-date'>
+                          <div>{info.nickname}</div>
+                          <div>
+                            <span>{info.regDate}</span>
+                            <span>{info.regTime}</span>
+                          </div>
+                        </div>
+                        <div className='msg'>{info.message}</div>
+                      </div>
+                      <Check>
+                        {info.checkYn === 'Y' ? '읽음' : '읽지 않음'}
+                      </Check>
+                      <IconButton
+                        onClick={() => [
+                          msgDeleteModalRef.current?.showModal(),
+                          setDeleteMsgTarget(info.no),
+                        ]}
+                      >
+                        <RiDeleteBinLine size={22} color={GRAY_COLOR} />
+                      </IconButton>
+                    </Bubble>
                   ))}
                 </ChatContent>
               </Body>
-              <Footer>
-                <Form onSubmit={(e) => [e.preventDefault(), send()]}>
-                  <textarea
-                    ref={textareaRef}
-                    placeholder='보내기: Ctrl + Enter'
-                    onChange={(e) => setMsg(e.target.value)}
-                    value={msg}
-                    onKeyDown={(e) => e.key === 'Enter' && e.ctrlKey && send()}
-                  />
-                  <button>보내기</button>
-                </Form>
-              </Footer>
+              <Form onSubmit={(e) => [e.preventDefault(), send()]}>
+                <textarea
+                  ref={textareaRef}
+                  placeholder='보내기: Ctrl + Enter'
+                  onChange={(e) => setMsg(e.target.value)}
+                  value={msg}
+                  onKeyDown={(e) => e.key === 'Enter' && e.ctrlKey && send()}
+                />
+                <button>
+                  <RiSendPlaneFill size={24} color={SECONDARY_COLOR} />
+                </button>
+              </Form>
             </>
           ) : (
             <h1>채팅을 시작하세요</h1>
@@ -305,25 +330,25 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.h3`
-  padding: 16px;
+  /* padding: 32px; */
   font-size: 24px;
   font-weight: bold;
 `;
 
 const Body = styled.div`
-  padding: 16px;
+  padding: 32px;
   display: flex;
   flex: 1;
   flex-direction: column;
   row-gap: 16px;
 `;
 
-const Footer = styled.div`
-  padding: 16px;
-  font-size: 24px;
-  font-weight: bold;
-  position: relative;
-  bottom: 0;
+const FlexBox = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  padding-bottom: 4px;
+  column-gap: 16px;
 `;
 
 // chat
@@ -409,10 +434,10 @@ const LastMsg = styled.div`
 // right - chat message
 const ChatMessage = styled.div`
   flex: 1;
-  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-top: 16px;
 
   h1 {
     text-align: center;
@@ -426,32 +451,88 @@ const ChatContent = styled.div`
 `;
 
 const Bubble = styled.div`
+  padding: 16px 0;
   display: flex;
-  column-gap: 24px;
+  column-gap: 16px;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  padding: 16px;
-  border-radius: 4px;
-  background-color: ${PRIMARY_VAR_COLOR};
 
-  h3 {
+  .msg-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+
+    & > div {
+      display: flex;
+    }
   }
 
-  div {
-    flex: 1;
+  .name-and-date {
+    display: flex;
+    column-gap: 16px;
+    align-items: center;
+
+    & > div {
+      &:first-child {
+        font-weight: bold;
+        color: ${DARK_GRAY_COLOR};
+        width: 80px;
+      }
+      &:last-child {
+        color: ${GRAY_COLOR};
+        font-size: 12px;
+        display: flex;
+        column-gap: 8px;
+      }
+    }
+  }
+
+  .msg {
+    padding: 8px 16px;
+    background-color: ${LIGHT_GRAY_COLOR};
+    border-radius: 4px;
+    width: fit-content;
   }
 `;
 
+const Avatar = styled.div`
+  border-radius: 48px;
+  background-color: ${({ isTarget }) => isTarget && PRIMARY_VAR_COLOR};
+
+  svg {
+    margin-bottom: -4px;
+  }
+`;
+
+const Check = styled.div`
+  color: ${DARK_GRAY_COLOR};
+`;
+
 const Form = styled.form`
+  font-size: 24px;
+  font-weight: bold;
+  position: relative;
+  bottom: 0;
+  border-top: 3px solid ${LIGHT_GRAY_COLOR};
   display: flex;
-  column-gap: 24px;
 
   textarea {
     flex: 1;
     height: 48px;
+    padding: 16px;
+    box-sizing: content-box;
+    border: none;
+    resize: none;
+  }
 
-    &:focus {
-      border: 1px solid red;
+  button {
+    padding: 16px;
+    background-color: transparent;
+    border: none;
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.4);
     }
   }
 `;
