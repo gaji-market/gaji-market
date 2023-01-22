@@ -18,6 +18,8 @@ import {
 import { selectUserNo } from 'store/sessionSlice';
 
 import Modal from 'components/common/Modal';
+import FinishChatModal from 'components/chat/FinishChatModal';
+import Button from 'components/common/Button';
 
 import {
   DARK_GRAY_COLOR,
@@ -50,13 +52,14 @@ export default function Chat() {
   const textareaRef = useRef(null);
   const roomDeleteModalRef = useRef(null);
   const msgDeleteModalRef = useRef(null);
+  const finishModalRef = useRef(null);
 
   const [target, setTarget] = useState(null);
   const [deleteRoomTarget, setDeleteRoomTarget] = useState(null);
   const [deleteMsgTarget, setDeleteMsgTarget] = useState(null);
   const [msg, setMsg] = useState('');
   const [chatRoomInfos, setChatRoomInfos] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [chatInfo, setChatInfo] = useState({});
 
   const userNo = useSelector(selectUserNo);
 
@@ -65,7 +68,7 @@ export default function Chat() {
     try {
       const { chatRoomInfos, schPage } = await getChatRoomList({
         // TODO: get userNo from sessionSlice
-        userNo: 1,
+        userNo: userNo,
         currentPage: 1,
         recordCount: 100,
       }).unwrap();
@@ -113,7 +116,7 @@ export default function Chat() {
         chatNo: item.chatNo,
         userNo: item.userNo,
       }).unwrap();
-      setMessages(infos.chatMessageInfos || []);
+      setChatInfo(infos);
     } catch (err) {
       console.log(err);
     } finally {
@@ -211,6 +214,11 @@ export default function Chat() {
         rightBtnText='아니요'
         confirmHandler={removeMsgHandler}
       />
+      <FinishChatModal
+        ref={finishModalRef}
+        prodNo={chatInfo?.chatRoomInfo?.prodNo}
+        userNo={chatInfo?.chatRoomInfo?.userNo}
+      />
       <Wrapper>
         <ChatList>
           <FlexBox>
@@ -258,10 +266,20 @@ export default function Chat() {
                   <GradationLogo height='36px' />
                 </Avatar>
                 <Header>{target.nickname}</Header>
+                <Button
+                  size='sm'
+                  padding='0'
+                  height='32px'
+                  isOutline
+                  isDarkColor
+                  onClick={() => finishModalRef.current?.showModal()}
+                >
+                  채팅종료
+                </Button>
               </FlexBox>
               <Body>
                 <ChatContent>
-                  {messages.map((info, idx) => (
+                  {(chatInfo?.chatMessageInfos || []).map((info, idx) => (
                     <Bubble key={`${info.no}_${idx}`}>
                       {info.nickname === target.nickname ? (
                         <Avatar isTarget='true'>
@@ -330,7 +348,7 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.h3`
-  /* padding: 32px; */
+  flex: 1;
   font-size: 24px;
   font-weight: bold;
 `;

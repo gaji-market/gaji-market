@@ -12,7 +12,7 @@ export const productApi = createApi({
       if (getState().session?.token) {
         token = decrypt(
           process.env.REACT_APP_SESSION_KEY || '',
-          getState().session.token
+          getState().session.token,
         );
       }
 
@@ -106,6 +106,13 @@ export const productApi = createApi({
       }),
       invalidatesTags: ['SellAll', 'BuyAll', 'DetailView'],
     }),
+    scoreSave: builder.mutation({
+      query: (review) => ({
+        url: 'scoreSave',
+        method: 'POST',
+        body: review,
+      }),
+    }),
   }),
 });
 
@@ -124,4 +131,5 @@ export const {
   useIncreaseInterestMutation,
   useDeleteProductMutation,
   useModifyProductMutation,
+  useScoreSaveMutation,
 } = productApi;
