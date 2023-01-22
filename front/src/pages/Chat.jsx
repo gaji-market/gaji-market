@@ -27,6 +27,8 @@ import {
   WHITE_COLOR,
 } from 'components/common/commonColor';
 
+const URL = '3.39.156.141:8080';
+
 export default function Chat() {
   const [getChatRoomList] = useGetChatRoomListMutation();
   const [getChatRoom] = useLazyGetChatRoomQuery();
@@ -34,10 +36,11 @@ export default function Chat() {
   const [removeChatRoom] = useLazyRemoveChatRoomQuery();
   const [removeChatMsg] = useLazyRemoveChatMessageQuery();
   const { addToast } = useToast();
-  // const socket = io.connect(TEMP_SERVER_URL);
 
   const { id: prodNo } = useParams();
 
+  const ws = useRef(null);
+  const textareaRef = useRef(null);
   const roomDeleteModalRef = useRef(null);
   const msgDeleteModalRef = useRef(null);
 
@@ -50,6 +53,7 @@ export default function Chat() {
 
   const userNo = useSelector(selectUserNo);
 
+  // ================================ api handlers
   const getChatRoomListHandler = async () => {
     try {
       const { chatRoomInfos, schPage } = await getChatRoomList({
@@ -140,28 +144,41 @@ export default function Chat() {
     }
   };
 
-  const changeHandler = (e) => {
-    setMsg(e.target.value);
-  };
-
-  const keydownHandler = (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-      // socket.emit('chat', { id: targetId, msg, time: new Date() });
-      setMsg('');
+  // ================================ websocket
+  const send = () => {
+    if (!msg) {
+      textareaRef.current.focus();
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastMessage: '메시지를 입력해 주세요.',
+      });
+      return;
     }
-  };
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    // socket.emit('chat', { id: targetId, msg, time: new Date() });
+    ws.current = new WebSocket(`ws://${URL}/socket/chat`);
+    ws.current.onmessage = (message) => {
+      const parsedData = JSON.parse(message.data);
+      console.log('message: ', parsedData);
+    };
+
+    const data = JSON.stringify({
+      userNo: target.userNo,
+      chatNo: target.chatNo,
+      msg,
+      date: new Date().toLocaleString(),
+    });
+
+    if (ws.current.readyState === 0) {
+      ws.current.onopen = () => {
+        ws.current.send(data);
+      };
+    } else {
+      ws.current.send(data);
+    }
+
     setMsg('');
   };
-
-  // useEffect(() => {
-  //   socket.on('chat', (payload) => {
-  //     setMessages((prev) => [...prev, payload]);
-  //   });
-  // }, []);
 
   useEffect(() => {
     getChatRoomListHandler();
@@ -249,12 +266,13 @@ export default function Chat() {
                 </ChatContent>
               </Body>
               <Footer>
-                <Form onSubmit={submitHandler}>
+                <Form onSubmit={(e) => [e.preventDefault(), send()]}>
                   <textarea
+                    ref={textareaRef}
                     placeholder='보내기: Ctrl + Enter'
-                    onChange={changeHandler}
+                    onChange={(e) => setMsg(e.target.value)}
                     value={msg}
-                    onKeyDown={keydownHandler}
+                    onKeyDown={(e) => e.key === 'Enter' && e.ctrlKey && send()}
                   />
                   <button>보내기</button>
                 </Form>
@@ -423,5 +441,9 @@ const Form = styled.form`
   textarea {
     flex: 1;
     height: 48px;
+
+    &:focus {
+      border: 1px solid red;
+    }
   }
 `;
