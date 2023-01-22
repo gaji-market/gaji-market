@@ -98,7 +98,8 @@ export default function SignUp() {
         addToast({
           isToastSuccess: true,
           isMainTheme: true,
-          toastMessage: '회원가입 완료되었습니다.',
+          toastTitle: '회원가입 완료',
+          toastMessage: '가지마켓의 회원이 되신 것을 환영해요!',
         });
         nav('/login');
       }
@@ -120,19 +121,21 @@ export default function SignUp() {
         addToast({
           isToastSuccess: false,
           isMainTheme: true,
-          toastMessage:
-            '이미 사용중인 아이디 입니다. 다른 아이디를 입력하세요.',
+          toastTitle: '이미 사용중인 아이디입니다.',
+          toastMessage: '다른 아이디를 입력해주세요.',
         });
       else if (res.result === 'success')
         addToast({
           isToastSuccess: true,
           isMainTheme: true,
-          toastMessage: '사용가능한 아이디 입니다.',
+          toastTitle: '아이디 중복 체크!',
+          toastMessage: '사용 가능한 아이디입니다.',
         });
       else
         addToast({
           isToastSuccess: false,
           isMainTheme: true,
+          toastTitle: '예기치 못한 에러가 발생했어요.',
           toastMessage: '잠시 후 다시 시도해주세요.',
         });
     } catch (error) {

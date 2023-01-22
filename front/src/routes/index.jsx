@@ -45,7 +45,7 @@ export default function Router() {
       }
       setTimeout(() => {
         setSplashToggle(false);
-      }, 2000);
+      }, 1000);
     }
   }, []);
 
@@ -54,6 +54,7 @@ export default function Router() {
       addToast({
         isToastSuccess: true,
         isMainTheme: true,
+        toastTitle: '회원 전용 서비스',
         toastMessage: '로그인한 유저만 열람할 수 있습니다.',
       });
     }

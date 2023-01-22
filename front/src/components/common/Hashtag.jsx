@@ -89,7 +89,8 @@ export default function Hashtag({ hashtags, setFormDatas, addToast }) {
       return addToast({
         isToastSuccess: false,
         isMainTheme: true,
-        toastMessage: '해시태그는 10개까지만 입력할 수 있어요!',
+        toastTitle: '해시태그 등록 개수 초과',
+        toastMessage: '태그는 10개까지만 등록할 수 있어요!',
       });
     }
   }, [hashtags.length]);

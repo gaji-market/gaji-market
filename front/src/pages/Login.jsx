@@ -41,13 +41,15 @@ export default function Login() {
           addToast({
             isToastSuccess: false,
             isMainTheme: true,
+            toastTitle: '로그인 실패!',
             toastMessage: '아이디 및 비밀번호를 확인해주세요.',
           });
         } else if (res.result === 'success') {
           addToast({
             isToastSuccess: true,
             isMainTheme: true,
-            toastMessage: '로그인 되었습니다.',
+            toastTitle: '로그인 성공!',
+            toastMessage: '가지마켓에 오신 것을 환영합니다.',
           });
           dispatch(startSession(res.token));
           setTimeout(() => nav('/'), 500);
@@ -59,6 +61,7 @@ export default function Login() {
       addToast({
         isToastSuccess: false,
         isMainTheme: true,
+        toastTitle: '로그인 실패!',
         toastMessage: '아이디 및 비밀번호를 입력해주세요.',
       });
     }

@@ -47,12 +47,14 @@ export default function MyEditPage() {
         addToast({
           isToastSuccess: false,
           isMainTheme: true,
-          toastMessage: '회원정보 수정에 실패하였습니다. 다시 입력해주세요',
+          toastTitle: '정보 수정 실패',
+          toastMessage: '다시 입력해주세요',
         });
       } else {
         addToast({
           isToastSuccess: true,
           isMainTheme: true,
+          toastTitle: '정보 수정 성공!',
           toastMessage: '회원정보가 변경되었습니다.',
         });
         nav('/mypage');
@@ -73,6 +75,7 @@ export default function MyEditPage() {
       addToast({
         isToastSuccess: true,
         isMainTheme: true,
+        toastTitle: '가지마켓',
         toastMessage: '정보수정 페이지로 이동합니다.',
       });
       setIsCorrectPW(true);
@@ -80,7 +83,8 @@ export default function MyEditPage() {
       addToast({
         isToastSuccess: false,
         isMainTheme: true,
-        toastMessage: '현재 비밀번호랑 다릅니다. 다시 입력해주시기 바랍니다.',
+        toastTitle: '다시 확인해주세요!',
+        toastMessage: '현재 비밀번호와 일치하지 않습니다.',
       });
       setCurrentPassword('');
       inputRef.current.value = '';
@@ -136,7 +140,7 @@ export default function MyEditPage() {
                 value={updateForm.userPwd}
                 containerBottom={'20px'}
                 width={'400px'}
-                placeholder={'새 비밀번호를 입력하세요'}
+                placeholder={'새 비밀번호를 입력하세요.'}
                 type={'password'}
               />
               <InputTitle title={'닉네임'} isRequired />
@@ -182,7 +186,7 @@ export default function MyEditPage() {
                 value={currentPassword}
                 containerBottom={'20px'}
                 width={'400px'}
-                placeholder={'비밀번호를 입력하세요'}
+                placeholder={'비밀번호를 입력하세요.'}
                 type={'password'}
               />
             </InputBox>

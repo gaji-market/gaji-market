@@ -488,7 +488,12 @@ export default function Editor() {
 
               queryPerParam[param](formData).then((response) => {
                 if (response.data.result === 'Success') {
-                  window.alert('게시글 등록 완료');
+                  addToast({
+                    isToastSuccess: true,
+                    isMainTheme: true,
+                    toastTitle: '게시글 등록 성공!',
+                    toastMessage: '상품 전체 보기 페이지로 이동합니다.',
+                  });
                   navigate(`/products/${param}`);
                 } else {
                   throw new Error('게시글 등록 실패');
@@ -498,7 +503,12 @@ export default function Editor() {
               // 수정하기
               modifyProductMutation(formData).then((response) => {
                 if (response.data.result === 'Success') {
-                  window.alert('게시글 수정 완료'); // TODO: 수정하기 일 때 멘트 수정
+                  addToast({
+                    isToastSuccess: true,
+                    isMainTheme: true,
+                    toastTitle: '게시글 수정 완료',
+                    toastMessage: '상품 전체 보기 페이지로 이동합니다.',
+                  });
                   navigate(`/products/${param}`);
                 } else {
                   throw new Error('게시글 수정 실패');
@@ -527,7 +537,12 @@ export default function Editor() {
           // 등록하기
           response = await queryPerParam[param](formData);
           if (response.data.result === 'Success') {
-            window.alert('게시글 등록 완료'); // TODO: 수정하기 일 때 멘트 수정
+            addToast({
+              isToastSuccess: true,
+              isMainTheme: true,
+              toastTitle: '게시글 등록 성공!',
+              toastMessage: '상품 전체 보기 페이지로 이동합니다.',
+            });
             navigate(`/products/${param}`);
           } else {
             throw new Error('게시글 등록 실패');
@@ -536,7 +551,12 @@ export default function Editor() {
           // 수정하기
           response = await modifyProductMutation(formData);
           if (response.data.result === 'Success') {
-            window.alert('게시글 수정 완료'); // TODO: 수정하기 일 때 멘트 수정
+            addToast({
+              isToastSuccess: true,
+              isMainTheme: true,
+              toastTitle: '게시글 수정 완료',
+              toastMessage: '상품 전체 보기 페이지로 이동합니다.',
+            });
             navigate(`/products/${param}`);
           } else {
             throw new Error('게시글 수정 실패');
@@ -544,7 +564,12 @@ export default function Editor() {
         }
       }
     } catch (err) {
-      window.alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastTitle: '예기치못한 에러가 발생했어요!',
+        toastMessage: '잠시 후 다시 시도해주세요.',
+      });
       console.error(err);
 
       navigate(`/products/${param}`);
@@ -567,7 +592,11 @@ export default function Editor() {
       .toLowerCase();
 
     if (!ALLOWED_FILE_EXTENSIONS.includes(extension)) {
-      return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
+      return addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastMessage: 'png, jpg, gif 파일만 등록할 수 있어요!',
+      });
     }
 
     const imgFiles = []; // 서버 전송용 배열 (파일)
