@@ -47,9 +47,10 @@ export default function AppBar() {
 
   const [getNotiList] = useGetNotifiListMutation();
   const [checkNoti] = useLazyCheckNotifiQuery();
-  const { data: counts } = useGetCheckCntQuery(userNo, {
-    pollingInterval: 5000,
-  });
+  const { data: counts = { intstCheckCnt: 0, chatCheckCnt: 0 } } =
+    useGetCheckCntQuery(userNo, {
+      pollingInterval: 5000,
+    });
 
   const modalRef = useRef(null);
   const searchRef = useRef(null);
@@ -58,6 +59,7 @@ export default function AppBar() {
   const [toggles, setToggles] = useState(initToggles);
   const [currentTab, setCurrentTab] = useState('채팅');
   const [notificationInfos, setNotificationInfos] = useState([]);
+  const [prevCounts, setPrevCounts] = useState(null);
 
   const keydownHandler = (e) => {
     if (e.key === 'Enter' && searchRef.current.value) {
@@ -77,6 +79,7 @@ export default function AppBar() {
         userNo: userNo,
       }).unwrap();
       setNotificationInfos(notificationInfos);
+      setPrevCounts(counts);
     } catch (err) {
       console.log(err);
     }
@@ -102,7 +105,9 @@ export default function AppBar() {
   }, [location]);
 
   useEffect(() => {
-    getNotiListHandler(currentTab);
+    if (JSON.stringify(counts) !== JSON.stringify(prevCounts)) {
+      getNotiListHandler(currentTab);
+    }
   }, [counts]);
 
   return (
@@ -428,10 +433,13 @@ const Tab = styled.div`
     border-bottom: 4px solid ${PRIMARY_COLOR};
   }
 
-  span:hover {
+  &:hover {
     cursor: pointer;
-    font-size: 24px;
-    color: ${PRIMARY_COLOR};
+
+    span {
+      font-size: 24px;
+      color: ${PRIMARY_COLOR};
+    }
   }
 `;
 
