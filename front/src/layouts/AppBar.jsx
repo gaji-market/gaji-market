@@ -101,6 +101,10 @@ export default function AppBar() {
     }
   }, [location]);
 
+  useEffect(() => {
+    getNotiListHandler(currentTab);
+  }, [counts]);
+
   return (
     <>
       <Modal
