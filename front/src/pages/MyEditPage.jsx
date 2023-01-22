@@ -3,7 +3,7 @@ import InputTitle from 'components/common/InputTitle';
 import { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Button from 'components/common/Button';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import basicLogo from 'assets/BasicLogo.svg';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
@@ -11,9 +11,11 @@ import getAddress from 'utils/getAddress';
 import { usePostUserEditMutation } from 'services/signUpApi';
 import { useEffect } from 'react';
 import useToast from 'hooks/toast';
-const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+const DaumURL =
+  'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
 export default function MyEditPage() {
+  const nav = useNavigate();
   const inputRef = useRef(null);
   const { addToast } = useToast();
   const [edit] = usePostUserEditMutation();
@@ -36,18 +38,25 @@ export default function MyEditPage() {
       const formData = new FormData();
       formData.append('multipartFile', updateForm.profileIMG);
       formData.append(
-        'userDto',
+        'dto',
         new Blob([JSON.stringify(updateForm)], { type: 'application/json' })
       );
       const res = await edit(formData).unwrap();
       console.log(res);
-      // if (res.result === 'fail') {
-      //   alert('회원정보 수정에 실패하였습니다. 다시 입력해주세요');
-      // } else {
-      //   alert('회원정보가 변경되었습니다.');
-      //   sessionStorage.setItem('userToken', res.token);
-      //   nav('/mypage');
-      // }
+      if (res.result === 'fail') {
+        addToast({
+          isToastSuccess: false,
+          isMainTheme: true,
+          toastMessage: '회원정보 수정에 실패하였습니다. 다시 입력해주세요',
+        });
+      } else {
+        addToast({
+          isToastSuccess: true,
+          isMainTheme: true,
+          toastMessage: '회원정보가 변경되었습니다.',
+        });
+        nav('/mypage');
+      }
     } catch (error) {
       console.log(error);
     }
@@ -104,7 +113,9 @@ export default function MyEditPage() {
           <Form onChange={(e) => changeHandler(e)}>
             <ProfileBox>
               <ImageBox src={preview} alt='' />
-              <ImageUpLoaderLabel htmlFor='image-uploader'>프로필 사진 변경</ImageUpLoaderLabel>
+              <ImageUpLoaderLabel htmlFor='image-uploader'>
+                프로필 사진 변경
+              </ImageUpLoaderLabel>
               <ImageUpLoaderInput
                 id='image-uploader'
                 name='image-uploader'
