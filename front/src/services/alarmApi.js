@@ -9,14 +9,14 @@ export const alarmApi = createApi({
   endpoints: ({ query, mutation }) => ({
     addNotifi: mutation({
       invalidatesTags: ['Alarm'],
-      query: ({ userNo }) => ({
+      query: ({ userNo, gubun }) => ({
         // FIXME: userNo 삭제
         url: `addNotifi/${userNo}`,
         method: 'POST',
         body: {
-          userNo: '2', //알림을 받는 유저 정보(채팅을 받는 판매자, 좋아요 눌린 상품 판매자)
-          gubun: '2', //1 - 채팅(첫 채팅 메시지 보낼 시) / 2 - 좋아요(좋아요 눌렀을 때)
-          message: '좋아요 알림', //템플릿 필요
+          userNo: userNo,
+          gubun: gubun,
+          message: `${gubun === '1' ? '채팅' : '좋아요'} 알림`,
         },
       }),
       // response
