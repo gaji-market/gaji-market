@@ -31,8 +31,6 @@ export default function Loading() {
   );
 }
 
-// 로딩 될 때 보여질 스피너 또는 화면 구상하기
-
 const moveImageFirst = keyframes`
     0%{
       transform:translateX(-25px) 
