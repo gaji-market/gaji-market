@@ -37,6 +37,7 @@ import SelectBox from 'components/Editor/SelectBox';
 import isIncludes from 'utils/isIncludes';
 import splitClassNameSpacing from 'utils/splitClassNameSpacing';
 import isAllMoreThen from 'utils/isAllMoreThen';
+import useToast from 'hooks/toast';
 
 const NO_IMAGE =
   'https://raw.githubusercontent.com/gaji-market/gaji-market/reason/front/src/assets/no_image.png';
@@ -58,6 +59,8 @@ const convertImageUrlToFile = async (imgUrl) => {
 };
 
 export default function Editor() {
+  const { addToast } = useToast();
+
   const {
     data: productCategories,
     isSuccess,
@@ -736,7 +739,11 @@ export default function Editor() {
             />
           </InputContent>
 
-          <Hashtag hashtags={formDatas.hashtags} setFormDatas={setFormDatas} />
+          <Hashtag
+            addToast={addToast}
+            hashtags={formDatas.hashtags}
+            setFormDatas={setFormDatas}
+          />
         </div>
 
         <div className='button-container'>

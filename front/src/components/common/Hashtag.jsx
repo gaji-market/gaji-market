@@ -11,7 +11,7 @@ import {
   HASHTAG_REG_EXP,
 } from 'constants/hashtag';
 
-export default function Hashtag({ hashtags, setFormDatas }) {
+export default function Hashtag({ hashtags, setFormDatas, addToast }) {
   const [hashtagInput, setHashtagInput] = useState('');
 
   const isEmptyHashTag = (e, input) => {
@@ -86,7 +86,11 @@ export default function Hashtag({ hashtags, setFormDatas }) {
         hashtags: prev.hashtags.slice(0, MAX_HASHTAG_COUNT),
       }));
 
-      return window.alert('해시태그는 10개 이상 등록할 수 없습니다.');
+      return addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastMessage: '해시태그는 10개까지만 입력할 수 있어요!',
+      });
     }
   }, [hashtags.length]);
 
