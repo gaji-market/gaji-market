@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import {
   DARK_GRAY_COLOR,
@@ -10,6 +10,7 @@ import {
   WHITE_COLOR,
 } from 'components/common/commonColor';
 import Button from 'components/common/Button';
+import Modal from 'components/common/Modal';
 
 import {
   AiOutlineAlert,
@@ -24,6 +25,7 @@ import {
   useGetProductQuery,
   useChangeInterestCountMutation,
   useChangeReportCountMutation,
+  useDeleteProductMutation,
 } from 'services/productApi';
 import { Error } from './index';
 import { SELL } from 'constants/params';
@@ -36,18 +38,27 @@ const ADDRESS = {
 
 export default function ProductDetailView() {
   const slideRef = useRef();
+  const modalRef = useRef(null);
+
+  const navigate = useNavigate();
 
   const { type: param, id: prodNo } = useParams();
 
-  const {
-    data: product,
-    isError,
-    isLoading,
-    isSuccess,
-  } = useGetProductQuery(prodNo);
+  const { data, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+  const [isCreatedUser, setIsCreatedUser] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      const { loginUserNo: loggedInUserNo, userNo: CreatedUserNo } =
+        data?.userInfo;
+
+      if (loggedInUserNo === CreatedUserNo) setIsCreatedUser(true);
+    }
+  }, [data]);
 
   const [changeInterestCountMutation] = useChangeInterestCountMutation();
   const [changeReportCountMutation] = useChangeReportCountMutation();
+  const [deleteProductMutation] = useDeleteProductMutation();
 
   const [productDate, setProductDate] = useState('');
   const [slideX, setSlideX] = useState(0);
@@ -61,22 +72,22 @@ export default function ProductDetailView() {
   };
 
   useEffect(() => {
-    if (product) {
-      setProductDate(new Date(product.productInfo.regDt));
+    if (data) {
+      setProductDate(new Date(data.productInfo.regDt));
     }
-  }, [product]);
+  }, [data]);
 
   useEffect(() => {
     const { current } = slideRef;
     if (!current) return;
 
     if (slideX < 0) {
-      setSlideX(product?.fileInfos.length - 1);
+      setSlideX(data?.fileInfos.length - 1);
       current.style.transform = `translateX(${NEXT_X * slideX}px)`;
       return;
     }
 
-    if (slideX > product?.fileInfos.length - 1) {
+    if (slideX > data?.fileInfos.length - 1) {
       setSlideX(0);
       current.style.transform = 'translateX(0px)';
       return;
@@ -85,7 +96,7 @@ export default function ProductDetailView() {
     if (slideX >= 0) {
       current.style.transform = `translateX(-${NEXT_X * slideX}px)`;
     }
-  }, [slideX, product?.fileInfos]);
+  }, [slideX, data?.fileInfos]);
 
   const changeInterestCountHandler = async () => {
     try {
@@ -103,6 +114,22 @@ export default function ProductDetailView() {
     }
   };
 
+  const modifyHandler = () => () => {
+    modalRef.current?.showModal();
+    // TODO: Editor 페이지 재사용
+  };
+
+  const deleteHandler = async () => {
+    try {
+      const result = await deleteProductMutation(prodNo).unwrap();
+      console.log(result);
+      // TODO: 삭제 완료 토스트 띄우고 네비게이트
+    } catch (error) {
+      console.error(error);
+      // TODO: 삭제 실패 토스트 띄우고 네비게이트
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -113,10 +140,21 @@ export default function ProductDetailView() {
 
   return (
     <>
+      <Modal
+        ref={modalRef}
+        text='수정하기 페이지로 이동할까요?'
+        leftBtnText='네! 좋아요.'
+        rightBtnText='아니요, 괜찮아요!'
+        confirmHandler={() => {
+          navigate(`/modify/${param}/${prodNo}`);
+          console.log(`/modify/${param}/${prodNo}`);
+        }}
+      />
+
       {isSuccess && (
         <Container>
           <Categories>
-            {product.categoryInfos.map((category, i) => {
+            {data.categoryInfos.map((category, i) => {
               if (category) {
                 return (
                   <span
@@ -133,8 +171,8 @@ export default function ProductDetailView() {
           <ProductTop>
             <div className='img-container'>
               <ul ref={slideRef} className='img-list'>
-                {product.fileInfos.length > 0 &&
-                  product.fileInfos.map((image) => {
+                {data.fileInfos.length > 0 &&
+                  data.fileInfos.map((image) => {
                     return (
                       <li key={`${image.fileOrder} ${image.dbFileName}`}>
                         <img
@@ -146,7 +184,7 @@ export default function ProductDetailView() {
                     );
                   })}
               </ul>
-              {product.fileInfos.length > 1 && (
+              {data.fileInfos.length > 1 && (
                 <div className='slide-btns'>
                   <span
                     className='arrow arrow-left'
@@ -165,18 +203,18 @@ export default function ProductDetailView() {
             <ProductSummary>
               <Watcher>
                 <WatcherIcon />
-                <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
+                <WatcherCount>{data.productInfo.viewCnt}</WatcherCount>
               </Watcher>
               <ProductState>
                 {param === SELL ? '판매중' : '구매중'}
               </ProductState>
-              <Title>{product.productInfo.prodName}</Title>
-              <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
+              <Title>{data.productInfo.prodName}</Title>
+              <Price>{data.productInfo.prodPrice.toLocaleString()}원</Price>
               <StatusWrapper>
                 <Status>
                   <Report>
                     <ReportIcon />
-                    <span>신고 {product.productInfo.reportCnt}회</span>
+                    <span>신고 {data.productInfo.reportCnt}회</span>
                     <VerticalBar>|</VerticalBar>
                     <span
                       className='report-btn'
@@ -188,7 +226,7 @@ export default function ProductDetailView() {
                   </Report>
                   <Location>
                     <LocationIcon />
-                    <span>{product.productInfo.address}</span>
+                    <span>{data.productInfo.address}</span>
                   </Location>
                   <DateCreated>
                     <DateIcon />
@@ -196,24 +234,43 @@ export default function ProductDetailView() {
                   </DateCreated>
                 </Status>
                 <LikesWrapper>
-                  {!product.interestInfo.interestYN ? (
+                  {!data.interestInfo.interestYN ? (
                     <HeartIcon onClick={changeInterestCountHandler} />
                   ) : (
                     <FillHeartIcon onClick={changeInterestCountHandler} />
                   )}
-                  <LikesCount>{product.interestInfo.interestCnt}</LikesCount>
+                  <LikesCount>{data.interestInfo.interestCnt}</LikesCount>
                 </LikesWrapper>
               </StatusWrapper>
 
               <ButtonWrapper>
-                <Button customSize='100%'>채팅하기</Button>
-                {/* <Button isOutline isDarkColor customSize='50%'>
-                  가격 제안하기
-                </Button> */}
+                {isCreatedUser && (
+                  <>
+                    <Button customSize='50%' onClick={modifyHandler(data)}>
+                      수정하기
+                    </Button>
+                    <Button
+                      isOutline
+                      isDarkColor
+                      customSize='50%'
+                      onClick={deleteHandler}
+                    >
+                      삭제하기
+                    </Button>
+                  </>
+                )}
+                {!isCreatedUser && (
+                  <>
+                    <Button customSize='100%'>채팅하기</Button>
+                    {/* <Button isOutline isDarkColor customSize='50%'>
+                      가격 제안하기
+                    </Button> */}
+                  </>
+                )}
               </ButtonWrapper>
               <HashTags>
-                {product.hashTagInfos.length > 0 &&
-                  product.hashTagInfos.map((hashtag, idx) => {
+                {data.hashTagInfos.length > 0 &&
+                  data.hashTagInfos.map((hashtag, idx) => {
                     return (
                       <HashTag key={`${hashtag.tagName}${idx}`}>
                         #{hashtag.tagName}
@@ -230,9 +287,9 @@ export default function ProductDetailView() {
               <ProfileWrapper>
                 <ProfileImg />
                 <div>
-                  <UserNickName>{product.userInfo.nickname}</UserNickName>
+                  <UserNickName>{data.userInfo.nickname}</UserNickName>
                   <UserArea>
-                    {product.userInfo.address
+                    {data.userInfo.address
                       .split(' ')
                       .slice(ADDRESS.start, ADDRESS.end)
                       .join(' ')}
@@ -252,7 +309,7 @@ export default function ProductDetailView() {
 
           <ProductBottom>
             <ProductInfoTitle>상품정보</ProductInfoTitle>
-            <p>{product.productInfo.prodExplain}</p>
+            <p>{data.productInfo.prodExplain}</p>
           </ProductBottom>
         </Container>
       )}

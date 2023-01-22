@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import {
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
   useGetCategoriesQuery,
+  useGetProductModificationQuery,
+  useModifyProductMutation,
 } from 'services/productApi';
 
 import styled from 'styled-components';
@@ -17,22 +19,61 @@ import 'styles/editor.scss';
 
 import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import { SELL, BUY } from 'constants/params';
-import { TITLE, SUB_TITLE } from 'constants/editor';
+import {
+  TITLE,
+  SUB_TITLE,
+  MAX_IMAGE_COUNT,
+  DEFAULT_CATEGORY_CODE,
+  CHECK,
+  CATEGORY_TIER,
+  CATEGORY_DEFAULT_VALUE,
+} from 'constants/editor';
 
-import isEmptyValue from 'utils/isEmptyValue';
 import deduplicationState from 'utils/deduplicationState';
+import Slider from 'components/common/Slider';
+import Hashtag from 'components/common/Hashtag';
+import SelectBox from 'components/Editor/SelectBox';
 
-const MAX_UPLOAD_COUNT = 5;
-const NEXT_X = -690;
+import isIncludes from 'utils/isIncludes';
+import splitClassNameSpacing from 'utils/splitClassNameSpacing';
+import isAllMoreThen from 'utils/isAllMoreThen';
 
-const MAX_HASHTAGS = 10;
+const NO_IMAGE =
+  'https://raw.githubusercontent.com/gaji-market/gaji-market/reason/front/src/assets/no_image.png';
 
-const CHECK = Object.freeze({
-  o: '1',
-  x: '0',
-});
+const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
+
+const isIncludesCategoryTier = (target, tier) => {
+  return isIncludes(splitClassNameSpacing(target), tier);
+};
+
+const convertImageUrlToFile = async (imgUrl) => {
+  const res = await fetch(imgUrl);
+  const blob = await res.blob();
+  const fileName = imgUrl.split('/').pop();
+  const fileExtension = fileName.split('.').pop();
+  const metaData = { type: `image/${fileExtension}` };
+
+  return new File([blob], fileName, metaData);
+};
 
 export default function Editor() {
+  const {
+    data: productCategories,
+    isSuccess,
+    isError: ErrorByCategory,
+  } = useGetCategoriesQuery();
+  const [createSaleProduct] = useCreateSaleProductMutation();
+  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
+  const [modifyProductMutation] = useModifyProductMutation();
+
+  const { type: param } = useParams();
+
+  const productPriceRef = useRef(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [isCompleteForm, setIsCompleteForm] = useState(false);
   const [formDatas, setFormDatas] = useState({
     prodPrice: 0, // required
@@ -43,44 +84,169 @@ export default function Editor() {
     freeCheck: '0', // required string : 무료나눔(0: X, 1: O)
     priceOffer: '0', // required string : 가격제안유무(0: 제안X, 1: 제안O)
     hashtags: [],
+    prodNo: -1, // (수정하기 일때만 required) productNo
+    tradState: '0', // 상품 상태값 판매중0, 사는중1, 구매중2, 판매완료3
+    // TODO: tradState 상태값 넣을 셀렉트 필요할듯
   });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    setFormDatas((prev) => ({
+      ...prev,
+      tradState: param === SELL ? '0' : '1',
+    }));
+  }, [param]);
 
-  const {
-    data: productCategories,
-    isSuccess,
-    isError: ErrorByCategory,
-  } = useGetCategoriesQuery();
-  const [largeCategory, setLargeCategory] = useState([]);
-  const [midiumCategory, setMidiumCategory] = useState([]);
-  const [smallCetegory, setSmallCategory] = useState([]);
-  const selectCategory = {
-    1: setLargeCategory,
-    2: setMidiumCategory,
-    3: setSmallCategory,
+  // 서버에서 받아온 모든 카테고리
+  const [largeCategories, setLargeCategories] = useState([]);
+  const [midiumCategories, setMidiumCategories] = useState([]);
+  const [smallCategories, setSmallCategories] = useState([]);
+  const categories = [largeCategories, midiumCategories, smallCategories];
+
+  const selectCategory = Object.freeze({
+    1: setLargeCategories,
+    2: setMidiumCategories,
+    3: setSmallCategories,
+  });
+
+  // 유저가 선택한 카테고리 (카테고리 기본값 0, 1, 2)
+  const [selectedLgCategory, setSelectedLgCategory] = useState('0');
+  const [selectedMdCategory, setSelectedMdCategory] = useState('1');
+  const [selectedSmCategory, setSelectedSmCategory] = useState('2');
+
+  // 하위 분류가 존재하지 않을 경우 disabled
+  const [isDisabledMdCategory, setIsDisabledMdCategory] = useState(true);
+  const [isDisabledSmCategory, setIsDisabledSmCategory] = useState(true);
+
+  // 유저가 선택한 카테고리에 따라 바뀔 카테고리
+  // Md는 selectedLgCategory에 의해 결정됩니다.
+  const [appearMdCategories, setAppearMdCategories] = useState([]);
+  const [appearSmCategories, setAppearSmCategories] = useState([]);
+
+  // 모든 카테고리 선택 완료
+  const [isDoneSelectedCategories, setIsDoneSelectedCategories] =
+    useState(false);
+
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    productCategories.categoryInfos.forEach((cate) => {
+      const tierIndex = cate.tier;
+      selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
+    });
+  }, [productCategories]);
+
+  const changeSelectedOption = ({ target }) => {
+    // 사용자가 선택한 카테고리
+    if (isIncludesCategoryTier(target, CATEGORY_TIER.lg)) {
+      // 대분류가 변경되면 중/소분류 기본값으로 변경
+      setSelectedMdCategory(CATEGORY_DEFAULT_VALUE.md);
+      setSelectedSmCategory(CATEGORY_DEFAULT_VALUE.sm);
+
+      return setSelectedLgCategory(target.value);
+    }
+
+    if (isIncludesCategoryTier(target, CATEGORY_TIER.md)) {
+      setSelectedSmCategory(CATEGORY_DEFAULT_VALUE.sm);
+
+      return setSelectedMdCategory(target.value);
+    }
+
+    if (isIncludesCategoryTier(target, CATEGORY_TIER.sm)) {
+      return setSelectedSmCategory(target.value);
+    }
   };
 
-  const [userSelectedCategoryCode, setUserSelectedCategoryCode] = useState('0');
-  const [isSelectedCategories, setIsSelectedCategories] = useState(false);
-  // 서버로 보낼 유저가 선택한 카테고리 코드
+  useEffect(() => {
+    setAppearMdCategories(() => {
+      return midiumCategories.filter(
+        ({ cateParent }) => cateParent === selectedLgCategory
+      );
+    });
+  }, [selectedLgCategory]);
 
-  const [createSaleProduct] = useCreateSaleProductMutation();
-  const [createPurchaseProduct] = useCreatePurchaseProductMutation();
+  useEffect(() => {
+    setAppearSmCategories(() => {
+      return smallCategories.filter(
+        ({ cateParent }) => cateParent === selectedMdCategory
+      );
+    });
+  }, [selectedLgCategory, selectedMdCategory]);
 
-  const [imgSlide, setImgSlide] = useState([]);
+  useEffect(() => {
+    // 대분류가 기본 값이 아닌 경우
+    if (selectedLgCategory !== CATEGORY_DEFAULT_VALUE.lg) {
+      return setIsDisabledMdCategory(false);
+    }
 
-  const [inputHashTag, setInputHashTag] = useState('');
+    setIsDisabledMdCategory(true);
+    setIsDisabledSmCategory(true);
+  }, [selectedLgCategory]);
+
+  useEffect(() => {
+    // 중분류가 기본 값이거나 하위 분류가 존재하지 않는 경우
+    if (selectedMdCategory.length && CATEGORY_DEFAULT_VALUE.md) {
+      return setIsDisabledSmCategory(false);
+    }
+
+    setIsDisabledSmCategory(true);
+  }, [selectedMdCategory.length]);
+
+  useEffect(() => {
+    // 소분류가 존재하지 않는 경우
+    if (!appearSmCategories.length) setIsDisabledSmCategory(true);
+    else setIsDisabledSmCategory(false);
+  }, [selectedMdCategory, appearSmCategories.length]);
+
+  useEffect(() => {
+    // 모든 카테고리를 선택했는지 확인
+    if (
+      !appearSmCategories.length &&
+      isAllMoreThen(
+        [selectedLgCategory, selectedMdCategory],
+        DEFAULT_CATEGORY_CODE
+      )
+    ) {
+      setIsDoneSelectedCategories(true);
+      return setFormDatas((prev) => ({
+        ...prev,
+        cateCode: selectedMdCategory,
+      }));
+    } else if (
+      appearSmCategories.length &&
+      isAllMoreThen(
+        [selectedLgCategory, selectedMdCategory, selectedSmCategory],
+        DEFAULT_CATEGORY_CODE
+      )
+    ) {
+      setIsDoneSelectedCategories(true);
+      // 서버로 보낼 카테고리 코드 지정
+      return setFormDatas((prev) => ({
+        ...prev,
+        cateCode: selectedSmCategory,
+      }));
+    } else setIsDoneSelectedCategories(false);
+  }, [
+    selectedLgCategory,
+    selectedMdCategory,
+    selectedSmCategory,
+    appearSmCategories.length,
+  ]);
+
+  /**
+   * 게시글 수정하기
+   * 팔래요/살래요 prodState 달라야함
+   * */
+  const path = location.pathname.split('/');
+  console.log(path);
+  const [productNo, setProductNo] = useState(null);
+  const [addedImgs, setAddedImgs] = useState([]);
+
+  const option = { skip: !productNo || !path.includes('modify') };
+  const { data: modifyProduct, isSuccess: isSuccessOfModificationData } =
+    useGetProductModificationQuery(productNo, option);
 
   const [formTitle, setFormTitle] = useState('');
   const [subFormTitle, setFormSubTitle] = useState('');
-
-  const [showImgDeleteBtn, setShowImgDeleteBtn] = useState(false);
-
-  const imgSliderRef = useRef(null);
-  const [currentSlideNumber, setCurrentSlideNumber] = useState(0);
-
-  const { type: param } = useParams();
 
   const checkCompleteForm = useCallback(
     (start, end, callback) => {
@@ -89,11 +255,97 @@ export default function Editor() {
     [formDatas]
   );
 
+  const [modifyModeValues, setModifyModeValues] = useState({
+    title: '',
+    price: 0,
+    isFreeChecked: false,
+    contents: '',
+    lgCategory: '0',
+    mdCategory: '1',
+    smCategory: '2',
+  });
+
+  useEffect(() => {
+    setProductNo(path[path.length - 1]);
+  }, [path]);
+
+  useEffect(() => {
+    setFormDatas((prev) => ({
+      ...prev,
+      prodNo: Number(path),
+    }));
+  }, []);
+
+  console.log(formDatas);
+
+  useEffect(() => {
+    if (isSuccessOfModificationData) {
+      const { categoryInfos, fileInfos, hashTagInfos, productInfo } =
+        modifyProduct;
+
+      const category = categoryInfos.filter((category) => !!category);
+
+      const images = fileInfos.map(({ dbFileName }) => {
+        return `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`;
+      });
+
+      setModifyModeValues((prev) => ({
+        ...prev,
+        title: productInfo.prodName,
+        price: productInfo.prodPrice,
+        isFreeChecked: productInfo.freeCheck === '1' ? true : false,
+        contents: productInfo.prodExplain,
+        lgCategory: category[0].cateCode,
+        mdCategory: category[1].cateCode,
+        smCategory: category[2]?.cateCode,
+      }));
+
+      setSelectedLgCategory(category[0].cateCode);
+      setSelectedMdCategory(category[1].cateCode);
+      setSelectedSmCategory(category[2]?.cateCode);
+      setIsDoneSelectedCategories(true);
+
+      setAddedImgs((prev) => [...prev, ...images]);
+      productPriceRef.current.value = productInfo.prodPrice;
+
+      modifyProduct.fileInfos.map(async ({ dbFileName }) => {
+        try {
+          await convertImageUrlToFile(dbFileName).then((imageFile) => {
+            setFormDatas((prev) => ({
+              ...prev,
+              imageFiles: [...prev.imageFiles, imageFile],
+            }));
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      });
+
+      const hashTags = hashTagInfos.map(({ tagName }) => tagName);
+      const categoryCodes = categoryInfos.map((category) => category?.cateCode);
+      const cateCode = categoryCodes[categoryCodes.length - 1];
+
+      setFormDatas((prev) => ({
+        ...prev,
+        prodName: productInfo.prodName,
+        prodPrice: productInfo.prodPrice,
+        prodExplain: productInfo.prodExplain,
+        cateCode: cateCode,
+        freeCheck: productInfo.freeCheck,
+        priceOffer: productInfo.priceOffer,
+        hashtags: [...prev.hashtags, ...hashTags],
+        prodNo: Number(productNo),
+      }));
+    }
+  }, [isSuccessOfModificationData]);
+  console.log(formDatas);
+
+  // 폼 데이터가 전부 채워졌는지 체크
   useEffect(() => {
     if (
       param === SELL &&
       formDatas.freeCheck === CHECK.o &&
-      isSelectedCategories
+      isDoneSelectedCategories
     ) {
       // 무료나눔 O
       const callback = (formData) => !!formData.toString();
@@ -102,41 +354,40 @@ export default function Editor() {
     if (
       param === SELL &&
       formDatas.freeCheck === CHECK.x &&
-      isSelectedCategories
+      isDoneSelectedCategories
     ) {
       // 무료나눔 X
       const callback = (formData) => formData && formDatas.imageFiles.length;
       return setIsCompleteForm(checkCompleteForm(0, 7, callback));
     }
 
-    if (param === BUY && isSelectedCategories) {
+    if (param === BUY && isDoneSelectedCategories) {
       setIsCompleteForm(
-        Object.values(formDatas)
-          .filter((formData) => !Array.isArray(formData))
-          .every((formData) => !!formData)
+        [
+          formDatas.prodPrice,
+          formDatas.prodName,
+          formDatas.cateCode,
+          formDatas.prodExplain,
+        ].every((data) => !!data)
       );
     } else {
       setIsCompleteForm(false);
     }
-  }, [formDatas, isSelectedCategories]);
-
-  useEffect(() => {
-    if (isSuccess && productCategories) {
-      productCategories.categoryInfos.forEach((cate) => {
-        const tierIndex = cate.tier;
-        selectCategory[tierIndex]((prev) => deduplicationState(prev, cate));
-      });
-    }
-  }, [productCategories]);
+  }, [formDatas, isDoneSelectedCategories]);
 
   useEffect(() => {
     if (param === SELL) {
-      setFormTitle(TITLE.addPal);
-      setFormSubTitle(SUB_TITLE.addPal);
+      setFormTitle(TITLE.createPal);
+      setFormSubTitle(SUB_TITLE.createPal);
     }
     if (param === BUY) {
-      setFormTitle(TITLE.addSal);
-      setFormSubTitle(SUB_TITLE.addSal);
+      setFormTitle(TITLE.createSal);
+      setFormSubTitle(SUB_TITLE.createSal);
+    }
+
+    if (path.includes('modify')) {
+      setFormTitle('작성한 게시글 수정하기');
+      setFormSubTitle('');
     }
   }, [param]);
 
@@ -147,6 +398,7 @@ export default function Editor() {
     }));
   }, []);
 
+  // 가격 제안하기 (기능 추가할거면 사용)
   const checkedAllowPriceSuggestions = useCallback(({ target }) => {
     setFormDatas((prev) => ({
       ...prev,
@@ -171,8 +423,6 @@ export default function Editor() {
     }
   }, [formDatas.freeCheck]);
 
-  const productPriceRef = useRef(null);
-
   useEffect(() => {
     if (formDatas.freeCheck) {
       productPriceRef.current.value = '';
@@ -186,12 +436,16 @@ export default function Editor() {
     }));
   }, []);
 
-  const changeProductContent = useCallback(({ target }) => {
+  const changeProductContent = ({ target }) => {
+    setModifyModeValues((prev) => ({
+      ...prev,
+      contents: target.value,
+    }));
     setFormDatas((prev) => ({
       ...prev,
       prodExplain: target.value,
     }));
-  }, []);
+  };
 
   /**
    * 글 발행
@@ -205,25 +459,86 @@ export default function Editor() {
     try {
       e.preventDefault();
 
-      const formData = new FormData();
-      formDatas.imageFiles.forEach((item) => {
-        formData.append('imageFiles', item);
-      });
+      // 살래요 이미지 없이 보내기
+      // TODO: 코드 리팩토링
+      if (param === BUY && !formDatas.imageFiles.length) {
+        convertImageUrlToFile(NO_IMAGE)
+          .then((noimage) => {
+            formDatas.imageFiles = [noimage];
+            const formData = new FormData();
+            formDatas.imageFiles.forEach((item) => {
+              formData.append('imageFiles', item);
+            });
 
-      formData.append(
-        'param',
-        new Blob([JSON.stringify(formDatas)], { type: 'application/json' })
-      );
+            formData.append(
+              'param',
+              new Blob([JSON.stringify(formDatas)], {
+                type: 'application/json',
+              })
+            );
 
-      formDatas.imageFiles = formData;
+            formDatas.imageFiles = formData;
 
-      const { data: response } = await queryPerParam[param](formData);
+            if (!path.includes('modify')) {
+              // 등록하기
+              console.log('살래요', formData);
 
-      if (response.result === 'Success') {
-        window.alert('게시글 등록 완료');
-        navigate(`/products/${param}`);
+              queryPerParam[param](formData).then((response) => {
+                if (response.data.result === 'Success') {
+                  window.alert('게시글 등록 완료');
+                  navigate(`/products/${param}`);
+                } else {
+                  throw new Error('게시글 등록 실패');
+                }
+              });
+            } else {
+              // 수정하기
+              modifyProductMutation(formData).then((response) => {
+                if (response.data.result === 'Success') {
+                  window.alert('게시글 수정 완료'); // TODO: 수정하기 일 때 멘트 수정
+                  navigate(`/products/${param}`);
+                } else {
+                  throw new Error('게시글 수정 실패');
+                }
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       } else {
-        throw new Error('게시글 등록 실패');
+        const formData = new FormData();
+        formDatas.imageFiles.forEach((item) => {
+          formData.append('imageFiles', item);
+        });
+
+        formData.append(
+          'param',
+          new Blob([JSON.stringify(formDatas)], { type: 'application/json' })
+        );
+
+        formDatas.imageFiles = formData;
+
+        let response;
+        if (!path.includes('modify')) {
+          // 등록하기
+          response = await queryPerParam[param](formData);
+          if (response.data.result === 'Success') {
+            window.alert('게시글 등록 완료'); // TODO: 수정하기 일 때 멘트 수정
+            navigate(`/products/${param}`);
+          } else {
+            throw new Error('게시글 등록 실패');
+          }
+        } else {
+          // 수정하기
+          response = await modifyProductMutation(formData);
+          if (response.data.result === 'Success') {
+            window.alert('게시글 수정 완료'); // TODO: 수정하기 일 때 멘트 수정
+            navigate(`/products/${param}`);
+          } else {
+            throw new Error('게시글 수정 실패');
+          }
+        }
       }
     } catch (err) {
       window.alert('게시글 등록 실패! 잠시 후 다시 시도해주세요.');
@@ -242,307 +557,37 @@ export default function Editor() {
    */
 
   const changeFileUploadHandler = ({ target }) => {
-    const fileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    console.log(target);
     const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
     const extension = target.files[0].name
       .slice(findExtensionsIndex + 1)
       .toLowerCase();
 
-    if (!fileExtensions.includes(extension)) {
+    if (!ALLOWED_FILE_EXTENSIONS.includes(extension)) {
       return window.alert('jpg, png, gif 파일 형식만 업로드할 수 있습니다.');
     }
 
-    const imgFiles = []; // 서버 전송 배열
-    const imgUrls = []; // 이미지 슬라이드 배열
+    const imgFiles = []; // 서버 전송용 배열 (파일)
+    const imgUrls = []; // 이미지 슬라이드 배열 (이미지 url)
 
     [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
 
       if (
-        !(imgUrls.length >= MAX_UPLOAD_COUNT) &&
-        imgUrls.length < MAX_UPLOAD_COUNT
+        !(imgUrls.length >= MAX_IMAGE_COUNT) &&
+        imgUrls.length < MAX_IMAGE_COUNT
       ) {
         imgUrls.push(url);
         imgFiles.push(file);
       }
     });
 
-    setImgSlide((prev) => [...prev, ...imgUrls]);
+    setAddedImgs((prev) => [...prev, ...imgUrls]);
 
     setFormDatas((prev) => ({
       ...prev,
       imageFiles: formDatas.imageFiles.concat(imgFiles),
     }));
-  };
-
-  const mouseOverHandler = useCallback(() => {
-    setShowImgDeleteBtn(true);
-  }, []);
-
-  const mouseLeaveHandler = useCallback(() => {
-    setShowImgDeleteBtn(false);
-  }, []);
-
-  const deleteImg = (deleteTargetImg, deleteImageIdx) => () => {
-    const imgs = imgSlide.filter((img) => {
-      return img !== deleteTargetImg;
-    });
-
-    const serverImgs = formDatas.imageFiles.filter((_, index) => {
-      return index !== deleteImageIdx;
-    });
-
-    setImgSlide(imgs);
-    setFormDatas((prev) => ({ ...prev, imageFiles: serverImgs }));
-
-    if (currentSlideNumber - 1 === imgSlide.length) {
-      setCurrentSlideNumber(0);
-    }
-  };
-
-  /**
-   * 캐러셀
-   */
-  const clickPrevImg = useCallback(() => {
-    setCurrentSlideNumber(currentSlideNumber - 1);
-  }, [currentSlideNumber]);
-
-  const clickNextImg = useCallback(() => {
-    setCurrentSlideNumber(currentSlideNumber + 1);
-  }, [currentSlideNumber]);
-
-  useEffect(() => {
-    const { current } = imgSliderRef;
-
-    if (currentSlideNumber < 0) {
-      setCurrentSlideNumber(imgSlide.length - 1);
-      return;
-    }
-
-    if (currentSlideNumber > imgSlide.length - 1) {
-      setCurrentSlideNumber(0);
-      current.style.transform = 'translateX(0px)';
-      return;
-    }
-
-    if (currentSlideNumber <= imgSlide.length - 1) {
-      current.style.opacity = '0';
-
-      setTimeout(() => {
-        current.style.opacity = '1';
-        if (currentSlideNumber >= 0) {
-          current.style.transform = `translateX(${
-            NEXT_X * currentSlideNumber
-          }px)`;
-        }
-      }, 100);
-
-      return () => {
-        current.style.opacity = '0';
-        current.style.transition = 'opacity .4s';
-      };
-    }
-  }, [currentSlideNumber, imgSlide.length]);
-
-  /**
-   * 해시태그
-   */
-
-  const addHashTag = useCallback((e) => {
-    const allowedCommand = ['Comma', 'Enter', 'Space', 'NumpadEnter'];
-    if (!allowedCommand.includes(e.code)) return;
-
-    if (isEmptyValue(e.target.value.trim())) {
-      return setInputHashTag('');
-    }
-
-    let newHashTag = e.target.value.trim();
-    const regExp = /[\{\}\[\]\/?.;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g;
-    if (regExp.test(newHashTag)) {
-      newHashTag = newHashTag.replace(regExp, '');
-    }
-    if (newHashTag.includes(',')) {
-      newHashTag = newHashTag.split(',').join('');
-    }
-
-    if (isEmptyValue(newHashTag)) return;
-
-    setFormDatas((prev) => {
-      return {
-        ...prev,
-        hashtags: [...new Set([...prev.hashtags, newHashTag.trim()])],
-      };
-    });
-
-    setInputHashTag('');
-  }, []);
-
-  useEffect(() => {
-    if (formDatas.hashtags.length) {
-      const removeSpace = formDatas.hashtags.map((tag) => {
-        return tag.replace(' ', '');
-      });
-
-      setFormDatas((prev) => ({ ...prev, hashtags: removeSpace }));
-    }
-  }, [formDatas.hashtags.length]);
-
-  useEffect(() => {
-    if (formDatas.hashtags.length > MAX_HASHTAGS) {
-      setFormDatas((prev) => ({
-        ...prev,
-        hashtags: prev.hashtags.slice(0, MAX_HASHTAGS),
-      }));
-
-      return window.alert('해시태그는 10개 이상 등록할 수 없습니다.');
-    }
-  }, [formDatas.hashtags.length]);
-
-  const keyDownHandler = useCallback((e) => {
-    if (e.code !== 'Enter' && e.code !== 'NumpadEnter') return;
-    e.preventDefault();
-
-    const regExp = /^[a-z|A-Z|가-힣|ㄱ-ㅎ|ㅏ-ㅣ|0-9| \t|]+$/g;
-    if (!regExp.test(e.target.value)) {
-      setInputHashTag('');
-    }
-  }, []);
-
-  const changeHashTagInput = useCallback((e) => {
-    setInputHashTag(e.target.value);
-  }, []);
-
-  const removeHashtagClickHandler = (e) => {
-    const newHashtags = formDatas.hashtags.filter((hashtag) => {
-      return e.target.innerHTML !== hashtag;
-    });
-
-    setFormDatas((prev) => ({
-      ...prev,
-      hashtags: newHashtags,
-    }));
-  };
-
-  /**
-   * 카테고리 선택
-   */
-
-  const [isDisabledMdCate, setIsDisabledMdCate] = useState(true);
-  const [isDisabledSmCate, setIsDisabledSmCate] = useState(true);
-  const [currentCategories, setCurrentCategories] = useState({
-    lg: '',
-    md: [],
-    sm: [],
-  });
-
-  useEffect(() => {
-    if (!currentCategories.md.length) {
-      setIsDisabledMdCate(true);
-    } else setIsDisabledMdCate(false);
-
-    if (!currentCategories.sm.length) {
-      setIsDisabledSmCate(true);
-    } else setIsDisabledSmCate(false);
-  }, [currentCategories?.md.length, currentCategories?.sm.length]);
-
-  useEffect(() => {
-    if (currentCategories?.lg) {
-      setCurrentCategories((prev) => {
-        const newMdCate = midiumCategory.filter((mdCate) => {
-          return mdCate.cateParent === currentCategories.lg;
-        });
-
-        return { ...prev, md: newMdCate, sm: [] };
-      });
-    }
-  }, [currentCategories?.lg]);
-
-  const categoryDefaultValue = {
-    lg: '0',
-    md: '1',
-    sm: '2',
-  };
-
-  const categoryDefaultCode = {
-    lg: 10_000,
-    md: 100,
-    sm: 10,
-  };
-
-  useEffect(() => {
-    //TODO: 리팩토링
-    if (
-      Object.values(categoryDefaultValue).includes(userSelectedCategoryCode)
-    ) {
-      return setIsSelectedCategories(false);
-    }
-
-    if (
-      currentCategories.md.length &&
-      userSelectedCategoryCode <= currentCategories.lg
-    ) {
-      return setIsSelectedCategories(false);
-    } else if (
-      !currentCategories.sm.length &&
-      !(userSelectedCategoryCode % categoryDefaultCode.md) &&
-      userSelectedCategoryCode > categoryDefaultCode.lg
-    ) {
-      setIsSelectedCategories(true);
-    } else if (
-      currentCategories.sm.length &&
-      userSelectedCategoryCode % categoryDefaultCode.sm
-    ) {
-      setIsSelectedCategories(true);
-    } else setIsSelectedCategories(false);
-
-    setFormDatas((prev) => ({
-      ...prev,
-      cateCode: userSelectedCategoryCode,
-    }));
-  }, [currentCategories, userSelectedCategoryCode]);
-
-  const changeSelectBoxHandler = ({ target }) => {
-    //TODO: 리팩토링
-    if (!(target.value % categoryDefaultCode.lg)) {
-      setUserSelectedCategoryCode(target.value);
-    } else if (!(target.value % categoryDefaultCode.md)) {
-      if (currentCategories.sm.length) {
-        setUserSelectedCategoryCode(
-          Math.max(userSelectedCategoryCode, target.value)
-        );
-      } else {
-        setUserSelectedCategoryCode(target.value);
-      }
-    } else if (target.value % categoryDefaultCode.sm) {
-      setUserSelectedCategoryCode(target.value);
-    }
-
-    if (!(target.value % categoryDefaultCode.lg)) {
-      return setCurrentCategories((prev) => ({ ...prev, lg: target.value }));
-    }
-
-    if (target.value === categoryDefaultValue.md) {
-      return setCurrentCategories((prev) => {
-        const newSmCate = smallCetegory.filter((smCate) => {
-          return smCate.cateParent === target.value;
-        });
-
-        return { ...prev, sm: newSmCate };
-      });
-    }
-
-    if (
-      target.value !== categoryDefaultValue.md &&
-      !(target.value % categoryDefaultCode.md)
-    ) {
-      return setCurrentCategories((prev) => {
-        const newSmCate = smallCetegory.filter((smCate) => {
-          return smCate.cateParent === target.value;
-        });
-
-        return { ...prev, sm: newSmCate };
-      });
-    }
   };
 
   if (ErrorByCategory) {
@@ -558,59 +603,18 @@ export default function Editor() {
         </div>
         <div>
           <ImageWrapper>
-            {!imgSlide.length && (
-              <ImageUpLoaderLabel htmlFor='image-uploader'>
+            {!addedImgs.length ? (
+              <ImageUploaderLabel htmlFor='image-uploader'>
                 이미지 등록
-              </ImageUpLoaderLabel>
+              </ImageUploaderLabel>
+            ) : (
+              <Slider
+                images={addedImgs}
+                setFormDatas={setFormDatas}
+                setAddedImgs={setAddedImgs}
+              />
             )}
-
-            <ul className='img-slider' ref={imgSliderRef}>
-              {imgSlide.length > 0 &&
-                imgSlide.map((imageUrl, idx) => {
-                  return (
-                    <li
-                      onMouseOver={mouseOverHandler}
-                      onMouseLeave={mouseLeaveHandler}
-                      key={imageUrl}
-                      className='img-list'
-                    >
-                      <Image src={imageUrl} alt='upload_image' />
-                      <p className='img-page'>{`${idx + 1}/${
-                        imgSlide.length
-                      }`}</p>
-                      {showImgDeleteBtn && (
-                        <button
-                          type='button'
-                          className='delete-img-btn'
-                          onClick={deleteImg(imageUrl, idx)}
-                        >
-                          삭제
-                        </button>
-                      )}
-                    </li>
-                  );
-                })}
-            </ul>
-            {imgSlide.length > 0 && (
-              <div className='btn-wrapper'>
-                <button
-                  className='prev-btn'
-                  onClick={clickPrevImg}
-                  type='button'
-                >
-                  ⥢ PREV
-                </button>
-                <button
-                  className='next-btn'
-                  onClick={clickNextImg}
-                  type='button'
-                >
-                  NEXT ⥤
-                </button>
-              </div>
-            )}
-
-            <ImageUpLoaderInput
+            <ImageUploaderInput
               id='image-uploader'
               name='image-uploader'
               type='file'
@@ -625,6 +629,7 @@ export default function Editor() {
               minLength={2}
               maxLength={50}
               onChange={changeProductTitle}
+              value={modifyModeValues.title}
               required
               width='100%'
               padding='10px'
@@ -653,6 +658,7 @@ export default function Editor() {
                 isDisabled={formDatas.freeCheck === CHECK.o}
                 inputRef={productPriceRef}
                 onChange={changeProductPrice}
+                value={modifyModeValues?.priceValue}
                 required
                 type='number'
                 min='0'
@@ -665,9 +671,16 @@ export default function Editor() {
               {param === SELL && (
                 <CheckBox
                   onChange={checkedFreeSharing}
+                  onClick={() => {
+                    setModifyModeValues((prev) => ({
+                      ...prev,
+                      isFreeChecked: !prev.isFreeChecked,
+                    }));
+                  }}
                   width='110px'
                   id='free'
                   title='무료나눔'
+                  isChecked={modifyModeValues?.isFreeChecked}
                 />
               )}
             </PriceInputContainer>
@@ -676,52 +689,37 @@ export default function Editor() {
           <CategoryContainer>
             <InputTitle title='카테고리' isRequired />
             <Categories>
-              <select
-                onChange={changeSelectBoxHandler}
+              <SelectBox
                 className='select-box lg'
-                required
-              >
-                <option value={0}>대분류</option>
-                {largeCategory?.map((largeCate) => {
-                  return (
-                    <option key={largeCate.cateCode} value={largeCate.cateCode}>
-                      {largeCate.cateName}
-                    </option>
-                  );
-                })}
-              </select>
+                required='required'
+                onChange={changeSelectedOption}
+                categories={categories[0]}
+                optionValue={CATEGORY_DEFAULT_VALUE.lg}
+                optionText='대분류'
+                selected={selectedLgCategory}
+              />
 
-              <select
-                disabled={isDisabledMdCate}
-                onChange={changeSelectBoxHandler}
+              <SelectBox
                 className='select-box md'
-                required
-              >
-                <option value={1}>중분류</option>
-                {currentCategories.md?.map((mdCate) => {
-                  return (
-                    <option key={mdCate.cateCode} value={mdCate.cateCode}>
-                      {mdCate.cateName}
-                    </option>
-                  );
-                })}
-              </select>
+                required='required'
+                onChange={changeSelectedOption}
+                categories={appearMdCategories}
+                optionValue={CATEGORY_DEFAULT_VALUE.md}
+                optionText='중분류'
+                disabled={isDisabledMdCategory}
+                selected={selectedMdCategory}
+              />
 
-              <select
-                disabled={isDisabledSmCate}
-                onChange={changeSelectBoxHandler}
+              <SelectBox
                 className='select-box sm'
-                required
-              >
-                <option value={2}>소분류</option>
-                {currentCategories.sm?.map((smCate) => {
-                  return (
-                    <option key={smCate.cateCode} value={smCate.cateCode}>
-                      {smCate.cateName}
-                    </option>
-                  );
-                })}
-              </select>
+                required='required'
+                onChange={changeSelectedOption}
+                categories={appearSmCategories}
+                optionValue={CATEGORY_DEFAULT_VALUE.sm}
+                optionText='소분류'
+                disabled={isDisabledSmCategory}
+                selected={selectedSmCategory}
+              />
             </Categories>
           </CategoryContainer>
 
@@ -730,6 +728,7 @@ export default function Editor() {
             <br />
             <textarea
               maxLength='500'
+              value={modifyModeValues?.contents}
               onChange={changeProductContent}
               className='textarea'
               required
@@ -737,33 +736,7 @@ export default function Editor() {
             />
           </InputContent>
 
-          <HashTageContainer>
-            <InputTitle title='해시태그' />
-            <div className='hashtags'>
-              {formDatas.hashtags.length > 0 &&
-                formDatas.hashtags.map((hashTag) => {
-                  return (
-                    <div
-                      onClick={removeHashtagClickHandler}
-                      key={hashTag}
-                      className='tag'
-                    >
-                      {hashTag}
-                    </div>
-                  );
-                })}
-
-              <input
-                value={inputHashTag}
-                onChange={changeHashTagInput}
-                onKeyUp={addHashTag}
-                onKeyDown={keyDownHandler}
-                placeholder='#해시태그를 등록해보세요. (최대 10개)'
-                className='hashtag-input'
-                maxLength='20'
-              />
-            </div>
-          </HashTageContainer>
+          <Hashtag hashtags={formDatas.hashtags} setFormDatas={setFormDatas} />
         </div>
 
         <div className='button-container'>
@@ -774,7 +747,7 @@ export default function Editor() {
             customSize='50%'
             isDisabled={!isCompleteForm}
           >
-            등록하기
+            {!path.includes('modify') ? '등록하기' : '수정하기'}
           </Button>
           <Button
             onClick={cancleAddingProductClickHandler}
@@ -795,7 +768,7 @@ const ImageWrapper = styled.div`
   overflow: hidden;
 `;
 
-const ImageUpLoaderLabel = styled.label`
+const ImageUploaderLabel = styled.label`
   width: 100%;
   display: block;
   background: ${GRAY_COLOR};
@@ -807,19 +780,11 @@ const ImageUpLoaderLabel = styled.label`
   margin-top: 15px;
 `;
 
-const ImageUpLoaderInput = styled.input.attrs({
+const ImageUploaderInput = styled.input.attrs({
   multiple: true,
   accept: 'image/*',
 })`
   display: none;
-`;
-
-const Image = styled.img`
-  width: 690px;
-  height: 250px;
-  object-fit: contain;
-  border-radius: 10px;
-  display: block;
 `;
 
 const TitleAndPriceWrapper = styled.div`
@@ -850,9 +815,5 @@ const Categories = styled.div`
 `;
 
 const InputContent = styled.div`
-  margin-top: 20px;
-`;
-
-const HashTageContainer = styled.div`
   margin-top: 20px;
 `;

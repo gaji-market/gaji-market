@@ -52,6 +52,12 @@ export const productApi = createApi({
 
       providesTags: ['SellAll', 'BuyAll', 'DetailView'],
     }),
+    getProductModification: builder.query({
+      query: (prodNo) => ({
+        url: `beforeUpdate/${prodNo}`,
+      }),
+      providesTags: ['SellAll', 'BuyAll', 'DetailView'],
+    }),
     createSaleProduct: builder.mutation({
       query: (product) => ({
         url: 'sellSave',
@@ -84,6 +90,22 @@ export const productApi = createApi({
       }),
       invalidatesTags: ['SellAll', 'BuyAll'],
     }),
+    deleteProduct: builder.mutation({
+      query: (prodNo) => ({
+        url: 'delete',
+        method: 'POST',
+        body: { prodNo: Number(prodNo) },
+      }),
+      invalidatesTags: ['SellAll', 'BuyAll'],
+    }),
+    modifyProduct: builder.mutation({
+      query: (product) => ({
+        url: 'update',
+        method: 'POST',
+        body: product,
+      }),
+      invalidatesTags: ['SellAll', 'BuyAll', 'DetailView'],
+    }),
   }),
 });
 
@@ -94,9 +116,12 @@ export const {
   useLazyGetBuyAllQuery,
   useGetCategoriesQuery,
   useGetProductQuery,
+  useGetProductModificationQuery,
   useChangeInterestCountMutation,
   useChangeReportCountMutation,
   useCreateSaleProductMutation,
   useCreatePurchaseProductMutation,
   useIncreaseInterestMutation,
+  useDeleteProductMutation,
+  useModifyProductMutation,
 } = productApi;

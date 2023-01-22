@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
-import StateBadge from './StateBadge';
+
 import { useChangeInterestCountMutation } from 'services/productApi';
+
+import StateBadge from './StateBadge';
+
 const PRODUCT_STATE = {
   0: '판매중',
   1: '구매중',
@@ -34,7 +37,7 @@ export default function Card({
   const [likesState, setLikesState] = useState(likes);
   const [changeInterestCountMutation] = useChangeInterestCountMutation();
 
-  async function isInterestClick() {
+  const clickInterest = async () => {
     try {
       const res = await changeInterestCountMutation(prodNo).unwrap();
 
@@ -43,7 +46,8 @@ export default function Card({
     } catch (error) {
       console.error(error);
     }
-  }
+  };
+
   return (
     <CardContainer onClick={onClick}>
       <CardHead>
@@ -76,12 +80,9 @@ export default function Card({
             </AreaText>
             <LikesWrapper>
               {interestState ? (
-                <FillHeartIcon
-                  onClick={isInterestClick}
-                  className='fillHeart'
-                />
+                <FillHeartIcon onClick={clickInterest} className='fillHeart' />
               ) : (
-                <HeartIcon onClick={isInterestClick} className='emptyHeart' />
+                <HeartIcon onClick={clickInterest} className='emptyHeart' />
               )}
               <LikesCount>{likesState}</LikesCount>
             </LikesWrapper>
