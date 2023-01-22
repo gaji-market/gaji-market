@@ -16,7 +16,7 @@ export default function Splash({ refObj }) {
 }
 
 const Container = styled.div`
-  z-index: 10000000;
+  z-index: 10000000000;
   width: 100vw;
   height: 100vh;
   position: fixed;
