@@ -52,6 +52,7 @@ export default function AppBar() {
   const { data: counts = { intstCheckCnt: 0, chatCheckCnt: 0 } } =
     useGetCheckCntQuery(userNo, {
       pollingInterval: 5000,
+      skip: userNo === null,
     });
 
   const modalRef = useRef(null);
@@ -107,7 +108,10 @@ export default function AppBar() {
   }, [location]);
 
   useEffect(() => {
-    if (JSON.stringify(counts) !== JSON.stringify(prevCounts)) {
+    if (
+      userNo !== null &&
+      JSON.stringify(counts) !== JSON.stringify(prevCounts)
+    ) {
       getNotiListHandler(currentTab);
     }
   }, [counts]);
