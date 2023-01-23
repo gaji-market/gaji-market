@@ -43,9 +43,7 @@ export default function ProductDetailView() {
 
   const slideRef = useRef();
   const modalRef = useRef(null);
-
   const navigate = useNavigate();
-
   const { type: param, id: prodNo } = useParams();
 
   const { data, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
@@ -286,7 +284,21 @@ export default function ProductDetailView() {
                 )}
                 {!isCreatedUser && (
                   <>
-                    <Button customSize='100%'>채팅하기</Button>
+                    <Button
+                      customSize='100%'
+                      onClick={() => modalRef.current?.showModal()}
+                    >
+                      채팅하기
+                    </Button>
+                    <Modal
+                      ref={modalRef}
+                      text={`${
+                        param === SELL ? '판매자' : '구매자'
+                      }와 채팅을 시작하시겠습니까?`}
+                      leftBtnText='네'
+                      rightBtnText='아니요'
+                      confirmHandler={() => navigate(`/chat/${prodNo}`)}
+                    />
                     {/* <Button isOutline isDarkColor customSize='50%'>
                       가격 제안하기
                     </Button> */}

@@ -122,6 +122,7 @@ export default function Router() {
         <Route path='/search' element={<SearchPage />} />
 
         <Route path='/chat' element={<Chat />} />
+        <Route path='/chat/:id' element={<Chat />} />
       </Route>
 
       <Route path='*' element={<Navigate to='/' />} />
