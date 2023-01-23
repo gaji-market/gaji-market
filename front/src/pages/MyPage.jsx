@@ -7,10 +7,11 @@ import { usePostUserMyPageMutation } from 'services/signUpApi';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MyPageCard from 'components/common/MyPageCard';
+import Loading from 'components/common/Loading';
 const TITLE = ['좋아요 목록', '구매 목록', '판매 목록'];
 export default function MyPage() {
   const [cardData, setCardData] = useState();
-  const [getMyPage] = usePostUserMyPageMutation();
+  const [getMyPage, { isLoading }] = usePostUserMyPageMutation();
   const nav = useNavigate();
   const [userInfo, setUserInfo] = useState();
 
@@ -32,13 +33,17 @@ export default function MyPage() {
     getUserData();
   }, []);
 
+  if (isLoading) {
+    console.log(isLoading);
+    return <Loading />;
+  }
   return (
     <Container>
       <TopSection>
         <UserInfoBox>
           <LeftSection
             src={
-              userInfo.dbFileName
+              userInfo?.dbFileName
                 ? `${process.env.REACT_APP_IMG_PREFIX_URL}${userInfo.dbFileName}`
                 : basicLogo
             }
@@ -73,6 +78,7 @@ export default function MyPage() {
       {cardData?.map((card, i) => {
         return (
           <MyPageCard
+            key={i}
             title={TITLE[i]}
             cardList={card[0]}
             totalCount={card[1]}
