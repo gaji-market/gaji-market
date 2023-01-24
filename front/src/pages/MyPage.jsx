@@ -18,7 +18,6 @@ export default function MyPage() {
   async function getUserData() {
     try {
       const res = await getMyPage().unwrap();
-      console.log(res);
       setCardData([
         [res.interestProdList, res.interestProdListCnt, 'interest'],
         [res.buyProdList, res.buyProdListCnt, 'buyProduct'],

@@ -46,7 +46,6 @@ export default function MyEditPage() {
         new Blob([JSON.stringify(updateForm)], { type: 'application/json' })
       );
       const res = await edit(formData).unwrap();
-      console.log(res);
       if (res.result === 'fail') {
         addToast({
           isToastSuccess: false,
@@ -68,8 +67,6 @@ export default function MyEditPage() {
     }
   };
   const changeHandler = (e) => {
-    console.log(1111);
-
     if (e.target.id === 'currentpassword') setCurrentPassword(e.target.value);
     else setUpdateForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
@@ -106,9 +103,7 @@ export default function MyEditPage() {
     setUpdateForm((prev) => ({ ...prev, userAddress: fullAddress }));
     inputRef.current.value = fullAddress;
   };
-  useEffect(() => {
-    console.log(updateForm);
-  }, [updateForm]);
+
   return (
     <Container>
       {isCorrectPW ? (
