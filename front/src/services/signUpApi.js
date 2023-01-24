@@ -60,7 +60,7 @@ export const signUpApi = createApi({
         url: `${type}ProdList`,
         method: 'POST',
         body: {
-          recordCount: 100,
+          recordCount: 8,
           currentPage: pageInfo.currentPage,
           sort: 'default',
         },
