@@ -3,9 +3,11 @@ import PlusButton from 'components/common/PlusButton';
 import Card from '../common/Card';
 import { useNavigate } from 'react-router-dom';
 import { PRIMARY_COLOR } from '../common/commonColor';
+import useToast from 'hooks/toast';
 
 export default function MyPageCard({ title, cardList, totalCount, detail }) {
   const nav = useNavigate();
+  const { addToast } = useToast();
 
   const moveProductDetail = (prodNo, tradeKind) => () => {
     if (tradeKind === '0') {
@@ -15,6 +17,18 @@ export default function MyPageCard({ title, cardList, totalCount, detail }) {
     }
   };
 
+  function onClickHanlder() {
+    if (totalCount === 0) {
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastTitle: '페이지 이동 실패',
+        toastMessage: '리스트가 없습니다.',
+      });
+    } else {
+      nav(detail);
+    }
+  }
   function CardComponent({ cards }) {
     return (
       <>
@@ -56,7 +70,7 @@ export default function MyPageCard({ title, cardList, totalCount, detail }) {
       <ProductHead>
         <ProductHeadTitle>{title}</ProductHeadTitle>
         <ProductHeadSubtext>더보기({totalCount})</ProductHeadSubtext>
-        <PlusButton customSize='35px' onClick={() => nav(detail)} />
+        <PlusButton customSize='35px' onClick={onClickHanlder} />
       </ProductHead>
       <ProductSection>
         {totalCount === 0 ? (
