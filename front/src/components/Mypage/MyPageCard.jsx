@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import PlusButton from 'components/common/PlusButton';
-import Card from './Card';
+import Card from '../common/Card';
 import { useNavigate } from 'react-router-dom';
-import { PRIMARY_COLOR } from './commonColor';
+import { PRIMARY_COLOR } from '../common/commonColor';
 
 export default function MyPageCard({ title, cardList, totalCount }) {
   const nav = useNavigate();
@@ -19,7 +19,7 @@ export default function MyPageCard({ title, cardList, totalCount }) {
     return (
       <>
         {cards.length > 0 &&
-          cards.slice(0, 4).map((product) => {
+          cards.map((product) => {
             const {
               address,
               dbFileName,
