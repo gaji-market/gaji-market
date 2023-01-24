@@ -4,7 +4,7 @@ import Card from '../common/Card';
 import { useNavigate } from 'react-router-dom';
 import { PRIMARY_COLOR } from '../common/commonColor';
 
-export default function MyPageCard({ title, cardList, totalCount }) {
+export default function MyPageCard({ title, cardList, totalCount, detail }) {
   const nav = useNavigate();
 
   const moveProductDetail = (prodNo, tradeKind) => () => {
@@ -56,7 +56,7 @@ export default function MyPageCard({ title, cardList, totalCount }) {
       <ProductHead>
         <ProductHeadTitle>{title}</ProductHeadTitle>
         <ProductHeadSubtext>더보기({totalCount})</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
+        <PlusButton customSize='35px' onClick={() => nav(detail)} />
       </ProductHead>
       <ProductSection>
         {totalCount === 0 ? (
