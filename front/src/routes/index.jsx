@@ -20,6 +20,7 @@ import {
   MyEditPage,
   SearchPage,
   Chat,
+  MyPageDetail,
 } from 'pages';
 
 import Splash from 'components/common/Splash';
@@ -101,6 +102,7 @@ export default function Router() {
         <Route index element={<Home />} />
 
         <Route path='/mypage' element={<MyPage />} />
+        <Route path='/mypage/:type' element={<MyPageDetail />} />
         <Route path='/mypage/edit' element={<MyEditPage />} />
 
         <Route path='/write' element={<Outlet />}>
