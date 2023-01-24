@@ -25,8 +25,6 @@ export default function MyPageDetail() {
 
   async function getCardData() {
     try {
-      console.log(pageInfo);
-
       const res = await getCard({ type: param, pageInfo }).unwrap();
       setPageInfo((prev) => ({
         ...prev,
