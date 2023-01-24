@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import useToast from 'hooks/toast';
+import { v4 as uuidv4 } from 'uuid';
 
 import { usePostUserCardMutation } from 'services/signUpApi';
 
@@ -12,25 +13,31 @@ import { TITLE, LIST_NAME, VALID_PAGE } from 'constants/mypage';
 
 export default function MyPageDetail() {
   const [pageInfo, setPageInfo] = useState({
-    currentPage: 1,
     totalPage: 1,
+    currentPage: 1,
   });
+  const [isFirst, setIsFirst] = useState(true);
   const nav = useNavigate();
   const { addToast } = useToast();
   const [endCard, inView] = useInView();
 
-  const [getCard, { isLoading }] = usePostUserCardMutation('');
+  const [getCard] = usePostUserCardMutation('');
   const [cards, setCards] = useState([]);
   const { type: param } = useParams();
 
   async function getCardData() {
     try {
-      const res = await getCard({ type: param, pageInfo }).unwrap();
+      const res = await getCard({
+        type: param,
+        pageInfo,
+      }).unwrap();
+
       setPageInfo((prev) => ({
         ...prev,
-        currentPage: pageInfo.currentPage + 1,
         totalPage: res.shcPage.totalPageCount,
+        currentPage: prev.currentPage + 1,
       }));
+
       setCards((prev) => [...prev, ...res[LIST_NAME[param]]]);
     } catch (error) {
       console.log(error);
@@ -46,23 +53,20 @@ export default function MyPageDetail() {
         toastMessage: '정상적이지 않은 페이지에 접속하셨습니다.',
       });
       nav('/mypage');
-    } else {
-      getCardData();
     }
   }, [param]);
 
   useEffect(() => {
-    console.log(cards);
-  }, [cards]);
-  useEffect(() => {
+    if (pageInfo.currentPage >= pageInfo.totalPage && !isFirst) return;
+    if (isFirst) {
+      getCardData();
+      setIsFirst(false);
+    }
     if (inView) {
       getCardData();
     }
-  }, [inView]);
+  }, [inView, pageInfo.currentPage]);
 
-  useEffect(() => {
-    console.log(pageInfo);
-  }, [pageInfo]);
   const moveProductDetail = (prodNo) => (e) => {
     const tagName = e.target.tagName;
     const interestIconTag = ['path', 'svg'];
@@ -73,6 +77,7 @@ export default function MyPageDetail() {
 
   return (
     <Container>
+      <Title>{TITLE[param]}</Title>
       <CardContainer>
         {cards.length > 0 &&
           cards.map((product) => {
@@ -87,7 +92,7 @@ export default function MyPageDetail() {
             } = product;
             return (
               <Card
-                key={prodNo}
+                key={uuidv4()}
                 productImage={
                   dbFileName
                     ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
@@ -103,24 +108,34 @@ export default function MyPageDetail() {
               />
             );
           })}
+        <div className='endDiv' ref={endCard}></div>
       </CardContainer>
     </Container>
   );
 }
-
+const Title = styled.div`
+  margin-top: 50px;
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  padding-left: 5px;
+`;
 const Container = styled.div`
   width: 1200px;
 `;
 const CardContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  margin: 0 auto;
+  position: relative;
+  margin-bottom: 50px;
+
   .endDiv {
-    width: 500px;
-    height: 10px;
+    width: 250px;
+    height: 250px;
     position: absolute;
     bottom: 0;
     right: 0;
     z-index: -5;
-    background-color: black;
   }
 `;
