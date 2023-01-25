@@ -38,7 +38,7 @@ export default function MyPage() {
         <UserInfoBox>
           <LeftSection
             src={
-              userInfo.dbFileName
+              userInfo?.dbFileName
                 ? `${process.env.REACT_APP_IMG_PREFIX_URL}${userInfo.dbFileName}`
                 : basicLogo
             }
