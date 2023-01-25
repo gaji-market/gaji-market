@@ -4,7 +4,6 @@ import { useInView } from 'react-intersection-observer';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import useToast from 'hooks/toast';
-import { v4 as uuidv4 } from 'uuid';
 
 import { usePostUserCardMutation } from 'services/signUpApi';
 
@@ -16,7 +15,6 @@ export default function MyPageDetail() {
     totalPage: 1,
     currentPage: 1,
   });
-  const [isFirst, setIsFirst] = useState(true);
   const nav = useNavigate();
   const { addToast } = useToast();
   const [endCard, inView] = useInView();
@@ -57,11 +55,8 @@ export default function MyPageDetail() {
   }, [param]);
 
   useEffect(() => {
-    if (pageInfo.currentPage >= pageInfo.totalPage && !isFirst) return;
-    if (isFirst) {
-      getCardData();
-      setIsFirst(false);
-    }
+    if (pageInfo.currentPage > pageInfo.totalPage && pageInfo.currentPage !== 1)
+      return;
     if (inView) {
       getCardData();
     }
@@ -92,7 +87,7 @@ export default function MyPageDetail() {
             } = product;
             return (
               <Card
-                key={uuidv4()}
+                key={prodNo}
                 productImage={
                   dbFileName
                     ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
