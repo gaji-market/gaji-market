@@ -43,7 +43,7 @@ export default function Home() {
     if (className.includes('empty-heart') || className.includes('fill-heart'))
       return;
 
-    navigate(`/products/${type}/detail/${prodNo}`);
+    navigate(`/products/pal/detail/${prodNo}`);
   };
 
   return (
