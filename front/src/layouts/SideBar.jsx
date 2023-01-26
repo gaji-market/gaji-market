@@ -161,6 +161,7 @@ const ExpandedLeftBar = styled.div`
   width: 200px;
   display: flex;
   flex-direction: column;
+  margin-top: 56px;
 `;
 
 const Header = styled.div`
