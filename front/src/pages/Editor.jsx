@@ -535,7 +535,6 @@ export default function Editor() {
    * 이미지 업로드
    */
   const changeFileUploadHandler = ({ target }) => {
-    console.log(target);
     const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
     const extension = target.files[0].name
       .slice(findExtensionsIndex + 1)

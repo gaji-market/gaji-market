@@ -131,7 +131,6 @@ export default function ProductDetailView() {
   const deleteHandler = async () => {
     try {
       const result = await deleteProductMutation(prodNo).unwrap();
-      console.log(result);
       addToast({
         isToastSuccess: true,
         isMainTheme: true,
@@ -170,7 +169,6 @@ export default function ProductDetailView() {
         rightBtnText='아니요, 괜찮아요!'
         confirmHandler={() => {
           navigate(`/modify/${param}/${prodNo}`);
-          console.log(`/modify/${param}/${prodNo}`);
         }}
       />
 
