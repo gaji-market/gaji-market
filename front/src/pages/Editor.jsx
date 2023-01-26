@@ -39,8 +39,7 @@ import splitClassNameSpacing from 'utils/splitClassNameSpacing';
 import isAllMoreThen from 'utils/isAllMoreThen';
 import useToast from 'hooks/toast';
 
-const NO_IMAGE =
-  'https://github.com/gaji-market/gaji-market/blob/develop/front/src/assets/no_image.png?raw=true';
+const NO_IMAGE = 'no_image.png';
 
 const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
 
