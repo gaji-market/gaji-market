@@ -60,12 +60,12 @@ export default function Slider({ images, setFormDatas, setAddedImgs }) {
     }
   }, [images.length]);
 
-  const deleteHandler = (index) => () => {
-    setAddedImgs(removeTargetImage(images, index));
+  const deleteHandler = (url) => () => {
+    setAddedImgs(removeTargetImage(images, url));
 
     setFormDatas((prev) => ({
       ...prev,
-      imageFiles: removeTargetImage(prev.imageFiles, index),
+      imageFiles: removeTargetImage(prev.imageFiles, url),
     }));
 
     checkSlideNumber();
@@ -107,7 +107,7 @@ export default function Slider({ images, setFormDatas, setAddedImgs }) {
                   <button
                     type='button'
                     className='delete-img-btn'
-                    onClick={deleteHandler(idx)}
+                    onClick={deleteHandler(url)}
                   >
                     삭제
                   </button>

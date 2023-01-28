@@ -39,23 +39,48 @@ import splitClassNameSpacing from 'utils/splitClassNameSpacing';
 import isAllMoreThen from 'utils/isAllMoreThen';
 import useToast from 'hooks/toast';
 
-const NO_IMAGE =
-  'https://raw.githubusercontent.com/gaji-market/gaji-market/reason/front/src/assets/no_image.png';
+const NO_IMAGE = 'no_image.png';
 
 const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
+
+const toastMessage = (isSuccess, status, message) => ({
+  isToastSuccess: isSuccess ? true : false,
+  isMainTheme: true,
+  toastTitle: isSuccess
+    ? `게시글 ${status} ${isSuccess ? '성공' : '실패'}!`
+    : '예기치못한 에러가 발생했어요!',
+  toastMessage: message ?? '상품 전체 보기 페이지로 이동합니다.',
+});
 
 const isIncludesCategoryTier = (target, tier) => {
   return isIncludes(splitClassNameSpacing(target), tier);
 };
 
 const convertImageUrlToFile = async (imgUrl) => {
-  const res = await fetch(imgUrl);
+  const res = await fetch(`${process.env.REACT_APP_IMG_PREFIX_URL}${imgUrl}`);
   const blob = await res.blob();
   const fileName = imgUrl.split('/').pop();
   const fileExtension = fileName.split('.').pop();
   const metaData = { type: `image/${fileExtension}` };
 
   return new File([blob], fileName, metaData);
+};
+
+const convertFormData = (formDatas) => {
+  const convertedFormDatas = new FormData();
+
+  formDatas.imageFiles.forEach((item) => {
+    convertedFormDatas.append('imageFiles', item);
+  });
+
+  convertedFormDatas.append(
+    'param',
+    new Blob([JSON.stringify(formDatas)], {
+      type: 'application/json',
+    })
+  );
+
+  return convertedFormDatas;
 };
 
 export default function Editor() {
@@ -237,19 +262,22 @@ export default function Editor() {
 
   /**
    * 게시글 수정하기
-   * 팔래요/살래요 prodState 달라야함
+   * 팔래요/살래요 prodState 달라야 합니다.
    * */
   const path = location.pathname.split('/');
-  console.log(path);
+
   const [productNo, setProductNo] = useState(null);
+
+  const [formTitle, setFormTitle] = useState('');
+  const [subFormTitle, setFormSubTitle] = useState('');
+
   const [addedImgs, setAddedImgs] = useState([]);
+  const [sortedImgFiles, setSortedImgFiles] = useState([]);
+  // sortedImgFiles: 수정하기 일 때 비동기 문제로 이미지 파일 순서가 바뀌는 문제가 있어서 사용
 
   const option = { skip: !productNo || !path.includes('modify') };
   const { data: modifyProduct, isSuccess: isSuccessOfModificationData } =
     useGetProductModificationQuery(productNo, option);
-
-  const [formTitle, setFormTitle] = useState('');
-  const [subFormTitle, setFormSubTitle] = useState('');
 
   const checkCompleteForm = useCallback(
     (start, end, callback) => {
@@ -279,8 +307,7 @@ export default function Editor() {
     }));
   }, []);
 
-  console.log(formDatas);
-
+  // 수정하기 폼 데이터 바인딩
   useEffect(() => {
     if (isSuccessOfModificationData) {
       const { categoryInfos, fileInfos, hashTagInfos, productInfo } =
@@ -313,12 +340,11 @@ export default function Editor() {
 
       modifyProduct.fileInfos.map(async ({ dbFileName }) => {
         try {
-          await convertImageUrlToFile(dbFileName).then((imageFile) => {
-            setFormDatas((prev) => ({
-              ...prev,
-              imageFiles: [...prev.imageFiles, imageFile],
-            }));
-          });
+          const convertImageFiles = await convertImageUrlToFile(dbFileName);
+          setFormDatas((prev) => ({
+            ...prev,
+            imageFiles: [...prev.imageFiles, convertImageFiles],
+          }));
         } catch (error) {
           console.error(error);
         }
@@ -333,7 +359,7 @@ export default function Editor() {
         prodName: productInfo.prodName,
         prodPrice: productInfo.prodPrice,
         prodExplain: productInfo.prodExplain,
-        cateCode: cateCode,
+        cateCode,
         freeCheck: productInfo.freeCheck,
         priceOffer: productInfo.priceOffer,
         hashtags: [...prev.hashtags, ...hashTags],
@@ -341,7 +367,14 @@ export default function Editor() {
       }));
     }
   }, [isSuccessOfModificationData]);
-  console.log(formDatas);
+
+  useEffect(() => {
+    if (!path.includes('modify') && !isSuccessOfModificationData) return;
+    setFormDatas((prev) => ({
+      ...prev,
+      imageFiles: [...sortedImgFiles],
+    }));
+  }, [isSuccessOfModificationData]);
 
   // 폼 데이터가 전부 채워졌는지 체크
   useEffect(() => {
@@ -451,7 +484,7 @@ export default function Editor() {
   };
 
   /**
-   * 글 발행
+   * * 글 발행
    */
   const queryPerParam = {
     pal: createSaleProduct,
@@ -459,119 +492,36 @@ export default function Editor() {
   };
 
   const createPost = async (e) => {
+    e.preventDefault();
+
     try {
-      e.preventDefault();
-
-      // 살래요 이미지 없이 보내기
-      // TODO: 코드 리팩토링
+      // * 살래요 이미지 없이 보내기
       if (param === BUY && !formDatas.imageFiles.length) {
-        convertImageUrlToFile(NO_IMAGE)
-          .then((noimage) => {
-            formDatas.imageFiles = [noimage];
-            const formData = new FormData();
-            formDatas.imageFiles.forEach((item) => {
-              formData.append('imageFiles', item);
-            });
-
-            formData.append(
-              'param',
-              new Blob([JSON.stringify(formDatas)], {
-                type: 'application/json',
-              })
-            );
-
-            formDatas.imageFiles = formData;
-
-            if (!path.includes('modify')) {
-              // 등록하기
-              console.log('살래요', formData);
-
-              queryPerParam[param](formData).then((response) => {
-                if (response.data.result === 'Success') {
-                  addToast({
-                    isToastSuccess: true,
-                    isMainTheme: true,
-                    toastTitle: '게시글 등록 성공!',
-                    toastMessage: '상품 전체 보기 페이지로 이동합니다.',
-                  });
-                  navigate(`/products/${param}`);
-                } else {
-                  throw new Error('게시글 등록 실패');
-                }
-              });
-            } else {
-              // 수정하기
-              modifyProductMutation(formData).then((response) => {
-                if (response.data.result === 'Success') {
-                  addToast({
-                    isToastSuccess: true,
-                    isMainTheme: true,
-                    toastTitle: '게시글 수정 완료',
-                    toastMessage: '상품 전체 보기 페이지로 이동합니다.',
-                  });
-                  navigate(`/products/${param}`);
-                } else {
-                  throw new Error('게시글 수정 실패');
-                }
-              });
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      } else {
-        const formData = new FormData();
-        formDatas.imageFiles.forEach((item) => {
-          formData.append('imageFiles', item);
-        });
-
-        formData.append(
-          'param',
-          new Blob([JSON.stringify(formDatas)], { type: 'application/json' })
-        );
-
-        formDatas.imageFiles = formData;
-
-        let response;
-        if (!path.includes('modify')) {
-          // 등록하기
-          response = await queryPerParam[param](formData);
-          if (response.data.result === 'Success') {
-            addToast({
-              isToastSuccess: true,
-              isMainTheme: true,
-              toastTitle: '게시글 등록 성공!',
-              toastMessage: '상품 전체 보기 페이지로 이동합니다.',
-            });
-            navigate(`/products/${param}`);
-          } else {
-            throw new Error('게시글 등록 실패');
-          }
-        } else {
-          // 수정하기
-          response = await modifyProductMutation(formData);
-          if (response.data.result === 'Success') {
-            addToast({
-              isToastSuccess: true,
-              isMainTheme: true,
-              toastTitle: '게시글 수정 완료',
-              toastMessage: '상품 전체 보기 페이지로 이동합니다.',
-            });
-            navigate(`/products/${param}`);
-          } else {
-            throw new Error('게시글 수정 실패');
-          }
-        }
+        const noImage = await convertImageUrlToFile(NO_IMAGE);
+        formDatas.imageFiles = [noImage];
       }
-    } catch (err) {
-      addToast({
-        isToastSuccess: false,
-        isMainTheme: true,
-        toastTitle: '예기치못한 에러가 발생했어요!',
-        toastMessage: '잠시 후 다시 시도해주세요.',
-      });
-      console.error(err);
 
+      const convertedFormData = convertFormData(formDatas);
+      formDatas.imageFiles = convertedFormData;
+
+      // * 살래요/팔래요 게시글 수정
+      if (path.includes('modify')) {
+        const res = await modifyProductMutation(convertedFormData);
+        if (res.data.result === 'Success') {
+          addToast(toastMessage(true, '수정'));
+          navigate(`/products/${param}`);
+        } else throw new Error('게시글 수정 실패');
+      } else {
+        // * 살래요/팔래요 게시글 등록
+        const res = await queryPerParam[param](convertedFormData);
+        if (res.data.result === 'Success') {
+          addToast(toastMessage(true, '등록'));
+          navigate(`/products/${param}`);
+        } else throw new Error('게시글 등록 실패');
+      }
+    } catch (error) {
+      console.error(error);
+      addToast(toastMessage(false, 'fail', '잠시 후 다시 시도해주세요.'));
       navigate(`/products/${param}`);
     }
   };
@@ -583,9 +533,7 @@ export default function Editor() {
   /**
    * 이미지 업로드
    */
-
   const changeFileUploadHandler = ({ target }) => {
-    console.log(target);
     const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
     const extension = target.files[0].name
       .slice(findExtensionsIndex + 1)
@@ -615,12 +563,32 @@ export default function Editor() {
     });
 
     setAddedImgs((prev) => [...prev, ...imgUrls]);
-
     setFormDatas((prev) => ({
       ...prev,
       imageFiles: formDatas.imageFiles.concat(imgFiles),
     }));
   };
+
+  useEffect(() => {
+    if (!formDatas.imageFiles.length) return;
+
+    const removePrefixImgUrl = [...addedImgs].map((img) => {
+      return img.split('/').pop();
+    });
+
+    const sortedImgs = [];
+
+    formDatas.imageFiles.forEach((_, idx) => {
+      sortedImgs.push(
+        formDatas.imageFiles.find((imgFile) => {
+          if (imgFile.name === removePrefixImgUrl[idx])
+            sortedImgs.push(imgFile);
+        })
+      );
+    });
+
+    setSortedImgFiles(() => sortedImgs.filter((img) => !!img));
+  }, [formDatas.imageFiles]);
 
   if (ErrorByCategory) {
     return <div>카테고리 불러오기 오류! 잠시 후 재시도 해주세요</div>;
