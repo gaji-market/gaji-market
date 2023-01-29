@@ -57,7 +57,7 @@ export const sessionSlice = createSlice({
     },
     endSession: (state) => {
       sessionStorage.removeItem('info');
-      return Object.assign(state, { ...initialState });
+      Object.assign(state, { ...initialState, isLoggedIn: false });
     },
   },
 });
