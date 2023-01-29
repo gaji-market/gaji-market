@@ -22,7 +22,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-@CrossOrigin(origins = {"http://localhost:3000","http://gajimarket2.s3-website.ap-northeast-2.amazonaws.com"})
+@CrossOrigin(origins = {"http://localhost:3000","http://gajimarket.shop/"})
 public class UserController {
 
     private final UserService userService;
