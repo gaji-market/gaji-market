@@ -65,7 +65,9 @@ export default function Slider({ images, setFormDatas, setAddedImgs }) {
 
     setFormDatas((prev) => ({
       ...prev,
-      imageFiles: removeTargetImage(prev.imageFiles, url),
+      imageFiles: prev.imageFiles.filter(({ name }) => {
+        return name !== url.split('/').pop();
+      }),
     }));
 
     checkSlideNumber();
