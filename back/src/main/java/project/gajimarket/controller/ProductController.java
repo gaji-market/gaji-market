@@ -2,22 +2,14 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.util.MapUtil;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.model.*;
-import project.gajimarket.model.file.UploadFile;
-import project.gajimarket.service.FileService;
 import project.gajimarket.service.ProductService;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 
@@ -26,16 +18,10 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","http://gajimarket2.s3-website.ap-northeast-2.amazonaws.com"})
 public class ProductController {
 
     private final ProductService productService;
-
-//    @GetMapping("/test")
-//    public @ResponseBody byte[] test() throws IOException {
-//        InputStream in = getClass().getResourceAsStream("https://gajimarket.s3.ap-northeast-2.amazonaws.com/0130d1f9-f683-4fb1-b212-829f9bc08a45.jpeg");
-//        //return IOUtils.toByteArray(in);
-//    }
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
