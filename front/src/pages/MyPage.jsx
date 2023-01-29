@@ -6,22 +6,22 @@ import Button from 'components/common/Button';
 import { usePostUserMyPageMutation } from 'services/signUpApi';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import MyPageCard from 'components/common/MyPageCard';
+import MyPageCard from 'components/Mypage/MyPageCard';
+import Loading from 'components/common/Loading';
 const TITLE = ['좋아요 목록', '구매 목록', '판매 목록'];
 export default function MyPage() {
   const [cardData, setCardData] = useState();
-  const [getMyPage] = usePostUserMyPageMutation();
+  const [getMyPage, { isLoading }] = usePostUserMyPageMutation();
   const nav = useNavigate();
   const [userInfo, setUserInfo] = useState();
 
   async function getUserData() {
     try {
       const res = await getMyPage().unwrap();
-      console.log(res);
       setCardData([
-        [res.interestProdList, res.interestProdListCnt],
-        [res.buyProdList, res.buyProdListCnt],
-        [res.sellProdList, res.sellProdListCnt],
+        [res.interestProdList, res.interestProdListCnt, 'interest'],
+        [res.buyProdList, res.buyProdListCnt, 'buyProduct'],
+        [res.sellProdList, res.sellProdListCnt, 'sellProduct'],
       ]);
       setUserInfo(res.userInfo);
     } catch (e) {
@@ -32,6 +32,9 @@ export default function MyPage() {
     getUserData();
   }, []);
 
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <Container>
       <TopSection>
@@ -73,9 +76,11 @@ export default function MyPage() {
       {cardData?.map((card, i) => {
         return (
           <MyPageCard
+            key={i}
             title={TITLE[i]}
             cardList={card[0]}
             totalCount={card[1]}
+            detail={card[2]}
           />
         );
       })}

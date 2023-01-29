@@ -55,6 +55,17 @@ export const signUpApi = createApi({
         body: edit,
       }),
     }),
+    postUserCard: builder.mutation({
+      query: ({ type, pageInfo }) => ({
+        url: `${type}ProdList`,
+        method: 'POST',
+        body: {
+          recordCount: 8,
+          currentPage: pageInfo.currentPage,
+          sort: 'default',
+        },
+      }),
+    }),
   }),
 });
 
@@ -64,4 +75,5 @@ export const {
   usePostUserLoginMutation,
   usePostUserMyPageMutation,
   usePostUserEditMutation,
+  usePostUserCardMutation,
 } = signUpApi;
