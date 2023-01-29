@@ -13,24 +13,28 @@ export default function MyPage() {
   const [cardData, setCardData] = useState();
   const [getMyPage, { isLoading }] = usePostUserMyPageMutation();
   const nav = useNavigate();
-  const [userInfo, setUserInfo] = useState();
-
+  const [userInfo, setUserInfo] = useState({});
+  const [isFirst, setIsFirst] = useState(true);
   async function getUserData() {
     try {
       const res = await getMyPage().unwrap();
+      setUserInfo(res.userInfo);
       setCardData([
         [res.interestProdList, res.interestProdListCnt, 'interest'],
         [res.buyProdList, res.buyProdListCnt, 'buyProduct'],
         [res.sellProdList, res.sellProdListCnt, 'sellProduct'],
       ]);
-      setUserInfo(res.userInfo);
     } catch (e) {
       console.log(e);
     }
   }
   useEffect(() => {
+    if (isFirst) {
+      getUserData();
+      setIsFirst(false);
+    }
     getUserData();
-  }, []);
+  }, [isFirst]);
 
   if (isLoading) {
     return <Loading />;
