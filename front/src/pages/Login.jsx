@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 
@@ -18,9 +18,14 @@ import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
 
 export default function Login() {
+  const inputRef = useRef();
+
   const [login] = usePostUserLoginMutation();
+
   const nav = useNavigate();
+
   const { addToast } = useToast();
+
   const dispatch = useDispatch();
 
   const [signUpForm, setSignUpForm] = useState({
@@ -71,6 +76,10 @@ export default function Login() {
     setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
+
   return (
     <Container>
       {/* {toast.isToastAppear && <Toast key={toast.toastMessage} toast={toast} setToast={setToast} />} */}
@@ -84,6 +93,7 @@ export default function Login() {
         <InputBox>
           <InputTitle title={'아이디'} />
           <InputTextBox
+            inputRef={inputRef}
             id={'id'}
             value={signUpForm.id}
             containerBottom={'20px'}
@@ -138,36 +148,46 @@ const Container = styled.div`
   padding: 50px 100px;
   overflow-x: hidden;
 `;
+
 const InputBox = styled.div`
   margin-left: 45px;
 `;
+
 const Img = styled.img`
-  width: 100%;
+  cursor: pointer;
 `;
+
 const ToSignUp = styled.div`
   color: #cccccc;
-  text-decoration: none;
   font-size: 13px;
+  cursor: pointer;
 `;
+
 const FindIdPw = styled.div`
   color: #cccccc;
   font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
 `;
+
 const SubBox = styled.div`
   width: 300px;
   margin: 20px auto;
   display: flex;
   justify-content: space-evenly;
 `;
+
 const LineBox = styled.div`
   display: flex;
   padding: 40px 50px;
   padding-top: 30px;
   color: #cccccc;
 `;
+
 const LineOR = styled.span`
   margin: 0px 10px;
 `;
+
 const Line = styled.hr`
   border: 1px solid #cccccc;
   width: ${(props) => props.width};
