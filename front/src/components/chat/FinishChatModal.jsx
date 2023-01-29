@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState, forwardRef, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 
 import { useScoreSaveMutation } from 'services/productApi';
@@ -38,6 +38,8 @@ const RATELIST = [
 const FinishChatModal = forwardRef(({ prodNo, userNo }, ref) => {
   const [scoreSave] = useScoreSaveMutation();
 
+  const textareaRef = useRef(null);
+
   const [visible, setVisible] = useState(false);
   const [rates, setRates] = useState(INIT_RATES);
 
@@ -60,6 +62,7 @@ const FinishChatModal = forwardRef(({ prodNo, userNo }, ref) => {
         score1: rates.promise,
         score2: rates.kind,
         score3: rates.product,
+        tradeReview: textareaRef.current.value || '',
       }).unwrap();
       setRates(INIT_RATES);
       setVisible(false);
@@ -110,6 +113,7 @@ const FinishChatModal = forwardRef(({ prodNo, userNo }, ref) => {
                 </Review>
               ))}
             </Reviews>
+            <Textarea ref={textareaRef} placeholder='이번 거래 어떠셨나요?' />
             <ButtonWrapper>
               <Button onClick={onClickHandler}>후기 등록</Button>
               <Button isDarkColor isOutline onClick={ref.current.closeModal}>
@@ -186,6 +190,16 @@ const Review = styled.div`
     cursor: pointer;
     transform: scale(1.1);
   }
+`;
+
+const Textarea = styled.textarea`
+  width: 320px;
+  height: 52px;
+  padding: 16px;
+  margin-top: 10px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+  resize: none;
 `;
 
 const ButtonWrapper = styled.div`
