@@ -6,7 +6,7 @@ const initialState = {
   userNo: null,
   userId: null,
   token: null,
-  isLoggedIn: false,
+  isLoggedIn: null,
 };
 
 export const sessionSlice = createSlice({
