@@ -57,13 +57,26 @@ const isIncludesCategoryTier = (target, tier) => {
 };
 
 const convertImageUrlToFile = async (imgUrl) => {
-  const res = await fetch(`${process.env.REACT_APP_IMG_PREFIX_URL}${imgUrl}`);
-  const blob = await res.blob();
-  const fileName = imgUrl.split('/').pop();
-  const fileExtension = fileName.split('.').pop();
-  const metaData = { type: `image/${fileExtension}` };
+  try {
+    const res = await fetch(
+      `${process.env.REACT_APP_IMG_PREFIX_URL}${imgUrl}`,
+      {
+        method: 'GET',
+        headers: {
+          Origin: 'http://localhost:3000',
+        },
+      }
+    );
 
-  return new File([blob], fileName, metaData);
+    const blob = await res.blob();
+    const fileName = imgUrl.split('/').pop();
+    const fileExtension = fileName.split('.').pop();
+    const metaData = { type: `image/${fileExtension}` };
+
+    return new File([blob], fileName, metaData);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const convertFormData = (formDatas) => {
@@ -581,7 +594,7 @@ export default function Editor() {
     formDatas.imageFiles.forEach((_, idx) => {
       sortedImgs.push(
         formDatas.imageFiles.find((imgFile) => {
-          if (imgFile.name === removePrefixImgUrl[idx])
+          if (imgFile?.name === removePrefixImgUrl[idx])
             sortedImgs.push(imgFile);
         })
       );
