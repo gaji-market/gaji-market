@@ -20,10 +20,14 @@ export default function MyEditPage() {
   const { addToast } = useToast();
   const [edit] = usePostUserEditMutation();
   const { state } = useLocation();
-  const [preview, setPreview] = useState(basicLogo);
+  const [preview, setPreview] = useState(
+    state.dbFileName
+      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${state.dbFileName}`
+      : basicLogo
+  );
   const [currentPassword, setCurrentPassword] = useState('');
   const [updateForm, setUpdateForm] = useState({
-    profileIMG: basicLogo,
+    profileIMG: preview,
     userPwd: '',
     userNickName: state.userNickName,
     userAddress: state.userAddress,
@@ -42,7 +46,6 @@ export default function MyEditPage() {
         new Blob([JSON.stringify(updateForm)], { type: 'application/json' })
       );
       const res = await edit(formData).unwrap();
-      console.log(res);
       if (res.result === 'fail') {
         addToast({
           isToastSuccess: false,
@@ -64,8 +67,6 @@ export default function MyEditPage() {
     }
   };
   const changeHandler = (e) => {
-    console.log(1111);
-
     if (e.target.id === 'currentpassword') setCurrentPassword(e.target.value);
     else setUpdateForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
@@ -102,9 +103,7 @@ export default function MyEditPage() {
     setUpdateForm((prev) => ({ ...prev, userAddress: fullAddress }));
     inputRef.current.value = fullAddress;
   };
-  useEffect(() => {
-    console.log(updateForm);
-  }, [updateForm]);
+
   return (
     <Container>
       {isCorrectPW ? (
@@ -134,7 +133,7 @@ export default function MyEditPage() {
               <div>생년월일:1995-08-23</div>
             </Head>
             <InputBox>
-              <InputTitle title={'새 비밀번호'} isRequired />
+              <InputTitle title={'새 비밀번호'} />
               <InputTextBox
                 id={'userPwd'}
                 value={updateForm.userPwd}
@@ -143,7 +142,7 @@ export default function MyEditPage() {
                 placeholder={'새 비밀번호를 입력하세요.'}
                 type={'password'}
               />
-              <InputTitle title={'닉네임'} isRequired />
+              <InputTitle title={'닉네임'} />
               <InputTextBox
                 id={'userNickName'}
                 value={updateForm.userNickName}
@@ -151,7 +150,7 @@ export default function MyEditPage() {
                 width={'400px'}
                 type={'text'}
               />
-              <InputTitle title={'주소'} isRequired />
+              <InputTitle title={'주소'} />
               <InputTextBox
                 inputRef={inputRef}
                 id={'userAddress'}

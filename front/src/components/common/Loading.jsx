@@ -23,8 +23,12 @@ export default function Loading() {
         <LoadingIMG animationName={moveImageLast} left='-60px'></LoadingIMG>
       </IMG>
       <Text>
-        {TEXT_DELAY.map((v) => {
-          return <LoadingText delay={v[1]}>{v[0]}</LoadingText>;
+        {TEXT_DELAY.map((v, i) => {
+          return (
+            <LoadingText key={i} delay={v[1]}>
+              {v[0]}
+            </LoadingText>
+          );
         })}
       </Text>
     </Container>
