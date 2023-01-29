@@ -32,7 +32,7 @@ export default function MyPageCard({ title, cardList, totalCount, detail }) {
   function CardComponent({ cards }) {
     return (
       <>
-        {cards.length > 0 &&
+        {cards?.length > 0 &&
           cards.map((product) => {
             const {
               address,
