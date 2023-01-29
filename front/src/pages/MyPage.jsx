@@ -21,8 +21,8 @@ export default function MyPage() {
       setUserInfo(res.userInfo);
       setCardData([
         [res.interestProdList, res.interestProdListCnt, 'interest'],
-        [res.buyProdList, res.buyProdListCnt, 'buyProduct'],
-        [res.sellProdList, res.sellProdListCnt, 'sellProduct'],
+        [res.buyProdList, res.buyProdListCnt, 'buy'],
+        [res.sellProdList, res.sellProdListCnt, 'sell'],
       ]);
     } catch (e) {
       console.log(e);

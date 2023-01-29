@@ -40,7 +40,6 @@ export default function SignUp() {
     name: '',
     nickName: '',
     address: '',
-    addressDetail: '',
     birthday: '',
     gender: '',
   });
@@ -68,7 +67,6 @@ export default function SignUp() {
     isPasswordConfirmVaild &&
     isVaild('ETC', [
       signUpForm.address,
-      signUpForm.addressDetail,
       signUpForm.birthday,
       signUpForm.gender,
       signUpForm.name,
@@ -239,17 +237,6 @@ export default function SignUp() {
           type={'text'}
           isReadOnly={true}
           clickHandler={() => open({ onComplete: handleComplete })}
-        />
-
-        <InputTitle title={'상세주소'} isRequired />
-        <InputTextBox
-          id={'addressDetail'}
-          value={signUpForm.addressDetail}
-          padding={'10px'}
-          containerBottom={'20px'}
-          width={'500px'}
-          placeholder={'상세주소를 입력하세요.'}
-          type={'text'}
         />
 
         <FlexBox>
