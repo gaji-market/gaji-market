@@ -93,7 +93,7 @@ export default function SearchPage() {
         ))}
       </CardContainer>
       <Header>
-        <Title>살래요 ({sellProducts.length})</Title>
+        <Title>살래요 ({buyProducts.length})</Title>
         <NavLink to='/products/sal'>전체보기</NavLink>
       </Header>
       <CardContainer>

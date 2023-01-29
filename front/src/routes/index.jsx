@@ -35,9 +35,9 @@ export default function Router() {
   const [splashToggle, setSplashToggle] = useState(false);
 
   // init session
-  dispatch(setupSession());
 
   useEffect(() => {
+    dispatch(setupSession());
     // splash
     if (location.pathname === '/') {
       setSplashToggle(true);
@@ -51,7 +51,7 @@ export default function Router() {
   }, []);
 
   useEffect(() => {
-    if (!isLoggedIn && location.pathname.includes('detail')) {
+    if (isLoggedIn === false && location.pathname.includes('detail')) {
       addToast({
         isToastSuccess: true,
         isMainTheme: true,
@@ -59,7 +59,7 @@ export default function Router() {
         toastMessage: '로그인한 유저만 열람할 수 있습니다.',
       });
     }
-  }, [location]);
+  }, [location, isLoggedIn]);
 
   if (splashToggle) {
     return (
@@ -69,7 +69,7 @@ export default function Router() {
     );
   }
 
-  if (!isLoggedIn) {
+  if (isLoggedIn === false) {
     return (
       <Routes>
         <Route path='/' element={<Layout />}>

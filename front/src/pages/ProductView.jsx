@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  useLocation,
+} from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 
 import { useGetBuyAllQuery, useGetSellAllQuery } from 'services/productApi';
@@ -31,6 +36,8 @@ const getItemsQuery = {
 
 export default function ProductView() {
   const { type: param } = useParams();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   const navigate = useNavigate();
 
@@ -148,11 +155,20 @@ export default function ProductView() {
 
       setCard[param]((prev) => {
         return [...new Set(prev.map((prodNo) => JSON.stringify(prodNo)))].map(
-          JSON.parse
+          JSON.parse,
         );
       });
     }
   }, [products, param]);
+
+  useEffect(() => {
+    if (searchParams.get('category')) {
+      setQuery[param]((prev) => ({
+        ...prev,
+        cateCode: searchParams.get('category'),
+      }));
+    }
+  }, [location]);
 
   useEffect(() => {
     if (getAllProducts?.[param]?.isFetching) {
