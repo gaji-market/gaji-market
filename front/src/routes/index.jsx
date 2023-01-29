@@ -8,6 +8,7 @@ import { setupSession, selectIsLoggedIn } from 'store/sessionSlice';
 
 import Layout from 'layouts/Layout';
 import LayoutWithoutBar from 'layouts/Layout_WithoutAppBar';
+import Loading from 'components/common/Loading';
 
 import {
   Home,
@@ -67,6 +68,10 @@ export default function Router() {
         <Route path='/' element={<Splash refObj={splashRef} />} />
       </Routes>
     );
+  }
+
+  if (isLoggedIn === null) {
+    return <Loading />;
   }
 
   if (isLoggedIn === false) {
