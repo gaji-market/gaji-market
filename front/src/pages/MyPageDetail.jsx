@@ -103,7 +103,7 @@ export default function MyPageDetail() {
               />
             );
           })}
-        <div className='endDiv' ref={endCard}></div>
+        <div className='end-div' ref={endCard}></div>
       </CardContainer>
     </Container>
   );
@@ -115,17 +115,21 @@ const Title = styled.div`
   margin-bottom: 15px;
   padding-left: 5px;
 `;
+
 const Container = styled.div`
-  width: 1200px;
+  width: 1000px;
+  margin: 0 auto;
 `;
+
 const CardContainer = styled.div`
   display: grid;
+  justify-items: center;
   grid-template-columns: repeat(4, 1fr);
   margin: 0 auto;
   position: relative;
   margin-bottom: 50px;
 
-  .endDiv {
+  .end-div {
     width: 250px;
     height: 250px;
     position: absolute;

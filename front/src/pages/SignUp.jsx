@@ -15,6 +15,7 @@ import {
 import Button from 'components/common/Button';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
+import DecoFooter from 'components/common/DecoFooter';
 
 import logo200 from 'assets/BasicLogo.svg';
 
@@ -29,9 +30,6 @@ const DaumURL =
   'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 const NICK_NAME_MIX_LENGTH = 4;
 const INPUT_MIN_LENGTH = 1;
-
-const TEMP_URL =
-  'https://raw.githubusercontent.com/gaji-market/gaji-market/f2d195cf3cf5c1fff12f6cb141cf7385696b36df/front/src/assets/bg_bottom.png';
 
 export default function SignUp() {
   const inputRef = useRef();
@@ -302,7 +300,7 @@ export default function SignUp() {
           )}
         </ButtonBox>
       </Form>
-      <img className='bottom-deco' src={TEMP_URL} alt='deco' />
+      <DecoFooter />
     </Container>
   );
 }

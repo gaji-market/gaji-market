@@ -22,5 +22,5 @@ export default function Layout() {
 const Container = styled.div`
   width: 1200px;
   margin: 0 auto;
-  height: calc(100vh - 56px);
+  /* height: calc(100vh - 56px); */
 `;

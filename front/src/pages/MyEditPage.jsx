@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
 
-import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
+import {
+  GRAY_COLOR,
+  PRIMARY_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
 import Button from 'components/common/Button';
@@ -16,6 +20,7 @@ import { usePostUserEditMutation } from 'services/signUpApi';
 
 import useToast from 'hooks/toast';
 import { useEffect } from 'react';
+import DecoFooter from 'components/common/DecoFooter';
 
 const DaumURL =
   'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
@@ -121,11 +126,9 @@ export default function MyEditPage() {
     <Container>
       {isCorrectPW ? (
         <>
-          <SignUpHead>
+          <CorrectSignUpHead>
             <Title>회원정보 변경</Title>
-          </SignUpHead>
-          <Line width={'500px'} marginBottom={'50px'} />
-
+          </CorrectSignUpHead>
           <Form onChange={(e) => changeHandler(e)}>
             <ProfileBox>
               <ImageBox src={preview} alt='' />
@@ -139,11 +142,16 @@ export default function MyEditPage() {
                 onChange={(e) => changeIMG(e)}
               />
             </ProfileBox>
-
             <Head>
-              <div>아이디:vjvl95</div>
-              <div>이름:홍짱</div>
-              <div>생년월일:1995-08-23</div>
+              <div>
+                <span>아이디: </span>vjvl95
+              </div>
+              <div>
+                <span>이름: </span>홍짱
+              </div>
+              <div>
+                <span>생년월일: </span>1995-08-23
+              </div>
             </Head>
             <InputBox>
               <InputTitle title={'새 비밀번호'} />
@@ -186,9 +194,9 @@ export default function MyEditPage() {
       ) : (
         <>
           <SignUpHead>
-            <Title>비밀번호 확인</Title>
+            <Title>내 정보 수정</Title>
+            <SubTitle>정보 수정을 위해 비밀번호를 입력해주세요.</SubTitle>
           </SignUpHead>
-          <Line width={'500px'} marginBottom={'50px'} />
           <Form onChange={(e) => changeHandler(e)}>
             <InputBox>
               <InputTitle title={'비밀번호'} />
@@ -210,23 +218,27 @@ export default function MyEditPage() {
           </Form>
         </>
       )}
+      <DecoFooter />
     </Container>
   );
 }
+
 const ProfileBox = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 `;
+
 const ImageBox = styled.img`
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
   overflow: hidden;
-  border-radius: 50%;
+  border-radius: 200px;
 `;
+
 const ImageUpLoaderLabel = styled.label`
-  width: 50%;
   display: block;
   background: ${GRAY_COLOR};
   color: ${WHITE_COLOR};
@@ -236,50 +248,80 @@ const ImageUpLoaderLabel = styled.label`
   text-align: center;
   margin-top: 15px;
 `;
+
 const Head = styled.div`
-  font-weight: 800;
+  width: 100%;
+  padding-left: 7px;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  padding: 30px;
+  margin-top: 15px;
+  gap: 15px;
+  font-weight: 500;
+  margin-bottom: 23px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+
+  span {
+    font-weight: 700;
+  }
 `;
+
 const Container = styled.div`
-  width: 700px;
-  height: 800px;
-  margin: 60px auto;
-  border-radius: 35px;
-  box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
-  padding: 50px 100px;
+  width: 500px;
+  margin: auto;
+  margin-top: 80px;
+  border-radius: 20px;
+  border: 2px solid #eee;
+  box-shadow: 3px 3px 30px #eeeeee80;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
 `;
+
 const InputBox = styled.div`
-  margin-left: 45px;
+  z-index: 5;
 `;
 
 const ImageUpLoaderInput = styled.input.attrs({})`
   display: none;
 `;
 
-const Line = styled.hr`
-  border: 1px solid #cccccc;
-  width: ${(props) => props.width};
-  margin-bottom: ${(props) => props.marginBottom};
-`;
-
 const Title = styled.div`
   font-weight: 800;
-  font-size: 16px;
+  font-size: 18px;
+  color: ${PRIMARY_COLOR};
   margin-right: 10px;
   margin-left: ${(props) => props.margin};
 `;
 
-const SignUpHead = styled.div`
-  display: flex;
-  margin-bottom: 15px;
+const SubTitle = styled.p`
+  font-size: 14px;
+  margin-left: 5px;
+  padding-top: 1px;
+  color: #9a9a9a;
 `;
 
-const Form = styled.form``;
+const SignUpHead = styled.div`
+  display: flex;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+`;
+
+const CorrectSignUpHead = styled.div``;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+`;
 
 const ButtonBox = styled.div`
-  margin-top: 30px;
+  margin-top: 10px;
+  margin-bottom: 25px;
   display: flex;
   justify-content: center;
+  z-index: 5;
 `;
