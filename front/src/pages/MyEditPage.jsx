@@ -48,7 +48,6 @@ export default function MyEditPage() {
 
   const [isCorrectPW, setIsCorrectPW] = useState(false);
   const submitHandler = async (e) => {
-    e.preventDefault();
     try {
       const formData = new FormData();
       formData.append('multipartFile', updateForm.profileIMG);
@@ -84,7 +83,6 @@ export default function MyEditPage() {
   };
 
   const passwordHandler = (e) => {
-    e.preventDefault();
     if (currentPassword === state.userPwd) {
       addToast({
         isToastSuccess: true,
@@ -111,7 +109,13 @@ export default function MyEditPage() {
     setPreview(url);
     setUpdateForm((prev) => ({ ...prev, profileIMG: e.target.files[0] }));
   }
-
+  const onKeyPress = (e) => {
+    if (isCorrectPW) {
+      if (e.key === 'Enter') submitHandler();
+    } else {
+      if (e.key === 'Enter') passwordHandler();
+    }
+  };
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
     setUpdateForm((prev) => ({ ...prev, userAddress: fullAddress }));
@@ -162,6 +166,7 @@ export default function MyEditPage() {
                 width={'400px'}
                 placeholder={'새 비밀번호를 입력하세요.'}
                 type={'password'}
+                onKeyPress={onKeyPress}
               />
               <InputTitle title={'닉네임'} />
               <InputTextBox
@@ -170,6 +175,7 @@ export default function MyEditPage() {
                 containerBottom={'20px'}
                 width={'400px'}
                 type={'text'}
+                onKeyPress={onKeyPress}
               />
               <InputTitle title={'주소'} />
               <InputTextBox
@@ -208,6 +214,7 @@ export default function MyEditPage() {
                 width={'400px'}
                 placeholder={'비밀번호를 입력하세요.'}
                 type={'password'}
+                onKeyPress={onKeyPress}
               />
             </InputBox>
             <ButtonBox>
@@ -311,7 +318,7 @@ const SignUpHead = styled.div`
 
 const CorrectSignUpHead = styled.div``;
 
-const Form = styled.form`
+const Form = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
