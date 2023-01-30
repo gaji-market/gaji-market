@@ -55,7 +55,7 @@ export default function Router() {
     if (isLoggedIn === false && location.pathname.includes('detail')) {
       addToast({
         isToastSuccess: true,
-        isMainTheme: true,
+        isMainTheme: false,
         toastTitle: '회원 전용 서비스',
         toastMessage: '로그인한 유저만 열람할 수 있습니다.',
       });
