@@ -91,7 +91,7 @@ export default function Login() {
     <Container>
       <SignUpHead>
         <Title>로그인</Title>
-        <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
+        <SubTitle>가지마켓에 오신 것을 환영합니다! </SubTitle>
       </SignUpHead>
       <Line width={'420px'} marginBottom={'45px'} />
       <Form onChange={(e) => changeHandler(e)}>
@@ -148,6 +148,7 @@ export default function Login() {
     </Container>
   );
 }
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;

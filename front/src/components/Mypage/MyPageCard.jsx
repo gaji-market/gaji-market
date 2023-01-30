@@ -90,24 +90,29 @@ const ProductHead = styled.div`
   align-items: baseline;
   margin-bottom: 10px;
 `;
+
 const ProductCard = styled.div`
   display: flex;
 `;
+
 const NoProduct = styled.div`
   margin: 40px 0px;
   font-weight: 700;
   font-size: 30px;
   color: ${PRIMARY_COLOR};
 `;
+
 const ProductHeadTitle = styled.div`
   margin-top: 20px;
   font-size: 30px;
   font-weight: 800;
 `;
+
 const ProductHeadSubtext = styled.div`
   margin-left: 15px;
   margin-right: 15px;
 `;
+
 const ProductSection = styled.div`
   display: flex;
   justify-content: center;

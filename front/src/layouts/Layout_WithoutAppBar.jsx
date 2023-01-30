@@ -45,6 +45,7 @@ const Container = styled.div`
 
   ::after {
     content: '';
+    // 임시 url
     background: url('https://raw.githubusercontent.com/gaji-market/gaji-market/ef62c8bc4463b0a90b4b80770e275279f713a36c/front/src/assets/bg_pattern.png')
       0px 0px;
     width: 100%;
