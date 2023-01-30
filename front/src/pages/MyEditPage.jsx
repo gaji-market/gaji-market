@@ -1,16 +1,22 @@
-import InputTextBox from 'components/common/InputTextBox';
-import InputTitle from 'components/common/InputTitle';
 import { useState, useRef } from 'react';
 import styled from 'styled-components';
-import Button from 'components/common/Button';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
-import basicLogo from 'assets/BasicLogo.svg';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
+
+import { GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
+import InputTextBox from 'components/common/InputTextBox';
+import InputTitle from 'components/common/InputTitle';
+import Button from 'components/common/Button';
+
+import basicLogo from 'assets/BasicLogo.svg';
+
 import getAddress from 'utils/getAddress';
+
 import { usePostUserEditMutation } from 'services/signUpApi';
-import { useEffect } from 'react';
+
 import useToast from 'hooks/toast';
+import { useEffect } from 'react';
+
 const DaumURL =
   'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
@@ -66,10 +72,12 @@ export default function MyEditPage() {
       console.log(error);
     }
   };
+
   const changeHandler = (e) => {
     if (e.target.id === 'currentpassword') setCurrentPassword(e.target.value);
     else setUpdateForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
+
   const passwordHandler = (e) => {
     e.preventDefault();
     if (currentPassword === state.userPwd) {
@@ -92,6 +100,7 @@ export default function MyEditPage() {
       inputRef.current.focus();
     }
   };
+
   function changeIMG(e) {
     const url = URL.createObjectURL(e.target.files[0]);
     setPreview(url);
@@ -103,6 +112,10 @@ export default function MyEditPage() {
     setUpdateForm((prev) => ({ ...prev, userAddress: fullAddress }));
     inputRef.current.value = fullAddress;
   };
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
 
   return (
     <Container>
