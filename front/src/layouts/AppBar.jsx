@@ -365,7 +365,7 @@ const StyledWrapper = styled.div`
   padding: 16px;
   height: 56px;
   box-sizing: border-box;
-  border-bottom: 2px solid ${PRIMARY_COLOR};
+  box-shadow: 0 10px 15px #d3d3d32e;
   background-color: ${WHITE_COLOR};
 `;
 
@@ -394,7 +394,13 @@ const Search = styled.input`
   height: 32px;
   border-radius: 16px;
   padding: 0 8px 0 16px;
-  border: 1px solid ${PRIMARY_COLOR};
+  border: 1px solid ${GRAY_COLOR};
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border: 1px solid ${PRIMARY_COLOR};
+  }
 `;
 
 const Toggle = styled.div`
