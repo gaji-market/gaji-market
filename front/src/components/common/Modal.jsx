@@ -1,7 +1,8 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import styled from 'styled-components';
 import Button from './Button';
-import { PRIMARY_COLOR, WHITE_COLOR } from './commonColor';
+import { WHITE_COLOR } from './commonColor';
+import DecoFooter from './DecoFooter';
 
 const Modal = forwardRef(
   ({ text, leftBtnText, rightBtnText, confirmHandler }, ref) => {
@@ -32,12 +33,13 @@ const Modal = forwardRef(
                   {rightBtnText}
                 </Button>
               </ButtonWrapper>
+              <DecoFooter />
             </Card>
           </Bg>
         )}
       </>
     );
-  },
+  }
 );
 
 export default Modal;
@@ -48,7 +50,8 @@ const Bg = styled.div`
   top: 0;
   width: 100vw;
   height: 100vh;
-  background: #00000050;
+  background: #00000080;
+  color: #222;
   overflow: hidden;
   position: fixed;
   z-index: 999;
@@ -69,11 +72,15 @@ const Card = styled.div`
   gap: 20px;
   justify-content: center;
   align-items: center;
-  border: 3px solid ${PRIMARY_COLOR};
+  border: 3px solid #9747ff41;
+  position: relative;
+  overflow: hidden;
   font-size: 18px;
 
   p {
+    font-weight: 900;
     margin-top: 15px;
+    z-index: 5;
   }
 `;
 
@@ -83,4 +90,5 @@ const ButtonWrapper = styled.div`
   align-items: center;
   gap: 15px;
   margin-top: 20px;
+  z-index: 5;
 `;
