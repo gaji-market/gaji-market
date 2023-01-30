@@ -3,7 +3,13 @@ import { memo } from 'react';
 import styled from 'styled-components';
 import { PRIMARY_COLOR } from './commonColor';
 
-function InputTitle({ title, subTitle, isVaild, signUpSubTitle, isRequired = false }) {
+function InputTitle({
+  title,
+  subTitle,
+  isVaild,
+  signUpSubTitle,
+  isRequired = false,
+}) {
   return (
     <>
       {isRequired && <Asterisk>*</Asterisk>}

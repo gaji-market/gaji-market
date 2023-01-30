@@ -1,20 +1,27 @@
-import { PRIMARY_COLOR } from 'components/common/commonColor';
-import styled from 'styled-components';
-import basicLogo from 'assets/BasicLogo.svg';
-import StarRate from 'components/common/StarRate';
-import Button from 'components/common/Button';
-import { usePostUserMyPageMutation } from 'services/signUpApi';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import styled from 'styled-components';
+
+import basicLogo from 'assets/BasicLogo.svg';
+
+import StarRate from 'components/common/StarRate';
+import Button from 'components/common/Button';
 import MyPageCard from 'components/Mypage/MyPageCard';
 import Loading from 'components/common/Loading';
+
+import { usePostUserMyPageMutation } from 'services/signUpApi';
+
 const TITLE = ['좋아요 목록', '구매 목록', '판매 목록'];
+
 export default function MyPage() {
-  const [cardData, setCardData] = useState();
-  const [getMyPage, { isLoading }] = usePostUserMyPageMutation();
-  const nav = useNavigate();
   const [userInfo, setUserInfo] = useState({});
   const [isFirst, setIsFirst] = useState(true);
+  const [cardData, setCardData] = useState();
+
+  const [getMyPage, { isLoading }] = usePostUserMyPageMutation();
+
+  const nav = useNavigate();
+
   async function getUserData() {
     try {
       const res = await getMyPage().unwrap();
@@ -28,6 +35,7 @@ export default function MyPage() {
       console.log(e);
     }
   }
+
   useEffect(() => {
     if (isFirst) {
       getUserData();
@@ -52,31 +60,37 @@ export default function MyPage() {
           ></LeftSection>
           <RightSection>
             <TextBox marginBottom={'15px'}>
-              닉네임: {userInfo?.userNickName}
+              닉네임: <span> {userInfo?.userNickName}</span>
             </TextBox>
-            <TextBox>주소: {userInfo?.userAddress}</TextBox>
             <TextBox>
-              <StarRate vote_average={3} width={'20'}>
+              주소:
+              <span>
+                {userInfo?.userAddress?.split(' ').slice(0, 3).join(' ')}
+              </span>
+            </TextBox>
+            <TextBox>
+              <StarRate vote_average={3} width={'15'}>
                 매너지수:
               </StarRate>
             </TextBox>
           </RightSection>
-        </UserInfoBox>
-        <ButtonWrapper>
-          <Button
-            customSize='250px'
-            onClick={() => {
-              nav('edit', { state: userInfo });
-            }}
-          >
-            내 정보 설정
-          </Button>
-          <Button isOutline={true} customSize='250px'>
-            알람 설정
-          </Button>
-        </ButtonWrapper>
-      </TopSection>
 
+          <ButtonWrapper>
+            <Button
+              customSize='250px'
+              onClick={() => {
+                nav('edit', { state: userInfo });
+              }}
+            >
+              내 정보 설정
+            </Button>
+            <Button isOutline={true} customSize='250px'>
+              알람 설정
+            </Button>
+          </ButtonWrapper>
+        </UserInfoBox>
+      </TopSection>
+      <DividingLine />
       {cardData?.map((card, i) => {
         return (
           <MyPageCard
@@ -97,34 +111,62 @@ const Container = styled.div`
 `;
 
 const UserInfoBox = styled.div`
-  border: 3px solid ${PRIMARY_COLOR};
-  border-radius: 30px;
-  width: 35%;
+  width: 100%;
+  border-radius: 10px;
   display: flex;
-  padding: 15px 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  align-items: center;
 `;
+
 const LeftSection = styled.img`
-  width: 120px;
-  height: 120px;
-  border-radius: 100px;
-  margin-left: 10px;
-  margin-right: 10px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 200px;
+  margin-right: 25px;
 `;
+
 const RightSection = styled.div`
   width: 60%;
   display: flex;
+  padding-top: 10px;
+  gap: 10px;
   flex-direction: column;
-  justify-content: center;
 `;
+
 const TextBox = styled.div`
-  margin-bottom: ${({ marginBottom }) => marginBottom};
+  font-weight: 900;
+
+  > span {
+    font-weight: 500;
+  }
 `;
+
 const TopSection = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
 const ButtonWrapper = styled.div`
+  width: 200px;
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  flex-grow: 1;
+  gap: 10px;
+  position: relative;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  button {
+    width: 150px;
+  }
+`;
+
+const DividingLine = styled.div`
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  box-shadow: 0 10px 15px #d3d3d32e;
+  padding-top: 10px;
+  margin-bottom: 35px;
 `;

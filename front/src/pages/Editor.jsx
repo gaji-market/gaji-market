@@ -608,7 +608,7 @@ export default function Editor() {
   }
 
   return (
-    <div className='container'>
+    <Container>
       <form className='form'>
         <div className='content-header'>
           <h2 className='editor-title'>{formTitle}</h2>
@@ -775,9 +775,22 @@ export default function Editor() {
           </Button>
         </div>
       </form>
-    </div>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  width: 800px;
+  padding: 50px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-top: 50px;
+  border-radius: 20px;
+  border: 2px solid #eee;
+  box-shadow: 3px 3px 30px #eeeeee80;
+`;
 
 // 이미지 업로드
 const ImageWrapper = styled.div`

@@ -615,6 +615,7 @@ const UserInfo = styled.div`
   margin-top: 20px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 15px;
 `;
 
 const UserInfoTitle = styled.h4`

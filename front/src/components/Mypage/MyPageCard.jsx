@@ -69,8 +69,9 @@ export default function MyPageCard({ title, cardList, totalCount, detail }) {
     <>
       <ProductHead>
         <ProductHeadTitle>{title}</ProductHeadTitle>
-        <ProductHeadSubtext>더보기({totalCount})</ProductHeadSubtext>
-        <PlusButton customSize='35px' onClick={onClickHanlder} />
+        <ProductHeadSubtext onClick={onClickHanlder}>
+          더보기({totalCount})
+        </ProductHeadSubtext>
       </ProductHead>
       <ProductSection>
         {totalCount === 0 ? (
@@ -90,24 +91,34 @@ const ProductHead = styled.div`
   align-items: baseline;
   margin-bottom: 10px;
 `;
+
 const ProductCard = styled.div`
   display: flex;
 `;
+
 const NoProduct = styled.div`
   margin: 40px 0px;
   font-weight: 700;
   font-size: 30px;
   color: ${PRIMARY_COLOR};
 `;
+
 const ProductHeadTitle = styled.div`
   margin-top: 20px;
   font-size: 30px;
-  font-weight: 800;
+  font-weight: 700;
 `;
+
 const ProductHeadSubtext = styled.div`
   margin-left: 15px;
   margin-right: 15px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
+
 const ProductSection = styled.div`
   display: flex;
   justify-content: center;

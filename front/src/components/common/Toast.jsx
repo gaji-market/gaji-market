@@ -3,7 +3,7 @@ import styled, { css, keyframes } from 'styled-components';
 import { BsCheckCircle } from 'react-icons/bs';
 import { TiWarning } from 'react-icons/ti';
 
-import { PRIMARY_COLOR } from './commonColor';
+import { PRIMARY_COLOR, WHITE_COLOR } from './commonColor';
 import useToast from 'hooks/toast';
 import { useSelector } from 'react-redux';
 
@@ -119,7 +119,7 @@ const ToastBox = styled.div`
   ${({ isMainTheme }) =>
     isMainTheme &&
     css`
-      color: white;
+      color: ${WHITE_COLOR};
       &::before {
         background: #bf1818;
         position: absolute;
@@ -130,19 +130,19 @@ const ToastBox = styled.div`
   ${({ isToastSuccess }) =>
     isToastSuccess &&
     css`
-      color: ${PRIMARY_COLOR};
+      color: #6418ba;
       &::before {
         background: #6418ba;
         position: absolute;
       }
-      background: #ececece2;
+      background: ${WHITE_COLOR};
     `}
 
   ${({ isToastSuccess, isMainTheme }) =>
     isToastSuccess &&
     isMainTheme &&
     css`
-      color: white;
+      color: ${WHITE_COLOR};
       &::before {
         background: #6418ba;
       }
