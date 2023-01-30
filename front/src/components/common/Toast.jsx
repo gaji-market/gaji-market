@@ -130,7 +130,7 @@ const ToastBox = styled.div`
   ${({ isToastSuccess }) =>
     isToastSuccess &&
     css`
-      color: ${PRIMARY_COLOR};
+      color: #6418ba;
       &::before {
         background: #6418ba;
         position: absolute;
