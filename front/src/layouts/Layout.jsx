@@ -1,8 +1,11 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import AppBar from 'layouts/AppBar';
 import styled from 'styled-components';
+
+import AppBar from 'layouts/AppBar';
 import SideBar from './SideBar';
+import Footer from 'components/common/Footer';
+
 export default function Layout() {
   return (
     <>
@@ -10,6 +13,7 @@ export default function Layout() {
       <SideBar />
       <Container>
         <Outlet />
+        <Footer />
       </Container>
     </>
   );
