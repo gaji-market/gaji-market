@@ -6,6 +6,7 @@ import { BiMaleSign, BiFemaleSign } from 'react-icons/bi';
 
 import getAddress from 'utils/getAddress';
 import { isVaild } from 'utils/checkVaildForm';
+import makeToday from 'utils/makeToday';
 
 import {
   PRIMARY_COLOR,
@@ -33,12 +34,13 @@ const INPUT_MIN_LENGTH = 1;
 
 export default function SignUp() {
   const inputRef = useRef();
-
+  const today = makeToday();
   const nav = useNavigate();
   const { addToast } = useToast();
-
   const [createUser] = usePostUserSignFormMutation();
   const [checkUserId] = usePostUserCheckIdMutation();
+  const [isPossibleId, setIsPossibleId] = useState(false);
+  const [isTextAppear, setIsTextAppear] = useState(false);
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
@@ -57,7 +59,6 @@ export default function SignUp() {
   const isPasswordVaild = isVaild('PW', signUpForm.password);
 
   const isPasswordConfirmVaild =
-    signUpForm.confirmPassword.length <= INPUT_MIN_LENGTH ||
     signUpForm.password === signUpForm.confirmPassword;
 
   const isNickNameVaild =
@@ -71,6 +72,7 @@ export default function SignUp() {
     signUpForm.password.length > INPUT_MIN_LENGTH &&
     isNickNameVaild &&
     isPasswordConfirmVaild &&
+    isPossibleId &&
     isVaild('ETC', [
       signUpForm.address,
       signUpForm.birthday,
@@ -112,6 +114,10 @@ export default function SignUp() {
     }
   };
   const changeHandler = (e) => {
+    if (e.target.id === 'id' && signUpForm.id.length <= 5) {
+      setIsPossibleId(false);
+      setIsTextAppear(false);
+    }
     if (e.target.type === 'radio')
       setSignUpForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     else setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -121,27 +127,32 @@ export default function SignUp() {
 
     try {
       const res = await checkUserId({ userId: signUpForm.id }).unwrap();
-      if (res.result === 'used')
+      if (res.result === 'used') {
         addToast({
           isToastSuccess: false,
           isMainTheme: true,
           toastTitle: '이미 사용중인 아이디입니다.',
           toastMessage: '다른 아이디를 입력해주세요.',
         });
-      else if (res.result === 'success')
+        setIsPossibleId(false);
+      } else if (res.result === 'success') {
         addToast({
           isToastSuccess: true,
           isMainTheme: false,
           toastTitle: '아이디 중복 체크!',
           toastMessage: '사용 가능한 아이디입니다.',
         });
-      else
+        setIsPossibleId(true);
+      } else {
         addToast({
           isToastSuccess: false,
           isMainTheme: true,
           toastTitle: '예기치 못한 에러가 발생했어요.',
           toastMessage: '잠시 후 다시 시도해주세요.',
         });
+        setIsPossibleId(false);
+      }
+      setIsTextAppear(true);
     } catch (error) {
       console.log(error);
     }
@@ -161,7 +172,7 @@ export default function SignUp() {
       <Form onChange={(e) => changeHandler(e)}>
         <InputTitle
           title='아이디'
-          signUpSubTitle={'6글자 이상 12글자 이하 이여야 합니다'}
+          signUpSubTitle={'(한글제외) 6글자 이상 12글자 이하 이여야 합니다'}
           isVaild={isIdVaild}
           isRequired
         />
@@ -170,6 +181,16 @@ export default function SignUp() {
             <CkeckIdButton onClick={(e) => checkId(e)}>
               아이디 중복 검사
             </CkeckIdButton>
+            {isTextAppear &&
+              (isPossibleId ? (
+                <IdTextMessage color={PRIMARY_COLOR}>
+                  등록 가능한 아이디 입니다.
+                </IdTextMessage>
+              ) : (
+                <IdTextMessage color={'#E8828D'}>
+                  이미 등록된 아이디 입니다.
+                </IdTextMessage>
+              ))}
           </>
         )}
         <InputTextBox
@@ -184,7 +205,9 @@ export default function SignUp() {
 
         <InputTitle
           title={'비밀번호'}
-          signUpSubTitle={'8글자 이상 이고 영어와 숫자가 포함되어야 합니다'}
+          signUpSubTitle={
+            '(특수문자 제외) 8글자 이상 이고 영어와 숫자가 포함되어야 합니다'
+          }
           isVaild={isPasswordVaild}
           isRequired
         />
@@ -260,6 +283,7 @@ export default function SignUp() {
               type='date'
               id='birthday'
               name='calender'
+              max={today}
               required
             ></Date>
           </FlexItem>
@@ -318,7 +342,13 @@ const CkeckIdButton = styled.button`
   transition: all 0.2s;
   margin-left: 5px;
 `;
-
+const IdTextMessage = styled.span`
+  position: absolute;
+  left: 160px;
+  top: 3px;
+  font-size: 13px;
+  color: ${(props) => props.color};
+`;
 const Container = styled.div`
   width: 500px;
   margin: 100px auto;
