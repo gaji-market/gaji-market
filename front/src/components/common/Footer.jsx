@@ -13,13 +13,14 @@ export default function Footer() {
 const Container = styled.div`
   width: 1000px;
   margin: 0 auto;
-  margin-top: 20px;
+  margin-top: 50px;
 
   h3 {
     font-size: 20px;
     font-weight: 700;
     color: ${GRAY_COLOR};
   }
+
   p {
     font-size: 14px;
     color: ${GRAY_COLOR};
