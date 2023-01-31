@@ -21,7 +21,7 @@ import { usePostUserEditMutation } from 'services/signUpApi';
 import useToast from 'hooks/toast';
 import { useEffect } from 'react';
 import DecoFooter from 'components/common/DecoFooter';
-
+import { isVaild } from 'utils/checkVaildForm';
 const DaumURL =
   'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
@@ -45,6 +45,8 @@ export default function MyEditPage() {
     userNo: state.userNo,
   });
   const open = useDaumPostcodePopup(DaumURL);
+
+  const isPasswordVaild = isVaild('PW', updateForm.userPwd);
 
   const [isCorrectPW, setIsCorrectPW] = useState(false);
   const submitHandler = async (e) => {
@@ -116,6 +118,7 @@ export default function MyEditPage() {
       if (e.key === 'Enter') passwordHandler();
     }
   };
+
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
     setUpdateForm((prev) => ({ ...prev, userAddress: fullAddress }));
@@ -148,17 +151,26 @@ export default function MyEditPage() {
             </ProfileBox>
             <Head>
               <div>
-                <span>아이디: </span>vjvl95
+                <span>아이디: </span>
+                {state.userId}
               </div>
               <div>
-                <span>이름: </span>홍짱
+                <span>이름: </span>
+                {state.userNickName}
               </div>
               <div>
-                <span>생년월일: </span>1995-08-23
+                <span>생년월일: </span>
+                {state.userBirth}
               </div>
             </Head>
             <InputBox>
-              <InputTitle title={'새 비밀번호'} />
+              <InputTitle
+                title={'새 비밀번호'}
+                signUpSubTitle={
+                  '(특수문자 제외) 8글자 이상 이고 영어와 숫자가 포함되어야 합니다'
+                }
+                isVaild={isPasswordVaild}
+              />
               <InputTextBox
                 id={'userPwd'}
                 value={updateForm.userPwd}
@@ -191,9 +203,15 @@ export default function MyEditPage() {
               />
             </InputBox>
             <ButtonBox>
-              <Button customSize='400px' onClick={(e) => submitHandler(e)}>
-                정보 수정
-              </Button>
+              {isPasswordVaild ? (
+                <Button customSize='400px' onClick={(e) => submitHandler(e)}>
+                  정보 수정
+                </Button>
+              ) : (
+                <Button customSize='400px' isDisabled={!isPasswordVaild}>
+                  정보 수정
+                </Button>
+              )}
             </ButtonBox>
           </Form>
         </>
