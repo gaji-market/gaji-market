@@ -357,6 +357,7 @@ const Container = styled.div`
   border: 2px solid #6c17dc50;
   background: ${WHITE_COLOR};
   position: relative;
+  overflow: hidden;
 
   .bottom-deco {
     position: absolute;
