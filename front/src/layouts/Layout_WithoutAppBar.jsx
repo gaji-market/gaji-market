@@ -28,8 +28,8 @@ const Container = styled.div`
   width: 100vw;
   margin: 0 auto;
   display: flex;
-  jusity-contents: center;
-  align-item: center;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
 
   ::before {
