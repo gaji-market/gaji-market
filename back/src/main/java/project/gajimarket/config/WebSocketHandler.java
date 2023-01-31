@@ -22,7 +22,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        super.handleTextMessage(session, message);
+        String payload = message.getPayload();
+        log.info("payload : {}", payload);
+
+        TextMessage initial = new TextMessage("message send");
+        session.sendMessage(initial);
     }
 
     @Override

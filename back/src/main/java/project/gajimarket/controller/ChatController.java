@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.Utils.CommonUtil;
@@ -65,7 +66,20 @@ public class ChatController {
     @PostMapping("/addChatMessage/{userNo}")
     public Map<String, Object> addChatMessage(@RequestBody Map<String, Object> map) {
         try {
-            return chatService.addChatMessage(map);
+            System.out.println("addChatMessage");
+            return CommonUtil.resultMsg("ee");
+            //return chatService.addChatMessage(map);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return CommonUtil.resultMsg(e.toString());
+        }
+    }
+
+    public Map<String, Object> chatMessage(String message) {
+        try {
+            System.out.println("addChatMessage :: " + message);
+            return CommonUtil.resultMsg("ee");
+            //return chatService.addChatMessage(map);
         } catch (Exception e) {
             log.error(e.toString());
             return CommonUtil.resultMsg(e.toString());
@@ -149,26 +163,6 @@ public class ChatController {
             return CommonUtil.resultMsg(e.toString());
         }
     }
-
-    @MessageMapping //목적지가 path와 일치하는 메시지를 수신하였을 경우 해당 메소드 호출
-    @SendToUser("/queue/message") //해당 path의 구독자에게 발신 (1:1)
-    public Message sendMessage(Message message) throws Exception {
-       // Thread.sleep(1000); //서버가 메시지를 비동기식으로 처리하기 때문에 클라이언트가 메시지를 보낸 후 처리가 지연될 수 있음....
-        log.info("message :: " + message);
-
-        return message;
-    }
-
-    // 1:N으로 메시지 발신
-    /*
-    @MessageMapping
-    @SendTo("/topic/message")
-    public Map<String, Object> sendMessageTopic() throws Exception {
-        Thread.sleep(1000); //서버가 메시지를 비동기식으로 처리하기 때문에 클라이언트가 메시지를 보낸 후 처리가 지연될 수 있음....
-        Map<String, Object> map = new HashMap<>();
-        return map;
-    }
-    */
 
     //상품정보 공통 처리
     private Map<String, Object> getProduct(int prodNo) {
