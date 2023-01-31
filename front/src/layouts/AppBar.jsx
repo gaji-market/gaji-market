@@ -58,7 +58,7 @@ export default function AppBar() {
   const modalRef = useRef(null);
   const searchRef = useRef(null);
 
-  const initToggles = { productSwitch: true, alarm: false, userId: false };
+  const initToggles = { productSwitch: false, alarm: false, userId: false };
   const [toggles, setToggles] = useState(initToggles);
   const [currentTab, setCurrentTab] = useState('채팅');
   const [notificationInfos, setNotificationInfos] = useState([]);
