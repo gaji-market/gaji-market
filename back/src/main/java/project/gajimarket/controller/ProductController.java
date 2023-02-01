@@ -18,16 +18,10 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","http://gajimarket.shop/"})
 public class ProductController {
 
     private final ProductService productService;
-
-    @PostMapping(value = "/test",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-    public void test(@RequestParam Map<String,Object> param,@RequestBody Map<String,Object> param2){
-        System.out.println("param = " + param);
-        System.out.println("param2 = " + param2);
-    }
 
     //카테고리 전체 정보
     @GetMapping("/categoryInfo")
@@ -49,10 +43,14 @@ public class ProductController {
 
     //살래요 상품 등록
     @PostMapping(value = "/buySave",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public Map<String, Object> buySave(@RequestBody Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String, Object> buySave(@RequestPart Map<String,Object> param, @RequestPart(required = false) List<MultipartFile> imageFiles) throws IOException {
 
-        for (MultipartFile imageFile : imageFiles) {
-            log.info("imageFiles={}", imageFile.getOriginalFilename());
+        if (imageFiles==null){
+            System.out.println("No image");
+        }else {
+            for (MultipartFile imageFile : imageFiles) {
+                log.info("imageFiles={}", imageFile.getOriginalFilename());
+            }
         }
         log.info("param={}",param);
 
@@ -69,7 +67,7 @@ public class ProductController {
 
     //수정
     @PostMapping(value = "/update",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public Map<String, Object> productUpdate(@RequestBody Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+    public Map<String, Object> productUpdate(@RequestPart Map<String,Object> param, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         return productService.productUpdate(param,imageFiles);
     }
 
@@ -162,27 +160,8 @@ public class ProductController {
      */
     //별점이랑 후기 저장
     //채팅한사람 클릭후 여기로 넘어옴 별점정보랑 후기작성 데이터 넘어오면 가지고와서 저장
-    @PostMapping("/{prodNo}/scoreSave")
-    public void productScoreSave(@PathVariable int prodNo,@ModelAttribute ScoreDTO scoreDTO, @RequestParam int userNo){
-
-        //게시글 등록한 사람의 회원 번호가져오기
-        //int findUserNo = productService.findUserNo(prodNo); 보류여서 주석해놈
-        //scoreDTO.setUserNo(findUserNo); 보류여서 주석해놈
-        //상품 번호 저장
-        scoreDTO.setProdNo(prodNo);
-        //별점 정보 저장 (후기포함)
-        scoreDTO.setScore1(5);
-        scoreDTO.setTag1("약속을 잘 지켜요");
-        scoreDTO.setScore2(4);
-        scoreDTO.setTag2("친절해요");
-        scoreDTO.setScore3(4);
-        scoreDTO.setTag3("물건이 좋아요");
-        scoreDTO.setTradeReview("거래후기 테스트");
-        //DB 별점 정보 저장
-        productService.productScoreSave(scoreDTO);
-
-        //update (product_info 에서 구매자No에 채팅한사람클릭한거 저장(update))
-        //넘어온 userNo로 product update 후 판매완료로 상태변경
-        productService.buyUserUpdate(userNo,prodNo);
+    @PostMapping("/scoreSave")
+    public Map<String,Object> productScoreSave(@RequestBody ScoreDTO scoreDTO){
+        return productService.productScoreSave(scoreDTO);
     }
 }

@@ -29,4 +29,7 @@ public interface FileDAO {
 
     // 사용자 이미지 삭제
     int deleteUserImg(UserDTO userDto);
+
+    //상세보기 이미지 가져오기
+    String findDetailFile(int userNo);
 }

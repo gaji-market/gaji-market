@@ -27,7 +27,10 @@
 
     <!-- 상품 수정 -->
     <update id="productUpdate">
-        update product_info set cateCode=#{dto.cateCode},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer}, freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address} where prodNo=#{param1};
+        update product_info set
+        cateCode=#{dto.cateCode},prodName=#{dto.prodName}, prodPrice=#{dto.prodPrice}, priceOffer=#{dto.priceOffer},
+        freeCheck=#{dto.freeCheck}, prodExplain=#{dto.prodExplain},tradState=#{dto.tradState}, modDt=now(),address=#{dto.address}
+        where prodNo=#{param1};
     </update>
 
     <!-- 상품 정보 찾기 -->
@@ -80,8 +83,8 @@
     </select>
 
     <!-- 판매완료 후 update -->
-    <update id="buyUserUpdate">
-        update product_info set tradState='3', buyUserNo=#{userNo} where prodNo=#{prodNo};
+    <update id="buyUserUpdate" parameterType="project.gajimarket.model.ScoreDTO">
+        update product_info set tradState='3', buyUserNo=#{buyUserNo} where prodNo=#{prodNo};
     </update>
 
     <!-- 팔래요 전체갯수 -->
@@ -110,9 +113,11 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="param.cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                and c.cateCode=#{param.cateCode}
+                and (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+            </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and
             f.gubun='2'
@@ -146,9 +151,12 @@
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
                 f.gubun='2'
             </if>
-            <if test="param.cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and c.cateCode=#{param.cateCode}
+                and
+                (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+                </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and
             f.gubun='2'
@@ -189,9 +197,12 @@
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
             </if>
             </if>
-            <if test="param.cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
-                                  and c.cateCode=#{param.cateCode}
+                and
+                (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+            </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='0' and f.fileOrder='0' and (p.tradState='0' or p.tradState='2') and f.gubun='2'
         </where>
@@ -252,9 +263,11 @@
                 and (p.prodName like concat('%',#{body.search},'%') or p.address like concat('%',#{body.search},'%') or h.tagName like concat('%',#{body.search},'%'))
                                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
             </if>
-            <if test="param.cateCode != null">
+            <if test="!cateCode.isEmpty()">
                 and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
-                and c.cateCode=#{param.cateCode}
+                and (<foreach collection="cateCode" item="arr" separator="or">
+                c.cateCode=#{arr}
+            </foreach>)
             </if>
             and p.delYn='N' and p.tradeKind='1' and f.fileOrder='0' and (p.tradState='1' or p.tradState='2') and f.gubun='2'
         </where>
@@ -285,12 +298,10 @@
     </select>
 
     <!-- 상세보기에서 유저 정보 찾기 -->
-    <select id="findUserInfo" resultType="map" parameterType="int">
-        select nickname,address,dbFileName
-        from user_info u
-                 inner join file f
-                            on u.no = f.no
-        where f.gubun='1' and u.no=#{userNo};
+    <select id="findUserInfo" resultType="java.util.LinkedHashMap" parameterType="int">
+        select no as 'userNo',nickname,address
+        from user_info
+        where no=#{userNo};
     </select>
 
     <!-- 채팅한 유저 정보 찾기 -->
@@ -308,10 +319,4 @@
     <select id="findUserAddress" parameterType="int" resultType="String">
         select address from user_info where no = #{userNo}
     </select>
-
-    <!-- 세션 값으로 회원번호 찾기 -->
-    <select id="findSessionUser" resultType="int">
-        select no from user_info where id=#{param1};
-    </select>
-
 </mapper>

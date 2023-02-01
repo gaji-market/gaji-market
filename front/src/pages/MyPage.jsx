@@ -1,117 +1,107 @@
-import { PRIMARY_COLOR } from 'components/common/commonColor';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+
 import basicLogo from 'assets/BasicLogo.svg';
+
 import StarRate from 'components/common/StarRate';
 import Button from 'components/common/Button';
-import { useGetSellAllQuery } from 'services/productApi';
-import { usePostUserMyPageMutation } from 'services/signUpApi';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import Card from 'components/common/Card';
-import PlusButton from 'components/common/PlusButton';
+import MyPageCard from 'components/Mypage/MyPageCard';
+import Loading from 'components/common/Loading';
 
-function CardComponent({ cards, moveProductDetail }) {
-  return (
-    <>
-      {cards.length > 0 &&
-        cards.slice(0, 4).map((product) => {
-          const { address, dbFileName, interestCnt, prodName, prodNo, prodPrice, tradState } =
-            product;
-          return (
-            <Card
-              key={prodNo}
-              // productImage={dbFileName}
-              title={prodName}
-              price={prodPrice.toLocaleString()}
-              area={address}
-              likes={interestCnt.toLocaleString()}
-              state={tradState}
-              onClick={moveProductDetail(prodNo)}
-            />
-          );
-        })}
-    </>
-  );
-}
+import { usePostUserMyPageMutation } from 'services/signUpApi';
+
+const TITLE = ['좋아요 목록', '구매 목록', '판매 목록'];
 
 export default function MyPage() {
-  const { data: datas, isLoading, isSuccess, isError } = useGetSellAllQuery();
-  const [getMyPage] = usePostUserMyPageMutation();
-  const navigate = useNavigate();
-  const { type } = useParams();
-  const [cards, setCards] = useState([]);
+  const [userInfo, setUserInfo] = useState({});
+  const [isFirst, setIsFirst] = useState(true);
+  const [cardData, setCardData] = useState();
 
-  useEffect(() => {
-    if (datas) {
-      console.log(datas);
-      const { sellInfos } = datas;
-      sellInfos.forEach((data) => {
-        setCards((prev) => [...prev, data]);
-      });
+  const [getMyPage, { isLoading }] = usePostUserMyPageMutation();
+
+  const nav = useNavigate();
+
+  async function getUserData() {
+    try {
+      const res = await getMyPage().unwrap();
+      setUserInfo(res.userInfo);
+      setCardData([
+        [res.interestProdList, res.interestProdListCnt, 'interest'],
+        [res.buyProdList, res.buyProdListCnt, 'buy'],
+        [res.sellProdList, res.sellProdListCnt, 'sell'],
+      ]);
+    } catch (e) {
+      console.log(e);
     }
-  }, [datas]);
+  }
 
   useEffect(() => {
-    const res = getMyPage().unwrap();
-    console.log(res);
-  }, []);
+    if (isFirst) {
+      getUserData();
+      setIsFirst(false);
+    }
+    getUserData();
+  }, [isFirst]);
 
-  const moveProductDetail = (prodNo) => (e) => {
-    navigate(`/products/${type}/detail/${prodNo}`);
-  };
-
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <Container>
       <TopSection>
         <UserInfoBox>
-          <LeftSection src={basicLogo}></LeftSection>
+          <LeftSection
+            src={
+              userInfo?.dbFileName
+                ? `${process.env.REACT_APP_IMG_PREFIX_URL}${userInfo.dbFileName}`
+                : basicLogo
+            }
+          ></LeftSection>
           <RightSection>
-            <TextBox marginBottom={'15px'}>닉네임: 오늘만 산다</TextBox>
-            <TextBox>주소: 서울숲 공중화장실</TextBox>
+            <TextBox marginBottom={'15px'}>
+              닉네임: <span> {userInfo?.userNickName}</span>
+            </TextBox>
             <TextBox>
-              <StarRate vote_average={0} width={'20'}>
+              주소:
+              <span>
+                {userInfo?.userAddress?.split(' ').slice(0, 3).join(' ')}
+              </span>
+            </TextBox>
+            <TextBox>
+              <StarRate vote_average={3} width={'15'}>
                 매너지수:
               </StarRate>
             </TextBox>
           </RightSection>
+
+          <ButtonWrapper>
+            <Button
+              customSize='250px'
+              onClick={() => {
+                nav('edit', { state: userInfo });
+              }}
+            >
+              내 정보 설정
+            </Button>
+            <Button isOutline={true} customSize='250px'>
+              알람 설정
+            </Button>
+          </ButtonWrapper>
         </UserInfoBox>
-        <ButtonWrapper>
-          <Button customSize='250px'>내 정보 설정</Button>
-          <Button isOutline={true} customSize='250px'>
-            알람 설정
-          </Button>
-        </ButtonWrapper>
       </TopSection>
-      <ProductHead>
-        <ProductHeadTitle>좋아요 한 게시글</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(52)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
-      <ProductHead>
-        <ProductHeadTitle>구매내역</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(25)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
-      <ProductHead>
-        <ProductHeadTitle>판매내역</ProductHeadTitle>
-        <ProductHeadSubtext>더보기(60)</ProductHeadSubtext>
-        <PlusButton customSize='35px' />
-      </ProductHead>
-      <ProductSection>
-        <ProductCard>
-          <CardComponent cards={cards} moveProductDetail={moveProductDetail} />
-        </ProductCard>
-      </ProductSection>
+      <DividingLine />
+      {cardData?.map((card, i) => {
+        return (
+          <MyPageCard
+            key={i}
+            title={TITLE[i]}
+            cardList={card[0]}
+            totalCount={card[1]}
+            detail={card[2]}
+          />
+        );
+      })}
     </Container>
   );
 }
@@ -119,52 +109,64 @@ export default function MyPage() {
 const Container = styled.div`
   padding: 15px 90px;
 `;
-const ProductHead = styled.div`
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 10px;
-`;
-const ProductCard = styled.div`
-  display: flex;
-`;
-const ProductHeadTitle = styled.div`
-  margin-top: 20px;
-  font-size: 30px;
-  font-weight: 800;
-`;
-const ProductHeadSubtext = styled.div`
-  margin-left: 15px;
-  margin-right: 15px;
-`;
+
 const UserInfoBox = styled.div`
-  border: 3px solid ${PRIMARY_COLOR};
-  border-radius: 30px;
-  width: 35%;
+  width: 100%;
+  border-radius: 10px;
   display: flex;
-  padding: 15px 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  align-items: center;
 `;
+
 const LeftSection = styled.img`
-  width: 40%;
-  height: 100px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 200px;
+  margin-right: 25px;
 `;
+
 const RightSection = styled.div`
   width: 60%;
   display: flex;
+  padding-top: 10px;
+  gap: 10px;
   flex-direction: column;
-  justify-content: center;
 `;
+
 const TextBox = styled.div`
-  margin-bottom: ${({ marginBottom }) => marginBottom};
+  font-weight: 900;
+
+  > span {
+    font-weight: 500;
+  }
 `;
+
 const TopSection = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
 const ButtonWrapper = styled.div`
+  width: 200px;
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  flex-grow: 1;
+  gap: 10px;
+  position: relative;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  button {
+    width: 150px;
+  }
 `;
-const ProductSection = styled.div`
-  display: flex;
+
+const DividingLine = styled.div`
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  box-shadow: 0 10px 15px #d3d3d32e;
+  padding-top: 10px;
+  margin-bottom: 35px;
 `;

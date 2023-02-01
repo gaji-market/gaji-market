@@ -1,55 +1,46 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from './Button';
-import { PRIMARY_COLOR, WHITE_COLOR } from './commonColor';
-import { SELL, BUY } from 'constants/params';
+import { WHITE_COLOR } from './commonColor';
+import DecoFooter from './DecoFooter';
 
-const Modal = forwardRef(({ text, leftBtnText, rightBtnText }, ref) => {
-  const { type } = useParams();
-  const [visible, setVisible] = useState(false);
+const Modal = forwardRef(
+  ({ text, leftBtnText, rightBtnText, confirmHandler }, ref) => {
+    const [visible, setVisible] = useState(false);
 
-  const navigate = useNavigate();
+    useImperativeHandle(ref, () => ({
+      showModal() {
+        setVisible(true);
+      },
 
-  useImperativeHandle(ref, () => ({
-    showModal() {
-      setVisible(true);
-    },
+      closeModal(e) {
+        if (e.target !== e.currentTarget) return;
+        setVisible(false);
+      },
+    }));
 
-    closeModal(e) {
-      if (e.target !== e.currentTarget) return;
-      setVisible(false);
-    },
-
-    movePage() {
-      if (type === SELL) {
-        navigate('/write/pal');
-      }
-
-      if (type === BUY) {
-        navigate('/write/sal');
-      }
-    },
-  }));
-
-  return (
-    <>
-      {visible && (
-        <Bg className='modalBg' onClick={ref.current.closeModal} ref={ref}>
-          <Card>
-            <p>{text}</p>
-            <ButtonWrapper>
-              <Button onClick={ref.current.movePage}>{leftBtnText}</Button>
-              <Button isDarkColor isOutline onClick={ref.current.closeModal}>
-                {rightBtnText}
-              </Button>
-            </ButtonWrapper>
-          </Card>
-        </Bg>
-      )}
-    </>
-  );
-});
+    return (
+      <>
+        {visible && (
+          <Bg className='modalBg' onClick={ref.current.closeModal} ref={ref}>
+            <Card>
+              <p>{text}</p>
+              <ButtonWrapper>
+                <Button onClick={() => [confirmHandler(), setVisible(false)]}>
+                  {leftBtnText}
+                </Button>
+                <Button isDarkColor isOutline onClick={ref.current.closeModal}>
+                  {rightBtnText}
+                </Button>
+              </ButtonWrapper>
+              <DecoFooter />
+            </Card>
+          </Bg>
+        )}
+      </>
+    );
+  }
+);
 
 export default Modal;
 
@@ -59,7 +50,8 @@ const Bg = styled.div`
   top: 0;
   width: 100vw;
   height: 100vh;
-  background: #00000050;
+  background: #00000080;
+  color: #222;
   overflow: hidden;
   position: fixed;
   z-index: 999;
@@ -80,11 +72,15 @@ const Card = styled.div`
   gap: 20px;
   justify-content: center;
   align-items: center;
-  border: 3px solid ${PRIMARY_COLOR};
+  border: 3px solid #9747ff41;
+  position: relative;
+  overflow: hidden;
   font-size: 18px;
 
   p {
+    font-weight: 900;
     margin-top: 15px;
+    z-index: 5;
   }
 `;
 
@@ -94,4 +90,5 @@ const ButtonWrapper = styled.div`
   align-items: center;
   gap: 15px;
   margin-top: 20px;
+  z-index: 5;
 `;

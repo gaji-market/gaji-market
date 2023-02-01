@@ -12,10 +12,11 @@ import { PRIMARY_COLOR, SECONDARY_COLOR } from './commonColor';
 //     name: String;
 //     handler: Function;
 //   };
+//   defaultValue?: Boolean;
 // }
 
-export default function ToggleSwitch({ on, off }) {
-  const [toggle, setToggle] = useState(true);
+export default function ToggleSwitch({ on, off, defaultValue = true }) {
+  const [toggle, setToggle] = useState(defaultValue);
 
   const changeHanlder = (e) => {
     setToggle(e.target.checked);

@@ -1,39 +1,30 @@
 @import './global.scss';
 
-.container {
-  width: 800px;
-  padding: 50px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
 .form {
   overflow: hidden;
   padding: 5px;
 }
 
-.editorTitle {
+.editor-title {
   font-size: 25px;
   font-weight: 900;
 }
 
-.editorSubTitle {
+.editor-sub-title {
   color: $SUB;
   margin-top: 10px;
   white-space: pre-line;
   line-height: 21px;
 }
 
-.buttonContainer {
+.button-container {
   display: flex;
   width: 100%;
   gap: 10px;
   margin-top: 20px;
 }
 
-.selectBox {
+.select-box {
   display: block;
   margin-right: 10px;
   width: 100%;
@@ -46,7 +37,7 @@
   }
 }
 
-.textArea {
+.textarea {
   min-width: 100%;
   max-width: 100%;
 
@@ -68,7 +59,7 @@
 }
 
 // 캐러셀 슬라이드
-.imgSlider {
+.img-slider {
   display: flex;
   margin-top: 15px;
 
@@ -78,28 +69,15 @@
     position: relative;
   }
 
-  .imgPage {
+  .img-page {
     position: absolute;
     right: 0;
     bottom: 0;
     padding: 10px;
   }
-
-  .deleteImgBtn {
-    position: absolute;
-    background-color: $PRIMARY;
-    right: 0;
-    top: 0;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    color: $WHITE;
-    margin: 5px;
-    cursor: pointer;
-  }
 }
 
-.btnWrapper {
+.btn-wrapper {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -107,8 +85,8 @@
   margin-top: 10px;
 }
 
-.prevBtn,
-.nextBtn {
+.prev-btn,
+.next-btn {
   background-color: $SUB;
   border: none;
   width: 100%;
@@ -124,7 +102,7 @@
 }
 
 // 해시태그
-.hashTags {
+.hashtags {
   display: inline-flex;
   flex-wrap: wrap;
   width: 100%;
@@ -135,7 +113,7 @@
   margin-top: 10px;
 }
 
-.hashTagInput {
+.hashtag-input {
   outline: none;
   border: none;
   font-size: 16px;
@@ -143,7 +121,7 @@
   width: 100%;
 }
 
-.hashTagInput::placeholder {
+.hashtag-input::placeholder {
   color: $GRAY;
   font-size: 14px;
 }

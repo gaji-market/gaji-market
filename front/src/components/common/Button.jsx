@@ -11,10 +11,12 @@ const BUTTON_SIZE = {
 export default function Button({
   children,
   customSize,
+  height,
   isOutline,
   isDisabled,
   onClick,
   formEncType,
+  padding,
   type = 'button',
   size = 'md',
   isDarkColor = false,
@@ -22,6 +24,8 @@ export default function Button({
   return (
     <ButtonStyles
       type={type}
+      height={height}
+      padding={padding}
       isOutline={isOutline}
       size={size}
       customSize={customSize}
@@ -86,6 +90,9 @@ const ButtonStyles = styled.button`
       cursor: not-allowed;
     }
   }
+
+  padding: ${({ padding }) => padding};
+  height: ${({ height }) => height};
 
   &:hover {
     background: ${({ isOutline }) => (isOutline ? '#E9DCFF50' : '#843DE0')};

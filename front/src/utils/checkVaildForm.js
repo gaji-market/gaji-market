@@ -1,6 +1,6 @@
-function isVaild(type, value, isLogin) {
-  let idRule = /^[A-Za-z0-9]{6,12}$/;
-  let pwRule = /^[A-Za-z0-9]{8,15}$/;
+function isVaild(type, value) {
+  let idRule = /^[a-z]+[a-z0-9]{5,12}$/g;
+  let pwRule = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
   if (type === 'ID' || type === 'PW') {
     if (value.length < 1) return true;

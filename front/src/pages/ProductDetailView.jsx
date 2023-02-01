@@ -1,31 +1,160 @@
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { useParams } from 'react-router-dom';
-
-import { GRAY_COLOR, PRIMARY_COLOR, SUB_COLOR } from 'components/common/commonColor';
+import {
+  DARK_GRAY_COLOR,
+  GRAY_COLOR,
+  PRIMARY_COLOR,
+  SUB_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
 import Button from 'components/common/Button';
+import Modal from 'components/common/Modal';
 
-import { AiOutlineAlert, AiOutlineEye, AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
+import {
+  AiOutlineAlert,
+  AiOutlineEye,
+  AiOutlineHeart,
+  AiFillHeart,
+} from 'react-icons/ai';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { RiTimerLine } from 'react-icons/ri';
 
-import { useGetProductQuery } from 'services/productApi';
+import {
+  useGetProductQuery,
+  useChangeInterestCountMutation,
+  useChangeReportCountMutation,
+  useDeleteProductMutation,
+} from 'services/productApi';
 import { Error } from './index';
+import { SELL } from 'constants/params';
 
-const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
+import useToast from 'hooks/toast';
+
+const NEXT_X = 400;
+const ADDRESS = {
+  start: 0,
+  end: 2,
+};
 
 export default function ProductDetailView() {
-  const { type: param, id: prodNo } = useParams();
-  const { data: product, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+  const { addToast } = useToast();
 
-  const [productDate, setProductDate] = useState('');
+  const slideRef = useRef();
+  const modalRef = useRef(null);
+  const navigate = useNavigate();
+  const { type: param, id: prodNo } = useParams();
+
+  const { data, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+  const [authorImage, setAuthorImage] = useState(false);
+  const [isCreatedUser, setIsCreatedUser] = useState(false);
 
   useEffect(() => {
-    if (product) {
-      setProductDate(new Date(product.productInfo.regDt));
+    if (data) {
+      const { loginUserNo: loggedInUserNo, userNo: CreatedUserNo } =
+        data?.userInfo;
+
+      if (loggedInUserNo === CreatedUserNo) setIsCreatedUser(true);
     }
-  }, [product]);
+  }, [data]);
+
+  useEffect(() => {
+    if (isSuccess && data.userInfo.dbFileName) {
+      setAuthorImage(true);
+    }
+  }, [data?.userInfo?.dbFileName]);
+
+  const [changeInterestCountMutation] = useChangeInterestCountMutation();
+  const [changeReportCountMutation] = useChangeReportCountMutation();
+  const [deleteProductMutation] = useDeleteProductMutation();
+
+  const [productDate, setProductDate] = useState('');
+  const [slideX, setSlideX] = useState(0);
+
+  const clickPrevImg = () => {
+    setSlideX(slideX - 1);
+  };
+
+  const clickNextImg = () => {
+    setSlideX(slideX + 1);
+  };
+
+  useEffect(() => {
+    if (data) {
+      setProductDate(new Date(data.productInfo.regDt));
+    }
+  }, [data]);
+
+  useEffect(() => {
+    const { current } = slideRef;
+    if (!current) return;
+
+    if (slideX < 0) {
+      setSlideX(data?.fileInfos.length - 1);
+      current.style.transform = `translateX(${NEXT_X * slideX}px)`;
+      return;
+    }
+
+    if (slideX > data?.fileInfos.length - 1) {
+      setSlideX(0);
+      current.style.transform = 'translateX(0px)';
+      return;
+    }
+
+    if (slideX >= 0) {
+      current.style.transform = `translateX(-${NEXT_X * slideX}px)`;
+    }
+  }, [slideX, data?.fileInfos]);
+
+  const changeInterestCountHandler = async () => {
+    try {
+      await changeInterestCountMutation(prodNo);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const changeReportCountHandler = async () => {
+    try {
+      await changeReportCountMutation(prodNo);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const modifyHandler = () => () => {
+    modalRef.current?.showModal();
+    // TODO: Editor 페이지 재사용
+  };
+
+  const deleteHandler = async () => {
+    try {
+      const result = await deleteProductMutation(prodNo).unwrap();
+      addToast({
+        isToastSuccess: true,
+        isMainTheme: true,
+        toastTitle: '게시글 삭제 완료!',
+        toastMessage: '상품 전체보기 페이지로 이동합니다.',
+      });
+
+      setTimeout(() => {
+        navigate(`/products/${param}`);
+      }, 500);
+    } catch (error) {
+      console.error(error);
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastTitle: '게시글 삭제 실패!',
+        toastMessage: '잠시 후 다시 시도해주세요.',
+      });
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (isError) {
     return <Error />;
@@ -33,49 +162,92 @@ export default function ProductDetailView() {
 
   return (
     <>
+      <Modal
+        ref={modalRef}
+        text='수정하기 페이지로 이동할까요?'
+        leftBtnText='네! 좋아요.'
+        rightBtnText='아니요, 괜찮아요!'
+        confirmHandler={() => {
+          navigate(`/modify/${param}/${prodNo}`);
+        }}
+      />
+
       {isSuccess && (
         <Container>
-          <Categories>{'카테고리 > 카테고리2 > 카테고리3'}</Categories>
+          <Categories>
+            {data.categoryInfos.map((category, i) => {
+              if (category) {
+                return (
+                  <span
+                    key={`${category.cateCode} ${i}`}
+                    className='category-depth'
+                  >
+                    {category?.cateName}
+                  </span>
+                );
+              }
+            })}
+          </Categories>
 
           <ProductTop>
-            <div className='imgContainer'>
-              <ul>
-                {product.fileInfos.length > 0 &&
-                  product.fileInfos.map((image) => {
+            <div className='img-container'>
+              <ul ref={slideRef} className='img-list'>
+                {data.fileInfos.length > 0 &&
+                  data.fileInfos.map((image) => {
                     return (
-                      <li key={image.fileOrder}>
+                      <li key={`${image.fileOrder} ${image.dbFileName}`}>
                         <img
-                          className='productImage'
-                          src={`${IMG_PREFIX_URL}${image.dbFileName}`}
+                          className='product-image'
+                          src={`${process.env.REACT_APP_IMG_PREFIX_URL}${image.dbFileName}`}
                           alt='product_img'
                         />
                       </li>
                     );
                   })}
               </ul>
-              <button>◀</button>
-              <button>▶</button>
+              {data.fileInfos.length > 1 && (
+                <div className='slide-btns'>
+                  <span
+                    className='arrow arrow-left'
+                    role='button'
+                    onClick={clickPrevImg}
+                  ></span>
+                  <span
+                    className='arrow arrow-right'
+                    onClick={clickNextImg}
+                    role='button'
+                  ></span>
+                </div>
+              )}
             </div>
 
             <ProductSummary>
               <Watcher>
                 <WatcherIcon />
-                <WatcherCount>{product.productInfo.viewCnt}</WatcherCount>
+                <WatcherCount>{data.productInfo.viewCnt}</WatcherCount>
               </Watcher>
-              <ProductState>판매중</ProductState>
-              <Title>{product.productInfo.prodName}</Title>
-              <Price>{product.productInfo.prodPrice.toLocaleString()}원</Price>
+              <ProductState>
+                {param === SELL ? '판매중' : '구매중'}
+              </ProductState>
+              <Title>{data.productInfo.prodName}</Title>
+              <Price>{data.productInfo.prodPrice.toLocaleString()}원</Price>
               <StatusWrapper>
                 <Status>
                   <Report>
                     <ReportIcon />
-                    <span>신고 {product.productInfo.reportCnt}회</span>
+                    <span>신고 {data.productInfo.reportCnt}회</span>
                     <VerticalBar>|</VerticalBar>
-                    <span>신고하기</span>
+                    <span
+                      className='report-btn'
+                      role='button'
+                      onClick={changeReportCountHandler}
+                    >
+                      신고하기
+                    </span>
                   </Report>
                   <Location>
                     <LocationIcon />
-                    <span>{product.productInfo.address}</span>
+                    <span>{data.productInfo.address}</span>
                   </Location>
                   <DateCreated>
                     <DateIcon />
@@ -83,21 +255,62 @@ export default function ProductDetailView() {
                   </DateCreated>
                 </Status>
                 <LikesWrapper>
-                  <HeartIcon />
-                  <LikesCount>{product.interestInfo.interestCnt}</LikesCount>
+                  {!data.interestInfo.interestYN ? (
+                    <HeartIcon onClick={changeInterestCountHandler} />
+                  ) : (
+                    <FillHeartIcon onClick={changeInterestCountHandler} />
+                  )}
+                  <LikesCount>{data.interestInfo.interestCnt}</LikesCount>
                 </LikesWrapper>
               </StatusWrapper>
 
               <ButtonWrapper>
-                <Button customSize='50%'>채팅하기</Button>
-                <Button isOutline isDarkColor customSize='50%'>
-                  가격 제안하기
-                </Button>
+                {isCreatedUser && (
+                  <>
+                    <Button customSize='50%' onClick={modifyHandler(data)}>
+                      수정하기
+                    </Button>
+                    <Button
+                      isOutline
+                      isDarkColor
+                      customSize='50%'
+                      onClick={deleteHandler}
+                    >
+                      삭제하기
+                    </Button>
+                  </>
+                )}
+                {!isCreatedUser && (
+                  <>
+                    <Button
+                      customSize='100%'
+                      onClick={() => modalRef.current?.showModal()}
+                    >
+                      채팅하기
+                    </Button>
+                    <Modal
+                      ref={modalRef}
+                      text={`${
+                        param === SELL ? '판매자' : '구매자'
+                      }와 채팅을 시작하시겠습니까?`}
+                      leftBtnText='네'
+                      rightBtnText='아니요'
+                      confirmHandler={() => navigate(`/chat/${prodNo}`)}
+                    />
+                    {/* <Button isOutline isDarkColor customSize='50%'>
+                      가격 제안하기
+                    </Button> */}
+                  </>
+                )}
               </ButtonWrapper>
               <HashTags>
-                {product.hashTagInfos.length > 0 &&
-                  product.hashTagInfos.map((hashtag, idx) => {
-                    return <HashTag key={`${hashtag.tagName}${idx}`}>#{hashtag.tagName}</HashTag>;
+                {data.hashTagInfos.length > 0 &&
+                  data.hashTagInfos.map((hashtag, idx) => {
+                    return (
+                      <HashTag key={`${hashtag.tagName}${idx}`}>
+                        #{hashtag.tagName}
+                      </HashTag>
+                    );
                   })}
               </HashTags>
             </ProductSummary>
@@ -107,19 +320,40 @@ export default function ProductDetailView() {
             <UserInfo>
               <UserInfoTitle>판매자 정보</UserInfoTitle>
               <ProfileWrapper>
-                <ProfileImg />
+                {authorImage ? (
+                  <ProfileImg>
+                    <img
+                      src={`${process.env.REACT_APP_IMG_PREFIX_URL}${data?.userInfo.dbFileName}`}
+                      alt='작성자 프로필 사진'
+                    ></img>
+                  </ProfileImg>
+                ) : (
+                  <ProfileImg />
+                )}
                 <div>
-                  <UserNickName>{product.userInfo.nickname}</UserNickName>
-                  <UserArea>{product.userInfo.address}</UserArea>
+                  <UserNickName>{data.userInfo.nickname}</UserNickName>
+                  <UserArea>
+                    {data.userInfo.address
+                      .split(' ')
+                      .slice(ADDRESS.start, ADDRESS.end)
+                      .join(' ')}
+                  </UserArea>
                 </div>
               </ProfileWrapper>
-              <Button isDarkColor>정보보기</Button>
+              <Button
+                isDarkColor
+                customSize={'215px'}
+                height={'35px'}
+                padding={0}
+              >
+                정보보기
+              </Button>
             </UserInfo>
           </ProductMid>
 
           <ProductBottom>
             <ProductInfoTitle>상품정보</ProductInfoTitle>
-            <p>{product.productInfo.prodExplain}</p>
+            <p>{data.productInfo.prodExplain}</p>
           </ProductBottom>
         </Container>
       )}
@@ -140,6 +374,14 @@ const Categories = styled.div`
   display: flex;
   justify-content: flex-end;
   padding-right: 23px;
+
+  .category-depth {
+    margin-right: 5px;
+
+    &:not(:last-child)::after {
+      content: ' >';
+    }
+  }
 `;
 
 const ProductTop = styled.div`
@@ -149,25 +391,79 @@ const ProductTop = styled.div`
   align-items: center;
   justify-content: space-around;
 
-  .imgContainer {
+  .img-container {
     width: 400px;
     height: 400px;
     overflow: hidden;
+    position: relative;
   }
 
-  .imgContainer ul {
+  .img-container ul {
     display: flex;
     height: 100%;
   }
 
-  .productImages li {
+  .img-list {
+    align-items: center;
+    transition: all 0.4s;
+  }
+
+  .product-images li {
     width: 400px;
     height: 400px;
   }
 
-  .productImage {
+  .product-image {
     width: 400px;
     display: block;
+  }
+
+  .slide-btns {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 46%;
+    z-index: 10;
+
+    .arrow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      content: '';
+      width: 25px;
+      height: 25px;
+      border-top: 5px solid ${WHITE_COLOR};
+      border-right: 5px solid ${WHITE_COLOR};
+      border-radius: 0px;
+      border-top-right-radius: 10px;
+      cursor: pointer;
+    }
+
+    .arrow-left {
+      transform: rotate(225deg);
+      left: 15px;
+      background: linear-gradient(
+        to bottom,
+        #00000050,
+        transparent,
+        transparent,
+        transparent,
+        transparent
+      );
+    }
+
+    .arrow-right {
+      transform: rotate(45deg);
+      left: 355px;
+      background: linear-gradient(
+        to left,
+        #00000050,
+        transparent,
+        transparent,
+        transparent,
+        transparent
+      );
+    }
   }
 `;
 
@@ -203,8 +499,10 @@ const ProductState = styled.p`
 
 const Title = styled.h2`
   font-size: 35px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
+  margin-top: 5px;
+  margin-bottom: 5px;
 `;
 
 const Price = styled.p`
@@ -243,7 +541,7 @@ const HeartIcon = styled(AiOutlineHeart)`
 
 const FillHeartIcon = styled(AiFillHeart)`
   cursor: pointer;
-  font-size: 36px;
+  font-size: 45px;
 `;
 
 const LikesCount = styled.div``;
@@ -253,6 +551,10 @@ const Report = styled.div`
   align-items: center;
   margin-top: 10px;
   margin-bottom: 5px;
+
+  .report-btn {
+    cursor: pointer;
+  }
 `;
 
 const VerticalBar = styled.span`
@@ -262,6 +564,7 @@ const VerticalBar = styled.span`
 
 const ReportIcon = styled(AiOutlineAlert)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const Location = styled.div`
@@ -272,6 +575,7 @@ const Location = styled.div`
 
 const LocationIcon = styled(HiOutlineLocationMarker)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const DateCreated = styled.div`
@@ -281,6 +585,7 @@ const DateCreated = styled.div`
 
 const DateIcon = styled(RiTimerLine)`
   font-size: 23px;
+  margin-right: 5px;
 `;
 
 const HashTags = styled.div`
@@ -307,15 +612,17 @@ const ProductMid = styled.div`
 `;
 
 const UserInfo = styled.div`
-  width: 200px;
-  margin: 20px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
 `;
 
 const UserInfoTitle = styled.h4`
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
-  margin-bottom: 20px;
+  margin-bottom: 23px;
 `;
 
 const ProfileWrapper = styled.div`
@@ -330,6 +637,16 @@ const ProfileImg = styled.div`
   height: 70px;
   border-radius: 100px;
   background: #ddd;
+  margin-bottom: 3px;
+  margin-right: 5px;
+  overflow: hidden;
+
+  > img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 100px;
+  }
 `;
 
 const UserNickName = styled.p`
@@ -346,11 +663,15 @@ const ProductBottom = styled.div`
   height: 500px;
   padding: 20px;
   margin: 20px;
+
+  p {
+    color: ${DARK_GRAY_COLOR};
+  }
 `;
 
 const ProductInfoTitle = styled.h4`
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 900;
   color: ${SUB_COLOR};
   margin-bottom: 20px;
 `;

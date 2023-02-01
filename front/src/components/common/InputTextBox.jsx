@@ -20,6 +20,7 @@ export default function InputTextBox({
   padding,
   required,
   onChange,
+  onKeyPress,
   placeholder,
   autoComplete = 'off',
   placeholderPosition = 'left',
@@ -33,6 +34,7 @@ export default function InputTextBox({
         minLength={minLength}
         maxLength={maxLength}
         onChange={onChange}
+        onKeyPress={onKeyPress}
         required={required}
         readOnly={isReadOnly}
         disabled={isDisabled}

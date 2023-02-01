@@ -7,6 +7,7 @@ function CheckBox({
   id,
   width,
   onChange,
+  onClick,
   isChecked,
   checkBoxWidth,
   checkBoxHeight,
@@ -16,6 +17,7 @@ function CheckBox({
     <Container marginRight={marginRight} width={width}>
       <Label htmlFor={id}>{title}</Label>
       <Check
+        onClick={onClick}
         onChange={onChange}
         checked={isChecked}
         width={checkBoxWidth}

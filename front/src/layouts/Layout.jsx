@@ -1,8 +1,11 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import AppBar from 'layouts/AppBar';
 import styled from 'styled-components';
+
+import AppBar from 'layouts/AppBar';
 import SideBar from './SideBar';
+import Footer from 'components/common/Footer';
+
 export default function Layout() {
   return (
     <>
@@ -10,6 +13,7 @@ export default function Layout() {
       <SideBar />
       <Container>
         <Outlet />
+        <Footer />
       </Container>
     </>
   );
@@ -18,5 +22,5 @@ export default function Layout() {
 const Container = styled.div`
   width: 1200px;
   margin: 0 auto;
-  height: calc(100vh - 56px);
+  /* height: calc(100vh - 56px); */
 `;

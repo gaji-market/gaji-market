@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-
 import styled from 'styled-components';
+
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
+
+import { useChangeInterestCountMutation } from 'services/productApi';
+
 import StateBadge from './StateBadge';
 
 const PRODUCT_STATE = {
@@ -11,16 +14,38 @@ const PRODUCT_STATE = {
   3: '거래완료',
 };
 
+const ADDRESS = {
+  start: 0,
+  end: 3,
+};
+
 const TEMP_IMG_URL =
   'https://png.pngtree.com/element_our/20190528/ourlarge/pngtree-cartoon-eggplant-image_1128846.jpg';
 
-export default function Card({ productImage, title, price, area, likes, state, onClick }) {
-  const [fillHeart, setFillHeart] = useState(false);
+export default function Card({
+  productImage,
+  isInterest,
+  title,
+  price,
+  prodNo,
+  area,
+  likes,
+  state,
+  onClick,
+}) {
+  const [interestState, setIsInterestState] = useState(isInterest);
+  const [likesState, setLikesState] = useState(likes);
+  const [changeInterestCountMutation] = useChangeInterestCountMutation();
 
-  const onClickHeart = () => {
-    setFillHeart((prevState) => {
-      return !prevState;
-    });
+  const clickInterest = async () => {
+    try {
+      const res = await changeInterestCountMutation(prodNo).unwrap();
+
+      setIsInterestState(() => res.interestInfo.interestYN);
+      setLikesState(() => res.interestInfo.interestCnt);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -50,14 +75,16 @@ export default function Card({ productImage, title, price, area, likes, state, o
         <CardContent>
           <PriceText>{price}원</PriceText>
           <SubContent>
-            <AreaText>{area}</AreaText>
+            <AreaText>
+              {area.split(' ').slice(ADDRESS.start, ADDRESS.end).join(' ')}
+            </AreaText>
             <LikesWrapper>
-              {fillHeart ? (
-                <FillHeartIcon className='fill-heart' onClick={onClickHeart} />
+              {interestState ? (
+                <FillHeartIcon onClick={clickInterest} className='fillHeart' />
               ) : (
-                <HeartIcon className='empty-heart' onClick={onClickHeart} />
+                <HeartIcon onClick={clickInterest} className='emptyHeart' />
               )}
-              <LikesCount>{likes}</LikesCount>
+              <LikesCount>{likesState}</LikesCount>
             </LikesWrapper>
           </SubContent>
         </CardContent>

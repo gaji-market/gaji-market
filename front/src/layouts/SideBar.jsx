@@ -5,12 +5,27 @@ import styled from 'styled-components';
 import { PRIMARY_COLOR } from 'components/common/commonColor';
 import { AiOutlineClose } from 'react-icons/ai';
 
+import { useGetCategoriesQuery } from 'services/productApi';
+
 export default function SideBar() {
   const navigate = useNavigate();
   const sideBarRef = useRef(null);
   const [focusFirst, setFocusFirst] = useState(null);
   const [focusSecond, setFocusSecond] = useState(null);
   const [focusThird, setFocusThird] = useState(null);
+
+  const { data: categories = { categoryInfos: [] } } = useGetCategoriesQuery();
+
+  // filtering
+  const firstCategories = categories.categoryInfos.filter(
+    (cat) => cat.tier === 1,
+  );
+  const secondCategories = categories.categoryInfos.filter(
+    (cat) => cat.tier === 2 && cat.cateParent === focusFirst,
+  );
+  const thirdCategories = categories.categoryInfos.filter(
+    (cat) => cat.tier === 3 && cat.cateParent === focusSecond,
+  );
 
   const sideBarHandler = () => {
     if (sideBarRef) {
@@ -29,61 +44,75 @@ export default function SideBar() {
           <h2>카테고리</h2>
           <AiOutlineClose color={PRIMARY_COLOR} onClick={sideBarHandler} />
         </Header>
-        <Body>
-          <CategoryItemGroup
-            type='first'
-            focused={focusFirst}
-            setter={setFocusFirst}
+        <Body onMouseEnter={() => setFocusThird(null)}>
+          <CategoryItemGroup items={firstCategories} setter={setFocusFirst} />
+          <Spacer
+            onMouseEnter={() => [
+              setFocusFirst(null),
+              setFocusSecond(null),
+              setFocusThird(null),
+            ]}
           />
         </Body>
       </LeftBar>
-      {focusFirst && (
+      {focusFirst && secondCategories.length > 0 && (
         <ExpandedLeftBar className='expanded-bar'>
           <CategoryItemGroup
-            type='second'
-            parent={focusFirst}
+            items={secondCategories}
             focused={focusSecond}
             setter={setFocusSecond}
+            navigator={() => {
+              if (thirdCategories.length === 0) {
+                navigate(`products/pal?category=${focusSecond}`);
+                sideBarHandler();
+              }
+            }}
+          />
+          <Spacer
+            onMouseEnter={() => [setFocusSecond(null), setFocusThird(null)]}
           />
         </ExpandedLeftBar>
       )}
-      {focusSecond && (
+      {focusSecond && thirdCategories.length > 0 && (
         <ExpandedLeftBar className='expanded-bar'>
           <CategoryItemGroup
-            type='third'
-            parent={focusSecond}
+            items={thirdCategories}
             focused={focusThird}
             setter={setFocusThird}
             navigator={() => [
-              navigate(
-                `products/pal?fisrt=${focusFirst}&second=${focusSecond}&third=${focusThird}`,
-              ),
+              navigate(`products/pal?category=${focusThird}`),
               sideBarHandler(),
             ]}
           />
+          <Spacer onMouseEnter={() => setFocusThird(null)} />
         </ExpandedLeftBar>
       )}
-      <Background onClick={sideBarHandler} />
+      <Background
+        onClick={sideBarHandler}
+        onMouseEnter={() => [
+          setFocusFirst(null),
+          setFocusSecond(null),
+          setFocusThird(null),
+        ]}
+      />
     </Wrapper>
   );
 }
 
 const CategoryItemGroup = ({
-  type,
-  parent = null,
   focused,
   setter,
+  items = [],
   navigator = () => {},
 }) => {
-  const prefix = `${parent ? `${parent}_` : ''}${type}`;
-  return Array.from(new Array(10)).map((_, i) => (
+  return items.map((item, i) => (
     <CategoryItem
-      key={`${prefix}_${i}`}
-      className={focused === `${prefix}_${i}` ? 'highlight' : ''}
-      onMouseEnter={() => setter(`${prefix}_${i}`)}
+      key={item.cateCode}
+      className={focused === item.cateCode ? 'highlight' : ''}
+      onMouseEnter={() => setter(item.cateCode)}
       onClick={navigator}
     >
-      {type}_{i}
+      {item.cateName}
     </CategoryItem>
   ));
 };
@@ -130,6 +159,9 @@ const ExpandedLeftBar = styled.div`
   z-index: 101;
   background-color: white;
   width: 200px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 56px;
 `;
 
 const Header = styled.div`
@@ -151,6 +183,8 @@ const Header = styled.div`
 const Body = styled.div`
   flex: 1;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const CategoryItem = styled.li`
@@ -171,4 +205,8 @@ const CategoryItem = styled.li`
     background-color: ${PRIMARY_COLOR};
     color: white;
   }
+`;
+
+const Spacer = styled.div`
+  flex: 1;
 `;

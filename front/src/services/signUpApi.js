@@ -1,8 +1,25 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { decrypt } from 'utils/crypto';
 
 export const signUpApi = createApi({
   reducerPath: 'signUpApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://114.201.230.148:8090/user/' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${process.env.REACT_APP_BASE_URL}/user/`,
+    prepareHeaders: (headers, { getState }) => {
+      let token;
+      if (getState().session?.token) {
+        token = decrypt(
+          process.env.REACT_APP_SESSION_KEY || '',
+          getState().session.token
+        );
+      }
+      if (token) {
+        headers.set('X-AUTH-TOKEN', token);
+      }
+
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     postUserSignForm: builder.mutation({
       query: (userData) => ({
@@ -15,9 +32,6 @@ export const signUpApi = createApi({
       query: () => ({
         url: 'myPage',
         method: 'POST',
-        headers: {
-          'X-AUTH-TOKEN': sessionStorage.getItem('token'),
-        },
       }),
     }),
     postUserCheckId: builder.mutation({
@@ -34,6 +48,24 @@ export const signUpApi = createApi({
         body: login,
       }),
     }),
+    postUserEdit: builder.mutation({
+      query: (edit) => ({
+        url: 'userUpdate',
+        method: 'POST',
+        body: edit,
+      }),
+    }),
+    postUserCard: builder.mutation({
+      query: ({ type, pageInfo }) => ({
+        url: `${type}ProdList`,
+        method: 'POST',
+        body: {
+          recordCount: 8,
+          currentPage: pageInfo.currentPage,
+          sort: 'default',
+        },
+      }),
+    }),
   }),
 });
 
@@ -42,4 +74,6 @@ export const {
   usePostUserCheckIdMutation,
   usePostUserLoginMutation,
   usePostUserMyPageMutation,
+  usePostUserEditMutation,
+  usePostUserCardMutation,
 } = signUpApi;

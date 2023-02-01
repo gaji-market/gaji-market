@@ -1,18 +1,39 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { NavLink, useNavigate } from 'react-router-dom';
+
+import styled from 'styled-components';
+
+import { usePostUserLoginMutation } from 'services/signUpApi';
+import { startSession } from 'store/sessionSlice';
+
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
-import React from 'react';
-import { useState } from 'react';
-import styled from 'styled-components';
 import Button from 'components/common/Button';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { GRAY_COLOR } from 'components/common/commonColor';
+import DecoFooter from 'components/common/DecoFooter';
+
+import useToast from 'hooks/toast';
+
+import {
+  GRAY_COLOR,
+  PRIMARY_COLOR,
+  WHITE_COLOR,
+} from 'components/common/commonColor';
+
 import KakaoImg from 'assets/KakaoImg.png';
 import NaverImg from 'assets/NaverImg.png';
-import { usePostUserLoginMutation } from 'services/signUpApi';
 
 export default function Login() {
-  const [login, data] = usePostUserLoginMutation();
+  const inputRef = useRef();
+
+  const [login] = usePostUserLoginMutation();
+
   const nav = useNavigate();
+
+  const { addToast } = useToast();
+
+  const dispatch = useDispatch();
+
   const [signUpForm, setSignUpForm] = useState({
     id: '',
     password: '',
@@ -20,33 +41,66 @@ export default function Login() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    const res = await login({ userId: signUpForm.id, userPwd: signUpForm.password }).unwrap();
-    if (res.result === 'fail') {
-      alert('아이디 및 비밀번호가 틀렸습니다. 다시 입력해주세요');
+
+    if (signUpForm.id !== '' && signUpForm.password !== '') {
+      try {
+        const res = await login({
+          userId: signUpForm.id,
+          userPwd: signUpForm.password,
+        }).unwrap();
+        if (res.result === 'fail') {
+          addToast({
+            isToastSuccess: false,
+            isMainTheme: true,
+            toastTitle: '로그인 실패!',
+            toastMessage: '아이디 및 비밀번호를 확인해주세요.',
+          });
+        } else if (res.result === 'success') {
+          addToast({
+            isToastSuccess: true,
+            isMainTheme: true,
+            toastTitle: '로그인 성공!',
+            toastMessage: '가지마켓에 오신 것을 환영합니다.',
+          });
+          dispatch(startSession(res.token));
+          setTimeout(() => nav('/'), 500);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     } else {
-      alert('로그인 되었습니다.');
-      nav('/');
-      sessionStorage.setItem('userToken', res.token);
+      addToast({
+        isToastSuccess: false,
+        isMainTheme: true,
+        toastTitle: '로그인 실패!',
+        toastMessage: '아이디 및 비밀번호를 입력해주세요.',
+      });
     }
   };
+
   const changeHandler = (e) => {
-    setSignUpForm({ ...signUpForm, [e.target.id]: e.target.value });
+    setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
 
   return (
     <Container>
       <SignUpHead>
         <Title>로그인</Title>
-        <SubTitle>가지 마켓에 오신것을 환영합니다! </SubTitle>
+        <SubTitle>가지마켓에 오신 것을 환영합니다! </SubTitle>
       </SignUpHead>
-      <Line width={'500px'} marginBottom={'80px'} />
+      <Line width={'420px'} marginBottom={'45px'} />
       <Form onChange={(e) => changeHandler(e)}>
         <InputBox>
           <InputTitle title={'아이디'} />
           <InputTextBox
+            inputRef={inputRef}
             id={'id'}
             value={signUpForm.id}
-            containerBottom={'20px'}
+            containerBottom={'25px'}
             width={'400px'}
             placeholder={'아이디를 입력하세요'}
             type={'text'}
@@ -63,99 +117,132 @@ export default function Login() {
           />
         </InputBox>
         <ButtonBox>
-          <Button customSize='400px' onClick={(e) => submitHandler(e)}>
+          <Button
+            type='submit'
+            customSize='400px'
+            onClick={(e) => submitHandler(e)}
+          >
             로그인
           </Button>
         </ButtonBox>
         <SubBox>
           <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
-
           <NavLink to='/signup' style={{ textDecoration: 'none' }}>
             <ToSignUp>회원가입</ToSignUp>
           </NavLink>
         </SubBox>
-        <LineBox>
-          <Line width={'200px'} marginBottom={'30px'} />
+        {/* <LineBox>
+          <Line width={'200px'} marginBottom={'20px'} />
           <LineOR>OR</LineOR>
-          <Line width={'200px'} marginBottom={'30px'} />
+          <Line width={'200px'} marginBottom={'20px'} />
         </LineBox>
-        <SocialLogin>
+        <SocialLogin onClick={(e) => e.preventDefault()}>
           <Img src={KakaoImg}></Img>
         </SocialLogin>
-        <SocialLogin>
+        <SocialLogin onClick={(e) => e.preventDefault()}>
           <Img src={NaverImg}></Img>
-        </SocialLogin>
+        </SocialLogin> */}
       </Form>
+      <DecoFooter />
     </Container>
   );
 }
+
 const Container = styled.div`
-  width: 700px;
-  height: 800px;
-  margin: 60px auto;
-  border-radius: 35px;
-  box-shadow: 0px 0px 30px 1px ${GRAY_COLOR};
-  padding: 50px 100px;
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 500px;
+  background: ${WHITE_COLOR};
+  padding: 40px 50px 0 50px;
+  margin: 180px auto;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid #6c17dc50;
 `;
-const InputBox = styled.div`
-  margin-left: 45px;
-`;
+
+const InputBox = styled.div``;
+
 const Img = styled.img`
-  width: 100%;
+  cursor: pointer;
 `;
+
 const ToSignUp = styled.div`
-  color: #cccccc;
-  text-decoration: none;
+  color: ${GRAY_COLOR};
   font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
+
 const FindIdPw = styled.div`
-  color: #cccccc;
+  color: ${GRAY_COLOR};
   font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
+
 const SubBox = styled.div`
-  width: 300px;
-  margin: 25px auto;
+  width: 350px;
+  margin-top: 38px;
   display: flex;
   justify-content: space-evenly;
 `;
+
 const LineBox = styled.div`
   display: flex;
   padding: 40px 50px;
-  color: #cccccc;
+  padding-top: 30px;
+  color: ${GRAY_COLOR};
 `;
+
 const LineOR = styled.span`
   margin: 0px 10px;
 `;
+
 const Line = styled.hr`
-  border: 1px solid #cccccc;
+  margin-top: 15px;
+  border: 1px solid #eee;
   width: ${(props) => props.width};
   margin-bottom: ${(props) => props.marginBottom};
 `;
 
 const Title = styled.div`
   font-weight: 800;
-  font-size: 16px;
+  font-size: 18px;
+  color: ${PRIMARY_COLOR};
   margin-right: 10px;
   margin-left: ${(props) => props.margin};
 `;
 
 const SubTitle = styled.p`
-  margin-left: 30px;
-  padding-top: 7px;
-  font-size: 10px;
-  vertical-align: bottom;
+  font-size: 14px;
+  margin-left: 10px;
+  padding-bottom: 2px;
   color: #9a9a9a;
 `;
 
 const SignUpHead = styled.div`
+  margin-top: 10px;
   display: flex;
-  margin-bottom: 15px;
+  align-items: center;
 `;
 
-const Form = styled.form``;
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+`;
 
 const ButtonBox = styled.div`
-  margin-top: 30px;
+  margin-top: 10px;
   display: flex;
   justify-content: center;
 `;

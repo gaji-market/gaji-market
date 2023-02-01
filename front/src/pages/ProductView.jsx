@@ -1,7 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  useLocation,
+} from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
-import { useGetSellAllQuery } from 'services/productApi';
+
+import { useGetBuyAllQuery, useGetSellAllQuery } from 'services/productApi';
 
 import styled from 'styled-components';
 
@@ -16,90 +22,185 @@ import { Error } from './index';
 import { LOADING_CARD_COUNT, TITLE, SUB_TITLE } from 'constants/productView';
 import { SELL, BUY } from 'constants/params';
 
-const IMG_PREFIX_URL = 'https://gajimarket.s3.ap-northeast-2.amazonaws.com/';
+// 백엔드에서 받아오는 key값 이름
+const itemsKeyName = Object.freeze({
+  pal: 'sellInfos',
+  sal: 'buyInfos',
+});
+
+const getItemsQuery = {
+  recordCount: 8, // 게시글 불러오기 개수
+  currentPage: 1,
+  sort: 'default',
+};
 
 export default function ProductView() {
-  const { type } = useParams();
+  const { type: param } = useParams();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   const navigate = useNavigate();
 
-  const [currentPage, setCurrentPage] = useState('');
-  const [cards, setCards] = useState([]);
+  const [currentPageParam, setCurrentPageParam] = useState('');
+
+  const [saleCards, setSaleCards] = useState([]);
+  const [purchaseCards, setPurchaseCards] = useState([]);
+
   const [showSkeletonCard, setShowSkeletonCard] = useState(false);
+  const [skeletonCardCount, setSkeletonCardCount] =
+    useState(LOADING_CARD_COUNT);
 
   const modalRef = useRef(null);
-
-  useEffect(() => {
-    if (type === BUY) {
-      setCurrentPage(BUY);
-    }
-    if (type === SELL) {
-      setCurrentPage(SELL);
-    }
-  }, [type]);
+  const lastPage = useRef(null);
 
   const [cardRef, inView] = useInView();
-  const [pageQueryParams, setPageQueryParams] = useState({
-    recordCount: 8, // 게시글 몇 개 보여줄지
-    currentPage: 1,
-    sort: 'default',
+
+  const [pageQueryForSale, setPageQueryForSale] = useState({
+    ...getItemsQuery,
   });
+  const sellAllOption = { skip: param !== SELL };
+  const getSellAll = useGetSellAllQuery(pageQueryForSale, sellAllOption);
 
-  const { data: products, isLoading, isSuccess, isError } = useGetSellAllQuery(pageQueryParams);
+  const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
+    ...getItemsQuery,
+  });
+  const buyAllOption = { skip: param !== BUY };
+  const getBuyAll = useGetBuyAllQuery(pageQueryForPurchase, buyAllOption);
 
-  let lastPage = useRef(0);
-  if (products) {
-    lastPage.current = products.schPage.totalPageCount;
-    // TODO : 백엔드한테 마지막 페이지가 totalPageCount가 맞는지 물어보기
-  }
+  const [products, setProducts] = useState(null);
+  const [currentParamItems, setCurrentParamItems] = useState();
 
-  const getCards = useCallback(() => {
-    setPageQueryParams((prev) => ({
+  const getAllProducts = {
+    pal: getSellAll,
+    sal: getBuyAll,
+  };
+
+  const setQuery = {
+    pal: setPageQueryForSale,
+    sal: setPageQueryForPurchase,
+  };
+
+  const pageQuery = {
+    pal: pageQueryForSale,
+    sal: pageQueryForPurchase,
+  };
+
+  const cards = {
+    pal: saleCards,
+    sal: purchaseCards,
+  };
+
+  const setCard = {
+    pal: setSaleCards,
+    sal: setPurchaseCards,
+  };
+
+  const getCards = () => {
+    setQuery[param]((prev) => ({
       ...prev,
       currentPage: prev.currentPage + 1,
     }));
-
-    setTimeout(() => {
-      setShowSkeletonCard(false);
-    }, 500);
-  }, [pageQueryParams.currentPage]);
-
-  useEffect(() => {
-    if (products && isSuccess) {
-      const { sellInfos } = products;
-
-      sellInfos.forEach((product) => {
-        setCards((prev) => [...prev, product]);
-      });
-
-      setCards((prev) => [...new Set(prev)]);
-    }
-  }, [products]);
-
-  console.log(products);
-
-  useEffect(() => {
-    if (isLoading) {
-      return setShowSkeletonCard(true);
-    }
-
-    if (lastPage.current > pageQueryParams.currentPage && inView && !isLoading) {
-      getCards();
-    }
-  }, [inView, isLoading]);
-
-  const moveProductDetail = (prodNo) => (e) => {
-    const className = e.target.className;
-    if (className.includes('empty-heart') || className.includes('fill-heart')) return;
-
-    navigate(`/products/${type}/detail/${prodNo}`);
   };
 
-  if (isError) {
+  useEffect(() => {
+    setCurrentPageParam(param);
+
+    if (getAllProducts[param]?.isSuccess) {
+      setCurrentParamItems((prev) => ({
+        ...prev,
+        pal: {
+          data: getSellAll?.data,
+          infos: getSellAll?.data?.sellInfos,
+          isSuccess: getSellAll?.isSuccess,
+        },
+        sal: {
+          data: getBuyAll?.data,
+          infos: getBuyAll?.data?.buyInfos,
+          isSuccess: getBuyAll?.isSuccess,
+        },
+      }));
+    }
+  }, [param, getSellAll.isSuccess, getBuyAll.isSuccess]);
+
+  useEffect(() => {
+    const salOrPal = param;
+    if (
+      currentParamItems?.[salOrPal]?.data &&
+      currentParamItems?.[salOrPal]?.isSuccess
+    ) {
+      setProducts(currentParamItems[salOrPal]?.infos);
+    }
+  }, [param, currentParamItems]);
+
+  if (products) {
+    lastPage.current = getAllProducts[param].data?.schPage.totalPageCount;
+  }
+
+  useEffect(() => {
+    if (products && getAllProducts?.[param]?.isSuccess) {
+      const productsOfParam =
+        getAllProducts?.[param]?.data?.[itemsKeyName[param]];
+
+      const cardCount =
+        getAllProducts?.[param]?.data?.schPage?.totalRecordCount %
+        LOADING_CARD_COUNT;
+
+      if (cardCount) {
+        setSkeletonCardCount(LOADING_CARD_COUNT - cardCount);
+      }
+
+      productsOfParam.forEach((product) => {
+        setCard[param]((prev) => [...prev, product]);
+      });
+
+      setCard[param]((prev) => {
+        return [...new Set(prev.map((prodNo) => JSON.stringify(prodNo)))].map(
+          JSON.parse,
+        );
+      });
+    }
+  }, [products, param]);
+
+  useEffect(() => {
+    if (searchParams.get('category')) {
+      setQuery[param]((prev) => ({
+        ...prev,
+        cateCode: searchParams.get('category'),
+      }));
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (getAllProducts?.[param]?.isFetching) {
+      return setShowSkeletonCard(true);
+    } else {
+      setTimeout(() => {
+        return setShowSkeletonCard(false);
+      }, 500);
+    }
+  }, [getAllProducts]);
+
+  useEffect(() => {
+    if (getAllProducts[param]?.isFetching) return;
+
+    if (inView && lastPage.current >= pageQuery[param].currentPage) {
+      getCards();
+    }
+  }, [inView, getCards, param]);
+
+  const moveProductDetail = (prodNo) => (e) => {
+    const tagName = e.target.tagName;
+    const interestIconTag = ['path', 'svg'];
+
+    if (interestIconTag.includes(tagName)) return;
+    navigate(`/products/${param}/detail/${prodNo}`);
+  };
+
+  if (getAllProducts?.[param]?.isError) {
     return <Error />;
   }
 
-  if (isLoading) {
+  if (getAllProducts?.[param]?.isLoading) {
     return <Loading />;
   }
 
@@ -110,38 +211,58 @@ export default function ProductView() {
         text='등록하기 페이지로 이동할까요?'
         leftBtnText='네! 좋아요.'
         rightBtnText='아니요, 괜찮아요!'
+        confirmHandler={() => {
+          navigate(`/write/${param}`);
+        }}
       />
 
       <Container>
         <Header>
-          <Title>{currentPage === BUY ? TITLE.sal : TITLE.pal}</Title>
-          <SubText>{currentPage === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}</SubText>
+          <Title>{currentPageParam === BUY ? TITLE.sal : TITLE.pal}</Title>
+          <SubText>
+            {currentPageParam === BUY ? SUB_TITLE.sal : SUB_TITLE.pal}
+          </SubText>
         </Header>
         <CardContainer>
-          {cards.length > 0 &&
-            cards.map((product) => {
-              const { address, dbFileName, interestCnt, prodName, prodNo, prodPrice, tradState } =
-                product;
+          {cards[param].length > 0 &&
+            cards[param].map((product) => {
+              const {
+                address,
+                dbFileName,
+                interestCnt,
+                interestYN,
+                prodName,
+                prodNo,
+                prodPrice,
+                tradState,
+              } = product;
               return (
                 <Card
                   key={prodNo}
-                  productImage={dbFileName ? `${IMG_PREFIX_URL}${dbFileName}` : null}
+                  productImage={
+                    dbFileName
+                      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
+                      : null
+                  }
                   title={prodName}
                   price={prodPrice.toLocaleString()}
+                  prodNo={prodNo}
                   area={address}
                   likes={interestCnt.toLocaleString()}
+                  isInterest={interestYN}
                   state={tradState}
                   onClick={moveProductDetail(prodNo)}
                 />
               );
             })}
+
           {showSkeletonCard &&
-            Array(LOADING_CARD_COUNT)
+            Array(skeletonCardCount)
               .fill()
               .map((_, idx) => {
                 return <SkeletonCard key={`SkeletonCard ${idx}`} />;
               })}
-          <div className='cardRef' ref={cardRef}></div>
+          <div className='card-ref' ref={cardRef}></div>
         </CardContainer>
         <AddButtonContainer>
           <PlusButton onClick={() => modalRef.current?.showModal()} />
@@ -180,16 +301,17 @@ const SubText = styled.p`
 const CardContainer = styled.div`
   width: 1024px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   margin: 0 auto;
   position: relative;
 
-  .cardRef {
+  .card-ref {
     width: 250px;
     height: 250px;
     position: absolute;
     bottom: 0;
     right: 0;
+    z-index: -5;
   }
 `;
 

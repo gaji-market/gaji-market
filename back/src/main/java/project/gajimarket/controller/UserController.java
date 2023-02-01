@@ -22,7 +22,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","http://gajimarket.shop/"})
 public class UserController {
 
     private final UserService userService;
@@ -84,6 +84,8 @@ public class UserController {
             if (selectUser != null) {
                 // 토큰 생성
                 param.put("userNo", selectUser.getUserNo());
+                param.remove("userId");
+                param.remove("userPwd");
                 token = JWTUtil.createAccessToken(param);
                 System.out.println("UserController signIn token : " + token);
                 if (token != null && !"".equals(token)) {
@@ -107,6 +109,11 @@ public class UserController {
     public Map<String, Object> myPage(HttpServletRequest request) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = null;
+
+        SearchPagination schPage = new SearchPagination();
+        schPage.setLimitPage(0);
+        schPage.setRecordCount(4);
+
         String result = "fail";
 
         try {
@@ -116,40 +123,41 @@ public class UserController {
             // 토큰 복호화
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
-                if (param != null) {
-                    UserDTO selectUser = userService.selectUser(param);
-                    System.out.println("UserController myPage userDto : " + selectUser);
-                    if (selectUser != null) {
-                        result = "success";
-                        resultMap.put("userInfo", selectUser);
-                    }
+                UserDTO selectUser = userService.selectUser(param);
+                System.out.println("UserController myPage userDto : " + selectUser);
+                if (selectUser != null) {
+                    result = "success";
+                    resultMap.put("userInfo", selectUser);
                 }
             }
 
-            System.out.println(param);
             if (param != null) {
+                param.put("schPage", schPage);
+                System.out.println(param);
                 // 좋아요 상품
-                List<Map<String, Object>> interestProdList = userService.selectUserInterestProd(param);
+                List<Map<String, Object>> interestProdList = userService.selectUserInterestProdList(param);
                 System.out.println("UserController myPage interestProdList : " + interestProdList);
                 if (interestProdList != null) {
                     resultMap.put("interestProdList", interestProdList);
+                    resultMap.put("interestProdListCnt", userService.selectUserInterestProdCnt(param));
                 }
 
                 // 판매
-                List<Map<String, Object>> sellProdList = userService.selectUserSellProd(param);
+                List<Map<String, Object>> sellProdList = userService.selectUserSellProdList(param);
                 System.out.println("UserController myPage sellProdList : " + sellProdList);
                 if (sellProdList != null) {
                     resultMap.put("sellProdList", sellProdList);
+                    resultMap.put("sellProdListCnt", userService.selectUserSellProdCnt(param));
                 }
 
                 // 구매
-                List<Map<String, Object>> buyProdList = userService.selectUserBuyProd(param);
+                List<Map<String, Object>> buyProdList = userService.selectUserBuyProdList(param);
                 System.out.println("UserController myPage buyProdList : " + buyProdList);
                 if (buyProdList != null) {
                     resultMap.put("buyProdList", buyProdList);
+                    resultMap.put("buyProdListCnt", userService.selectUserBuyProdCnt(param));
                 }
             }
-
 
             resultMap.put("result", result);
         } catch (Exception e) {
@@ -158,9 +166,84 @@ public class UserController {
         return resultMap;
     }
 
+    // 좋아요 상품
+    @PostMapping(value = "/interestProdList")
+    public Map<String, Object> interestProdList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+        System.out.println(searchPagination);
+        try {
+            String headerToken = JWTUtil.getHeaderToken(request);
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtil.getTokenInfo(headerToken);
+                if (param != null) {
+                    searchPagination.setTotalRecordCount(userService.selectUserInterestProdCnt(param));
+                    param.put("schPage", searchPagination);
+                    List<Map<String, Object>> interestProdList = userService.selectUserInterestProdList(param);
+                    result.put("shcPage", searchPagination);
+                    result.put("interestProdList", interestProdList);
+                }
+            }
+        } catch (Exception e){
+            System.out.println("UserController interestProdList : " + e);
+        }
+
+        return result;
+    }
+
+    // 판매 상품
+    @PostMapping(value="/sellProdList")
+    public Map<String, Object> sellProdList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+        System.out.println(searchPagination);
+        try {
+            String headerToken = JWTUtil.getHeaderToken(request);
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtil.getTokenInfo(headerToken);
+                if (param != null) {
+                    searchPagination.setTotalRecordCount(userService.selectUserSellProdCnt(param));
+                    param.put("schPage", searchPagination);
+                    List<Map<String, Object>> sellProdList = userService.selectUserSellProdList(param);
+                    result.put("shcPage", searchPagination);
+                    result.put("sellProdList", sellProdList);
+                }
+            }
+        } catch (Exception e){
+            System.out.println("UserController sellProdList : " + e);
+        }
+
+        return result;
+    }
+
+    // 구매 상품
+    @PostMapping(value="/buyProdList")
+    public Map<String, Object> buyProdList(@RequestBody SearchPagination searchPagination, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+        System.out.println(searchPagination);
+        try {
+            String headerToken = JWTUtil.getHeaderToken(request);
+            if (headerToken != null && !"".equals(headerToken)) {
+                param = JWTUtil.getTokenInfo(headerToken);
+                if (param != null) {
+                    searchPagination.setTotalRecordCount(userService.selectUserBuyProdCnt(param));
+                    param.put("schPage", searchPagination);
+                    List<Map<String, Object>> buyProdList = userService.selectUserBuyProdList(param);
+                    result.put("shcPage", searchPagination);
+                    result.put("buyProdList", buyProdList);
+                }
+            }
+        } catch (Exception e){
+            System.out.println("UserController sellProdList : " + e);
+        }
+
+        return result;
+    }
+
     // 내정보 수정
     @PostMapping(value = "/userUpdate", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public Map<String, Object> userUpdate(@RequestPart(value = "dto") UserDTO userDto, @RequestPart(value = "multipartFile") MultipartFile multipartFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Map<String, Object> userUpdate(@RequestPart(value = "dto") UserDTO userDto, @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         String token = "";

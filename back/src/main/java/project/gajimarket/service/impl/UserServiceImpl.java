@@ -43,18 +43,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Map<String, Object>> selectUserInterestProd(Map<String, Object> param){
+    public List<Map<String, Object>> selectUserInterestProdList(Map<String, Object> param){
         return userDao.selectUserInterestProd(param);
     }
-
     @Override
-    public List<Map<String, Object>> selectUserSellProd(Map<String, Object> param) {
-        return userDao.selectUserSellProd(param);
+    public int selectUserInterestProdCnt(Map<String, Object> param) {
+        return userDao.selectUserInterestProdCnt(param);
     }
 
     @Override
-    public List<Map<String, Object>> selectUserBuyProd(Map<String, Object> param) {
+    public List<Map<String, Object>> selectUserSellProdList(Map<String, Object> param) {
+        return userDao.selectUserSellProd(param);
+    }
+    @Override
+    public int selectUserSellProdCnt(Map<String, Object> param) {
+        return userDao.selectUserSellProdCnt(param);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectUserBuyProdList(Map<String, Object> param) {
         return userDao.selectUserBuyProd(param);
+    }
+    @Override
+    public int selectUserBuyProdCnt(Map<String, Object> param) {
+        return userDao.selectUserBuyProdCnt(param);
     }
 
     @Override
@@ -82,10 +94,8 @@ public class UserServiceImpl implements UserService {
 
                 System.out.println("UserServiceImpl uploadFile : " + uploadFile);
                 int fileSaveResult = fileDAO.userFileSave(paramMap);
-                if (fileSaveResult > 0) {
-                    result = userDao.updateUser(userDto);
-                }
             }
+            result = userDao.updateUser(userDto);
 
         } catch (IOException e) {
             System.out.println("UserServiceImpl updateUser : " + e);
