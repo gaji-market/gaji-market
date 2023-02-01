@@ -166,7 +166,6 @@ const ButtonWrapper = styled.div`
 const DividingLine = styled.div`
   width: 100%;
   border-bottom: 1px solid #eee;
-  box-shadow: 0 10px 15px #d3d3d32e;
-  padding-top: 10px;
+  padding-top: 15px;
   margin-bottom: 35px;
 `;

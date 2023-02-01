@@ -1,8 +1,7 @@
 import styled from 'styled-components';
-import PlusButton from 'components/common/PlusButton';
 import Card from '../common/Card';
 import { useNavigate } from 'react-router-dom';
-import { PRIMARY_COLOR } from '../common/commonColor';
+import { GRAY_COLOR } from '../common/commonColor';
 import useToast from 'hooks/toast';
 
 export default function MyPageCard({ title, cardList, totalCount, detail }) {
@@ -94,19 +93,23 @@ const ProductHead = styled.div`
 
 const ProductCard = styled.div`
   display: flex;
+  margin-bottom: 25px;
 `;
 
-const NoProduct = styled.div`
+const NoProduct = styled.span`
+  width: 100%;
   margin: 40px 0px;
-  font-weight: 700;
-  font-size: 30px;
-  color: ${PRIMARY_COLOR};
+  font-weight: 500;
+  font-size: 18px;
+  text-align: center;
+  color: ${GRAY_COLOR};
 `;
 
 const ProductHeadTitle = styled.div`
   margin-top: 20px;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 700;
+  padding-left: 7px;
 `;
 
 const ProductHeadSubtext = styled.div`
@@ -121,5 +124,4 @@ const ProductHeadSubtext = styled.div`
 
 const ProductSection = styled.div`
   display: flex;
-  justify-content: center;
 `;
