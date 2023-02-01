@@ -151,11 +151,11 @@ export default function AppBar() {
               defaultValue={type === 'pal'}
               on={{
                 name: '팔래요',
-                handler: () => navigate(`products/pal${search}`),
+                handler: () => navigate('products/pal'),
               }}
               off={{
                 name: '살래요',
-                handler: () => navigate(`products/sal${search}`),
+                handler: () => navigate('products/sal'),
               }}
             />
           )}

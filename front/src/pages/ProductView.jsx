@@ -28,17 +28,11 @@ const itemsKeyName = Object.freeze({
   sal: 'buyInfos',
 });
 
-const getItemsQuery = {
-  recordCount: 8, // 게시글 불러오기 개수
-  currentPage: 1,
-  sort: 'default',
-};
-
 export default function ProductView() {
   const { type: param } = useParams();
   const [searchParams] = useSearchParams();
-  const location = useLocation();
 
+  const location = useLocation();
   const navigate = useNavigate();
 
   const [currentPageParam, setCurrentPageParam] = useState('');
@@ -55,15 +49,18 @@ export default function ProductView() {
 
   const [cardRef, inView] = useInView();
 
-  const [pageQueryForSale, setPageQueryForSale] = useState({
-    ...getItemsQuery,
+  const [getItemsPayload, setGetItemsPayload] = useState({
+    recordCount: 8, // 게시글 불러오기 개수
+    currentPage: 1,
+    sort: 'default',
   });
+
+  const [pageQueryForSale, setPageQueryForSale] = useState(getItemsPayload);
   const sellAllOption = { skip: param !== SELL };
   const getSellAll = useGetSellAllQuery(pageQueryForSale, sellAllOption);
 
-  const [pageQueryForPurchase, setPageQueryForPurchase] = useState({
-    ...getItemsQuery,
-  });
+  const [pageQueryForPurchase, setPageQueryForPurchase] =
+    useState(getItemsPayload);
   const buyAllOption = { skip: param !== BUY };
   const getBuyAll = useGetBuyAllQuery(pageQueryForPurchase, buyAllOption);
 
@@ -155,16 +152,19 @@ export default function ProductView() {
 
       setCard[param]((prev) => {
         return [...new Set(prev.map((prodNo) => JSON.stringify(prodNo)))].map(
-          JSON.parse,
+          JSON.parse
         );
       });
     }
   }, [products, param]);
 
   useEffect(() => {
-    if (searchParams.get('category')) {
+    if (searchParams?.get('category')) {
+      setCard[param](() => []);
+
       setQuery[param]((prev) => ({
         ...prev,
+        currentPage: 1,
         cateCode: searchParams.get('category'),
       }));
     }
