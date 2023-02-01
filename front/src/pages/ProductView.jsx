@@ -159,15 +159,27 @@ export default function ProductView() {
   }, [products, param]);
 
   useEffect(() => {
-    if (searchParams?.get('category')) {
-      setCard[param](() => []);
+    return () => {
+      setQuery[param]((prev) => ({
+        ...prev,
+        currentPage: 1,
+        cateCode: '',
+      }));
+    };
+  }, [param]);
 
+  useEffect(() => {
+    if (searchParams?.get('category')) {
       setQuery[param]((prev) => ({
         ...prev,
         currentPage: 1,
         cateCode: searchParams.get('category'),
       }));
     }
+
+    return () => {
+      setCard[param](() => []);
+    };
   }, [location]);
 
   useEffect(() => {
