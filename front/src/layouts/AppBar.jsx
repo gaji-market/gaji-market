@@ -598,10 +598,9 @@ const UserIdDropdown = styled.div`
   position: fixed;
   width: 160px;
   top: 53px;
-  right: 4px;
-  border: 3px solid ${PRIMARY_COLOR};
+  right: 2%;
+  border: 1px solid ${GRAY_COLOR};
   background-color: white;
-  box-shadow: 3px 3px 30px ${GRAY_COLOR};
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -617,6 +616,7 @@ const DropdownItem = styled.li`
 
   &:hover {
     cursor: pointer;
-    background-color: ${PRIMARY_VAR_COLOR};
+    background-color: #eeeeee70;
+    font-weight: 700;
   }
 `;
