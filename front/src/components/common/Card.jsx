@@ -6,6 +6,7 @@ import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import { useChangeInterestCountMutation } from 'services/productApi';
 
 import StateBadge from './StateBadge';
+import { WHITE_COLOR } from './commonColor';
 
 const PRODUCT_STATE = {
   0: '판매중',
@@ -96,7 +97,7 @@ export default function Card({
 const CardContainer = styled.div`
   width: 240px;
   height: 320px;
-  border: 1px solid #faf3ff;
+  border: 1px solid #ddd;
   border-radius: 10px;
   background: #f4eeff;
   overflow: hidden;
@@ -117,7 +118,7 @@ const CardHead = styled.div`
     overflow: hidden;
     width: 240px;
     height: 220px;
-    background: #e9dcff;
+    background: #f4eeff;
     display: flex;
     flex-wrap: wrap;
     align-content: space-around;
@@ -140,6 +141,7 @@ const CardTitle = styled.h2`
 const CardBody = styled.div`
   padding: 15px;
   position: relative;
+  background: ${WHITE_COLOR};
 `;
 
 const CardContent = styled.div`
@@ -147,8 +149,8 @@ const CardContent = styled.div`
 `;
 
 const PriceText = styled.h3`
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 900;
   padding-top: 2px;
 `;
 
