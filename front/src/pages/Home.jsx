@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { useGetSellAllQuery } from 'services/productApi';
+import { useGetSellAllQuery, useGetBuyAllQuery } from 'services/productApi';
 
 import Card from 'components/common/Card';
 import Button from 'components/common/Button';
@@ -12,31 +12,16 @@ import { GRAY_COLOR } from 'components/common/commonColor';
 import mainImg from 'assets/gaji-market_home.png';
 
 export default function Home() {
-  const { type } = useParams();
   const navigate = useNavigate();
 
-  const { data: products, isSuccess } = useGetSellAllQuery({
+  const payload = {
     recordCount: 8,
     currentPage: 1,
-    sort: 'default',
-  });
+    sort: 'interestHigh',
+  };
 
-  const [cards, setCards] = useState([]);
-
-  useEffect(() => {
-    if (products && isSuccess) {
-      const { sellInfos } = products;
-
-      sellInfos.forEach((product) => {
-        setCards((prev) => [...prev, product]);
-      });
-
-      setCards((prev) => [...new Set(prev)]);
-      setCards((prev) => {
-        return [...new Set(prev.map(JSON.stringify))].map(JSON.parse);
-      });
-    }
-  }, [products]);
+  const { data: sellProducts } = useGetSellAllQuery(payload);
+  const { data: buyProducts } = useGetBuyAllQuery(payload);
 
   const moveProductDetail = (prodNo) => (e) => {
     const className = e.target.className;
@@ -77,40 +62,48 @@ export default function Home() {
         </Intro>
         <Divider />
         <Header>
-          <Title>오늘의 상품 추천</Title>
-          <SubText>
-            동네 주민들과 가깝고 따뜻한 거래를 지금 경험해보세요.
-          </SubText>
+          <Title>팔래요</Title>
+          <SubText>오늘의 인기 상품을 추천합니다!</SubText>
         </Header>
         <CardContainer>
-          {cards.length > 0 &&
-            cards.map((product) => {
-              const {
-                address,
-                dbFileName,
-                interestCnt,
-                prodName,
-                prodNo,
-                prodPrice,
-                tradState,
-              } = product;
-              return (
-                <Card
-                  key={prodNo}
-                  productImage={
-                    dbFileName
-                      ? `${process.env.REACT_APP_IMG_PREFIX_URL}${dbFileName}`
-                      : null
-                  }
-                  title={prodName}
-                  price={prodPrice.toLocaleString()}
-                  area={address}
-                  likes={interestCnt.toLocaleString()}
-                  state={tradState}
-                  onClick={moveProductDetail(prodNo)}
-                />
-              );
-            })}
+          {sellProducts?.sellInfos?.map((product) => (
+            <Card
+              key={product.prodNo}
+              productImage={
+                product.dbFileName
+                  ? `${process.env.REACT_APP_IMG_PREFIX_URL}${product.dbFileName}`
+                  : null
+              }
+              title={product.prodName}
+              price={product.prodPrice.toLocaleString()}
+              area={product.address}
+              likes={product.interestCnt.toLocaleString()}
+              state={product.tradState}
+              onClick={moveProductDetail(product.prodNo)}
+            />
+          ))}
+        </CardContainer>
+        <Header>
+          <Title>살래요</Title>
+          <SubText>오늘의 인기 상품을 추천합니다!</SubText>
+        </Header>
+        <CardContainer>
+          {buyProducts?.buyInfos?.map((product) => (
+            <Card
+              key={product.prodNo}
+              productImage={
+                product.dbFileName
+                  ? `${process.env.REACT_APP_IMG_PREFIX_URL}${product.dbFileName}`
+                  : null
+              }
+              title={product.prodName}
+              price={product.prodPrice.toLocaleString()}
+              area={product.address}
+              likes={product.interestCnt.toLocaleString()}
+              state={product.tradState}
+              onClick={moveProductDetail(product.prodNo)}
+            />
+          ))}
         </CardContainer>
       </Container>
     </>
