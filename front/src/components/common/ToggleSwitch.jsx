@@ -32,10 +32,10 @@ export default function ToggleSwitch({ on, off, defaultValue = true }) {
 }
 
 const Switch = styled.label`
+  height: 32px;
   position: relative;
   display: inline-block;
-  width: 80px;
-  height: 32px;
+  margin-right: 10px;
 
   input[type='checkbox'] {
     opacity: 0;
@@ -59,12 +59,11 @@ const Switch = styled.label`
   }
 `;
 const Slider = styled.span`
-  position: absolute;
+  position: relative;
+  width: 80px;
+  height: 32px;
+  transform: translateY(-16px);
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   background-color: ${SECONDARY_COLOR};
   -webkit-transition: 0.4s;
   transition: 0.4s;
@@ -81,9 +80,10 @@ const Slider = styled.span`
     border-radius: 50%;
     position: absolute;
     content: '';
-    height: 24px;
-    width: 24px;
-    left: 4px;
+    height: 25px;
+    width: 25px;
+    top: 3px;
+    left: 3px;
     bottom: 4px;
     background-color: white;
     -webkit-transition: 0.4s;
