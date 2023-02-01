@@ -54,7 +54,7 @@
         )
         VALUES (
             #{chatNo},
-            #{message},
+            #{msg},
             #{userNo},
             DATE_FORMAT(now(), '%Y-%m-%d'),
             DATE_FORMAT(now(), '%H:%i:%s')

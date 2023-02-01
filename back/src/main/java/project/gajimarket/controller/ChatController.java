@@ -7,10 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.annotation.SendToUser;
+import org.json.simple.parser.JSONParser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.model.ChatRoomDTO;
@@ -56,30 +53,6 @@ public class ChatController {
 
             //insert 성공 시 getChatRoom 호출
             return chatService.addChatRoom(chatRoomDTO);
-        } catch (Exception e) {
-            log.error(e.toString());
-            return CommonUtil.resultMsg(e.toString());
-        }
-    }
-
-    @Operation(summary = "채팅 메시지 저장", description = "채팅 메시지 저장 API")
-    @PostMapping("/addChatMessage/{userNo}")
-    public Map<String, Object> addChatMessage(@RequestBody Map<String, Object> map) {
-        try {
-            System.out.println("addChatMessage");
-            return CommonUtil.resultMsg("ee");
-            //return chatService.addChatMessage(map);
-        } catch (Exception e) {
-            log.error(e.toString());
-            return CommonUtil.resultMsg(e.toString());
-        }
-    }
-
-    public Map<String, Object> chatMessage(String message) {
-        try {
-            System.out.println("addChatMessage :: " + message);
-            return CommonUtil.resultMsg("ee");
-            //return chatService.addChatMessage(map);
         } catch (Exception e) {
             log.error(e.toString());
             return CommonUtil.resultMsg(e.toString());
@@ -167,6 +140,18 @@ public class ChatController {
     //상품정보 공통 처리
     private Map<String, Object> getProduct(int prodNo) {
         return productService.productDetail(prodNo);
+    }
+
+    public String addChatMessage(String payload) throws Exception {
+        System.out.println("addChatMessage :: " + payload);
+
+        JSONParser jsonParser = new JSONParser();
+        Object obj = jsonParser.parse(payload);
+
+        Map<String, Object> map = (Map<String, Object>) obj;
+        chatService.addChatMessage(map);
+
+        return map.get("msg").toString();
     }
 
     @Operation(summary = "개인 테스트 용도")
