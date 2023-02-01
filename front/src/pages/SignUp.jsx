@@ -26,6 +26,7 @@ import {
   usePostUserSignFormMutation,
   usePostUserCheckIdMutation,
 } from 'services/signUpApi';
+import PrevButton from 'components/common/PrevButton';
 
 const DaumURL =
   'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
@@ -163,169 +164,172 @@ export default function SignUp() {
   }, []);
 
   return (
-    <Container>
-      <SignUpHead>
-        <Title>회원가입</Title>
-        <SubTitle>가지마켓에 오신 것을 환영합니다! </SubTitle>
-      </SignUpHead>
-      <Line />
-      <Form onChange={(e) => changeHandler(e)}>
-        <InputTitle
-          title='아이디'
-          signUpSubTitle={'(한글제외) 6글자 이상 12글자 이하 이여야 합니다'}
-          isVaild={isIdVaild}
-          isRequired
-        />
-        {isIdVaild && signUpForm.id.length > 1 && (
-          <>
-            <CkeckIdButton onClick={(e) => checkId(e)}>
-              아이디 중복 검사
-            </CkeckIdButton>
-            {isTextAppear &&
-              (isPossibleId ? (
-                <IdTextMessage color={PRIMARY_COLOR}>
-                  등록 가능한 아이디 입니다.
-                </IdTextMessage>
-              ) : (
-                <IdTextMessage color={'#E8828D'}>
-                  이미 등록된 아이디 입니다.
-                </IdTextMessage>
-              ))}
-          </>
-        )}
-        <InputTextBox
-          inputRef={inputRef}
-          id={'id'}
-          value={signUpForm.id}
-          width={'400px'}
-          containerBottom={'20px'}
-          placeholder={'아이디를 입력하세요'}
-          type={'text'}
-        />
-
-        <InputTitle
-          title={'비밀번호'}
-          signUpSubTitle={
-            '(특수문자 제외) 8글자 이상 이고 영어와 숫자가 포함되어야 합니다'
-          }
-          isVaild={isPasswordVaild}
-          isRequired
-        />
-        <InputTextBox
-          id={'password'}
-          containerBottom={'20px'}
-          value={signUpForm.password}
-          width={'400px'}
-          placeholder={'비밀번호를 입력하세요.'}
-          type={'password'}
-        />
-
-        <InputTitle
-          title={'비밀번호 확인'}
-          signUpSubTitle={'비밀번호와 일치하여야 합니다'}
-          isVaild={isPasswordConfirmVaild}
-          isRequired
-        />
-        <InputTextBox
-          id={'confirmPassword'}
-          containerBottom={'20px'}
-          value={signUpForm.confirmPassword}
-          width={'400px'}
-          placeholder={'비밀번호를 입력하세요.'}
-          type={'password'}
-        />
-
-        <InputTitle title={'이름'} isRequired />
-        <InputTextBox
-          id={'name'}
-          value={signUpForm.name}
-          containerBottom={'20px'}
-          width={'400px'}
-          placeholder={'이름을 입력하세요.'}
-          type={'text'}
-        />
-
-        <InputTitle
-          title={'닉네임'}
-          signUpSubTitle={'4글자 이상이여야 합니다.'}
-          isVaild={isNickNameVaild}
-          isRequired
-        />
-        <InputTextBox
-          id={'nickName'}
-          value={signUpForm.nickName}
-          containerBottom={'20px'}
-          width={'400px'}
-          placeholder={'닉네임을 입력하세요.'}
-          type={'text'}
-        />
-
-        <InputTitle title={'주소'} isVaild={isNickNameVaild} isRequired />
-        <InputTextBox
-          id={'address'}
-          value={signUpForm.address}
-          width={'400px'}
-          containerBottom={'20px'}
-          padding={'10px'}
-          placeholder={'주소를 입력하세요.'}
-          type={'text'}
-          isReadOnly={true}
-          clickHandler={() => open({ onComplete: handleComplete })}
-        />
-
-        <FlexBox>
-          <FlexItem>
-            <Asterisk>*</Asterisk>
-            <Text margin={'50px'}>생년월일</Text>
-            <Date
-              defaultValue={signUpForm.birthday}
-              data-placeholder='생년월일 선택'
-              type='date'
-              id='birthday'
-              name='calender'
-              max={today}
-              required
-            ></Date>
-          </FlexItem>
-
-          <FlexItem className='gender-checker' margin={'50px'}>
-            <Asterisk>*</Asterisk>
-            <Text margin={'10px'}>성별</Text>
-            <HiddenRadioButton
-              id='man'
-              type='radio'
-              name='gender'
-              value={'0'}
-            />
-            <RadioButton htmlFor='man' type={'man'}>
-              <MaleIcon />
-            </RadioButton>
-
-            <HiddenRadioButton
-              id='woman'
-              type='radio'
-              name='gender'
-              value={'1'}
-            />
-            <RadioButton htmlFor='woman' type={'woman'}>
-              <FemaleIcon />
-            </RadioButton>
-          </FlexItem>
-        </FlexBox>
-        <ButtonBox>
-          {isFormValid ? (
-            <Button size='lg' type='submit' onClick={(e) => submitHandler(e)}>
-              회원가입
-            </Button>
-          ) : (
-            <Button size='lg' type='submit' isDisabled={!isFormValid}>
-              회원가입
-            </Button>
+    <>
+      <PrevButton />
+      <Container>
+        <SignUpHead>
+          <Title>회원가입</Title>
+          <SubTitle>가지마켓에 오신 것을 환영합니다! </SubTitle>
+        </SignUpHead>
+        <Line />
+        <Form onChange={(e) => changeHandler(e)}>
+          <InputTitle
+            title='아이디'
+            signUpSubTitle={'(한글제외) 6글자 이상 12글자 이하 이여야 합니다'}
+            isVaild={isIdVaild}
+            isRequired
+          />
+          {isIdVaild && signUpForm.id.length > 1 && (
+            <>
+              <CkeckIdButton onClick={(e) => checkId(e)}>
+                아이디 중복 검사
+              </CkeckIdButton>
+              {isTextAppear &&
+                (isPossibleId ? (
+                  <IdTextMessage color={PRIMARY_COLOR}>
+                    등록 가능한 아이디 입니다.
+                  </IdTextMessage>
+                ) : (
+                  <IdTextMessage color={'#E8828D'}>
+                    이미 등록된 아이디 입니다.
+                  </IdTextMessage>
+                ))}
+            </>
           )}
-        </ButtonBox>
-      </Form>
-      <DecoFooter />
-    </Container>
+          <InputTextBox
+            inputRef={inputRef}
+            id={'id'}
+            value={signUpForm.id}
+            width={'400px'}
+            containerBottom={'20px'}
+            placeholder={'아이디를 입력하세요'}
+            type={'text'}
+          />
+
+          <InputTitle
+            title={'비밀번호'}
+            signUpSubTitle={
+              '(특수문자 제외) 8글자 이상 이고 영어와 숫자가 포함되어야 합니다'
+            }
+            isVaild={isPasswordVaild}
+            isRequired
+          />
+          <InputTextBox
+            id={'password'}
+            containerBottom={'20px'}
+            value={signUpForm.password}
+            width={'400px'}
+            placeholder={'비밀번호를 입력하세요.'}
+            type={'password'}
+          />
+
+          <InputTitle
+            title={'비밀번호 확인'}
+            signUpSubTitle={'비밀번호와 일치하여야 합니다'}
+            isVaild={isPasswordConfirmVaild}
+            isRequired
+          />
+          <InputTextBox
+            id={'confirmPassword'}
+            containerBottom={'20px'}
+            value={signUpForm.confirmPassword}
+            width={'400px'}
+            placeholder={'비밀번호를 입력하세요.'}
+            type={'password'}
+          />
+
+          <InputTitle title={'이름'} isRequired />
+          <InputTextBox
+            id={'name'}
+            value={signUpForm.name}
+            containerBottom={'20px'}
+            width={'400px'}
+            placeholder={'이름을 입력하세요.'}
+            type={'text'}
+          />
+
+          <InputTitle
+            title={'닉네임'}
+            signUpSubTitle={'4글자 이상이여야 합니다.'}
+            isVaild={isNickNameVaild}
+            isRequired
+          />
+          <InputTextBox
+            id={'nickName'}
+            value={signUpForm.nickName}
+            containerBottom={'20px'}
+            width={'400px'}
+            placeholder={'닉네임을 입력하세요.'}
+            type={'text'}
+          />
+
+          <InputTitle title={'주소'} isVaild={isNickNameVaild} isRequired />
+          <InputTextBox
+            id={'address'}
+            value={signUpForm.address}
+            width={'400px'}
+            containerBottom={'20px'}
+            padding={'10px'}
+            placeholder={'주소를 입력하세요.'}
+            type={'text'}
+            isReadOnly={true}
+            clickHandler={() => open({ onComplete: handleComplete })}
+          />
+
+          <FlexBox>
+            <FlexItem>
+              <Asterisk>*</Asterisk>
+              <Text margin={'50px'}>생년월일</Text>
+              <Date
+                defaultValue={signUpForm.birthday}
+                data-placeholder='생년월일 선택'
+                type='date'
+                id='birthday'
+                name='calender'
+                max={today}
+                required
+              ></Date>
+            </FlexItem>
+
+            <FlexItem className='gender-checker' margin={'50px'}>
+              <Asterisk>*</Asterisk>
+              <Text margin={'10px'}>성별</Text>
+              <HiddenRadioButton
+                id='man'
+                type='radio'
+                name='gender'
+                value={'0'}
+              />
+              <RadioButton htmlFor='man' type={'man'}>
+                <MaleIcon />
+              </RadioButton>
+
+              <HiddenRadioButton
+                id='woman'
+                type='radio'
+                name='gender'
+                value={'1'}
+              />
+              <RadioButton htmlFor='woman' type={'woman'}>
+                <FemaleIcon />
+              </RadioButton>
+            </FlexItem>
+          </FlexBox>
+          <ButtonBox>
+            {isFormValid ? (
+              <Button size='lg' type='submit' onClick={(e) => submitHandler(e)}>
+                회원가입
+              </Button>
+            ) : (
+              <Button size='lg' type='submit' isDisabled={!isFormValid}>
+                회원가입
+              </Button>
+            )}
+          </ButtonBox>
+        </Form>
+        <DecoFooter />
+      </Container>
+    </>
   );
 }
 

@@ -19,9 +19,10 @@ import {
   PRIMARY_COLOR,
   WHITE_COLOR,
 } from 'components/common/commonColor';
+import PrevButton from 'components/common/PrevButton';
 
-import KakaoImg from 'assets/KakaoImg.png';
-import NaverImg from 'assets/NaverImg.png';
+// import KakaoImg from 'assets/KakaoImg.png';
+// import NaverImg from 'assets/NaverImg.png';
 
 export default function Login() {
   const inputRef = useRef();
@@ -87,51 +88,53 @@ export default function Login() {
   }, []);
 
   return (
-    <Container>
-      <SignUpHead>
-        <Title>로그인</Title>
-        <SubTitle>가지마켓에 오신 것을 환영합니다! </SubTitle>
-      </SignUpHead>
-      <Line width={'420px'} marginBottom={'45px'} />
-      <Form onChange={(e) => changeHandler(e)}>
-        <InputBox>
-          <InputTitle title={'아이디'} />
-          <InputTextBox
-            inputRef={inputRef}
-            id={'id'}
-            value={signUpForm.id}
-            containerBottom={'25px'}
-            width={'400px'}
-            placeholder={'아이디를 입력하세요'}
-            type={'text'}
-          />
+    <>
+      <PrevButton />
+      <Container>
+        <SignUpHead>
+          <Title>로그인</Title>
+          <SubTitle>가지마켓에 오신 것을 환영합니다! </SubTitle>
+        </SignUpHead>
+        <Line width={'420px'} marginBottom={'45px'} />
+        <Form onChange={(e) => changeHandler(e)}>
+          <InputBox>
+            <InputTitle title={'아이디'} />
+            <InputTextBox
+              inputRef={inputRef}
+              id={'id'}
+              value={signUpForm.id}
+              containerBottom={'25px'}
+              width={'400px'}
+              placeholder={'아이디를 입력하세요'}
+              type={'text'}
+            />
 
-          <InputTitle title={'비밀번호'} />
-          <InputTextBox
-            id={'password'}
-            value={signUpForm.password}
-            containerBottom={'20px'}
-            width={'400px'}
-            placeholder={'비밀번호를 입력하세요.'}
-            type={'password'}
-          />
-        </InputBox>
-        <ButtonBox>
-          <Button
-            type='submit'
-            customSize='400px'
-            onClick={(e) => submitHandler(e)}
-          >
-            로그인
-          </Button>
-        </ButtonBox>
-        <SubBox>
-          <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
-          <NavLink to='/signup' style={{ textDecoration: 'none' }}>
-            <ToSignUp>회원가입</ToSignUp>
-          </NavLink>
-        </SubBox>
-        {/* <LineBox>
+            <InputTitle title={'비밀번호'} />
+            <InputTextBox
+              id={'password'}
+              value={signUpForm.password}
+              containerBottom={'20px'}
+              width={'400px'}
+              placeholder={'비밀번호를 입력하세요.'}
+              type={'password'}
+            />
+          </InputBox>
+          <ButtonBox>
+            <Button
+              type='submit'
+              customSize='400px'
+              onClick={(e) => submitHandler(e)}
+            >
+              로그인
+            </Button>
+          </ButtonBox>
+          <SubBox>
+            <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
+            <NavLink to='/signup' style={{ textDecoration: 'none' }}>
+              <ToSignUp>회원가입</ToSignUp>
+            </NavLink>
+          </SubBox>
+          {/* <LineBox>
           <Line width={'200px'} marginBottom={'20px'} />
           <LineOR>OR</LineOR>
           <Line width={'200px'} marginBottom={'20px'} />
@@ -142,9 +145,10 @@ export default function Login() {
         <SocialLogin onClick={(e) => e.preventDefault()}>
           <Img src={NaverImg}></Img>
         </SocialLogin> */}
-      </Form>
-      <DecoFooter />
-    </Container>
+        </Form>
+        <DecoFooter />
+      </Container>
+    </>
   );
 }
 
