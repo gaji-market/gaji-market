@@ -18,13 +18,13 @@ export default function SideBar() {
 
   // filtering
   const firstCategories = categories.categoryInfos.filter(
-    (cat) => cat.tier === 1,
+    (cat) => cat.tier === 1
   );
   const secondCategories = categories.categoryInfos.filter(
-    (cat) => cat.tier === 2 && cat.cateParent === focusFirst,
+    (cat) => cat.tier === 2 && cat.cateParent === focusFirst
   );
   const thirdCategories = categories.categoryInfos.filter(
-    (cat) => cat.tier === 3 && cat.cateParent === focusSecond,
+    (cat) => cat.tier === 3 && cat.cateParent === focusSecond
   );
 
   const sideBarHandler = () => {
@@ -42,7 +42,11 @@ export default function SideBar() {
       <LeftBar>
         <Header>
           <h2>카테고리</h2>
-          <AiOutlineClose color={PRIMARY_COLOR} onClick={sideBarHandler} />
+          <AiOutlineClose
+            style={{ cursor: 'pointer' }}
+            color={PRIMARY_COLOR}
+            onClick={sideBarHandler}
+          />
         </Header>
         <Body onMouseEnter={() => setFocusThird(null)}>
           <CategoryItemGroup items={firstCategories} setter={setFocusFirst} />
@@ -119,7 +123,6 @@ const CategoryItemGroup = ({
 
 const Wrapper = styled.div`
   position: fixed;
-  top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
@@ -161,7 +164,7 @@ const ExpandedLeftBar = styled.div`
   width: 200px;
   display: flex;
   flex-direction: column;
-  margin-top: 56px;
+  padding-top: 56px;
 `;
 
 const Header = styled.div`
@@ -194,10 +197,12 @@ const CategoryItem = styled.li`
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
+  transition: all 0.2s;
 
   &:hover {
     cursor: pointer;
     background-color: ${PRIMARY_COLOR};
+    font-weight: 700;
     color: white;
   }
 
