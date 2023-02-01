@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Navigate, Route, Routes, Outlet, useLocation } from 'react-router-dom';
+import {
+  Navigate,
+  Route,
+  Routes,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import useToast from 'hooks/toast';
@@ -30,6 +37,7 @@ export default function Router() {
   const splashRef = useRef(null);
   const location = useLocation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { addToast } = useToast();
 
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -59,6 +67,9 @@ export default function Router() {
         toastTitle: '회원 전용 서비스',
         toastMessage: '로그인한 유저만 열람할 수 있습니다.',
       });
+      setTimeout(() => {
+        navigate('/login');
+      }, 100);
     }
   }, [location, isLoggedIn]);
 
@@ -90,7 +101,6 @@ export default function Router() {
           <Route path='/products' element={<Outlet />}>
             <Route index element={<Navigate to='/products/pal' />} />
             <Route path=':type' element={<ProductView />} />
-            <Route path=':type/detail/:id' element={<Navigate to='/login' />} />
           </Route>
 
           <Route path='/search' element={<SearchPage />} />

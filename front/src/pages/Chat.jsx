@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useToast from 'hooks/toast';
 
 import styled, { css } from 'styled-components';
@@ -46,6 +46,7 @@ export default function Chat() {
   const [removeChatMsg] = useLazyRemoveChatMessageQuery();
   const { addToast } = useToast();
 
+  const navigate = useNavigate();
   const { id: prodNo } = useParams();
 
   const ws = useRef(null);
@@ -226,36 +227,42 @@ export default function Chat() {
             <Header>Chat</Header>
           </FlexBox>
           <Body>
-            {chatRoomInfos.map((item, i) => (
-              <ChatItemWrapper
-                key={item.chatNo}
-                className={
-                  target?.id === `${item.userNo}_${item.chatNo}`
-                    ? 'current'
-                    : ''
-                }
-              >
-                <ChatItem onClick={() => getChatRoomHandler(item)}>
-                  <Box padding='8px' fill='true'>
-                    <Username>{item.nickname}</Username>
-                    <LastMsg>{item.lastMessage}</LastMsg>
-                  </Box>
+            {chatRoomInfos.length > 0 ? (
+              chatRoomInfos.map((item, i) => (
+                <ChatItemWrapper
+                  key={item.chatNo}
+                  className={
+                    target?.id === `${item.userNo}_${item.chatNo}`
+                      ? 'current'
+                      : ''
+                  }
+                >
+                  <ChatItem onClick={() => getChatRoomHandler(item)}>
+                    <Box padding='8px' fill='true'>
+                      <Username>{item.nickname}</Username>
+                      <LastMsg>{item.lastMessage}</LastMsg>
+                    </Box>
+                    <Box padding='8px' center='true'>
+                      <span>{item.regDate}</span>
+                    </Box>
+                  </ChatItem>
                   <Box padding='8px' center='true'>
-                    <span>{item.regDate}</span>
+                    <IconButton
+                      onClick={() => [
+                        roomDeleteModalRef.current?.showModal(),
+                        setDeleteRoomTarget(item.chatNo),
+                      ]}
+                    >
+                      <RiDeleteBinLine size={22} color={GRAY_COLOR} />
+                    </IconButton>
                   </Box>
-                </ChatItem>
-                <Box padding='8px' center='true'>
-                  <IconButton
-                    onClick={() => [
-                      roomDeleteModalRef.current?.showModal(),
-                      setDeleteRoomTarget(item.chatNo),
-                    ]}
-                  >
-                    <RiDeleteBinLine size={22} color={GRAY_COLOR} />
-                  </IconButton>
-                </Box>
-              </ChatItemWrapper>
-            ))}
+                </ChatItemWrapper>
+              ))
+            ) : (
+              <FlexBox>
+                <h1>아직 대화를 시작하지 않았습니다.</h1>
+              </FlexBox>
+            )}
           </Body>
         </ChatList>
         <ChatMessage>
@@ -329,7 +336,28 @@ export default function Chat() {
               </Form>
             </>
           ) : (
-            <h1>채팅을 시작하세요</h1>
+            <div>
+              <h1>판매자/구매자와 채팅을 시작하세요</h1>
+              <BtnGroup>
+                <Button
+                  size='lg'
+                  padding='0'
+                  height='40px'
+                  onClick={() => navigate('/products/pal')}
+                >
+                  팔래요 보러가기
+                </Button>
+                <Button
+                  size='lg'
+                  padding='0'
+                  height='40px'
+                  isOutline
+                  onClick={() => navigate('/products/sal')}
+                >
+                  살래요 보러가기
+                </Button>
+              </BtnGroup>
+            </div>
           )}
         </ChatMessage>
       </Wrapper>
@@ -341,7 +369,7 @@ const Wrapper = styled.div`
   box-sizing: border-box;
   display: flex;
   margin: 16px;
-  height: calc(100% - 32px);
+  height: calc(100vh - 56px - 32px);
   background-color: white;
   box-shadow: 3px 3px 30px ${GRAY_COLOR};
   border-radius: 16px;
@@ -553,4 +581,12 @@ const Form = styled.form`
       transform: scale(1.4);
     }
   }
+`;
+
+const BtnGroup = styled.div`
+  padding-top: 80px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+  align-items: center;
 `;
