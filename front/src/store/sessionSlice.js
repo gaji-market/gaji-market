@@ -15,17 +15,22 @@ export const sessionSlice = createSlice({
   reducers: {
     setupSession: (state) => {
       const encryptedToken = sessionStorage.getItem('info') || '';
+      const encryptedName = sessionStorage.getItem('name') || '';
       if (encryptedToken) {
         // get session info
         const jwtToken = decrypt(
           process.env.REACT_APP_SESSION_KEY || '',
           encryptedToken,
         );
+        const name = decrypt(
+          process.env.REACT_APP_SESSION_KEY || '',
+          encryptedName,
+        );
         const decodedJwtToken = jwtDecode(jwtToken);
         // setup session state
         Object.assign(state, {
           userNo: decodedJwtToken.userInfo.userNo,
-          userId: decodedJwtToken.userInfo.userId,
+          userId: name,
           token: encryptedToken,
           isLoggedIn: true,
         });
@@ -35,7 +40,7 @@ export const sessionSlice = createSlice({
     },
     startSession: (state, action) => {
       try {
-        const jwtToken = action.payload;
+        const [userId, jwtToken] = action.payload;
         const decodedJwtToken = jwtDecode(jwtToken);
         // save session after encription
         const encryptedToken = encrypt(
@@ -43,10 +48,14 @@ export const sessionSlice = createSlice({
           jwtToken,
         );
         sessionStorage.setItem('info', encryptedToken);
+        sessionStorage.setItem(
+          'name',
+          encrypt(process.env.REACT_APP_SESSION_KEY || '', userId),
+        );
         // setup session state
         return Object.assign(state, {
           userNo: decodedJwtToken.userInfo.userNo,
-          userId: decodedJwtToken.userInfo.userId,
+          userId: userId,
           token: encryptedToken,
           isLoggedIn: true,
         });

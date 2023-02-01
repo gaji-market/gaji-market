@@ -62,7 +62,7 @@ export default function Login() {
             toastTitle: '로그인 성공!',
             toastMessage: '가지마켓에 오신 것을 환영합니다.',
           });
-          dispatch(startSession(res.token));
+          dispatch(startSession([signUpForm.id, res.token]));
           setTimeout(() => nav('/'), 500);
         }
       } catch (error) {
