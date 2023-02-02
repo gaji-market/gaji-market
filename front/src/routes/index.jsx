@@ -29,6 +29,8 @@ import {
   SearchPage,
   Chat,
   MyPageDetail,
+  FindUser,
+  FindDetail,
 } from 'pages';
 
 import Splash from 'components/common/Splash';
@@ -95,6 +97,8 @@ export default function Router() {
         <Route element={<LayoutWithoutBar />}>
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<SignUp />} />
+          <Route path='/finduser' element={<FindUser />} />
+          <Route path='/finduser/:type' element={<FindDetail />} />
         </Route>
 
         <Route element={<Layout />}>

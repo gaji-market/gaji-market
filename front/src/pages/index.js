@@ -10,3 +10,5 @@ export { default as MyEditPage } from './MyEditPage';
 export { default as MyPageDetail } from './MyPageDetail';
 export { default as SearchPage } from './SearchPage';
 export { default as Chat } from './Chat';
+export { default as FindUser } from './FindUser';
+export { default as FindDetail } from './FindDetail';
