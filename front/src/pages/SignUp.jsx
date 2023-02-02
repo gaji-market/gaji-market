@@ -114,6 +114,7 @@ export default function SignUp() {
       console.log(error);
     }
   };
+
   const changeHandler = (e) => {
     if (e.target.id === 'id' && signUpForm.id.length <= 5) {
       setIsPossibleId(false);
@@ -123,6 +124,7 @@ export default function SignUp() {
       setSignUpForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     else setSignUpForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
+
   const checkId = async (e) => {
     e.preventDefault();
 

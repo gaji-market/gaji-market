@@ -129,7 +129,9 @@ export default function Login() {
             </Button>
           </ButtonBox>
           <SubBox>
-            <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
+            <NavLink to='/finduser' style={{ textDecoration: 'none' }}>
+              <FindIdPw>아이디/비밀번호 찾기</FindIdPw>
+            </NavLink>
             <NavLink to='/signup' style={{ textDecoration: 'none' }}>
               <ToSignUp>회원가입</ToSignUp>
             </NavLink>
