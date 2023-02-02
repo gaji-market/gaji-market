@@ -122,6 +122,7 @@ export default function FindDetail() {
         <Button size='lg' onClick={clickHandler}>
           제출
         </Button>
+        <DecoFooter />
       </Container>
     </>
   );
