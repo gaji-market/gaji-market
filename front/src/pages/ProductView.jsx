@@ -245,6 +245,7 @@ export default function ProductView() {
                 interestYN,
                 prodName,
                 prodNo,
+                userNo,
                 prodPrice,
                 tradState,
               } = product;
@@ -259,6 +260,7 @@ export default function ProductView() {
                   title={prodName}
                   price={prodPrice.toLocaleString()}
                   prodNo={prodNo}
+                  userNo={userNo}
                   area={address}
                   likes={interestCnt.toLocaleString()}
                   isInterest={interestYN}

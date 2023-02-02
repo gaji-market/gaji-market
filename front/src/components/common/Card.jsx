@@ -29,6 +29,7 @@ export default function Card({
   title,
   price,
   prodNo,
+  userNo,
   area,
   likes,
   state,
@@ -40,7 +41,10 @@ export default function Card({
 
   const clickInterest = async () => {
     try {
-      const res = await changeInterestCountMutation(prodNo).unwrap();
+      const res = await changeInterestCountMutation({
+        prodNo,
+        userNo,
+      }).unwrap();
 
       setIsInterestState(() => res.interestInfo.interestYN);
       setLikesState(() => res.interestInfo.interestCnt);
@@ -133,9 +137,13 @@ const CardHead = styled.div`
 `;
 
 const CardTitle = styled.h2`
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 700;
   font-size: 16px;
   margin-bottom: 5px;
+  white-space: nowrap;
 `;
 
 const CardBody = styled.div`

@@ -12,7 +12,7 @@ export const productApi = createApi({
       if (getState().session?.token) {
         token = decrypt(
           process.env.REACT_APP_SESSION_KEY || '',
-          getState().session.token,
+          getState().session.token
         );
       }
 
@@ -75,10 +75,10 @@ export const productApi = createApi({
       invalidatesTags: ['BuyAll'],
     }),
     changeInterestCount: builder.mutation({
-      query: (prodNo) => ({
+      query: ({ prodNo, userNo }) => ({
         url: 'interest',
         method: 'POST',
-        body: { prodNo: Number(prodNo) },
+        body: { prodNo: Number(prodNo), userNo: Number(userNo) },
       }),
       invalidatesTags: ['DetailView'],
     }),
