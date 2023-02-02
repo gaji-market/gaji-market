@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
 	//WebSocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'com.googlecode.json-simple:json-simple:1.1'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'

@@ -54,7 +54,7 @@
         )
         VALUES (
             #{chatNo},
-            #{message},
+            #{msg},
             #{userNo},
             DATE_FORMAT(now(), '%Y-%m-%d'),
             DATE_FORMAT(now(), '%H:%i:%s')
@@ -70,7 +70,7 @@
     <select id="selectChatMessage" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT ui.nickname,
                ui.no,
-               cm.chatNo,
+               cm.messageNo,
                CASE WHEN cm.delYn = 'Y' THEN '삭제된 메시지' ELSE cm.message END AS message,
                cm.checkYn,
                DATE_FORMAT(cm.regDate, '%Y년 %m월 %d일') AS regDate,

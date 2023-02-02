@@ -3,13 +3,12 @@ package project.gajimarket.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.dao.FileDAO;
-import project.gajimarket.dao.ProductDAO;
 import project.gajimarket.dao.UserDAO;
 import project.gajimarket.model.*;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
-import project.gajimarket.service.ProductService;
 import project.gajimarket.service.UserService;
 
 import java.io.IOException;
@@ -40,6 +39,36 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO selectUser(Map<String, Object> param) {
         return userDao.selectUser(param);
+    }
+
+    @Override
+    public Map<String, Object> selectUserIdPwd(UserDTO userDTO) {
+        Map<String, Object> resultMap = null;
+        UserDTO resultUserDTO = null;
+
+        if (userDTO.getUserId() != null && !"".equals(userDTO.getUserId())) {
+            resultUserDTO = userDao.selectUserPwd(userDTO);
+        } else {
+            resultUserDTO = userDao.selectUserId(userDTO);
+        }
+
+        if (resultUserDTO != null) {
+            resultMap = CommonUtil.resultMsg(1);
+            if (resultUserDTO.getUserId() != null && !"".equals(resultUserDTO.getUserId())) {
+                resultMap.put("resultId", resultUserDTO.getUserId());
+            }
+        } else {
+            resultMap = CommonUtil.resultMsg(0);
+        }
+
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> updatePwd(UserDTO userDTO) {
+        int result = userDao.updatePwd(userDTO);
+
+        return CommonUtil.resultMsg(result);
     }
 
     @Override

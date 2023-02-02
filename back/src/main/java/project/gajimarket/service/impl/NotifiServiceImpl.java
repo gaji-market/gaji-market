@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.dao.NotifiDAO;
 import project.gajimarket.model.SearchPagination;
+import project.gajimarket.model.UserDTO;
 import project.gajimarket.service.NotifiService;
+import project.gajimarket.service.UserService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +20,24 @@ import java.util.Map;
 public class NotifiServiceImpl implements NotifiService {
 
     private final NotifiDAO notifiDAO;
+    private final UserService userService;
 
     @Override
     public Map<String, Object> addNotification(Map<String, Object> map) {
-        int result = notifiDAO.insertNotification(map);
+        UserDTO userDTO = userService.selectUser(map);
 
+        int gubun = Integer.parseInt(String.valueOf(map.get("gubun")));
+        if ((gubun == 1 && userDTO.getChatNtfct() == 'N') || (gubun == 2 && userDTO.getInterstNtfct() == 'N')) {
+            return CommonUtil.resultMsg(0);
+        }
+
+        if (gubun == 1) {
+            map.put("message", map.get("userNickName") + "님이 회원님과 채팅을 시작하였습니다.");
+        } else {
+            map.put("message", map.get("userNickName") + "님이 회원님의 상품에 좋아요를 눌렀습니다.");
+        }
+
+        int result = notifiDAO.insertNotification(map);
         return CommonUtil.resultMsg(result);
     }
 

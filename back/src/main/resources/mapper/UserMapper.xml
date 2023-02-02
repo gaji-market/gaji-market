@@ -188,6 +188,22 @@
         <include refid="userCondition"/>
     </select>
 
+    <select id="selectUserId" parameterType="project.gajimarket.model.UserDTO" resultType="project.gajimarket.model.UserDTO">
+        SELECT id AS userId
+          FROM user_info
+         WHERE name = #{userName} AND birth = #{userBirth}
+    </select>
+
+    <select id="selectUserPwd" parameterType="project.gajimarket.model.UserDTO" resultType="project.gajimarket.model.UserDTO">
+        SELECT pwd AS userPwd
+          FROM user_info
+         WHERE id = #{userId} AND name = #{userName} AND birth = #{userBirth}
+    </select>
+
+    <update id="updatePwd" parameterType="project.gajimarket.model.UserDTO">
+        UPDATE user_info SET pwd = #{userPwd} WHERE id = #{userId}
+    </update>
+
     <!-- 좋아요 한 상품 -->
     <select id="selectUserInterestProd" parameterType="java.util.Map" resultType="java.util.Map">
         <include refid="userInterestProdList"/>

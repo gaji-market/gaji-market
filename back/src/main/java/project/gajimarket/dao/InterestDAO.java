@@ -10,7 +10,7 @@ public interface InterestDAO {
     int findInterestCnt(int prodNo);
 
     //좋아요 저장
-    void interestSave(InterestDTO interestInfoDTO);
+    int interestSave(InterestDTO interestInfoDTO);
 
     //좋아요 삭제
     void interestDelete(int prodNo, int userNo);
