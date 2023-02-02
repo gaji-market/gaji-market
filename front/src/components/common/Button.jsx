@@ -50,6 +50,7 @@ const ButtonStyles = styled.button`
   padding: 8px;
   transition: all 0.2s;
 
+  z-index: 1;
   ${({ isDarkColor }) =>
     isDarkColor &&
     css`
