@@ -166,7 +166,7 @@
 
     <!-- 팔래요 최신순 전체보기 -->
     <select id="findSellAll" resultType="map" parameterType="map">
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
+        select p.prodNo,p.prodName,p.userNo,p.prodPrice,p.address,p.tradState,
                case when cnt is null then 0 else cnt end as 'interestCnt',
                <if test="loginUserNo != null">
                case when yn is null then 0 else 1 end as 'interestYN',
@@ -234,7 +234,7 @@
 
     <!-- 살래요 최신순 전체보기 -->
     <select id="findBuyAll" resultType="map" parameterType="map">
-        select p.prodNo,p.prodName,p.prodPrice,p.address,p.tradState,
+        select p.prodNo,p.prodName,p.userNo,p.prodPrice,p.address,p.tradState,
                 case when cnt is null then 0 else cnt end as 'interestCnt',
         <if test="loginUserNo != null">
             case when yn is null then 0 else 1 end as 'interestYN',
