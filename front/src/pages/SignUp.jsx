@@ -95,7 +95,7 @@ export default function SignUp() {
         userName: signUpForm.name,
         userNickName: signUpForm.nickName,
         userGender: signUpForm.gender,
-        userBirth: '0823',
+        userBirth: signUpForm.birthday,
         userPhone: '',
         userAddress: signUpForm.address,
         socialKind: '0',
