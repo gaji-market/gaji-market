@@ -14,6 +14,10 @@ public interface UserService {
 
     public UserDTO selectUser(Map<String, Object> param);
 
+    public Map<String, Object> selectUserIdPwd(UserDTO userDTO);
+
+    public Map<String, Object> updatePwd(UserDTO userDTO);
+
     public List<Map<String, Object>> selectUserInterestProdList(Map<String, Object> param);
     public int selectUserInterestProdCnt(Map<String, Object> param);
 

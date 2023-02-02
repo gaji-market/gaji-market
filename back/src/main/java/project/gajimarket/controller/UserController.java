@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.Utils.JWTUtil;
 import project.gajimarket.model.*;
 import project.gajimarket.service.FileService;
@@ -84,6 +85,7 @@ public class UserController {
             if (selectUser != null) {
                 // 토큰 생성
                 param.put("userNo", selectUser.getUserNo());
+                param.put("userNickName", selectUser.getUserNickName());
                 param.remove("userId");
                 param.remove("userPwd");
                 token = JWTUtil.createAccessToken(param);
@@ -102,6 +104,29 @@ public class UserController {
             System.out.println("UserController signIn : " + e);
         }
         return resultMap;
+    }
+
+    // 아이디/패스워드 찾기
+    @PostMapping("/searchIdPwd")
+    public Map<String, Object> searchIdPwd(@RequestBody UserDTO userDto) throws IOException {
+
+        try {
+            return userService.selectUserIdPwd(userDto);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return CommonUtil.resultMsg(e.toString());
+        }
+    }
+
+    // 비밀번호 변경
+    @PostMapping("/updatePwd")
+    public Map<String, Object> updatePwd(@RequestBody UserDTO userDto) throws IOException {
+        try {
+            return userService.updatePwd(userDto);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return CommonUtil.resultMsg(e.toString());
+        }
     }
 
     // 마이페이지 이동
