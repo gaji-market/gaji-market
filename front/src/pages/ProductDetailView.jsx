@@ -47,6 +47,7 @@ export default function ProductDetailView() {
   const { type: param, id: prodNo } = useParams();
 
   const { data, isError, isLoading, isSuccess } = useGetProductQuery(prodNo);
+
   const [authorImage, setAuthorImage] = useState(false);
   const [isCreatedUser, setIsCreatedUser] = useState(false);
 
@@ -109,7 +110,10 @@ export default function ProductDetailView() {
 
   const changeInterestCountHandler = async () => {
     try {
-      await changeInterestCountMutation(prodNo);
+      await changeInterestCountMutation({
+        prodNo,
+        userNo: data?.userInfo.userNo,
+      });
     } catch (error) {
       console.error(error);
     }
@@ -125,10 +129,12 @@ export default function ProductDetailView() {
 
   const modifyHandler = () => () => {
     modalRef.current?.showModal();
-    // TODO: Editor 페이지 재사용
   };
 
   const deleteHandler = async () => {
+    // modalRef.current?.showModal();
+    // TODO: 삭제하기 모달 띄우기
+
     try {
       const result = await deleteProductMutation(prodNo).unwrap();
       addToast({
@@ -340,14 +346,14 @@ export default function ProductDetailView() {
                   </UserArea>
                 </div>
               </ProfileWrapper>
-              <Button
+              {/* <Button
                 isDarkColor
                 customSize={'215px'}
                 height={'35px'}
                 padding={0}
               >
                 정보보기
-              </Button>
+              </Button> */}
             </UserInfo>
           </ProductMid>
 
