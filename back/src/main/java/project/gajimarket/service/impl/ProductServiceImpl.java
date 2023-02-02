@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.Utils.JWTUtil;
 import project.gajimarket.dao.*;
 import project.gajimarket.model.*;
 import project.gajimarket.model.file.UploadFile;
 import project.gajimarket.service.FileService;
+import project.gajimarket.service.NotifiService;
 import project.gajimarket.service.ProductService;
 
 import javax.servlet.http.Cookie;
@@ -18,10 +20,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -35,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
     private final InterestDAO interestDAO;
     private final ScoreDAO scoreDAO;
     private final FileService fileService;
+    private final NotifiService notifiService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
@@ -331,7 +331,20 @@ public class ProductServiceImpl implements ProductService {
 
         Integer interestYN = interestDAO.findInterest(interestDTO.getProdNo(), interestDTO.getUserNo());
         if (interestYN==null){
-            interestDAO.interestSave(interestDTO);
+            int result = interestDAO.interestSave(interestDTO);
+            //좋아요 저장 시 알림 등록
+            if (result > 0) {
+                UserDTO senderUserDTO = CommonUtil.getUserInfo(request);
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("userNo", param.get("userNo")); // 상품을 등록한 유저
+                map.put("senderUserNo", senderUserDTO.getUserNo()); // 좋아요를 클릭한 유저 (로그인한 유저)
+                map.put("userNickName", senderUserDTO.getUserNickName());
+                map.put("gubun", "2"); // 구분 - 좋아요
+
+                Map<String, Object> resultNotifi = notifiService.addNotification(map);
+                log.info(resultNotifi.toString());
+            }
         }else {
             interestDAO.interestDelete(interestDTO.getProdNo(), interestDTO.getUserNo());
         }

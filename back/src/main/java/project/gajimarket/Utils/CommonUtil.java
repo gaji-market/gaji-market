@@ -41,9 +41,13 @@ public class CommonUtil {
     }
 
     public static UserDTO getUserInfo(HttpServletRequest request) {
-        if (request != null) {
-            return (UserDTO) request.getSession().getAttribute("userInfo");
+        String headerToken = JWTUtil.getHeaderToken(request);
+
+        // 토큰 복호화
+        if (headerToken != null && !"".equals(headerToken)) {
+            return (UserDTO) JWTUtil.getTokenInfo(headerToken);
         }
+
         return null;
     }
 }
