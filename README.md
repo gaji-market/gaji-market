@@ -10,7 +10,7 @@
 <br />
 <img src="https://img.shields.io/badge/Amazon_EC2-FF9900?style=flat-square&logo=Amazon&logoColor=white"/><img src="https://img.shields.io/badge/Amazon_S3-569A31?style=flat-square&logo=&logoColor=white"/>
 
-## 1. 기획 의도
+## 1. 기획 의도=>처음 의도랑 많이 달라져서 한번 의논을 해봐야 할 것 같습니다.
 
 ### 목표
 
