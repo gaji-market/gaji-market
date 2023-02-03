@@ -76,7 +76,7 @@ const ToastBox = styled.div`
   font-size: 15px;
   position: relative;
   margin-bottom: 15px;
-  background-color: #fcccd3;
+  background-color: #ffffff;
   border-radius: 10px;
   overflow: hidden;
   width: 100%;
@@ -102,29 +102,21 @@ const ToastBox = styled.div`
 
   &::before {
     content: '';
+    position: absolute;
     width: 12px;
     height: 300px;
     background: #ff7e92;
-    margin-right: 20px;
   }
-
-  ${({ toastPosition }) => css`
-    top: ${toastPosition === 'top'
-      ? '5%'
-      : toastPosition === 'center'
-      ? '40%'
-      : '85%'};
-  `}
 
   ${({ isMainTheme }) =>
     isMainTheme &&
     css`
       color: ${WHITE_COLOR};
       &::before {
-        background: #bf1818;
+        background: #f8f1f1;
         position: absolute;
       }
-      background: #e05151;
+      background: #cc3636;
     `}
 
   ${({ isToastSuccess }) =>
