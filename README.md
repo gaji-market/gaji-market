@@ -62,7 +62,7 @@ https://user-images.githubusercontent.com/62174495/216549320-4211db39-358b-4d45-
 
 <br>
 
-### ⚛ 메인페이지
+### ⚛ 메인페이지 및 살래요 팔래요 페이지
 
 <p align="center">
 
@@ -82,15 +82,6 @@ https://user-images.githubusercontent.com/62174495/216549964-995b34f1-9a42-4508-
 
 </p>
 
-### ⚛ 메인페이지
-
-<p align="center">
-
-
-https://user-images.githubusercontent.com/62174495/216549640-3599b8cf-b1fe-45fe-a7ee-b5cbd16126d2.mp4
-
-
-</p>
 
 
 <br><br><br>
