@@ -29,13 +29,7 @@
 
 ## 2. 서비스 기능=>아직 게시물이 적고 채팅이 완료되면 그때 적겠습니다.
 
-### ⚛ 로그인
 
-<p align="center">
-
-https://user-images.githubusercontent.com/62174495/216546844-6fe1a9fd-dd69-44a4-a832-6c0055626d83.mp4
-
-</p>
 
 
 <br>
@@ -82,7 +76,13 @@ https://user-images.githubusercontent.com/62174495/216549964-995b34f1-9a42-4508-
 
 </p>
 
+### ⚛ 로그인
 
+<p align="center">
+
+https://user-images.githubusercontent.com/62174495/216546844-6fe1a9fd-dd69-44a4-a832-6c0055626d83.mp4
+
+</p>
 
 <br><br><br>
 
