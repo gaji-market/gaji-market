@@ -62,6 +62,13 @@ export const signUpApi = createApi({
         body: userInfo,
       }),
     }),
+    postUpdatePassword: builder.mutation({
+      query: (newPW) => ({
+        url: 'updatePwd',
+        method: 'POST',
+        body: newPW,
+      }),
+    }),
     postUserCard: builder.mutation({
       query: ({ type, pageInfo }) => ({
         url: `${type}ProdList`,
@@ -84,4 +91,5 @@ export const {
   usePostUserEditMutation,
   usePostUserCardMutation,
   usePostSearchIdPwMutation,
+  usePostUpdatePasswordMutation,
 } = signUpApi;
