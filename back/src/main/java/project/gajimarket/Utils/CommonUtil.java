@@ -45,7 +45,13 @@ public class CommonUtil {
 
         // 토큰 복호화
         if (headerToken != null && !"".equals(headerToken)) {
-            return (UserDTO) JWTUtil.getTokenInfo(headerToken);
+            Map<String, Object> map = JWTUtil.getTokenInfo(headerToken);
+            UserDTO userDTO = new UserDTO();
+
+            userDTO.setUserNo((Integer) map.get("userNo"));
+            userDTO.setUserNickName((String) map.get("userNickName"));
+
+            return userDTO;
         }
 
         return null;

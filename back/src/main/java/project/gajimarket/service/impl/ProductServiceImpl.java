@@ -335,7 +335,6 @@ public class ProductServiceImpl implements ProductService {
             //좋아요 저장 시 알림 등록
             if (result > 0) {
                 UserDTO senderUserDTO = CommonUtil.getUserInfo(request);
-
                 Map<String, Object> map = new HashMap<>();
                 map.put("userNo", param.get("userNo")); // 상품을 등록한 유저
                 map.put("senderUserNo", senderUserDTO.getUserNo()); // 좋아요를 클릭한 유저 (로그인한 유저)

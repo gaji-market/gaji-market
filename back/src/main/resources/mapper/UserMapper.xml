@@ -17,7 +17,12 @@
     </sql>
 
     <sql id="userInterestProdList">
-        SELECT prodNo               -- 상품번호
+        SELECT (
+                SELECT interestNo
+                  FROM interest_info inst_info
+                 WHERE inst_info.prodNo = prod_info.prodNo
+                ) AS interestNo
+             , prodNo               -- 상품번호
              , prodName             -- 상품명
              , prodPrice            -- 가격
              , reportCnt            -- 신고횟수
@@ -51,6 +56,7 @@
                 FROM interest_info inst_info
                 WHERE userNo = #{userNo}
              )
+        ORDER BY interestNo DESC
     </sql>
 
     <sql id="userSellProdList">
@@ -85,6 +91,7 @@
            AND prod_info.tradState = 3
            AND prod_info.tradeKind = 0
            AND prod_info.userNo = #{userNo}
+      ORDER BY prod_info.prodNo DESC
     </sql>
 
     <sql id="userBuyProdList">
@@ -119,6 +126,7 @@
            AND prod_info.tradState = 3
            AND prod_info.tradeKind = 1
            AND prod_info.buyUserNo = #{userNo}
+      ORDER BY prod_info.prodNo DESC
     </sql>
 
     <!-- 아이디 중복 확인 -->
@@ -223,6 +231,7 @@
 
     <!-- 판매내역 -->
     <select id="selectUserSellProd" parameterType="java.util.Map" resultType="java.util.Map">
+
         <include refid="userSellProdList"/>
 
         <if test="schPage != null">
