@@ -31,38 +31,67 @@
 
 ### ⚛ 로그인
 
-<p align="center"><img src="https://user-images.githubusercontent.com/93570122/201257830-83e405d5-bf57-4686-a444-0010128f9581.gif" height="400"/></p>
+<p align="center">
 
-- 로그인후 JWT를 이용하여 사용자를 식별
+https://user-images.githubusercontent.com/62174495/216546844-6fe1a9fd-dd69-44a4-a832-6c0055626d83.mp4
 
-<br>
+</p>
 
-### ⚛ 메인 페이지
-
-<p align="center"><img src="https://user-images.githubusercontent.com/93570122/201257903-d69ac81c-9dbf-4e6a-8d82-c2c33a76aac2.gif" height="400"/></p>
-
-- 정치인의 전체 이슈를 가져와 인생 전체에 대한 그래프를 볼 수 있습니다.
 
 <br>
 
-### ⚛ 정치인 그래프
+### ⚛ 게시글 등록
 
-<p align="center"><img src="https://user-images.githubusercontent.com/93570122/201257961-063ba4fb-63be-4616-bace-a4b8bbc9ba8e.gif" height="400"/></p>
+<p align="center">
 
-- 페이지네이션으로 등록된 이슈를 가져와 날짜를 x축에 여론 투표 결과를 Y축에 나타내 선 그래프로 나타내었습니다.
-- 부족 별 그래프를 체크박스로 선택할 수 있어 나타내 같은 이슈, 정치인이더라도 부족 간 반응의 차이를 확인 할 수 있습니다.
-- 포인트에 마우스를 올리면 O△X 값과 이슈 제목을 나타내는 툴팁을 보여줍니다.
-- 포인트 클릭 시 해당 이슈에 투표를 할 수 있는 모달을 띄워 이슈에 대한 평가를 수집합니다.
+https://user-images.githubusercontent.com/62174495/216548924-937e7de8-e2b8-498d-b7a5-42ac77d62534.mp4
+
+</p>
+
 
 <br>
 
-### ⚛ 대기 중 이슈
+### ⚛ 게시글 상세페이지 및 수정
 
-<p align="center"><img src="https://user-images.githubusercontent.com/93570122/201257903-d69ac81c-9dbf-4e6a-8d82-c2c33a76aac2.gif" height="400"/></p>
+<p align="center"></p>
 
-- 모달을 통해 날짜와 이슈 내용을 입력하고 대기 중 이슈로 등록 가능합니다.
-- 무한스크롤으로 대기 중 이슈를 가져오도록 구현했습니다.
-- 마감이 임박한 top3 이슈가 상위에 고정되어 보여집니다.
+
+https://user-images.githubusercontent.com/62174495/216549320-4211db39-358b-4d45-a884-9746be15e9cb.mp4
+
+
+
+<br>
+
+### ⚛ 메인페이지
+
+<p align="center">
+
+
+https://user-images.githubusercontent.com/62174495/216549640-3599b8cf-b1fe-45fe-a7ee-b5cbd16126d2.mp4
+
+
+</p>
+
+### ⚛ 카테고리 및 검색
+
+<p align="center">
+
+
+https://user-images.githubusercontent.com/62174495/216549964-995b34f1-9a42-4508-8da3-e46391504dde.mp4
+
+
+</p>
+
+### ⚛ 메인페이지
+
+<p align="center">
+
+
+https://user-images.githubusercontent.com/62174495/216549640-3599b8cf-b1fe-45fe-a7ee-b5cbd16126d2.mp4
+
+
+</p>
+
 
 <br><br><br>
 
