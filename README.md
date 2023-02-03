@@ -9,7 +9,7 @@
 -- --
 
 ## 배포 사이트
-[가지 마켓](http://gajishop.site/)
+[가지 마켓](http://gajishop.shop/)
 
 ## 프로젝트 실행 방법
 
