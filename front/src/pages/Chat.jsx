@@ -36,8 +36,6 @@ import { FaUserCircle } from 'react-icons/fa';
 import { RiSendPlaneFill } from 'react-icons/ri';
 import { ReactComponent as GradationLogo } from 'assets/GradationLogo.svg';
 
-const URL = '3.39.156.141:8080';
-
 export default function Chat() {
   const [getChatRoomList] = useGetChatRoomListMutation();
   const [getChatRoom] = useLazyGetChatRoomQuery();
@@ -54,6 +52,7 @@ export default function Chat() {
   const roomDeleteModalRef = useRef(null);
   const msgDeleteModalRef = useRef(null);
   const finishModalRef = useRef(null);
+  const msgRef = useRef(null);
 
   const [target, setTarget] = useState(null);
   const [deleteRoomTarget, setDeleteRoomTarget] = useState(null);
@@ -61,14 +60,14 @@ export default function Chat() {
   const [msg, setMsg] = useState('');
   const [chatRoomInfos, setChatRoomInfos] = useState([]);
   const [chatInfo, setChatInfo] = useState({});
+  const [chatMsgInfos, setChatMsgInfos] = useState([]);
 
   const userNo = useSelector(selectUserNo);
 
   // ================================ api handlers
   const getChatRoomListHandler = async () => {
     try {
-      const { chatRoomInfos, schPage } = await getChatRoomList({
-        // TODO: get userNo from sessionSlice
+      const { chatRoomInfos } = await getChatRoomList({
         userNo: userNo,
         currentPage: 1,
         recordCount: 100,
@@ -118,6 +117,12 @@ export default function Chat() {
         userNo: item.userNo,
       }).unwrap();
       setChatInfo(infos);
+      setChatMsgInfos(infos.chatMessageInfos);
+      setTimeout(() => {
+        if (msgRef.current) {
+          msgRef.current.scrollTop = msgRef.current.scrollHeight;
+        }
+      }, 100);
     } catch (err) {
       console.log(err);
     } finally {
@@ -159,8 +164,12 @@ export default function Chat() {
     }
   };
 
-  // ================================ websocket
-  const send = () => {
+  // ========================================================= websocket (희주님 여기입니다!)
+  const sendChatMsg = async () => {
+    if (!ws.current) {
+      ws.current = new WebSocket('ws://3.39.156.141:8080/socket/chat');
+    }
+
     if (!msg) {
       textareaRef.current.focus();
       addToast({
@@ -170,18 +179,13 @@ export default function Chat() {
       });
       return;
     }
-
-    ws.current = new WebSocket(`ws://${URL}/socket/chat`);
-    ws.current.onmessage = (message) => {
-      const parsedData = JSON.parse(message.data);
-      console.log('message: ', parsedData);
-    };
-
+    const [regDate, regTime] = getDateAndTime();
     const data = JSON.stringify({
-      userNo: target.userNo,
+      userNo: userNo,
       chatNo: target.chatNo,
       msg,
-      date: new Date().toLocaleString(),
+      regDate: regDate,
+      regTime: regTime,
     });
 
     if (ws.current.readyState === 0) {
@@ -193,7 +197,26 @@ export default function Chat() {
     }
 
     setMsg('');
+
+    ws.current.onmessage = (message) => {
+      const [regDate, regTime] = getDateAndTime();
+      const newMsg = {
+        no: 2, // temp data
+        regDate: regDate, //temp data
+        regTime: regTime, // temp data
+        messageNo: 17, // temp data
+        checkYn: 'N', // temp data
+        nickname: 'SYSY', // temp data
+        message: message,
+      };
+      setChatMsgInfos((prev) => [...prev, newMsg]);
+      if (msgRef.current) {
+        msgRef.current.scrollTop = msgRef.current.scrollHeight;
+      }
+    };
   };
+
+  // ==========================================================
 
   useEffect(() => {
     getChatRoomListHandler();
@@ -222,11 +245,11 @@ export default function Chat() {
       />
       <Wrapper>
         <ChatList>
-          <FlexBox>
+          <ChatListHeader>
             <AiFillWechat size={32} color={PRIMARY_COLOR} />
             <Header>Chat</Header>
-          </FlexBox>
-          <Body>
+          </ChatListHeader>
+          <ChatListBody>
             {chatRoomInfos.length > 0 ? (
               chatRoomInfos.map((item, i) => (
                 <ChatItemWrapper
@@ -263,12 +286,12 @@ export default function Chat() {
                 <h1>아직 대화를 시작하지 않았습니다.</h1>
               </FlexBox>
             )}
-          </Body>
+          </ChatListBody>
         </ChatList>
         <ChatMessage>
           {target ? (
             <>
-              <FlexBox>
+              <ChatMsgHeader>
                 <Avatar isTarget='true'>
                   <GradationLogo height='36px' />
                 </Avatar>
@@ -283,52 +306,50 @@ export default function Chat() {
                 >
                   채팅종료
                 </Button>
-              </FlexBox>
-              <Body>
-                <ChatContent>
-                  {(chatInfo?.chatMessageInfos || []).map((info, idx) => (
-                    <Bubble key={`${info.no}_${idx}`}>
-                      {info.nickname === target.nickname ? (
-                        <Avatar isTarget='true'>
-                          <GradationLogo height='36px' />
-                        </Avatar>
-                      ) : (
-                        <Avatar>
-                          <FaUserCircle size={32} color={GRAY_COLOR} />
-                        </Avatar>
-                      )}
-                      <div className='msg-container'>
-                        <div className='name-and-date'>
-                          <div>{info.nickname}</div>
-                          <div>
-                            <span>{info.regDate}</span>
-                            <span>{info.regTime}</span>
-                          </div>
+              </ChatMsgHeader>
+              <ChatMsgBody ref={msgRef}>
+                {(chatInfo?.chatMessageInfos || []).map((info, idx) => (
+                  <Bubble key={`${info.no}_${idx}`}>
+                    {info.nickname === target.nickname ? (
+                      <Avatar isTarget='true'>
+                        <GradationLogo height='36px' />
+                      </Avatar>
+                    ) : (
+                      <Avatar>
+                        <FaUserCircle size={32} color={GRAY_COLOR} />
+                      </Avatar>
+                    )}
+                    <div className='msg-container'>
+                      <div className='name-and-date'>
+                        <div>{info.nickname}</div>
+                        <div>
+                          <span>{info.regDate}</span>
+                          <span>{info.regTime}</span>
                         </div>
-                        <div className='msg'>{info.message}</div>
                       </div>
-                      <Check>
-                        {info.checkYn === 'Y' ? '읽음' : '읽지 않음'}
-                      </Check>
-                      <IconButton
-                        onClick={() => [
-                          msgDeleteModalRef.current?.showModal(),
-                          setDeleteMsgTarget(info.no),
-                        ]}
-                      >
-                        <RiDeleteBinLine size={22} color={GRAY_COLOR} />
-                      </IconButton>
-                    </Bubble>
-                  ))}
-                </ChatContent>
-              </Body>
-              <Form onSubmit={(e) => [e.preventDefault(), send()]}>
+                      <div className='msg'>{info.message}</div>
+                    </div>
+                    <Check>{info.checkYn === 'Y' ? '읽음' : '읽지 않음'}</Check>
+                    <IconButton
+                      onClick={() => [
+                        msgDeleteModalRef.current?.showModal(),
+                        setDeleteMsgTarget(info.messageNo),
+                      ]}
+                    >
+                      <RiDeleteBinLine size={22} color={GRAY_COLOR} />
+                    </IconButton>
+                  </Bubble>
+                ))}
+              </ChatMsgBody>
+              <Form onSubmit={(e) => [e.preventDefault(), sendChatMsg()]}>
                 <textarea
                   ref={textareaRef}
                   placeholder='보내기: Ctrl + Enter'
                   onChange={(e) => setMsg(e.target.value)}
                   value={msg}
-                  onKeyDown={(e) => e.key === 'Enter' && e.ctrlKey && send()}
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' && e.ctrlKey && sendChatMsg()
+                  }
                 />
                 <button>
                   <RiSendPlaneFill size={24} color={SECONDARY_COLOR} />
@@ -336,7 +357,7 @@ export default function Chat() {
               </Form>
             </>
           ) : (
-            <div>
+            <div className='flexbox'>
               <h1>판매자/구매자와 채팅을 시작하세요</h1>
               <BtnGroup>
                 <Button
@@ -365,6 +386,18 @@ export default function Chat() {
   );
 }
 
+const getDateAndTime = () => {
+  const now = new Date();
+  const regDate = `${String(now.getFullYear()).slice(2)}-${String(
+    now.getMonth() + 1,
+  ).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const regTime = `${String(now.getHours()).padStart(2, '0')}:${String(
+    now.getMinutes(),
+  ).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+  return [regDate, regTime];
+};
+
 const Wrapper = styled.div`
   box-sizing: border-box;
   display: flex;
@@ -373,6 +406,14 @@ const Wrapper = styled.div`
   background-color: white;
   box-shadow: 3px 3px 30px ${GRAY_COLOR};
   border-radius: 16px;
+  overflow: hidden;
+
+  .flexbox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+  }
 `;
 
 const Header = styled.h3`
@@ -381,26 +422,14 @@ const Header = styled.h3`
   font-weight: bold;
 `;
 
-const Body = styled.div`
-  padding: 32px;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  row-gap: 16px;
-`;
-
 const FlexBox = styled.div`
   display: flex;
   align-items: center;
-  padding: 32px;
-  padding-bottom: 4px;
-  column-gap: 16px;
 `;
 
 // chat
 const ChatList = styled.div`
   overflow: auto;
-  padding: 16px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -411,6 +440,22 @@ const ChatList = styled.div`
     /* background-color: ${PRIMARY_VAR_COLOR}; */
     border: 2px solid ${PRIMARY_COLOR};
   }
+`;
+
+const ChatListHeader = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  padding-bottom: 4px;
+  column-gap: 16px;
+`;
+
+const ChatListBody = styled.div`
+  padding: 32px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  row-gap: 16px;
 `;
 
 const ChatItemWrapper = styled.div`
@@ -479,29 +524,43 @@ const LastMsg = styled.div`
 
 // right - chat message
 const ChatMessage = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-top: 16px;
-
+  width: 100%;
   h1 {
     text-align: center;
   }
 `;
 
-const ChatContent = styled.div`
+const ChatMsgHeader = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  column-gap: 16px;
+  border-bottom: 2px solid #eee;
+`;
+
+const ChatMsgBody = styled.div`
+  overflow: auto;
+  height: calc(100% - 184px);
+  padding: 32px;
+  box-sizing: border-box;
   h3 {
     margin-bottom: 16px;
   }
 `;
 
 const Bubble = styled.div`
-  padding: 16px 0;
+  padding: 16px;
   display: flex;
   column-gap: 16px;
   align-items: center;
   justify-content: space-between;
+
+  border: 1px solid #eee;
+  border-radius: 8px;
+
+  & + & {
+    margin-top: 16px;
+  }
 
   .msg-container {
     flex: 1;
