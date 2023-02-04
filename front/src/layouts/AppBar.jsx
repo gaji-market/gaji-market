@@ -227,7 +227,7 @@ export default function AppBar() {
                         <span
                           onClick={() => [
                             navigate(
-                              currentTab === '채팅' ? '/chat' : '/myPage'
+                              currentTab === '채팅' ? '/chat' : '/myPage',
                             ),
                             blurHandler(),
                           ]}
@@ -457,7 +457,7 @@ const AlarmContainer = styled.div`
   flex-direction: column;
   z-index: 100000;
   position: absolute;
-  width: 480px;
+  width: 640px;
   height: 720px;
   top: 38px;
   right: -16px;
@@ -543,15 +543,19 @@ const EmptyMsg = styled.div`
 
 const NotiItem = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  height: 48px;
+  column-gap: 16px;
+  min-height: 48px;
   padding: 16px;
   border-radius: 4px;
 
   div {
-    flex: 1;
     color: ${GRAY_COLOR};
+
+    &:nth-child(2) {
+      flex: 1;
+    }
   }
 
   span {
@@ -573,6 +577,7 @@ const NotiItem = styled.div`
   }
 
   .strong-text {
+    width: 240px;
     font-weight: bold;
     color: ${DARK_GRAY_COLOR};
   }
