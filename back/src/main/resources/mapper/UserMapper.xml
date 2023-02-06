@@ -17,46 +17,46 @@
     </sql>
 
     <sql id="userInterestProdList">
-        SELECT (
-                SELECT interestNo
-                  FROM interest_info inst_info
-                 WHERE inst_info.prodNo = prod_info.prodNo
-                ) AS interestNo
-             , prodNo               -- 상품번호
-             , prodName             -- 상품명
-             , prodPrice            -- 가격
-             , reportCnt            -- 신고횟수
-             , tradState            -- 상태값
+        SELECT ii.interestNo
+             , prod_info.prodNo 		-- 상품번호
+             , prod_info.prodName 		-- 상품명
+             , prod_info.prodPrice 		-- 가격
+             , prod_info.reportCnt 		-- 신고횟수
+             , prod_info.tradState 		-- 상태값
              , CASE
-          WHEN tradState = 0 THEN '판매중'
-          WHEN tradState = 1 THEN '사는중'
-          WHEN tradState = 2 THEN '거래중'
-          WHEN tradState = 3 THEN '거래완료'
+          WHEN prod_info.tradState = 0 THEN '판매중'
+          WHEN prod_info.tradState = 1 THEN '사는중'
+          WHEN prod_info.tradState = 2 THEN '거래중'
+          WHEN prod_info.tradState = 3 THEN '거래완료'
            END AS tradeStateResult
-             , viewCnt              -- 조회수
-             , tradeKind            -- 거래구분
+             , prod_info.viewCnt		-- 조회수
+             , prod_info.tradeKind 		-- 거래구분
              , IF(tradeKind = 0, '팔래요', '살래요') AS tradeKindResult
-             , address              -- 주소
+             , prod_info.address 		-- 주소
              , (
                 SELECT COUNT(interestNo)
-                FROM interest_info inst_info
-                WHERE inst_info.prodNo = prod_info.prodNo
-               ) AS likeCnt        -- 좋아요 갯수
+                  FROM interest_info inst_info
+                 WHERE inst_info.prodNo = prod_info.prodNo
+               ) AS likeCnt				-- 좋아요 갯수
              , f.uploadFileName
              , f.dbFileName
-          FROM product_info prod_info
-     LEFT JOIN file f
-            ON f.no = prod_info.prodNo
-           AND f.gubun = 2
-           AND f.fileOrder = 0
-         WHERE delYn != 'Y'
-           AND prodNo IN
+          FROM
              (
-                SELECT prodNo
-                FROM interest_info inst_info
-                WHERE userNo = #{userNo}
-             )
-        ORDER BY interestNo DESC
+                SELECT *
+                  FROM interest_info ii
+                  JOIN
+                     ( SELECT *
+                         FROM user_info
+                        WHERE no = 5
+                     ) ui
+                    ON ui.no = ii.userNo
+             ) ii
+          JOIN ( SELECT *  FROM file f WHERE gubun = 2 AND fileOrder = 0 ) f
+            ON f.no = ii.prodNo
+          JOIN product_info prod_info
+            ON prod_info.prodNo = ii.prodNo
+         WHERE prod_info.delYn != 'Y'
+      ORDER BY ii.interestNo DESC
     </sql>
 
     <sql id="userSellProdList">
