@@ -8,30 +8,21 @@ import getAddress from 'utils/getAddress';
 import { isVaild } from 'utils/checkVaildForm';
 import makeToday from 'utils/makeToday';
 
-import {
-  PRIMARY_COLOR,
-  GRAY_COLOR,
-  WHITE_COLOR,
-} from 'components/common/commonColor';
+import { PRIMARY_COLOR, GRAY_COLOR, WHITE_COLOR } from 'components/common/commonColor';
 import Button from 'components/common/Button';
 import InputTextBox from 'components/common/InputTextBox';
 import InputTitle from 'components/common/InputTitle';
 import DecoFooter from 'components/common/DecoFooter';
+import { NICK_NAME_MIX_LENGTH, INPUT_MIN_LENGTH } from 'constants/finduser';
 
 import logo200 from 'assets/BasicLogo.svg';
 
 import useToast from 'hooks/toast';
 
-import {
-  usePostUserSignFormMutation,
-  usePostUserCheckIdMutation,
-} from 'services/signUpApi';
+import { usePostUserSignFormMutation, usePostUserCheckIdMutation } from 'services/signUpApi';
 import PrevButton from 'components/common/PrevButton';
 
-const DaumURL =
-  'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-const NICK_NAME_MIX_LENGTH = 4;
-const INPUT_MIN_LENGTH = 1;
+const DaumURL = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
 export default function SignUp() {
   const inputRef = useRef();
@@ -59,8 +50,7 @@ export default function SignUp() {
 
   const isPasswordVaild = isVaild('PW', signUpForm.password);
 
-  const isPasswordConfirmVaild =
-    signUpForm.password === signUpForm.confirmPassword;
+  const isPasswordConfirmVaild = signUpForm.password === signUpForm.confirmPassword;
 
   const isNickNameVaild =
     signUpForm.nickName.length >= NICK_NAME_MIX_LENGTH ||
@@ -74,12 +64,7 @@ export default function SignUp() {
     isNickNameVaild &&
     isPasswordConfirmVaild &&
     isPossibleId &&
-    isVaild('ETC', [
-      signUpForm.address,
-      signUpForm.birthday,
-      signUpForm.gender,
-      signUpForm.name,
-    ]);
+    isVaild('ETC', [signUpForm.address, signUpForm.birthday, signUpForm.gender, signUpForm.name]);
 
   const handleComplete = (data) => {
     const fullAddress = getAddress(data);
@@ -183,18 +168,12 @@ export default function SignUp() {
           />
           {isIdVaild && signUpForm.id.length > 1 && (
             <>
-              <CkeckIdButton onClick={(e) => checkId(e)}>
-                아이디 중복 검사
-              </CkeckIdButton>
+              <CkeckIdButton onClick={(e) => checkId(e)}>아이디 중복 검사</CkeckIdButton>
               {isTextAppear &&
                 (isPossibleId ? (
-                  <IdTextMessage color={PRIMARY_COLOR}>
-                    등록 가능한 아이디 입니다.
-                  </IdTextMessage>
+                  <IdTextMessage color={PRIMARY_COLOR}>등록 가능한 아이디 입니다.</IdTextMessage>
                 ) : (
-                  <IdTextMessage color={'#E8828D'}>
-                    이미 등록된 아이디 입니다.
-                  </IdTextMessage>
+                  <IdTextMessage color={'#E8828D'}>이미 등록된 아이디 입니다.</IdTextMessage>
                 ))}
             </>
           )}
@@ -210,9 +189,7 @@ export default function SignUp() {
 
           <InputTitle
             title={'비밀번호'}
-            signUpSubTitle={
-              '(특수문자 제외) 8글자 이상 이고 영어와 숫자가 포함되어야 합니다'
-            }
+            signUpSubTitle={'(특수문자 제외) 8글자 이상 이고 영어와 숫자가 포함되어야 합니다'}
             isVaild={isPasswordVaild}
             isRequired
           />
@@ -296,22 +273,12 @@ export default function SignUp() {
             <FlexItem className='gender-checker' margin={'50px'}>
               <Asterisk>*</Asterisk>
               <Text margin={'10px'}>성별</Text>
-              <HiddenRadioButton
-                id='man'
-                type='radio'
-                name='gender'
-                value={'0'}
-              />
+              <HiddenRadioButton id='man' type='radio' name='gender' value={'0'} />
               <RadioButton htmlFor='man' type={'man'}>
                 <MaleIcon />
               </RadioButton>
 
-              <HiddenRadioButton
-                id='woman'
-                type='radio'
-                name='gender'
-                value={'1'}
-              />
+              <HiddenRadioButton id='woman' type='radio' name='gender' value={'1'} />
               <RadioButton htmlFor='woman' type={'woman'}>
                 <FemaleIcon />
               </RadioButton>
