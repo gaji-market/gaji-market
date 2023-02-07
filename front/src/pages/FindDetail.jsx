@@ -7,20 +7,15 @@ import styled from 'styled-components';
 import Button from 'components/common/Button';
 import DecoFooter from 'components/common/DecoFooter';
 import makeToday from 'utils/makeToday';
+import { isVaild } from 'utils/checkVaildForm';
 
 import { FIND_TYPE } from '../constants/finduser';
-import {
-  PRIMARY_COLOR,
-  WHITE_COLOR,
-  GRAY_COLOR,
-} from 'components/common/commonColor';
+import { PRIMARY_COLOR, WHITE_COLOR, GRAY_COLOR } from 'components/common/commonColor';
 import PrevButton from 'components/common/PrevButton';
+import { INPUT_MIN_LENGTH } from 'constants/finduser';
 
 import InputTextBox from 'components/common/InputTextBox';
-import {
-  usePostSearchIdPwMutation,
-  usePostUpdatePasswordMutation,
-} from 'services/signUpApi';
+import { usePostSearchIdPwMutation, usePostUpdatePasswordMutation } from 'services/signUpApi';
 
 import useToast from 'hooks/toast';
 
@@ -39,6 +34,13 @@ export default function FindDetail() {
     userName: '',
     userPwd: '',
   });
+
+  const isVaildIdForm = formData.userName !== '' && formData.userBirth !== '';
+  const isVaildPasswordForm = isVaildIdForm && formData.userId;
+  const isVaildNewPassWord =
+    isVaild('PW', formData.userPwd) && formData.userPwd.length > INPUT_MIN_LENGTH;
+
+  console.log(isVaildNewPassWord);
   const [isCorrectUser, setIsCorrentUser] = useState(false);
   const { addToast } = useToast();
 
@@ -238,9 +240,19 @@ export default function FindDetail() {
         ) : (
           ''
         )}
-        <Button size='lg' onClick={clickHandler}>
-          {isCorrectUser ? '비밀번호 설정' : FIND_TYPE[type] + ' 찾기'}
-        </Button>
+        {type === 'id' ? (
+          <Button size='lg' isDisabled={!isVaildIdForm} onClick={clickHandler}>
+            아이디 찾기
+          </Button>
+        ) : (
+          <Button
+            size='lg'
+            isDisabled={!(isVaildPasswordForm || isVaildNewPassWord)}
+            onClick={clickHandler}
+          >
+            {isCorrectUser ? '비밀번호 설정' : '비밀번호 찾기'}
+          </Button>
+        )}
 
         <DecoFooter />
       </Container>
