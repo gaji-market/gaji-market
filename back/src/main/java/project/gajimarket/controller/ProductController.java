@@ -95,12 +95,6 @@ public class ProductController {
         return productService.reportCountUp(param);
     }
 
-    //메인화면에서 카테고리 클릭
-    @PostMapping("/mainCategory")
-    public void category(@RequestBody Map<String,Object> param) throws IOException {
-        productService.mainCategoryClick(param);
-    }
-
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping(value = "/sellAll")
     public Map<String,Object> sellAll(@RequestParam(required = false) Map<String,Object> param,
