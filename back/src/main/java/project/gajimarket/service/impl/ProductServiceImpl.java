@@ -384,90 +384,6 @@ public class ProductServiceImpl implements ProductService {
        return result;
     }
 
-    // 경매 기능(삭제)
-    @Override
-    public void priceOfferUpdate(Map<String,Object> param) {
-        int prodNo = (int) param.get("prodNo");
-
-        HttpSession session = request.getSession();
-        Object findSession = session.getAttribute("userInfo");
-        int findUserNo = productDAO.findSessionUser(findSession);
-
-        int offerPrice = (int) param.get("offerPrice"); //넘어온 가격
-        int findPrice = productDAO.findProductPrice(prodNo);//원래 상품 가격
-
-        if (findPrice < offerPrice){
-            productDAO.priceOfferUpdate(offerPrice,findUserNo,prodNo);
-        }
-    }
-
-    //태그 클릭(삭제)
-    @Override
-    public void tagClick(Map<String,Object> param) throws IOException {
-        int prodNo = (int) param.get("prodNo");
-        String tag = (String) param.get("tag");
-        //redirect 할때 한글깨짐
-        String enTag = URLEncoder.encode(tag, "UTF-8");
-
-        // 팔래요인지, 살래요인지 가져온다
-        String tradeState = productDAO.findTradeState(prodNo);
-
-        //만약 팔래요라면
-        if (tradeState.equals("0")){
-            //클릭한 태그를 보내준다
-            response.sendRedirect("/product/sellAll?tag="+enTag);
-        }else {
-            //살래요라면
-            response.sendRedirect("/product/buyAll?tag="+enTag);
-        }
-    }
-
-    //카테고리 클릭(삭제)
-    @Override
-    public void categoryClick(Map<String,Object> param) throws IOException {
-        int prodNo = (int) param.get("prodNo");
-
-        String cateCode = productDAO.findProdNoByCategoryNo(prodNo);
-        String tradeState = productDAO.findTradeState(prodNo);
-
-        //만약 팔래요라면
-        if (tradeState.equals("0")){
-            //클릭한 태그를 보내준다
-            response.sendRedirect("/product/sellAll?category="+cateCode);
-        }else {
-            //살래요라면
-            response.sendRedirect("/product/buyAll?category="+cateCode);
-        }
-    }
-
-    //메인카테고리 클릭 (삭제예정)
-    public void mainCategoryClick(Map<String,Object> param) throws IOException {
-        String tradeState = (String) param.get("tradeState");
-        Integer largeCateNo = (Integer) param.get("largeCateNo");
-        Integer mediumCateNo = (Integer) param.get("mediumCateNo");
-        Integer smallCateNo = (Integer) param.get("smallCateNo");
-
-        //팔래요라면
-        if (tradeState.equals("0")) {
-            if (largeCateNo != null && mediumCateNo == null && mediumCateNo == null) {
-                response.sendRedirect("/product/sellAll?largeCateNo="+largeCateNo);
-            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo == null) {
-                response.sendRedirect("/product/sellAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo);
-            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo != null){
-                response.sendRedirect("/product/sellAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo+"&&"+"smallCateNo="+smallCateNo);
-            }
-            //살래요라면
-        }else if (tradeState.equals("1")){
-            if (largeCateNo != null && mediumCateNo == null && mediumCateNo == null) {
-                response.sendRedirect("/product/buyAll?largeCateNo="+largeCateNo);
-            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo == null) {
-                response.sendRedirect("/product/buyAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo);
-            } else if (largeCateNo != null && mediumCateNo != null && smallCateNo != null){
-                response.sendRedirect("/product/buyAll?largeCateNo="+largeCateNo+"&&"+"mediumCateNo="+mediumCateNo+"&&"+"smallCateNo="+smallCateNo);
-            }
-        }
-    }
-
     //팔래요 전체보기
     @Override
     public Map<String,Object> findSellAll(Map<String,Object> result) {
@@ -623,10 +539,5 @@ public class ProductServiceImpl implements ProductService {
             result.put("result","Fail");
         }
         return result;
-    }
-
-    @Override
-    public List<Map<String, Object>> findChatUserInfo(int prodNo) {
-        return productDAO.findChatUserInfo(prodNo);
     }
 }
