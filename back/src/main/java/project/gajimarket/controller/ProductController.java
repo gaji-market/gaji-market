@@ -95,30 +95,6 @@ public class ProductController {
         return productService.reportCountUp(param);
     }
 
-    //경매 기능
-    @PostMapping("/priceOffer")
-    public void priceOfferUpdate(@RequestBody Map<String,Object> param){
-        productService.priceOfferUpdate(param);
-    }
-
-    //태그 클릭햇을때
-    @PostMapping("/tag")
-    public void tagClick(@RequestBody Map<String,Object> param) throws IOException {
-        productService.tagClick(param);
-    }
-
-    //카테고리 클릭햇을때
-    @PostMapping("/category")
-    public void categoryClick(@RequestBody Map<String,Object> param) throws IOException {
-        productService.categoryClick(param);
-    }
-
-    //메인화면에서 카테고리 클릭
-    @PostMapping("/mainCategory")
-    public void category(@RequestBody Map<String,Object> param) throws IOException {
-        productService.mainCategoryClick(param);
-    }
-
     //팔래요 전체보기(메인 이미지 1장 ,좋아요, 주소, 가격, 제목,거래상태)
     @GetMapping(value = "/sellAll")
     public Map<String,Object> sellAll(@RequestParam(required = false) Map<String,Object> param,
@@ -143,21 +119,6 @@ public class ProductController {
         return productService.findBuyAll(result);
     }
 
-    /**
-     * 보류
-     */
-    //판매완료 눌렀을때 채팅한사람 보여주기(닉네임,프로필사진?)
-    @GetMapping("/{prodNo}/chat")
-    public Map<String,Object> chatInfo(@PathVariable int prodNo){
-
-        Map<String,Object> result = new LinkedHashMap<>();
-        List<Map<String,Object>> userInfo = productService.findChatUserInfo(prodNo);
-        result.put("userInfos",userInfo);
-        return result;
-    }
-    /**
-     * 보류
-     */
     //별점이랑 후기 저장
     //채팅한사람 클릭후 여기로 넘어옴 별점정보랑 후기작성 데이터 넘어오면 가지고와서 저장
     @PostMapping("/scoreSave")

@@ -37,11 +37,17 @@
             prodNo,
             tgUserNo
         )
-        VALUES (
-            #{userNo},
-            #{prodNo},
-            #{tgUserNo}
-        )
+         SELECT #{userNo},
+                #{prodNo},
+                #{tgUserNo}
+           FROM dual
+          WHERE NOT EXISTS ( SELECT chatNo
+                               FROM chat_info
+                              WHERE prodNo = #{prodNo}
+                                AND userNo = #{userNo}
+                                AND tgUserNo = #{tgUserNo}
+                                AND delYn = 'N'
+          )
     </insert>
 
     <insert id="insertChatMessage" parameterType="java.util.Map">

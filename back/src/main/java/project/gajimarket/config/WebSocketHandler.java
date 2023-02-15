@@ -9,12 +9,17 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import project.gajimarket.controller.ChatController;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private final ChatController chatController;
+    private Set<WebSocketSession> sessions = new HashSet<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -30,11 +35,21 @@ public class WebSocketHandler extends TextWebSocketHandler {
         System.out.println("parser msg :: " + msg);
 
         TextMessage initial = new TextMessage(msg);
+
+//        sessions.add(session);
+//        for (WebSocketSession s : sessions) {
+//            sendMessage(s, msg);
+//        }
+
         session.sendMessage(initial);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         super.afterConnectionClosed(session, status);
+    }
+
+    private <T> void sendMessage(WebSocketSession session, String message) throws IOException {
+           session.sendMessage(new TextMessage(message));
     }
 }
