@@ -47,7 +47,7 @@
                   JOIN
                      ( SELECT *
                          FROM user_info
-                        WHERE no = 5
+                        WHERE no = #{userNo}
                      ) ui
                     ON ui.no = ii.userNo
              ) ii
