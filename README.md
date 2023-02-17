@@ -9,7 +9,7 @@
 -- --
 
 ## 배포 사이트
-[가지 마켓](http://gajimarket.shop/)
+[가지 마켓](http://gajimarket.shop.s3-website.ap-northeast-2.amazonaws.com/)
 
 ## 프로젝트 실행 방법
 
