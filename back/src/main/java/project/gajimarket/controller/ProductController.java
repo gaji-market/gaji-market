@@ -18,7 +18,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-@CrossOrigin(origins = {"http://localhost:3000","http://gajimarket.shop/"})
+@CrossOrigin(origins = {"http://localhost:3000","http://gajimarket.shop.s3-website.ap-northeast-2.amazonaws.com/"})
 public class ProductController {
 
     private final ProductService productService;
