@@ -1,5 +1,6 @@
 package project.gajimarket.Utils;
 
+import org.apache.commons.collections4.MapUtils;
 import project.gajimarket.model.UserDTO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +29,8 @@ public class CommonUtil {
 
     public static Map<String, Object> resultMsg(String msg) {
         Map<String, Object> map = new HashMap<>();
-        map.put("msg", "[Fail Exception Message] " + msg);
+        map.put("result", -999);
+        map.put("msg", "[Fail Message] " + msg);
 
         return map;
     }
@@ -48,8 +50,10 @@ public class CommonUtil {
             Map<String, Object> map = JWTUtil.getTokenInfo(headerToken);
             UserDTO userDTO = new UserDTO();
 
-            userDTO.setUserNo((Integer) map.get("userNo"));
-            userDTO.setUserNickName((String) map.get("userNickName"));
+            if (MapUtils.getInteger(map, "userNo") != null) {
+                userDTO.setUserNo(MapUtils.getInteger(map, "userNo"));
+            }
+            userDTO.setUserNickName(MapUtils.getString(map,"userNickName"));
 
             return userDTO;
         }

@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.model.SearchPagination;
@@ -40,7 +41,7 @@ public class NotifiController {
 
             //2. user session에 알림 설정 여부 데이터 없으면 쿼리로 설정값 가져오기
             UserDTO userDTO = userService.selectUser(requestMap);
-            int gubun = Integer.parseInt(String.valueOf(requestMap.get("gubun")));
+            int gubun = MapUtils.getInteger(requestMap,"gubun");
             if ((gubun == 1 && userDTO.getChatNtfct() == 'N') || (gubun == 2 && userDTO.getInterstNtfct() == 'N')) {
                 return CommonUtil.resultMsg(-99);
             }
