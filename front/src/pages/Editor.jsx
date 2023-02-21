@@ -520,14 +520,14 @@ export default function Editor() {
       // * 살래요/팔래요 게시글 수정
       if (path.includes('modify')) {
         const res = await modifyProductMutation(convertedFormData);
-        if (res.data.result === 'Success') {
+        if (res.data.result > 0) {
           addToast(toastMessage(true, '수정'));
           navigate(`/products/${param}`);
         } else throw new Error('게시글 수정 실패');
       } else {
         // * 살래요/팔래요 게시글 등록
         const res = await queryPerParam[param](convertedFormData);
-        if (res.data.result === 'Success') {
+        if (res.data.result > 0) {
           addToast(toastMessage(true, '등록'));
           navigate(`/products/${param}`);
         } else throw new Error('게시글 등록 실패');

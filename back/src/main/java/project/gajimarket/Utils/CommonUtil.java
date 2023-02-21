@@ -15,7 +15,7 @@ public class CommonUtil {
 
     public static Map<String, Object> resultMsg(int result) {
         Map<String, Object> map = new HashMap<>();
-        map.put("value", result);
+        map.put("result", result);
 
         String msg = "Fail";
         if (result > 0) {
