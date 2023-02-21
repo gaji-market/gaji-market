@@ -2,6 +2,7 @@ package project.gajimarket.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -280,8 +281,8 @@ public class UserController {
 
             if (headerToken != null && !"".equals(headerToken)) {
                 param = JWTUtil.getTokenInfo(headerToken);
-                if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
-                    userDto.setUserNo((Integer)param.get("userNo"));
+                if (MapUtils.getInteger(param, "userNo") != null) {
+                    userDto.setUserNo(MapUtils.getInteger(param, "userNo"));
                     System.out.println("UserController userUpdate userDto : " + userDto);
 
                     int update = userService.updateUser(userDto, multipartFile);
@@ -322,8 +323,8 @@ public class UserController {
                 param = JWTUtil.getTokenInfo(headerToken);
                 System.out.println("updateNtfct token : " + param);
                 if (param != null) {
-                    if (param.get("userNo") != null && !"".equals(param.get("userNo"))) {
-                        userDto.setUserNo((Integer) param.get("userNo"));
+                    if (MapUtils.getInteger(param, "userNo") != null) {
+                        userDto.setUserNo(MapUtils.getInteger(param, "userNo"));
                         updateResult = userService.updateNtfct(userDto);
                         if (updateResult > 0) {
                             result = "success";

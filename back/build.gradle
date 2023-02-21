@@ -22,15 +22,19 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
-	//WebSocket
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	implementation 'com.googlecode.json-simple:json-simple:1.1'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	//MapUtils 사용
+	implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.0'
+
+	//WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'com.googlecode.json-simple:json-simple:1.1'
 
 	//Jasypt
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
