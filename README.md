@@ -220,5 +220,5 @@ https://user-images.githubusercontent.com/62174495/219012202-1023e1e2-0cc1-40e0-
 `design:` css, styled-components 스타일 수정
 
 ## 개선 가능 사항 및 미해결 이슈
-`TODO`
+`TODO` <br>
 WebSocket 사용한 알림 기능으로 변경 <br>
