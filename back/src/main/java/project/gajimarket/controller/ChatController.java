@@ -1,13 +1,9 @@
 package project.gajimarket.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.parser.JSONParser;
 import org.springframework.web.bind.annotation.*;
 import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.model.ChatRoomDTO;
@@ -140,43 +136,5 @@ public class ChatController {
     //상품정보 공통 처리
     private Map<String, Object> getProduct(int prodNo) {
         return productService.productDetail(prodNo);
-    }
-
-    public String addChatMessage(String payload) throws Exception {
-        System.out.println("addChatMessage :: " + payload);
-
-        JSONParser jsonParser = new JSONParser();
-        Object obj = jsonParser.parse(payload);
-
-        Map<String, Object> map = (Map<String, Object>) obj;
-        chatService.addChatMessage(map);
-
-        return map.get("msg").toString();
-    }
-
-    @Operation(summary = "개인 테스트 용도")
-    @PostMapping("/multiTest")
-    public int multiTest(@RequestBody ObjectNode objectNode) {
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ChatRoomDTO chatRoomDTO = objectMapper.treeToValue(objectNode.get("chatRoomInfo"), ChatRoomDTO.class);
-            SearchPagination searchPagination = objectMapper.treeToValue(objectNode.get("searchPagination"), SearchPagination.class);
-
-            log.info(chatRoomDTO.toString());
-            log.info(searchPagination.toString());
-
-        } catch (Exception e) {
-            log.error(e.toString());
-        }
-
-        return 1;
-    }
-
-    @Operation(summary = "getChatRoom 참여 유저 확인용 API")
-    @ApiResponse(description = "userNo = 유저번호, tgUserNo = 타겟유저번호(상품 판매자)")
-    @GetMapping("/getUserNo/{chatNo}")
-    public Map<String, Object> getUserNo_Test(@ApiParam(value = "채팅번호", defaultValue = "1")  @PathVariable int chatNo) {
-        return chatService.getUserNoTest(chatNo);
     }
 }

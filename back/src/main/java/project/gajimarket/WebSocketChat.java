@@ -1,25 +1,25 @@
 package project.gajimarket;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import project.gajimarket.controller.ChatController;
+import org.springframework.stereotype.Component;
+import project.gajimarket.config.ServerEndpointConfigurator;
 import project.gajimarket.service.ChatService;
-import project.gajimarket.service.impl.ChatServiceImpl;
 
-import javax.websocket.*;
+import javax.websocket.OnClose;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 @Slf4j
-@Service
-@ServerEndpoint("/socket/chat")
+@Component
+@ServerEndpoint(value = "/socket/chat", configurator = ServerEndpointConfigurator.class)
 public class WebSocketChat {
     private static Set<Session> clients = Collections.synchronizedSet(new HashSet<>());
 
@@ -67,7 +67,7 @@ public class WebSocketChat {
             Object obj = jsonParser.parse(payload);
 
             Map<String, Object> map = (Map<String, Object>) obj;
-//            chatService.addChatMessage(map);
+            chatService.addChatMessage(map);
 
             return map.get("msg").toString();
         } catch (Exception e) {
