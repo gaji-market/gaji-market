@@ -2,7 +2,9 @@ package project.gajimarket.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import project.gajimarket.Utils.CommonUtil;
 import project.gajimarket.Utils.JWTUtil;
@@ -16,10 +18,8 @@ import project.gajimarket.service.ProductService;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -51,74 +51,30 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Map<String, Object> productSellSave(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
 
-        Map<String,Object> result = new LinkedHashMap<>();
-
         try {
             //상품 저장
             ProductDTO productDTO = new ProductDTO();
-            productDTO.setCateCode((String) param.get("cateCode"));
+            productDTO.setCateCode(MapUtils.getString(param,"cateCode"));
             int userNo = loginUserNo(); //로그인한 userNo
             System.out.println("userNo = " + userNo);
             productDTO.setUserNo(userNo);//테스트 유저번호
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
 
-            productDTO.setProdName((String) param.get("prodName"));
-            productDTO.setProdPrice(Integer.parseInt(String.valueOf(param.get("prodPrice"))));
-            productDTO.setProdExplain((String) param.get("prodExplain"));
-            productDTO.setFreeCheck((String) param.get("freeCheck"));
-            productDTO.setPriceOffer((String) param.get("priceOffer"));
-            productDAO.productSellSave(productDTO);
-            //해시태그 저장
-            List<String> tagNames = (List<String>) param.get("hashtags");
-            for (String tagName : tagNames) {
-                hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
-            }
-            //파일 저장
-            List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
-            for (int i = 0; i < storeImageFiles.size(); i++) {
-                String uploadFileName = storeImageFiles.get(i).getUploadFileName();
-                String dbFileName = storeImageFiles.get(i).getDbFileName();
-                fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
-            }
+            productDTO.setProdName(MapUtils.getString(param,"prodName"));
+            productDTO.setProdPrice(MapUtils.getInteger(param,"prodPrice"));
+            productDTO.setProdExplain(MapUtils.getString(param,"prodExplain"));
+            productDTO.setFreeCheck(MapUtils.getString(param,"freeCheck"));
+            productDTO.setPriceOffer(MapUtils.getString(param,"priceOffer"));
+            int result = productDAO.productSellSave(productDTO);
 
-            result.put("result","Success");
-        }catch (Exception e){
-            log.error(e.toString());
-            result.put("result","Fail");
-        }
-        return result;
-    }
-
-    //살래요 저장
-    @Override
-    public Map<String, Object> productBuySave(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
-
-        Map<String,Object> result = new LinkedHashMap<>();
-        try {
-            ProductDTO productDTO = new ProductDTO();
-            productDTO.setCateCode((String) param.get("cateCode"));
-            int userNo = loginUserNo();// 로그인한 userNo
-            productDTO.setUserNo(userNo);
-            String address = productDAO.findUserAddress(userNo);
-            productDTO.setAddress(address);
-
-            productDTO.setProdName((String) param.get("prodName"));
-            productDTO.setProdPrice((Integer) param.get("prodPrice"));
-            productDTO.setProdExplain((String) param.get("prodExplain"));
-            productDTO.setFreeCheck((String) param.get("freeCheck"));
-            productDTO.setPriceOffer((String) param.get("priceOffer"));
-            productDAO.productBuySave(productDTO);
-            //해시태그 저장
-            List<String> tagNames = (List<String>) param.get("hashtags");
-            for (String tagName : tagNames) {
-                hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
-            }
-
-            //파일 저장
-            if (imageFiles==null){
-                System.out.println("No image");
-            }else {
+            if (result > 0) {
+                //해시태그 저장
+                List<String> tagNames = (List<String>) MapUtils.getObject(param,"hashtags");
+                for (String tagName : tagNames) {
+                    hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
+                }
+                //파일 저장
                 List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
                 for (int i = 0; i < storeImageFiles.size(); i++) {
                     String uploadFileName = storeImageFiles.get(i).getUploadFileName();
@@ -126,12 +82,58 @@ public class ProductServiceImpl implements ProductService {
                     fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
                 }
             }
-            result.put("result","Success");
+
+            return CommonUtil.resultMsg(result);
         }catch (Exception e){
             log.error(e.toString());
-            result.put("result","Fail");
+            return CommonUtil.resultMsg(e.toString());
         }
-        return result;
+    }
+
+    //살래요 저장
+    @Override
+    public Map<String, Object> productBuySave(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
+
+        try {
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setCateCode(MapUtils.getString(param,"cateCode"));
+            int userNo = loginUserNo();// 로그인한 userNo
+            productDTO.setUserNo(userNo);
+            String address = productDAO.findUserAddress(userNo);
+            productDTO.setAddress(address);
+
+            productDTO.setProdName(MapUtils.getString(param,"prodName"));
+            productDTO.setProdPrice(MapUtils.getInteger(param,"prodPrice"));
+            productDTO.setProdExplain(MapUtils.getString(param,"prodExplain"));
+            productDTO.setFreeCheck(MapUtils.getString(param,"freeCheck"));
+            productDTO.setPriceOffer(MapUtils.getString(param,"priceOffer"));
+            int result = productDAO.productBuySave(productDTO);
+
+            if (result > 0) {
+                //해시태그 저장
+                List<String> tagNames = (List<String>) MapUtils.getObject(param,"hashtags");
+                for (String tagName : tagNames) {
+                    hashTagDAO.productHashTagSave(productDTO.getProdNo(), tagName);
+                }
+
+                //파일 저장
+                if (imageFiles==null){
+                    System.out.println("No image");
+                }else {
+                    List<UploadFile> storeImageFiles = fileService.storeFiles(imageFiles);
+                    for (int i = 0; i < storeImageFiles.size(); i++) {
+                        String uploadFileName = storeImageFiles.get(i).getUploadFileName();
+                        String dbFileName = storeImageFiles.get(i).getDbFileName();
+                        fileDAO.productFileSave(uploadFileName, dbFileName, productDTO.getProdNo(), Integer.toString(i));
+                    }
+                }
+            }
+
+            return CommonUtil.resultMsg(result);
+        }catch (Exception e){
+            log.error(e.toString());
+            return CommonUtil.resultMsg(e.toString());
+        }
     }
 
     //상품 수정 전
@@ -186,31 +188,30 @@ public class ProductServiceImpl implements ProductService {
     //상품 수정
     @Override
     public Map<String, Object> productUpdate(Map<String,Object> param, List<MultipartFile> imageFiles) throws IOException {
-        Map<String,Object> result = new LinkedHashMap<>();
         System.out.println("param = " + param);
         System.out.println("imageFiles = " + imageFiles);
         try {
             ProductDTO productDTO = new ProductDTO();
-            productDTO.setCateCode((String) param.get("cateCode"));
+            productDTO.setCateCode(MapUtils.getString(param,"cateCode"));
             int userNo = loginUserNo(); //로그인한 userNo
             productDTO.setUserNo(userNo);
             String address = productDAO.findUserAddress(userNo);
             productDTO.setAddress(address);
 
-            int prodNo = (int) param.get("prodNo");
+            int prodNo = MapUtils.getInteger(param,"prodNo");
 
-            productDTO.setProdName((String) param.get("prodName"));
-            productDTO.setProdPrice((Integer) param.get("prodPrice"));
-            productDTO.setProdExplain((String) param.get("prodExplain"));
-            productDTO.setFreeCheck((String) param.get("freeCheck"));
-            productDTO.setPriceOffer((String) param.get("priceOffer"));
-            productDTO.setTradState((String) param.get("tradState"));
-            productDAO.productUpdate(prodNo, productDTO);
+            productDTO.setProdName(MapUtils.getString(param,"prodName"));
+            productDTO.setProdPrice(MapUtils.getInteger(param,"prodPrice"));
+            productDTO.setProdExplain(MapUtils.getString(param,"prodExplain"));
+            productDTO.setFreeCheck(MapUtils.getString(param,"freeCheck"));
+            productDTO.setPriceOffer(MapUtils.getString(param,"priceOffer"));
+            productDTO.setTradState(MapUtils.getString(param,"tradState"));
+            int result = productDAO.productUpdate(prodNo, productDTO);
 
             //해시태그 삭제
             hashTagDAO.productHashTagDelete(prodNo);
             //해시태그 다시 저장
-            List<String> tagNames = (List<String>) param.get("hashtags");
+            List<String> tagNames = (List<String>) MapUtils.getObject(param,"hashtags");
             for (String tagName : tagNames) {
                 hashTagDAO.productHashTagSave(prodNo, tagName);
             }
@@ -225,27 +226,25 @@ public class ProductServiceImpl implements ProductService {
                 String dbFileName = storeImageFiles.get(i).getDbFileName();
                 fileDAO.productFileSave(uploadFileName, dbFileName, prodNo, Integer.toString(i));
             }
-            result.put("result","Success");
+            return CommonUtil.resultMsg(result);
         }catch (Exception e){
             log.error(e.toString());
-            result.put("result","Fail");
+            return CommonUtil.resultMsg(e.toString());
         }
-        return result;
     }
 
     //상품 삭제
     @Override
     public Map<String, Object> productDelete(Map<String,Object> param) {
-        Map<String,Object> result = new LinkedHashMap<>();
         try {
-            int prodNo = (int) param.get("prodNo");
-            productDAO.productDelete(prodNo);
-            result.put("result","Success");
+            int prodNo = MapUtils.getInteger(param,"prodNo");
+            int result = productDAO.productDelete(prodNo);
+
+            return CommonUtil.resultMsg(result);
         }catch (Exception e){
             log.error(e.toString());
-            result.put("result","Fail");
+            return CommonUtil.resultMsg(e.toString());
         }
-        return result;
     }
 
     //상품 상세 보기
@@ -321,7 +320,7 @@ public class ProductServiceImpl implements ProductService {
     public Map<String, Object> interestInsert(Map<String,Object> param) {
         InterestDTO interestDTO = new InterestDTO();
 
-        int prodNo = (int) param.get("prodNo");
+        int prodNo = MapUtils.getInteger(param, "prodNo");
         interestDTO.setProdNo(prodNo);
         System.out.println("prodNo = " + prodNo);
 
@@ -336,7 +335,7 @@ public class ProductServiceImpl implements ProductService {
             if (result > 0) {
                 UserDTO senderUserDTO = CommonUtil.getUserInfo(request);
                 Map<String, Object> map = new HashMap<>();
-                map.put("userNo", param.get("userNo")); // 상품을 등록한 유저
+                map.put("userNo", MapUtils.getInteger(param, "userNo")); // 상품을 등록한 유저
                 map.put("senderUserNo", senderUserDTO.getUserNo()); // 좋아요를 클릭한 유저 (로그인한 유저)
                 map.put("userNickName", senderUserDTO.getUserNickName());
                 map.put("gubun", "2"); // 구분 - 좋아요
@@ -372,16 +371,15 @@ public class ProductServiceImpl implements ProductService {
     //신고 버튼
     @Override
     public Map<String, Object> reportCountUp(Map<String,Object> param) {
-        Map<String,Object> result = new LinkedHashMap<>();
         try {
-            int prodNo = (int) param.get("prodNo");
-            productDAO.reportCountUp(prodNo);
-            result.put("result","Success");
+            int prodNo = MapUtils.getInteger(param, "prodNo");
+            int result = productDAO.reportCountUp(prodNo);
+
+            return CommonUtil.resultMsg(result);
         }catch (Exception e){
             log.error(e.toString());
-            result.put("result","Fail");
+            return CommonUtil.resultMsg(e.toString());
         }
-       return result;
     }
 
     //팔래요 전체보기
@@ -481,7 +479,7 @@ public class ProductServiceImpl implements ProductService {
         // 토큰 복호화
         if (headerToken != null && !"".equals(headerToken)) {
             param = JWTUtil.getTokenInfo(headerToken);
-            int userNo = (int) param.get("userNo");
+            int userNo = MapUtils.getInteger(param,"userNo");
             return userNo;
         }
         return 0;
@@ -525,19 +523,17 @@ public class ProductServiceImpl implements ProductService {
     /**
      * 아래는 보류 별점 저장쪽
      */
-
+    
     @Override
     public Map<String,Object> productScoreSave(ScoreDTO scoreDTO) {
-        Map<String,Object> result = new LinkedHashMap<>();
         System.out.println("scoreDTO = " + scoreDTO);
         try {
             scoreDAO.productScoreSave(scoreDTO);
             productDAO.buyUserUpdate(scoreDTO);
-            result.put("result","Success");
+            return CommonUtil.resultMsg(1);
         }catch (Exception e){
             log.error(e.toString());
-            result.put("result","Fail");
+            return CommonUtil.resultMsg(e.toString());
         }
-        return result;
     }
 }

@@ -11,25 +11,25 @@ import java.util.Map;
 public interface ProductDAO {
 
     //팔래요 상품 저장
-    void productSellSave(ProductDTO productDTO);
+    int productSellSave(ProductDTO productDTO);
 
     //유저주소가져오기
     String findUserAddress(int userNo);
 
     //살래요 상품 저장
-    void productBuySave(ProductDTO productDTO);
+    int productBuySave(ProductDTO productDTO);
 
     //팔래요, 살래요 삭제
-    void productDelete(int prodNo);
+    int productDelete(int prodNo);
 
     //상품 수정
-    void productUpdate(int prodNo,@Param("dto") ProductDTO productDTO);
+    int productUpdate(int prodNo,@Param("dto") ProductDTO productDTO);
 
     //상품 정보 찾기
     Map<String, Object> findProductInfo(int prodNo);
 
     //신고횟수 증가
-    void reportCountUp(int prodNo);
+    int reportCountUp(int prodNo);
 
     //상품 번호로 회원번호 찾기
     int findUserNo(int prodNo);
@@ -44,7 +44,7 @@ public interface ProductDAO {
     void priceOfferUpdate(int offerPrice, int findUserNo, int prodNo);
 
     //조회수 증가
-    void viewCntUpdate(int prodNo);
+    int viewCntUpdate(int prodNo);
 
     //팔래요 전체 갯수
     int sellCount(Map<String,Object> result);
@@ -74,5 +74,5 @@ public interface ProductDAO {
     List<Map<String, Object>> findChatUserInfo(int prodNo);
 
     //판매완료 후 update
-    void buyUserUpdate(ScoreDTO scoreDTO);
+    int buyUserUpdate(ScoreDTO scoreDTO);
 }
