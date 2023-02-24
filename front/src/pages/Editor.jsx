@@ -63,7 +63,7 @@ const convertImageUrlToFile = async (imgUrl) => {
       {
         method: 'GET',
         headers: {
-          Origin: 'http://localhost:3000',
+          Origin: '*',
         },
       }
     );
