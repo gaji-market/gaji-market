@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import useToast from 'hooks/toast';
 
 import styled, { css } from 'styled-components';
@@ -45,6 +45,7 @@ export default function Chat() {
   const { addToast } = useToast();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const targetUserNo = searchParams.get('target');
 
@@ -67,46 +68,36 @@ export default function Chat() {
 
   // ================================ api handlers
   const getChatRoomListHandler = async () => {
+    // add new chat room
+    if (targetUserNo && userNo) {
+      try {
+        const res = await addChatRoom({
+          targetUserNo: targetUserNo,
+          userNo: userNo,
+          prodNo: searchParams.get('prodNo'),
+        }).unwrap();
+        // chatNo: 57, targetUserNo: 225, userNo: 120, tgUserNo: 120
+
+        setTarget({
+          id: `${res.chatRoomInfo.userNo}_${res.chatRoomInfo.chatNo}`,
+          ...res.chatRoomInfo,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
     try {
-      const { chatRoomInfos } = await getChatRoomList({
+      const { chatRoomInfos: infos } = await getChatRoomList({
         userNo: userNo,
         currentPage: 1,
         recordCount: 100,
       }).unwrap();
-      setChatRoomInfos(chatRoomInfos);
+      const reversedInfos = [...infos].reverse();
+      setChatRoomInfos(reversedInfos);
 
-      if (chatRoomInfos[0]) {
-        getChatRoomHandler(chatRoomInfos[0]);
+      if (reversedInfos[0]) {
+        getChatRoomHandler(reversedInfos[0]);
       }
-      if (targetUserNo && userNo) {
-        addChatRoomHandler(targetUserNo, userNo);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const addChatRoomHandler = async (targetUserNo, userNo) => {
-    try {
-      const res = await addChatRoom({
-        targetUserNo: targetUserNo,
-        userNo: userNo,
-        prodNo: searchParams.get('prodNo'),
-      }).unwrap();
-      // chatNo: 57, targetUserNo: 225, userNo: 120, tgUserNo: 120
-      setChatRoomInfos((prev) => [
-        {
-          ...res.chatRoomInfo,
-          nickname: 'New Chat',
-          lastMessage: '대화를 시작하세요',
-        },
-        ...prev,
-      ]);
-
-      setTarget({
-        id: `${res.chatRoomInfo.userNo}_${res.chatRoomInfo.chatNo}`,
-        ...res.chatRoomInfo,
-      });
     } catch (err) {
       console.log(err);
     }
@@ -136,13 +127,12 @@ export default function Chat() {
   const removeChatRoomHandler = async () => {
     try {
       await removeChatRoom(deleteRoomTarget).unwrap();
-      getChatRoomListHandler();
-
       addToast({
         isToastSuccess: true,
         isMainTheme: true,
         toastMessage: '채팅방이 삭제 되었습니다.',
       });
+      navigate('/chat');
     } catch (err) {
       console.log(err);
     } finally {
@@ -166,7 +156,6 @@ export default function Chat() {
     }
   };
 
-  // ========================================================= websocket (희주님 여기입니다!)
   const sendChatMsg = async () => {
     if (!ws.current) {
       ws.current = new WebSocket('ws://3.39.156.141:8080/socket/chat');
@@ -222,7 +211,7 @@ export default function Chat() {
 
   useEffect(() => {
     getChatRoomListHandler();
-  }, []);
+  }, [location]);
 
   return (
     <>
