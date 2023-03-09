@@ -204,7 +204,7 @@ https://user-images.githubusercontent.com/62174495/219012202-1023e1e2-0cc1-40e0-
 | [강지수](https://github.com/Jisu-kkk) | BE   | 1. -                                                                                                               |
 | [유희주](https://github.com/HeeJooYoo) | BE   | 1. WebSocket을 사용한 채팅 기능 <br> 2. 채팅 CRUD 기능 <br> 3. 좋아요 및 채팅 알림 기능 <br> 4. 알림 CRUD |
 | [임건형](https://github.com/geondol) | BE   | 1. 상품(살래요/팔래요) CRUD 기능 <br> 2. 상품 좋아요 기능 <br> 3. 하위메뉴 카테고리 기능 <br> 4. 상품 검색 기능 <br> 5. aws ec2(CI/CD 이용) 백서버 배포 <br> 6. aws s3 파일 업로드 기능|
-| [박선영](https://github.com/Sunn-y) | FE   | 1. -                                  |
+| [박선영](https://github.com/Sunn-y) | FE   | 1. App Bar 구현 <br> 2. Side Bar 구현 <br> 3. 메인 페이지 구현 <br> 4. 알람 기능 구현 <br> 5. 채팅 기능 구현 |
 | [이유](https://github.com/ReturnReason)   | FE   | 1. 상품 전체보기 페이지(살래요/팔래요) 구현 <br> 2. 상품 디테일 페이지(살래요/팔래요) 구현 <br> 3. 상품 등록 에디터 구현 <br> 4. UI/UX 및 로고 디자인 <br/>                                                                    |
 | [홍주완](https://github.com/vjvl95) | FE   | 1. 로그인 구현 <br> 2. 회원가입 구현 <br> 3. 마이페이지 구현 <br> 4. 토스트창 구현  <br> 5. aws s3 를 이용한 프론트 배포                                                                                                                 |
 ## 🍆 커밋 컨벤션
