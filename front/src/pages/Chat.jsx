@@ -14,8 +14,9 @@ import {
   useLazyRemoveChatMessageQuery,
   useLazyRemoveChatRoomQuery,
 } from 'services/chatApi';
+import { useAddNotifiMutation } from 'services/alarmApi';
 
-import { selectUserNo } from 'store/sessionSlice';
+import { selectUserNo, selectSession } from 'store/sessionSlice';
 
 import Modal from 'components/common/Modal';
 import FinishChatModal from 'components/chat/FinishChatModal';
@@ -42,6 +43,7 @@ export default function Chat() {
   const [addChatRoom] = useAddChatRoomMutation();
   const [removeChatRoom] = useLazyRemoveChatRoomQuery();
   const [removeChatMsg] = useLazyRemoveChatMessageQuery();
+  const [addNotification] = useAddNotifiMutation();
   const { addToast } = useToast();
 
   const navigate = useNavigate();
@@ -65,6 +67,7 @@ export default function Chat() {
   const [chatMsgInfos, setChatMsgInfos] = useState([]);
 
   const userNo = useSelector(selectUserNo);
+  const { userId } = useSelector(selectSession);
 
   // ================================ api handlers
   const getChatRoomListHandler = async () => {
@@ -82,6 +85,7 @@ export default function Chat() {
           id: `${res.chatRoomInfo.userNo}_${res.chatRoomInfo.chatNo}`,
           ...res.chatRoomInfo,
         });
+        await addNotification({ userNo: targetUserNo, gubun: '1' });
       } catch (err) {
         console.log(err);
       }
@@ -103,6 +107,7 @@ export default function Chat() {
     }
   };
 
+  // focused chatRoom
   const getChatRoomHandler = async (item) => {
     try {
       const infos = await getChatRoom({
@@ -116,6 +121,8 @@ export default function Chat() {
           msgRef.current.scrollTop = msgRef.current.scrollHeight;
         }
       }, 100);
+      // set websocket
+      ws.current = new WebSocket('ws://3.39.156.141:8080/socket/chat');
     } catch (err) {
       console.log(err);
     } finally {
@@ -137,6 +144,7 @@ export default function Chat() {
       console.log(err);
     } finally {
       setDeleteRoomTarget(null);
+      setChatMsgInfos([]);
     }
   };
 
@@ -157,10 +165,7 @@ export default function Chat() {
   };
 
   const sendChatMsg = async () => {
-    if (!ws.current) {
-      ws.current = new WebSocket('ws://3.39.156.141:8080/socket/chat');
-    }
-
+    // validate message
     if (!msg) {
       textareaRef.current.focus();
       addToast({
@@ -170,6 +175,7 @@ export default function Chat() {
       });
       return;
     }
+    // send message
     const [regDate, regTime] = getDateAndTime();
     const data = JSON.stringify({
       userNo: userNo,
@@ -178,7 +184,6 @@ export default function Chat() {
       regDate: regDate,
       regTime: regTime,
     });
-
     if (ws.current.readyState === 0) {
       ws.current.onopen = () => {
         ws.current.send(data);
@@ -187,31 +192,41 @@ export default function Chat() {
       ws.current.send(data);
     }
 
-    setMsg('');
+    setNewMsg(userId);
+    setTimeout(() => {
+      setNewMsg(target.nickname);
+    }, 100);
 
-    ws.current.onmessage = (message) => {
-      const [regDate, regTime] = getDateAndTime();
-      const newMsg = {
-        no: 2, // temp data
-        regDate: regDate, //temp data
-        regTime: regTime, // temp data
-        messageNo: 17, // temp data
-        checkYn: 'N', // temp data
-        nickname: 'SYSY', // temp data
-        message: message,
-      };
-      setChatMsgInfos((prev) => [...prev, newMsg]);
-      if (msgRef.current) {
-        msgRef.current.scrollTop = msgRef.current.scrollHeight;
-      }
-    };
+    setMsg('');
   };
 
-  // ==========================================================
+  const setNewMsg = (nickname) => {
+    ws.current.onmessage = (msg) => {
+      const [regDate, regTime] = getDateAndTime();
+      const newMsg = {
+        regDate: regDate,
+        regTime: regTime,
+        message: msg.data,
+        nickname: nickname,
+      };
+      setChatMsgInfos((prev) => [...prev, newMsg]);
+      setTimeout(() => {
+        if (msgRef.current) {
+          msgRef.current.scrollTop = msgRef.current.scrollHeight;
+        }
+      }, 100);
+    };
+  };
 
   useEffect(() => {
     getChatRoomListHandler();
   }, [location]);
+
+  useEffect(() => {
+    if (ws.current) {
+      setNewMsg(target.nickname);
+    }
+  }, [ws.current]);
 
   return (
     <>
@@ -295,19 +310,19 @@ export default function Chat() {
                   isDarkColor
                   onClick={() => finishModalRef.current?.showModal()}
                 >
-                  채팅종료
+                  후기 등록
                 </Button>
               </ChatMsgHeader>
               <ChatMsgBody ref={msgRef}>
-                {(chatInfo?.chatMessageInfos || []).map((info, idx) => (
+                {(chatMsgInfos || []).map((info, idx) => (
                   <Bubble key={`${info.no}_${idx}`}>
-                    {info.nickname === target.nickname ? (
-                      <Avatar isTarget='true'>
-                        <GradationLogo height='36px' />
-                      </Avatar>
-                    ) : (
+                    {info.nickname === userId ? (
                       <Avatar>
                         <FaUserCircle size={32} color={GRAY_COLOR} />
+                      </Avatar>
+                    ) : (
+                      <Avatar isTarget='true'>
+                        <GradationLogo height='36px' />
                       </Avatar>
                     )}
                     <div className='msg-container'>
@@ -320,15 +335,17 @@ export default function Chat() {
                       </div>
                       <div className='msg'>{info.message}</div>
                     </div>
-                    <Check>{info.checkYn === 'Y' ? '읽음' : '읽지 않음'}</Check>
-                    <IconButton
-                      onClick={() => [
-                        msgDeleteModalRef.current?.showModal(),
-                        setDeleteMsgTarget(info.messageNo),
-                      ]}
-                    >
-                      <RiDeleteBinLine size={22} color={GRAY_COLOR} />
-                    </IconButton>
+                    {/* <Check>{info.checkYn === 'Y' ? '읽음' : '읽지 않음'}</Check> */}
+                    {info.messageNo && (
+                      <IconButton
+                        onClick={() => [
+                          msgDeleteModalRef.current?.showModal(),
+                          setDeleteMsgTarget(info.messageNo),
+                        ]}
+                      >
+                        <RiDeleteBinLine size={22} color={GRAY_COLOR} />
+                      </IconButton>
+                    )}
                   </Bubble>
                 ))}
               </ChatMsgBody>
