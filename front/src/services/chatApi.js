@@ -80,12 +80,12 @@ export const chatApi = createApi({
     addChatRoom: mutation({
       invalidatesTags: ['ChatRoom'],
       // FIXME: userNo 삭제
-      query: ({ prodNo, userNo }) => ({
+      query: ({ targetUserNo, prodNo, userNo }) => ({
         url: `addChatRoom/${userNo}`,
         method: 'POST',
         body: {
           prodNo: prodNo,
-          userNo: userNo,
+          userNo: targetUserNo,
         },
       }),
       // response

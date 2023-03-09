@@ -312,6 +312,14 @@ export default function AppBar() {
                       </DropdownItem>
                       <DropdownItem
                         onClick={() => [
+                          navigate('/chat'),
+                          setToggles(initToggles),
+                        ]}
+                      >
+                        채팅페이지
+                      </DropdownItem>
+                      <DropdownItem
+                        onClick={() => [
                           modalRef.current?.showModal(),
                           setToggles(initToggles),
                         ]}
