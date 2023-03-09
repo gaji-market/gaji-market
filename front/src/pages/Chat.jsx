@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useToast from 'hooks/toast';
 
 import styled, { css } from 'styled-components';
@@ -45,7 +45,8 @@ export default function Chat() {
   const { addToast } = useToast();
 
   const navigate = useNavigate();
-  const { id: prodNo } = useParams();
+  const [searchParams] = useSearchParams();
+  const targetUserNo = searchParams.get('target');
 
   const ws = useRef(null);
   const textareaRef = useRef(null);
@@ -77,21 +78,22 @@ export default function Chat() {
       if (chatRoomInfos[0]) {
         getChatRoomHandler(chatRoomInfos[0]);
       }
-      if (prodNo && userNo) {
-        addChatRoomHandler(prodNo, userNo);
+      if (targetUserNo && userNo) {
+        addChatRoomHandler(targetUserNo, userNo);
       }
     } catch (err) {
       console.log(err);
     }
   };
 
-  const addChatRoomHandler = async (prodNo, userNo) => {
+  const addChatRoomHandler = async (targetUserNo, userNo) => {
     try {
       const res = await addChatRoom({
-        prodNo: prodNo,
+        targetUserNo: targetUserNo,
         userNo: userNo,
+        prodNo: searchParams.get('prodNo'),
       }).unwrap();
-      // chatNo: 57, prodNo: 225, userNo: 120, tgUserNo: 120
+      // chatNo: 57, targetUserNo: 225, userNo: 120, tgUserNo: 120
       setChatRoomInfos((prev) => [
         {
           ...res.chatRoomInfo,
@@ -240,7 +242,7 @@ export default function Chat() {
       />
       <FinishChatModal
         ref={finishModalRef}
-        prodNo={chatInfo?.chatRoomInfo?.prodNo}
+        targetUserNo={chatInfo?.chatRoomInfo?.targetUserNo}
         userNo={chatInfo?.chatRoomInfo?.userNo}
       />
       <Wrapper>
