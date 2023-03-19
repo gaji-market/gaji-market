@@ -58,15 +58,7 @@ const isIncludesCategoryTier = (target, tier) => {
 
 const convertImageUrlToFile = async (imgUrl) => {
   try {
-    const res = await fetch(
-      `${process.env.REACT_APP_IMG_PREFIX_URL}${imgUrl}`,
-      {
-        method: 'GET',
-        headers: {
-          Origin: '*',
-        },
-      }
-    );
+    const res = await fetch(`${process.env.REACT_APP_IMG_PREFIX_URL}${imgUrl}`);
 
     const blob = await res.blob();
     const fileName = imgUrl.split('/').pop();
@@ -547,39 +539,31 @@ export default function Editor() {
    * 이미지 업로드
    */
   const changeFileUploadHandler = ({ target }) => {
-    const findExtensionsIndex = target.files[0].name.lastIndexOf('.');
-    const extension = target.files[0].name
-      .slice(findExtensionsIndex + 1)
-      .toLowerCase();
+    const files = target.files;
 
-    if (!ALLOWED_FILE_EXTENSIONS.includes(extension)) {
-      return addToast({
-        isToastSuccess: false,
-        isMainTheme: true,
-        toastMessage: 'png, jpg, gif 파일만 등록할 수 있어요!',
-      });
-    }
+    [...files].forEach((file) => {
+      const extension = file.name
+        .slice(file.name.lastIndexOf('.') + 1)
+        .toLowerCase();
 
-    const imgFiles = []; // 서버 전송용 배열 (파일)
-    const imgUrls = []; // 이미지 슬라이드 배열 (이미지 url)
+      if (!ALLOWED_FILE_EXTENSIONS.includes(extension)) {
+        return addToast({
+          isToastSuccess: false,
+          isMainTheme: true,
+          toastMessage: 'png, jpg, gif 파일만 등록할 수 있어요!',
+        });
+      }
 
-    [...target.files].forEach((file) => {
       const url = URL.createObjectURL(file);
 
-      if (
-        !(imgUrls.length >= MAX_IMAGE_COUNT) &&
-        imgUrls.length < MAX_IMAGE_COUNT
-      ) {
-        imgUrls.push(url);
-        imgFiles.push(file);
+      if (addedImgs.length < MAX_IMAGE_COUNT) {
+        setAddedImgs((prev) => [...prev, url]);
+        setFormDatas((prev) => {
+          prev.imageFiles.push(file);
+          return { ...prev };
+        });
       }
     });
-
-    setAddedImgs((prev) => [...prev, ...imgUrls]);
-    setFormDatas((prev) => ({
-      ...prev,
-      imageFiles: formDatas.imageFiles.concat(imgFiles),
-    }));
   };
 
   useEffect(() => {
