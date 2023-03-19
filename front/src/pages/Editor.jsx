@@ -496,7 +496,7 @@ export default function Editor() {
     sal: createPurchaseProduct,
   };
 
-  const createPost = async (e) => {
+  const submitPost = async (e) => {
     e.preventDefault();
 
     try {
@@ -559,8 +559,8 @@ export default function Editor() {
       if (addedImgs.length < MAX_IMAGE_COUNT) {
         setAddedImgs((prev) => [...prev, url]);
         setFormDatas((prev) => {
-          prev.imageFiles.push(file);
-          return { ...prev };
+          const newImageFiles = [...prev.imageFiles, file];
+          return { ...prev, imageFiles: newImageFiles };
         });
       }
     });
@@ -744,7 +744,7 @@ export default function Editor() {
           <Button
             formEncType='multipart/form-data'
             type='submit'
-            onClick={createPost}
+            onClick={submitPost}
             customSize='50%'
             isDisabled={!isCompleteForm}
           >
