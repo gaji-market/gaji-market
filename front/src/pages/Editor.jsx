@@ -56,16 +56,28 @@ const isIncludesCategoryTier = (target, tier) => {
   return isIncludes(splitClassNameSpacing(target), tier);
 };
 
-const convertImageUrlToFile = async (imgUrl) => {
+const convertImages = async (imgUrl) => {
+  let url = imgUrl.dbFileName;
+
+  if (imgUrl === NO_IMAGE) url = NO_IMAGE;
+
+  const res = await fetch(`${process.env.REACT_APP_IMG_PREFIX_URL}${url}`);
+  const blob = await res.blob();
+  const fileName = url.split('/').pop();
+  const fileExtension = fileName.split('.').pop();
+  const metaData = { type: `image/${fileExtension}` };
+
+  return new File([blob], fileName, metaData);
+};
+
+const convertImageUrlToFile = async (imgUrls) => {
+  if (imgUrls === NO_IMAGE) return convertImages(imgUrls);
+
   try {
-    const res = await fetch(`${process.env.REACT_APP_IMG_PREFIX_URL}${imgUrl}`);
-
-    const blob = await res.blob();
-    const fileName = imgUrl.split('/').pop();
-    const fileExtension = fileName.split('.').pop();
-    const metaData = { type: `image/${fileExtension}` };
-
-    return new File([blob], fileName, metaData);
+    const imgFiles = await Promise.all(
+      imgUrls.map(async (imgUrl) => await convertImages(imgUrl))
+    );
+    return imgFiles;
   } catch (error) {
     console.error(error);
   }
@@ -313,6 +325,18 @@ export default function Editor() {
   }, []);
 
   // 수정하기 폼 데이터 바인딩
+  const imageFiles = async (files) => {
+    try {
+      const convertImageFiles = await convertImageUrlToFile(files);
+      setFormDatas((prev) => ({
+        ...prev,
+        imageFiles: [...prev.imageFiles, ...convertImageFiles],
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (isSuccessOfModificationData) {
       const { categoryInfos, fileInfos, hashTagInfos, productInfo } =
@@ -343,17 +367,7 @@ export default function Editor() {
       setAddedImgs((prev) => [...prev, ...images]);
       productPriceRef.current.value = productInfo.prodPrice;
 
-      modifyProduct.fileInfos.map(async ({ dbFileName }) => {
-        try {
-          const convertImageFiles = await convertImageUrlToFile(dbFileName);
-          setFormDatas((prev) => ({
-            ...prev,
-            imageFiles: [...prev.imageFiles, convertImageFiles],
-          }));
-        } catch (error) {
-          console.error(error);
-        }
-      });
+      imageFiles(modifyProduct.fileInfos);
 
       const hashTags = hashTagInfos.map(({ tagName }) => tagName);
       const categoryCodes = categoryInfos.map((category) => category?.cateCode);
